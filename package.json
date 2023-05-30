@@ -1,0 +1,185 @@
+{
+    "name": "parallels-desktop",
+    "displayName": "parallels desktop",
+    "description": "Manage your virtual machines",
+    "version": "0.0.2",
+    "engines": {
+        "vscode": "^1.77.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:nodeDependencies"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "configuration": {
+            "title": "Parallels",
+            "properties": {
+                "parallels-desktop.output_path": {
+                    "type": "string",
+                    "default": "/Users/cjlapao/parallels_extension",
+                    "description": "Output path for Packer images"
+                },
+                "parallels-desktop.path": {
+                    "type": "string",
+                    "default": "/usr/local/bin/prlctl",
+                    "description": "Path to prlctl executable"
+                },
+                "parallels-desktop.refreshInterval": {
+                    "type": "number",
+                    "default": 5000,
+                    "description": "Refresh interval in milliseconds"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "parallels-desktop.test",
+                "title": "Parallels: Tester",
+                "icon": {
+                    "light": "img/light/play.svg",
+                    "dark": "img/dark/play.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.add-vm",
+                "title": "Parallels: Add VM",
+                "shortTitle": "Add VM",
+                "icon": {
+                    "light": "img/light/plus.svg",
+                    "dark": "img/dark/plus.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.start-vm",
+                "title": "Parallels: Start VM",
+                "icon": {
+                    "light": "img/light/play.svg",
+                    "dark": "img/dark/play.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.stop-vm",
+                "title": "Stop VM",
+                "category": "Parallels",
+                "icon": {
+                    "light": "img/light/stop.svg",
+                    "dark": "img/dark/stop.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.resume-vm",
+                "title": "Parallels: Resume VM",
+                "shortTitle": "Resume VM",
+                "icon": {
+                    "light": "img/light/play.svg",
+                    "dark": "img/dark/play.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.pause-vm",
+                "title": "Parallels: Pause VM",
+                "shortTitle": "Pause VM",
+                "icon": {
+                    "light": "img/light/pause.svg",
+                    "dark": "img/dark/pause.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.refresh",
+                "title": "Parallels: Refresh",
+                "icon": "$(refresh)"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "parallels-desktop",
+                    "title": "Parallels Desktop",
+                    "icon": "media/parallels_logo.svg"
+                },
+                {
+                    "id": "parallels-desktop",
+                    "title": "Parallels Desktop1",
+                    "icon": "media/parallels_logo.svg"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "parallels-desktop.refresh",
+                    "when": "view == parallels-desktop",
+                    "group": "navigation"
+                },
+                {
+                    "command": "parallels-desktop.add-vm",
+                    "when": "view == parallels-desktop",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "parallels-desktop.start-vm",
+                    "when": "view == parallels-desktop && viewItem == stopped",
+                    "group": "inline",
+                    "order": "1"
+                },
+                {
+                    "command": "parallels-desktop.stop-vm",
+                    "when": "view == parallels-desktop && (viewItem == running)",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.resume-vm",
+                    "when": "view == parallels-desktop && (viewItem == paused || viewItem == suspended)",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.pause-vm",
+                    "when": "view == parallels-desktop && viewItem == running",
+                    "group": "inline"
+                }
+            ]
+        },
+        "views": {
+            "parallels-desktop": [
+                {
+                    "id": "parallels-desktop",
+                    "name": "Parallels Desktop",
+                    "icon": "media/parallels_logo.svg",
+                    "contextualTitle": "Parallels Desktop"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run package",
+        "compile": "webpack",
+        "watch": "webpack --watch",
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "compile-tests": "tsc -p . --outDir out",
+        "watch-tests": "tsc -p . -w --outDir out",
+        "pretest": "npm run compile-tests && npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.77.0",
+        "@types/glob": "^8.1.0",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "16.x",
+        "@typescript-eslint/eslint-plugin": "^5.56.0",
+        "@typescript-eslint/parser": "^5.56.0",
+        "eslint": "^8.36.0",
+        "glob": "^8.1.0",
+        "mocha": "^10.2.0",
+        "typescript": "^4.9.5",
+        "ts-loader": "^9.4.2",
+        "webpack": "^5.76.3",
+        "webpack-cli": "^5.0.1",
+        "@vscode/test-electron": "^2.3.0"
+    }
+}
