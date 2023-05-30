@@ -1,19 +1,19 @@
-import { runTests } from '@vscode/test-electron';
-import { VirtualMachineSpecs } from './virtual_machine_specs';
-import * as vscode from 'vscode';
-import * as copy from '../helpers/copy';
-import * as cp from 'child_process';
-import * as channel from '../helpers/channel';
+import {VirtualMachineSpecs} from "./virtual_machine_specs";
+import * as vscode from "vscode";
+import * as copy from "../helpers/copy";
+import * as cp from "child_process";
+import * as channel from "../helpers/channel";
+import * as fs from "fs";
 
 export class Packer {
-  parallelsVersion = '1.0.1';
-  vagrantVersion = '1.0.2';
+  parallelsVersion = "1.0.1";
+  vagrantVersion = "1.0.2";
 
   constructor(private context: vscode.ExtensionContext) {}
 
   static isInstalled(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      cp.exec('packer --version', (err, stdout, stderr) => {
+      cp.exec("packer --version", (err, stdout, stderr) => {
         if (err) {
           console.log(err);
           return resolve(false);
@@ -25,28 +25,28 @@ export class Packer {
 
   static install(): Promise<boolean> {
     channel.parallelsOutputChannel.show();
-    channel.parallelsOutputChannel.appendLine('Installing Packer...');
+    channel.parallelsOutputChannel.appendLine("Installing Packer...");
     return new Promise((resolve, reject) => {
-      let brew = cp.spawn('brew', ['tap', 'hashicorp/tap']);
-      brew.stdout.on('data', (data) => {
+      const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
+      brew.stdout.on("data", data => {
         channel.parallelsOutputChannel.appendLine(data);
       });
-      brew.stderr.on('data', (data) => {
+      brew.stderr.on("data", data => {
         channel.parallelsOutputChannel.appendLine(data);
       });
-      brew.on('close', (code) => {
+      brew.on("close", code => {
         if (code !== 0) {
           channel.parallelsOutputChannel.appendLine(`brew tap exited with code ${code}`);
           return resolve(false);
         }
-        let packer = cp.spawn('brew', ['install', 'hashicorp/tap/packer']);
-        packer.stdout.on('data', (data) => {
+        const packer = cp.spawn("brew", ["install", "hashicorp/tap/packer"]);
+        packer.stdout.on("data", data => {
           channel.parallelsOutputChannel.appendLine(data);
         });
-        packer.stderr.on('data', (data) => {
+        packer.stderr.on("data", data => {
           channel.parallelsOutputChannel.appendLine(data);
         });
-        packer.on('close', (code) => {
+        packer.on("close", code => {
           if (code !== 0) {
             channel.parallelsOutputChannel.appendLine(`brew install exited with code ${code}`);
             return resolve(false);
@@ -87,7 +87,7 @@ source "parallels-iso" "${machine.distro.toLowerCase()}" {
   ]
   prlctl_version_file = ".prlctl_version"
   boot_command = [
-    ${machine.bootCommand.map((cmd) => `"${cmd}"`).join(',\n')}
+    ${machine.bootCommand.map(cmd => `"${cmd}"`).join(",\n")}
   ]
   boot_wait      = "${machine.bootWait}"
   cpus           = ${machine.cpus}
@@ -115,13 +115,11 @@ source "parallels-iso" "${machine.distro.toLowerCase()}" {
   }
 
   getBuilderConfig(machine: VirtualMachineSpecs): string {
-    const scripts = this.getScriptsName('base', machine);
-
     const result = `
 locals {
-    enable_desktop = ${machine.addons.find((addon) => addon === 'enable_desktop') ? 'true' : 'false'}
-    enable_vscode = ${machine.addons.find((addon) => addon === 'enable_vscode') ? 'true' : 'false'}
-    enable_vscode_server = ${machine.addons.find((addon) => addon === 'enable_vscode_Server') ? 'true' : 'false'}
+    enable_desktop = ${machine.addons.find(addon => addon === "enable_desktop") ? "true" : "false"}
+    enable_vscode = ${machine.addons.find(addon => addon === "enable_vscode") ? "true" : "false"}
+    enable_vscode_server = ${machine.addons.find(addon => addon === "enable_vscode_Server") ? "true" : "false"}
 }
 ${this.getPackerConfig()}
 
@@ -138,9 +136,9 @@ build {
             
         scripts = [
 
-${this.getScriptsName('base', machine)
-  .map((script) => `            "\${path.root}/scripts/base/${script}"`)
-  .join(',\n')}
+${this.getScriptsName("base", machine)
+  .map(script => `            "\${path.root}/scripts/base/${script}"`)
+  .join(",\n")}
         ]
             
         execute_command   = "echo 'vagrant' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'"
@@ -212,14 +210,13 @@ ${this.getScriptsName('base', machine)
   }
 
   getVirtualMachineSpecsPath(machine: VirtualMachineSpecs): string {
-    const config = vscode.workspace.getConfiguration('parallels-desktop');
-    const basePath = config.get<string>('output_path');
+    const config = vscode.workspace.getConfiguration("parallels-desktop");
+    const basePath = config.get<string>("output_path");
     return `${basePath}/${machine.vmName}`;
   }
 
   getScriptsName(type: string, machine: VirtualMachineSpecs): string[] {
     const result = [];
-    const fs = require('fs');
     const extensionPath = this.context.extensionPath;
     const scriptsBasePath = `${extensionPath}/packer/scripts/${machine.base.toLowerCase()}/${machine.platform.toLowerCase()}/${machine.distro.toLowerCase()}/${type}/`;
     const files = fs.readdirSync(scriptsBasePath);
@@ -232,12 +229,11 @@ ${this.getScriptsName('base', machine)
   }
 
   copyScripts(type: string, machine: VirtualMachineSpecs) {
-    const fs = require('fs');
     const extensionPath = this.context.extensionPath;
     const machineBasePath = this.getVirtualMachineSpecsPath(machine);
     const scriptsBasePath = `${extensionPath}/packer/scripts/${machine.base.toLowerCase()}/${machine.platform.toLowerCase()}/${machine.distro.toLowerCase()}/${type}/`;
 
-    fs.mkdirSync(`${machineBasePath}/scripts/${type}`, { recursive: true });
+    fs.mkdirSync(`${machineBasePath}/scripts/${type}`, {recursive: true});
     const files = fs.readdirSync(scriptsBasePath);
     for (const file of files) {
       const srcFile = `${scriptsBasePath}/${file}`;
@@ -249,12 +245,11 @@ ${this.getScriptsName('base', machine)
   }
 
   copyAddonsFiles(machine: VirtualMachineSpecs) {
-    const fs = require('fs');
     const extensionPath = this.context.extensionPath;
     const machineBasePath = this.getVirtualMachineSpecsPath(machine);
     const scriptsBasePath = `${extensionPath}/packer/files/`;
 
-    fs.mkdirSync(`${machineBasePath}/files`, { recursive: true });
+    fs.mkdirSync(`${machineBasePath}/files`, {recursive: true});
     const files = fs.readdirSync(scriptsBasePath);
     for (const file of files) {
       const srcFile = `${scriptsBasePath}/${file}`;
@@ -266,23 +261,21 @@ ${this.getScriptsName('base', machine)
   }
 
   generateHttpFiles(machine: VirtualMachineSpecs) {
-    const fs = require('fs');
     const extensionPath = this.context.extensionPath;
     const machineBasePath = this.getVirtualMachineSpecsPath(machine);
     const scriptsBasePath = `${extensionPath}/packer/http/`;
 
-    fs.mkdirSync(`${machineBasePath}/http`, { recursive: true });
+    fs.mkdirSync(`${machineBasePath}/http`, {recursive: true});
     copy.copyFiles(scriptsBasePath, `${machineBasePath}/http/`);
   }
 
   generatePackerFile(machine: VirtualMachineSpecs) {
-    const fs = require('fs');
     const destinationFolder = this.getVirtualMachineSpecsPath(machine);
-    fs.mkdirSync(this.getVirtualMachineSpecsPath(machine), { recursive: true });
+    fs.mkdirSync(this.getVirtualMachineSpecsPath(machine), {recursive: true});
     const builderConfig = this.getBuilderConfig(machine);
     const sourcesConfig = this.getSourcesConfig(machine);
-    this.copyScripts('base', machine);
-    this.copyScripts('addons', machine);
+    this.copyScripts("base", machine);
+    this.copyScripts("addons", machine);
     this.copyAddonsFiles(machine);
     this.generateHttpFiles(machine);
 
