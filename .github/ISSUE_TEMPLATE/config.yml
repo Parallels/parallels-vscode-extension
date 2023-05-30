@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a question or provide feedback about the Parallels Desktop VS Code extension
+    about: For general Q&A and feedback, see the Discussions tab.
+    url: https://github.com/Parallels/parallels-vscode-extension/discussions
+  - name: Ask a question or provide feedback about Parallels Desktop
+    about: Please check out the GitHub community forum for discussions about Parallels Desktop
+    url: https://github.com/Parallels/parallels-vscode-extension/discussions/categories/q-a

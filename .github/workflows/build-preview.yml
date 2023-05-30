@@ -1,0 +1,26 @@
+name: Build Preview version
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com'
+      - run: npm --no-git-tag-version version 1.0.${{ github.run_number }}
+      - run: npm install @actions/languageserver@latest @actions/workflow-parser@latest @actions/expressions@latest @actions/languageservice@latest
+      - run: npm ci
+      - run: npm run package
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./vscode-parallels-desktop-0.0.${{ github.run_number }}.vsix
