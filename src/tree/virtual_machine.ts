@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as cp from "child_process";
-import {ParallelsVirtualMachine} from "../virtual_machine";
+import {ParallelsVirtualMachine} from "../models/virtual_machine";
 import path = require("path");
 import {Commands} from "../helpers/commands";
 

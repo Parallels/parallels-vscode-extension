@@ -1,3 +1,4 @@
+import {VirtualMachineDetails} from "../models/virtual_machine_details";
 import {MachineSnapshot} from "./../snapshot";
 import * as cp from "child_process";
 
@@ -63,6 +64,29 @@ export class Commands {
         }
 
         return resolve(result);
+      });
+    });
+  }
+
+  static getMachineDetails(machineId: string): Promise<VirtualMachineDetails | null> {
+    return new Promise((resolve, reject) => {
+      //   let result: VirtualMachineDetails[] = [];
+      cp.exec(`prlctl list -i ${machineId} -j`, (err, stdout, stderr) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+
+        if (stdout === "") {
+          return resolve(null);
+        }
+
+        const details = JSON.parse(stdout);
+        if (details.length !== 1) {
+          return resolve(null);
+        }
+
+        return resolve(details[0] as VirtualMachineDetails);
       });
     });
   }

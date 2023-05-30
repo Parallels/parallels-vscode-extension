@@ -5,9 +5,26 @@ import {Commands} from "./helpers/commands";
 import {addVirtualMachineInput} from "./quickpicker/add_machine";
 import {Vagrant} from "./hashicorp/vagrant";
 import {Packer} from "./hashicorp/packer";
+import {registerTestCommand} from "./commands/test";
 
 export async function activate(context: vscode.ExtensionContext) {
+  const myScheme = "parallels";
+  const myProvider = new (class implements vscode.TextDocumentContentProvider {
+    // emitter and its event
+    onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
+    onDidChange = this.onDidChangeEmitter.event;
+
+    provideTextDocumentContent(uri: vscode.Uri): string {
+      // simply invoke cowsay, use uri-path as text
+      return `test`;
+    }
+  })();
+  context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(myScheme, myProvider));
+  registerTestCommand(context);
+  const l = await Commands.getMachineDetails("Photon");
+  console.log(l?.ID);
   const isParallelsInstalled = await Commands.isParallelsDesktopInstalled();
+
   if (!isParallelsInstalled) {
     vscode.window
       .showErrorMessage(
