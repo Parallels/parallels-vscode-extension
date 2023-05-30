@@ -9,4 +9,4 @@ tsconfig.lsif.json
 *.lsif
 *.db
 *.vsix
-/.vscode-test-*/
+/.vscode-test*/
