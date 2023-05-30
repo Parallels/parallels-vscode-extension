@@ -1,5 +1,7 @@
 # parallels-desktop README
 
+[![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml)  
+
 This is an extension for parallels desktop.
 
 ## Features
