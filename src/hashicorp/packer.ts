@@ -4,20 +4,51 @@ import * as copy from "../helpers/copy";
 import * as cp from "child_process";
 import * as channel from "../helpers/channel";
 import * as fs from "fs";
+import {FLAG_PACKER_PATH, FLAG_PACKER_VERSION} from "../constants/flags";
+import {Provider} from "../ioc/provider";
 
-export class Packer {
+export class PackerService {
   parallelsVersion = "1.0.1";
   vagrantVersion = "1.0.2";
 
   constructor(private context: vscode.ExtensionContext) {}
 
-  static isInstalled(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      cp.exec("packer --version", (err, stdout, stderr) => {
+  static isInstalled() {
+    return new Promise(resolve => {
+      const packerPath = Provider.getCache().get(FLAG_PACKER_PATH);
+      if (packerPath) {
+        channel.parallelsOutputChannel.appendLine(`Packer was found on path ${packerPath}`);
+        return resolve(true);
+      }
+
+      cp.exec("which packer", err => {
         if (err) {
-          console.log(err);
+          channel.parallelsOutputChannel.appendLine("Packer is not installed");
           return resolve(false);
         }
+        channel.parallelsOutputChannel.appendLine(`Packer was found on path ${packerPath}`);
+        Provider.getCache().set(FLAG_PACKER_VERSION, packerPath);
+        return resolve(true);
+      });
+    });
+  }
+
+  static getVersion(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      let version = Provider.getCache().get(FLAG_PACKER_VERSION);
+      if (version) {
+        channel.parallelsOutputChannel.appendLine(`Packer ${version} was found in the system`);
+        return resolve(true);
+      }
+
+      cp.exec("packer --version", (err, stdout, stderr) => {
+        if (err) {
+          channel.parallelsOutputChannel.appendLine("Vagrant is not installed");
+          return resolve(false);
+        }
+        version = stdout.replace("\n", "").trim();
+        channel.parallelsOutputChannel.appendLine(`Packer ${version} was found in the system`);
+        Provider.getCache().set(FLAG_PACKER_VERSION, version);
         return resolve(true);
       });
     });

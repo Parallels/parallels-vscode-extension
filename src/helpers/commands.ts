@@ -5,18 +5,6 @@ import * as cp from "child_process";
 export class Commands {
   constructor(private workspaceRoot: string) {}
 
-  static isParallelsDesktopInstalled(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      cp.exec("prlctl --version", (err, stdout, stderr) => {
-        if (err) {
-          console.log(err);
-          return resolve(false);
-        }
-        return resolve(true);
-      });
-    });
-  }
-
   static getMachineStatus(machineId: string): Promise<string> {
     return new Promise((resolve, reject) => {
       cp.exec(`prlctl status ${machineId}`, (err, stdout, stderr) => {

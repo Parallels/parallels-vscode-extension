@@ -11,9 +11,9 @@ import {
   Uri
 } from "vscode";
 import {VirtualMachineSpecs} from "../hashicorp/virtual_machine_specs";
-import {Packer} from "../hashicorp/packer";
+import {PackerService} from "../hashicorp/packer";
 import * as vscode from "vscode";
-import {Vagrant} from "../hashicorp/vagrant";
+import {VagrantService} from "../hashicorp/vagrant";
 import * as fs from "fs";
 import {rejects} from "assert";
 
@@ -419,8 +419,8 @@ export async function addVirtualMachineInput(guestOs: string, context: Extension
     addons: state.addons === undefined ? [] : state.addons.map(addon => addon.detail ?? "unknown")
   };
 
-  const svc = new Packer(context);
-  const vagrant = new Vagrant(context);
+  const svc = new PackerService(context);
+  const vagrant = new VagrantService(context);
 
   await vscode.window.withProgress(
     {

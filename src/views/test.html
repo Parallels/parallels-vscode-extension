@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      .logo-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .form-container {
+        position: relative;
+        margin-top: 50px;
+      }
+    </style>
+
+    <script>
+      const vscode = acquireVsCodeApi();
+
+      function handleButtonAction() {
+        // Get form inputs
+        const input = document.querySelector("#inputField").value;
+
+        // Send a message to the extension
+        vscode.postMessage({
+          command: "buttonAction",
+          text: input
+        });
+
+        // Clear input field
+        document.querySelector("#inputField").value = "";
+      }
+    </script>
+  </head>
+
+  <body>
+    <div class="logo-container">
+      <img src="logo.png" alt="Logo" />
+    </div>
+
+    <div class="form-container">
+      <form id="myForm" onsubmit="event.preventDefault(); handleButtonAction();">
+        <input type="text" id="inputField" placeholder="Enter text here" />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </body>
+</html>
