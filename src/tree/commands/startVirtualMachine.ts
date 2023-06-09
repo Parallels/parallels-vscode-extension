@@ -42,7 +42,7 @@ export function registerStartVirtualMachineCommand(context: vscode.ExtensionCont
         retry--;
       }
 
-      provider.refresh();
+      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
     })
   );
 }

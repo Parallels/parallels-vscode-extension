@@ -41,7 +41,7 @@ export function registerPauseVirtualMachineCommand(context: vscode.ExtensionCont
         }
         retry--;
       }
-      provider.refresh();
+      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
     })
   );
 }

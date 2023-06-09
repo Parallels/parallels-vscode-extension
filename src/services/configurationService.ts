@@ -1,6 +1,6 @@
 import {FLAG_CONFIGURATION} from "../constants/flags";
 import {localStorage} from "../ioc/provider";
-import {VirtualMachineGroup} from "../models/groups";
+import {VirtualMachineGroup} from "../models/virtualMachineGroup";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
 
 export class ConfigurationService {
@@ -84,11 +84,20 @@ export class ConfigurationService {
       const group = this.getVirtualMachineGroup(groupId);
       if (group) {
         group.machines.forEach(machine => {
-          if (machine.uuid === vmId) {
-            machine.status = status;
+          if (machine.ID === vmId) {
+            machine.State = status;
           }
         });
       }
     }
+  }
+
+  countMachines(): number {
+    let count = 0;
+    this.virtualMachinesGroups.forEach(group => {
+      count += group.machines.length;
+    });
+
+    return count;
   }
 }

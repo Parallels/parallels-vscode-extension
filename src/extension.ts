@@ -1,19 +1,11 @@
-import {ParallelsVirtualMachine} from "./models/virtual_machine";
 import * as vscode from "vscode";
-import * as cp from "child_process";
 import {VirtualMachineProvider} from "./tree/virtual_machine";
-import {Commands} from "./helpers/commands";
-import {addVirtualMachineInput} from "./quickpicker/add_machine";
 import {VagrantService} from "./hashicorp/vagrant";
-import {PackerService} from "./hashicorp/packer";
-import {registerTestCommand} from "./commands/test";
-import {LocalStorageService} from "./services/localStorage";
-import {FLAG_CONFIGURATION, FLAG_PACKER_VERSION, FLAG_VAGRANT_VERSION} from "./constants/flags";
-import {CacheService} from "./services/memoryCache";
-import {ConfigurationService as Configuration} from "./services/configurationService";
+import {FLAG_VAGRANT_VERSION} from "./constants/flags";
 import {Provider, localStorage} from "./ioc/provider";
 import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {initialize} from "./initialization";
+import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
 
 export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
@@ -36,11 +28,12 @@ export async function activate(context: vscode.ExtensionContext) {
   // Initializing the extension
   await initialize();
 
+  // Registering the  Virtual Machine Provider
   const virtualMachineProvider = new VirtualMachineProvider(context);
-  // vscode.window.registerTreeDataProvider("parallels-desktop", virtualMachineProvider);
-  vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", true);
 
-  console.log('Congratulations, your extension "parallels-desktop" is now active!');
+  if (Provider.getConfiguration().countMachines() > 0) {
+    vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", true);
+  }
 
   const vagrant = new VagrantService(context);
   vagrant.getCurrentBoxes().then(boxes => {
@@ -49,24 +42,31 @@ export async function activate(context: vscode.ExtensionContext) {
     });
   });
 
-  const config = vscode.workspace.getConfiguration("parallels-desktop");
-  const interval = config.get<number>("refreshInterval");
-  setInterval(
-    () => {
-      virtualMachineProvider.refresh();
-    },
-    interval === undefined ? 60000 : interval
-  );
+  // Setting the auto refresh mechanism
+  const config = Provider.getSettings();
+  const autoRefresh = config.get<boolean>("autoRefresh");
+  if (autoRefresh) {
+    const interval = config.get<number>("refreshInterval");
+    setInterval(
+      () => {
+        virtualMachineProvider.refresh();
+      },
+      interval === undefined ? 30000 : interval
+    );
+  }
+
+  const list = await ParallelsDesktopService.getVms();
+  list.forEach(vm => {
+    console.log(vm.OS);
+  });
+  registerClearDownloadCacheCommand(context);
 
   vscode.commands.executeCommand("setContext", "parallels-desktop:initialized", true);
+  console.log("Parallels Desktop Extension is now active!");
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {
   console.log("Deactivating Parallels Desktop Extension");
   //TODO: remove all the commands
-  let version = localStorage.get(FLAG_VAGRANT_VERSION);
-  localStorage.delete(FLAG_VAGRANT_VERSION);
-  version = localStorage.get(FLAG_VAGRANT_VERSION);
-  console.log(`Vagrant version: ${version}`);
 }

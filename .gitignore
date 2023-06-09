@@ -10,3 +10,9 @@ tsconfig.lsif.json
 *.db
 *.vsix
 /.vscode-test*/
+/downloads/
+/packer-files/
+*.iso
+*.pvm
+*.macvm
+*.ipsw

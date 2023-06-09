@@ -45,7 +45,7 @@ export function registerStartHeadlessVirtualMachineCommand(
         retry--;
       }
 
-      provider.refresh();
+      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
     })
   );
 }

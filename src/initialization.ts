@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import {Commands} from "./helpers/commands";
 import {PackerService} from "./hashicorp/packer";
 import {VagrantService} from "./hashicorp/vagrant";
 import {ParallelsDesktopService} from "./services/parallelsDesktopService";
@@ -26,7 +25,7 @@ export async function initialize() {
           )
           .then(selection => {
             if (selection === "Install Parallels Desktop") {
-              // Commands.installParallelsDesktop();
+              ParallelsDesktopService.install();
               return;
             }
             if (selection === "Download Parallels Desktop") {
@@ -116,7 +115,7 @@ export async function initialize() {
 
       if (isParallelsInstalled) {
         progress.report({message: "Checking for Virtual Machines"});
-        await ParallelsDesktopService.getMachines();
+        await ParallelsDesktopService.getVms();
         progress.report({message: "Finished"});
       }
     }

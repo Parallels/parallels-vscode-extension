@@ -15,16 +15,20 @@ export class Provider {
     this.loadConfiguration();
   }
 
-  static getLocalStorage() {
+  static getLocalStorage(): LocalStorageService {
     return localStorage;
   }
 
-  static getCache() {
+  static getCache(): CacheService {
     return cache;
   }
 
-  static getConfiguration() {
+  static getConfiguration(): ConfigurationService {
     return config;
+  }
+
+  static getSettings(): vscode.WorkspaceConfiguration {
+    return vscode.workspace.getConfiguration("parallels-desktop");
   }
 
   private loadConfiguration(): void {

@@ -45,7 +45,7 @@ export function registerResumeVirtualMachineCommand(
         retry--;
       }
 
-      provider.refresh();
+      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
     })
   );
 }

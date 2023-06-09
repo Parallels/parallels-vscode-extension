@@ -1,24 +1,35 @@
 import * as vscode from "vscode";
 import * as uuid from "uuid";
-import {Commands} from "../helpers/commands";
 import {Provider} from "../ioc/provider";
-import {ParallelsVirtualMachineItem} from "./virtual_machine_item";
+import {VirtualMachineTreeItem} from "./virtual_machine_item";
 import {CommandsFlags, FLAG_NO_GROUP} from "../constants/flags";
 import {registerAddGroupCommand} from "./commands/addGroup";
 import {registerRemoveGroupCommand} from "./commands/removeGroup";
-import {registerItemClickCommand} from "./commands/itemClick";
-import {registerAddVirtualMachineCommand} from "./commands/addVirtualMachine";
+import {registerViewVmDetailsCommand} from "./commands/viewVmDetails";
+import {registerAddVirtualMachineQuickPickCommand} from "./commands/addVirtualMachineQuickPick";
 import {registerStartVirtualMachineCommand} from "./commands/startVirtualMachine";
 import {registerStopVirtualMachineCommand} from "./commands/stopVirtualMachine";
 import {registerResumeVirtualMachineCommand} from "./commands/resumeVirtualMachine";
 import {registerPauseVirtualMachineCommand} from "./commands/pauseVirtualMachine";
 import {registerRefreshVirtualMachineCommand} from "./commands/refreshVirtualMachines";
 import {registerStartHeadlessVirtualMachineCommand} from "./commands/startHeadlessVirtualMachine";
+import {VirtualMachine} from "../models/virtualMachine";
+import {ParallelsDesktopService} from "../services/parallelsDesktopService";
+import {registerTakeSnapshotCommand} from "./commands/takeSnapshot";
+import {parallelsOutputChannel} from "../helpers/channel";
+import {registerDeleteVmSnapshotCommand} from "./commands/deleteVmSnapshot";
+import {registerRestoreVmSnapshotCommand} from "./commands/restoreVmSnapshot";
+import {registerStopGroupVirtualMachinesCommand} from "./commands/stopGroupVirtualMachines";
+import {registerStartGroupVirtualMachinesCommand} from "./commands/startGroupVirtualMachines";
+import {registerSuspendVirtualMachineCommand} from "./commands/suspendVirtualMachine";
+import {registerPauseGroupVirtualMachinesCommand} from "./commands/pauseGroupVirtualMachines";
+import {registerResumeGroupVirtualMachinesCommand} from "./commands/resumeGroupVirtualMachines";
+import {registerSuspendGroupVirtualMachinesCommand} from "./commands/suspendGroupVirtualMachines";
+import {registerTakeGroupSnapshotCommand} from "./commands/takeGroupSnapshot";
+import {registerAddVmCommand} from "./commands/addVm";
 
 export class VirtualMachineProvider
-  implements
-    vscode.TreeDataProvider<ParallelsVirtualMachineItem>,
-    vscode.TreeDragAndDropController<ParallelsVirtualMachineItem>
+  implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
 {
   dropMimeTypes = ["application/vnd.code.tree.virtualMachine"];
   dragMimeTypes = ["text/uri-list"];
@@ -34,55 +45,83 @@ export class VirtualMachineProvider
 
     registerAddGroupCommand(context, this);
     registerRemoveGroupCommand(context, this);
-    registerItemClickCommand(context, this);
-    registerAddVirtualMachineCommand(context, this);
+    registerViewVmDetailsCommand(context, this);
+    registerAddVmCommand(context, this);
     registerStartVirtualMachineCommand(context, this);
     registerStartHeadlessVirtualMachineCommand(context, this);
     registerStopVirtualMachineCommand(context, this);
     registerResumeVirtualMachineCommand(context, this);
     registerPauseVirtualMachineCommand(context, this);
+    registerSuspendVirtualMachineCommand(context, this);
     registerRefreshVirtualMachineCommand(context, this);
+    registerTakeSnapshotCommand(context, this);
+    registerDeleteVmSnapshotCommand(context, this);
+    registerRestoreVmSnapshotCommand(context, this);
+    registerStopGroupVirtualMachinesCommand(context, this);
+    registerStartGroupVirtualMachinesCommand(context, this);
+    registerPauseGroupVirtualMachinesCommand(context, this);
+    registerResumeGroupVirtualMachinesCommand(context, this);
+    registerSuspendGroupVirtualMachinesCommand(context, this);
+    registerTakeGroupSnapshotCommand(context, this);
   }
 
-  data: ParallelsVirtualMachineItem[] = [];
+  data: VirtualMachineTreeItem[] = [];
 
-  public on_item_clicked(item: ParallelsVirtualMachineItem) {
+  public on_item_clicked(item: VirtualMachineTreeItem) {
     console.log("on_item_clicked");
   }
 
-  getTreeItem(element: ParallelsVirtualMachineItem): vscode.TreeItem {
+  getTreeItem(element: VirtualMachineTreeItem): vscode.TreeItem {
     return element;
   }
 
-  private _onDidChangeTreeData: vscode.EventEmitter<ParallelsVirtualMachineItem | undefined | null | void> =
-    new vscode.EventEmitter<ParallelsVirtualMachineItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<ParallelsVirtualMachineItem | undefined | null | void> =
+  private _onDidChangeTreeData: vscode.EventEmitter<VirtualMachineTreeItem | undefined | null | void> =
+    new vscode.EventEmitter<VirtualMachineTreeItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<VirtualMachineTreeItem | undefined | null | void> =
     this._onDidChangeTreeData.event;
 
   refresh(): void {
-    this._onDidChangeTreeData.fire();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
-  getChildren(element?: ParallelsVirtualMachineItem): Thenable<ParallelsVirtualMachineItem[]> {
+  getChildren(element?: VirtualMachineTreeItem): Thenable<VirtualMachineTreeItem[]> {
     return new Promise((resolve, reject) => {
       this.data = [];
       const groups = Provider.getConfiguration().virtualMachinesGroups;
       if (element === undefined) {
         groups.forEach(group => {
           if (group.name !== FLAG_NO_GROUP) {
+            let groupState = "unknown";
+            group.machines.forEach(vm => {
+              if (groupState === "unknown") {
+                groupState = vm.State;
+              } else {
+                if (groupState !== vm.State) {
+                  groupState = "mixed";
+                }
+              }
+            });
+            let icon = "desktop_group_new";
+            if (groupState === "running") {
+              icon = "desktop_group_new_running";
+            } else if (groupState === "paused" || groupState === "suspended") {
+              icon = "desktop_group_new_paused";
+            }
             this.data.push(
-              new ParallelsVirtualMachineItem(
+              new VirtualMachineTreeItem(
+                group,
                 "Group",
                 group.name,
                 group.name,
+                undefined,
                 group.name,
                 group.name,
                 "",
-                "group",
+                `group.${groupState}`,
                 group.machines.length > 0
                   ? vscode.TreeItemCollapsibleState.Collapsed
                   : vscode.TreeItemCollapsibleState.None,
-                "desktop_group_new"
+                icon
               )
             );
           }
@@ -91,23 +130,24 @@ export class VirtualMachineProvider
         if (noGroup !== undefined) {
           noGroup.machines.forEach(vm => {
             let icon = "desktop";
-            if (vm.status === "running") {
+            if (vm.State === "running") {
               icon = "desktop_running";
-            } else if (vm.status === "paused" || vm.status === "suspended") {
+            } else if (vm.State === "paused" || vm.State === "suspended") {
               icon = "desktop_paused";
             }
             this.data.push(
-              new ParallelsVirtualMachineItem(
+              new VirtualMachineTreeItem(
+                vm,
                 "VirtualMachine",
                 FLAG_NO_GROUP,
-                vm.uuid,
-                vm.name,
-                vm.name,
-                vm.status,
-                `vm.${vm.status}`,
-                vscode.TreeItemCollapsibleState.Collapsed,
-                icon,
-                {command: CommandsFlags.treeViewItemClick, title: `Open ${vm.name}`, arguments: [vm]}
+                vm.ID,
+                vm.ID,
+                vm.Name,
+                vm.Name,
+                vm.State,
+                `vm.${vm.State}`,
+                vm.OS === "macosx" ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
+                icon
               )
             );
           });
@@ -116,65 +156,164 @@ export class VirtualMachineProvider
       } else {
         console.log(`getChildren: ${element.label}`);
         if (element.type === "VirtualMachine") {
-          Commands.getMachineSnapshot(element.id).then(
-            snapshot => {
-              const children: ParallelsVirtualMachineItem[] = [];
-              if (snapshot.length === 0) {
+          const children: VirtualMachineTreeItem[] = [];
+          ParallelsDesktopService.getVmSnapshots(element.id)
+            .then(
+              snapshot => {
+                if (snapshot.length === 0) {
+                  children.push(
+                    new VirtualMachineTreeItem(
+                      undefined,
+                      "Empty",
+                      undefined,
+                      uuid.v4(),
+                      undefined,
+                      "No snapshots",
+                      "No snapshots",
+                      "",
+                      "snapshot",
+                      vscode.TreeItemCollapsibleState.None,
+                      "images"
+                    )
+                  );
+                }
+                snapshot
+                  .filter(f => f.parent === undefined || f.parent === "")
+                  .forEach(snap => {
+                    const hasChildren = snapshot.filter(f => f.parent === snap.id)?.length > 0;
+                    children.push(
+                      new VirtualMachineTreeItem(
+                        element.item,
+                        "Snapshot",
+                        undefined,
+                        snap.id,
+                        (element.item as VirtualMachine).ID ?? undefined,
+                        snap.name,
+                        snap.name,
+                        snap.state,
+                        `snapshot.${snap.current ? "current" : "other"}`,
+                        hasChildren ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                        snap.current ? "images_current" : "images"
+                      )
+                    );
+                  });
+                resolve(children);
+              },
+              reject => {
+                vscode.window.showErrorMessage(`Failed to get snapshots for ${element.label}, reason: ${reject}`);
+                parallelsOutputChannel.appendLine(reject);
                 children.push(
-                  new ParallelsVirtualMachineItem(
+                  new VirtualMachineTreeItem(
+                    undefined,
                     "Empty",
                     undefined,
                     uuid.v4(),
-                    "No snapshots",
-                    "No snapshots",
-                    "",
-                    "snapshot",
-                    vscode.TreeItemCollapsibleState.None,
-                    "images"
-                  )
-                );
-              }
-              snapshot.forEach(snap => {
-                children.push(
-                  new ParallelsVirtualMachineItem(
-                    "Snapshot",
                     undefined,
-                    snap.id,
-                    snap.name,
-                    snap.name,
-                    snap.state,
-                    `snapshot.${snap.state}`,
+                    "Error",
+                    "Error",
+                    "",
+                    "snapshot.error",
                     vscode.TreeItemCollapsibleState.None,
-                    "images"
+                    "error"
                   )
                 );
-              });
-              resolve(children);
-            },
-            reject => {
-              vscode.window.showErrorMessage(reject);
-              console.log(reject);
-            }
-          );
+                resolve(children);
+              }
+            )
+            .catch(reason => {
+              vscode.window.showErrorMessage(`Failed to get snapshots for ${element.label}, reason: ${reason}`);
+              parallelsOutputChannel.appendLine(reason);
+            });
+        } else if (element.type === "Snapshot") {
+          const children: VirtualMachineTreeItem[] = [];
+          ParallelsDesktopService.getVmSnapshots(element.vmId ?? "")
+            .then(
+              snapshot => {
+                if (snapshot.length === 0) {
+                  children.push(
+                    new VirtualMachineTreeItem(
+                      undefined,
+                      "Empty",
+                      undefined,
+                      uuid.v4(),
+                      element.vmId,
+                      "No snapshots",
+                      "No snapshots",
+                      "",
+                      "snapshot",
+                      vscode.TreeItemCollapsibleState.None,
+                      "images"
+                    )
+                  );
+                }
+                snapshot
+                  .filter(f => f.parent === element.id)
+                  .forEach(snap => {
+                    const hasChildren = snapshot.filter(f => f.parent === snap.id)?.length > 0;
+                    children.push(
+                      new VirtualMachineTreeItem(
+                        element.item,
+                        "Snapshot",
+                        undefined,
+                        snap.id,
+                        element.vmId,
+                        snap.name,
+                        snap.name,
+                        snap.state,
+                        `snapshot.${snap.current ? "current" : "other"}`,
+                        hasChildren ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                        snap.current ? "images_current" : "images"
+                      )
+                    );
+                  });
+                resolve(children);
+              },
+              reject => {
+                vscode.window.showErrorMessage(`Failed to get snapshots for ${element.label}, reason: ${reject}`);
+                parallelsOutputChannel.appendLine(reject);
+                children.push(
+                  new VirtualMachineTreeItem(
+                    undefined,
+                    "Empty",
+                    undefined,
+                    uuid.v4(),
+                    undefined,
+                    "Error",
+                    "Error",
+                    "",
+                    "snapshot.error",
+                    vscode.TreeItemCollapsibleState.None,
+                    "error"
+                  )
+                );
+                resolve(children);
+              }
+            )
+            .catch(reason => {
+              vscode.window.showErrorMessage(`Failed to get snapshots for ${element.label}, reason: ${reason}`);
+              parallelsOutputChannel.appendLine(reason);
+            });
         } else if (element.type === "Group") {
           const group = groups.find(g => g.name === element.id);
           if (group !== undefined) {
             group.machines.forEach(vm => {
               let icon = "desktop";
-              if (vm.status === "running") {
+              if (vm.State === "running") {
                 icon = "desktop_running";
-              } else if (vm.status === "paused" || vm.status === "suspended") {
+              } else if (vm.State === "paused" || vm.State === "suspended") {
                 icon = "desktop_paused";
               }
               this.data.push(
-                new ParallelsVirtualMachineItem(
+                new VirtualMachineTreeItem(
+                  vm,
                   "VirtualMachine",
                   vm.group,
-                  vm.uuid,
-                  vm.name,
-                  vm.name,
-                  vm.status,
-                  `vm.${vm.status}`,
+                  vm.ID,
+                  vm.ID,
+                  vm.Name,
+                  vm.Name,
+                  vm.State,
+                  `vm.${vm.State}`,
                   vscode.TreeItemCollapsibleState.Collapsed,
                   icon
                 )
@@ -188,7 +327,7 @@ export class VirtualMachineProvider
   }
 
   public async handleDrag(
-    source: readonly ParallelsVirtualMachineItem[],
+    source: readonly VirtualMachineTreeItem[],
     dataTransfer: vscode.DataTransfer,
     token: vscode.CancellationToken
   ): Promise<void> {
@@ -202,7 +341,7 @@ export class VirtualMachineProvider
   }
 
   public async handleDrop(
-    target: ParallelsVirtualMachineItem,
+    target: VirtualMachineTreeItem,
     dataTransfer: vscode.DataTransfer,
     token: vscode.CancellationToken
   ): Promise<void> {
@@ -210,11 +349,13 @@ export class VirtualMachineProvider
     if (!transferItem) {
       return;
     }
-    const vm = transferItem.value as ParallelsVirtualMachineItem;
+    const vm = transferItem.value as VirtualMachineTreeItem;
 
     if (target === undefined) {
-      target = new ParallelsVirtualMachineItem(
+      target = new VirtualMachineTreeItem(
+        undefined,
         "Group",
+        FLAG_NO_GROUP,
         FLAG_NO_GROUP,
         FLAG_NO_GROUP,
         FLAG_NO_GROUP,
@@ -240,13 +381,7 @@ export class VirtualMachineProvider
       return;
     }
 
-    targetGroup.add({
-      uuid: vm.id,
-      group: vm.group ?? "",
-      name: vm.name,
-      status: vm.status,
-      ip_configured: "false"
-    });
+    targetGroup.add(vm.item as VirtualMachine);
 
     sourceGroup.remove(vm.name);
     Provider.getConfiguration().save();

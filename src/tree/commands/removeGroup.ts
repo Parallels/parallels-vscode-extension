@@ -15,7 +15,7 @@ export function registerRemoveGroupCommand(context: vscode.ExtensionContext, pro
           noGroup?.add(vm);
         });
         Provider.getConfiguration().deleteVirtualMachineGroup(item.name);
-        provider.refresh();
+        vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
         parallelsOutputChannel.appendLine(`Group ${item.name} removed`);
       }
     })

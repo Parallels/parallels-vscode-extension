@@ -1,19 +1,26 @@
 import path = require("path");
 import * as vscode from "vscode";
+import {VirtualMachine} from "../models/virtualMachine";
+import {MachineSnapshot} from "../models/virtualMachineSnapshot";
+import {VirtualMachineGroup} from "../models/virtualMachineGroup";
 
-export enum ParallelsVirtualMachineType {
+export enum VirtualMachineTreeItemType {
   Vagrant = "vagrant",
   Packer = "packer"
 }
 
-export class ParallelsVirtualMachineItem extends vscode.TreeItem {
+export class VirtualMachineTreeItem extends vscode.TreeItem {
   name: string;
   status: string;
+  item: VirtualMachine | VirtualMachineGroup | MachineSnapshot | undefined;
+  vmId: string | undefined;
 
   constructor(
+    item: VirtualMachine | VirtualMachineGroup | MachineSnapshot | undefined,
     public type: "Group" | "VirtualMachine" | "Snapshot" | "Empty",
     public group: string | undefined,
     public id: string,
+    vmId: string | undefined,
     name: string,
     label: string,
     public version: string,
@@ -23,7 +30,9 @@ export class ParallelsVirtualMachineItem extends vscode.TreeItem {
     public command?: vscode.Command
   ) {
     super(label, collapsibleState);
+    this.item = item;
     this.name = name;
+    this.vmId = vmId;
     this.iconPath = {
       light: path.join(__filename, "..", "..", "img", "light", `${iconName}.svg`),
       dark: path.join(__filename, "..", "..", "img", "dark", `${iconName}.svg`)

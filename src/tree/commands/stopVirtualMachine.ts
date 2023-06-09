@@ -42,7 +42,7 @@ export function registerStopVirtualMachineCommand(context: vscode.ExtensionConte
         retry--;
       }
 
-      provider.refresh();
+      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
     })
   );
 }

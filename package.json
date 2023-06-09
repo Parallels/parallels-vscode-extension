@@ -1,6 +1,7 @@
 {
     "name": "parallels-desktop",
     "displayName": "parallels desktop",
+    "publisher": "Parallels",
     "description": "Manage Parallels Desktop virtual appliances",
     "version": "0.0.3",
     "engines": {
@@ -27,6 +28,11 @@
                     "default": "/usr/local/bin/prlctl",
                     "description": "Path to prlctl executable"
                 },
+                "parallels-desktop.downloadFolder": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Download folder for the VMs"
+                },
                 "parallels-desktop.hashicorp.vagrant.path": {
                     "type": "string",
                     "default": "",
@@ -36,6 +42,11 @@
                     "type": "string",
                     "default": "",
                     "description": "Path to packer executable"
+                },
+                "parallels-desktop.autoRefresh": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Set auto refresh for Parallels Desktop machine list"
                 },
                 "parallels-desktop.refreshInterval": {
                     "type": "number",
@@ -71,44 +82,37 @@
             {
                 "command": "parallels-desktop.tree-view.start-vm",
                 "title": "Parallels: Start VM",
-                "icon": {
-                    "light": "img/light/play.svg",
-                    "dark": "img/dark/play.svg"
-                }
+                "icon": "$(debug-start)"
             },
             {
                 "command": "parallels-desktop.tree-view.start-headless-vm",
                 "title": "Parallels: Start Headless VM",
-                "icon": {
-                    "light": "img/light/play.svg",
-                    "dark": "img/dark/play.svg"
-                }
+                "icon": "$(debug-start)"
             },
             {
                 "command": "parallels-desktop.tree-view.stop-vm",
                 "title": "Stop VM",
                 "category": "Parallels",
-                "icon": {
-                    "light": "img/light/stop.svg",
-                    "dark": "img/dark/stop.svg"
-                }
+                "icon": "$(debug-stop)"
             },
             {
                 "command": "parallels-desktop.tree-view.resume-vm",
                 "title": "Parallels: Resume VM",
                 "shortTitle": "Resume VM",
-                "icon": {
-                    "light": "img/light/play.svg",
-                    "dark": "img/dark/play.svg"
-                }
+                "icon": "$(debug-start)"
             },
             {
                 "command": "parallels-desktop.tree-view.pause-vm",
                 "title": "Parallels: Pause VM",
                 "shortTitle": "Pause VM",
+                "icon": "$(debug-pause)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.suspend-vm",
+                "title": "Suspend VM",
                 "icon": {
-                    "light": "img/light/pause.svg",
-                    "dark": "img/dark/pause.svg"
+                    "light": "img/light/power-off.svg",
+                    "dark": "img/dark/power-off.svg"
                 }
             },
             {
@@ -124,14 +128,90 @@
                 "when": "viewItem ~= /workflow"
             },
             {
-                "command": "parallels-desktop.tree-view.tree-view.remove-group",
-                "title": "Remove Group",
-                "shortTitle": "Remove Group",
+                "command": "parallels-desktop.tree-view.add-group",
+                "title": "Add Group"
+            },
+            {
+                "command": "parallels-desktop.tree-view.take-vm-snapshot",
+                "title": "Take VM Snapshot",
+                "category": "Parallels",
+                "icon": "$(device-camera)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.delete-vm-snapshot",
+                "title": "Delete VM Snapshot",
+                "category": "Parallels",
                 "icon": "$(notebook-delete-cell)"
             },
             {
-                "command": "parallels-desktop.tree-view.add-group",
-                "title": "Add Group"
+                "command": "parallels-desktop.tree-view.restore-vm-snapshot",
+                "title": "Restore VM Snapshot",
+                "category": "Parallels",
+                "icon": "$(chrome-restore)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.view-vm-details",
+                "title": "View VM details",
+                "category": "Parallels",
+                "icon": "$(open-editors-view-icon)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.take-group-snapshot",
+                "title": "Take Group Snapshot",
+                "category": "Parallels",
+                "icon": "$(device-camera)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.remove-group",
+                "title": "Delete Group",
+                "shortTitle": "Delete Group",
+                "icon": "$(notebook-delete-cell)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.start-group-vms",
+                "title": "Start VMs",
+                "category": "Parallels",
+                "icon": "$(debug-start)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.stop-group-vms",
+                "title": "Stop VMs",
+                "category": "Parallels",
+                "icon": "$(debug-stop)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.resume-group-vms",
+                "title": "Resume VMs",
+                "category": "Parallels",
+                "icon": "$(debug-start)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.suspend-group-vms",
+                "title": "Suspend VMs",
+                "icon": {
+                    "light": "img/light/power-off.svg",
+                    "dark": "img/dark/power-off.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.tree-view.pause-group-vms",
+                "title": "Pause VMs",
+                "category": "Parallels",
+                "icon": "$(debug-pause)"
+            },
+            {
+                "command": "parallels-desktop.tree-view.suspend-group-vms",
+                "title": "Suspend VMs",
+                "category": "Parallels",
+                "icon": {
+                    "light": "img/light/power-off.svg",
+                    "dark": "img/dark/power-off.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.clear-download-cache",
+                "title": "Clear cached downloads",
+                "category": "Parallels"
             }
         ],
         "viewsContainers": {
@@ -189,6 +269,16 @@
             ],
             "view/item/context": [
                 {
+                    "command": "parallels-desktop.tree-view.take-vm-snapshot",
+                    "when": "view == parallels-desktop && (viewItem == vm.paused || viewItem == vm.suspended || viewItem == vm.running || viewItem == vm.stopped)",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.view-vm-details",
+                    "when": "view == parallels-desktop && (viewItem == vm.paused || viewItem == vm.suspended || viewItem == vm.running || viewItem == vm.stopped)",
+                    "group": "inline"
+                },
+                {
                     "command": "parallels-desktop.tree-view.start-vm",
                     "when": "view == parallels-desktop && viewItem == vm.stopped",
                     "group": "inline",
@@ -215,8 +305,54 @@
                     "group": "inline"
                 },
                 {
-                    "command": "parallels-desktop.tree-view.tree-view.remove-group",
-                    "when": "view == parallels-desktop && viewItem == group",
+                    "command": "parallels-desktop.tree-view.suspend-vm",
+                    "when": "view == parallels-desktop && viewItem == vm.running",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.delete-vm-snapshot",
+                    "when": "view == parallels-desktop && (viewItem == snapshot.other || viewItem == snapshot.current)",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.restore-vm-snapshot",
+                    "when": "view == parallels-desktop && viewItem == snapshot.other",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.start-group-vms",
+                    "when": "view == parallels-desktop && (viewItem == group.stopped || viewItem == group.mixed)",
+                    "group": "inline",
+                    "order": "1"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.stop-group-vms",
+                    "when": "view == parallels-desktop && (viewItem == group.running)",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.resume-group-vms",
+                    "when": "view == parallels-desktop && (viewItem == group.paused || viewItem == group.suspended)",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.pause-group-vms",
+                    "when": "view == parallels-desktop && viewItem == group.running",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.suspend-group-vms",
+                    "when": "view == parallels-desktop && viewItem == group.running",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.take-group-snapshot",
+                    "when": "view == parallels-desktop && (viewItem == group.running || viewItem == group.mixed || viewItem == group.stopped || viewItem == group.paused || viewItem == group.suspended)",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.remove-group",
+                    "when": "view == parallels-desktop && (viewItem == group.running || viewItem == group.mixed || viewItem == group.stopped || viewItem == group.paused || viewItem == group.suspended)",
                     "group": "inline"
                 }
             ]
@@ -247,10 +383,10 @@
     "scripts": {
         "clean": "rimraf ./dist ./out",
         "vscode:prepublish": "npm run build",
-        "compile": "webpack",
+        "compile": "webpack && gulp copy-images",
         "watch": "webpack --watch",
-        "build": "webpack --mode production",
-        "package": "webpack --mode production --devtool hidden-source-map",
+        "build": "webpack --mode production && gulp copy-images",
+        "package": "webpack --mode production --devtool hidden-source-map && gulp copy-images",
         "open-in-browser": "vscode-test-web --extensionDevelopmentPath=src .",
         "compile-tests": "tsc -p . --outDir out",
         "watch-tests": "tsc -p . -w --outDir out",
@@ -274,6 +410,8 @@
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.2.1",
         "glob": "^8.1.0",
+        "gulp": "^4.0.2",
+        "gulp-cli": "^2.3.0",
         "mocha": "^10.2.0",
         "prettier": "^2.8.3",
         "rimraf": "^3.0.1",
@@ -283,6 +421,9 @@
         "webpack-cli": "^5.0.1"
     },
     "dependencies": {
+        "@types/axios": "^0.14.0",
+        "axios": "^1.4.0",
+        "tailwindcss": "^3.3.2",
         "uuid": "^9.0.0"
     }
 }
