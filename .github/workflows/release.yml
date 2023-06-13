@@ -33,8 +33,8 @@ jobs:
 
       - name: Bump version and push
         run: |
-          git config --global user.email "carlos.lapao@alludo.com"
-          git config --global user.name "carloslapao"
+          git config --global user.email "cjlapao@gmail.com"
+          git config --global user.name "cjlapao"
 
           NEW_VERSION=$(./script/workflows/increment-version.sh ${{ inputs.version }})
 
