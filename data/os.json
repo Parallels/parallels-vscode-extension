@@ -1,0 +1,176 @@
+[
+    {
+        "id": "windows",
+        "name": "Windows",
+        "platforms": []
+    },
+    {
+        "id": "linux",
+        "name": "Linux",
+        "platforms": [
+            {
+                "id": "arm64",
+                "name": "ARM64",
+                "distros": [
+                    {
+                        "id": "ubuntu",
+                        "name": "Ubuntu",
+                        "images": [
+                            {
+                                "id": "ubuntu-server-22.04",
+                                "name": "Ubuntu Server 22.04 LTS",
+                                "distro": "ubuntu",
+                                "type": "packer",
+                                "isoUrl": "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.2-live-server-arm64.iso",
+                                "isoChecksum": "file:https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS",
+                                "bootCommand": [
+                                    "<wait>e<wait><down><down><down><end><wait> autoinstall ds=nocloud-net\\\\;s=http://{{.HTTPIP}}:{{.HTTPPort}}/ubuntu/<f10><wait>"
+                                ],
+                                "bootWait": "10s",
+                                "shutdownCommand": "echo 'vagrant'|sudo -S shutdown -P now",
+                                "shutdownTimeout": "15m",
+                                "httpContents": [
+                                    "meta-data",
+                                    "user-data",
+                                    "pressed-hyperv.cfg",
+                                    "preseed.cfg"
+                                ],
+                                "addons": [
+                                    {
+                                        "deploy": false,
+                                        "name": "User Interface",
+                                        "id": "ui"
+                                    },
+                                    {
+                                        "deploy": false,
+                                        "name": "Docker",
+                                        "id": "docker"
+                                    },
+                                    {
+                                        "deploy": false,
+                                        "name": "Visual Studio Code",
+                                        "id": "visual_studio_code"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "ubuntu-server-23.04",
+                                "name": "Ubuntu Server 23.04 LTS",
+                                "distro": "ubuntu",
+                                "type": "packer",
+                                "isoUrl": "https://cdimage.ubuntu.com/releases/23.04/release/ubuntu-23.04-live-server-arm64.iso",
+                                "isoChecksum": "file:https://cdimage.ubuntu.com/releases/23.04/release/SHA256SUMS",
+                                "bootCommand": [
+                                    "<wait>e<wait><down><down><down><end><wait> autoinstall ds=nocloud-net\\\\;s=http://{{.HTTPIP}}:{{.HTTPPort}}/ubuntu/<f10><wait>"
+                                ],
+                                "bootWait": "10s",
+                                "shutdownCommand": "sudo -S shutdown -P now",
+                                "shutdownTimeout": "15m",
+                                "httpContents": [
+                                    "meta-data",
+                                    "user-data",
+                                    "preseed-hyperv.cfg",
+                                    "preseed.cfg"
+                                ],
+                                "addons": [
+                                    {
+                                        "deploy": false,
+                                        "name": "User Interface",
+                                        "id": "desktop"
+                                    },
+                                    {
+                                        "deploy": false,
+                                        "name": "Docker",
+                                        "id": "docker"
+                                    },
+                                    {
+                                        "deploy": false,
+                                        "name": "Visual Studio Code",
+                                        "id": "visual_studio_code"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "photon",
+                        "name": "Photon OS",
+                        "images": [
+                            {
+                                "id": "photon-5.0",
+                                "name": "Photon OS 5.0 GA",
+                                "distro": "linux",
+                                "type": "iso",
+                                "isoUrl": "https://packages.vmware.com/photon/5.0/GA/iso/photon-5.0-dde71ec57.aarch64.iso",
+                                "addons": []
+                            }
+                        ]
+                    }
+                ],
+                "images": []
+            }
+        ]
+    },
+    {
+        "id": "macos",
+        "name": "MacOS",
+        "platforms": [
+            {
+                "id": "arm64",
+                "name": "ARM64",
+                "distros": [],
+                "images": [
+                    {
+                        "id": "macos13_22F66",
+                        "type": "macos",
+                        "name": "MacOS 13.4",
+                        "isoUrl": "https://updates.cdn-apple.com/2023SpringFCS/fullrestores/032-84884/F97A22EE-9B5E-4FD5-94C1-B39DCEE8D80F/UniversalMac_13.4_22F66_Restore.ipsw",
+                        "addons": []
+                    },
+                    {
+                        "id": "macos13_22E261",
+                        "type": "macos",
+                        "name": "MacOS 13.3.1",
+                        "isoUrl": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-66602/418BC37A-FCD9-400A-B4FA-022A19576CD4/UniversalMac_13.3.1_22E261_Restore.ipsw",
+                        "addons": []
+                    },
+                    {
+                        "id": "macos13_22E252",
+                        "type": "macos",
+                        "name": "MacOS 13.3",
+                        "isoUrl": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/002-75537/8250FA0E-0962-46D6-8A90-57A390B9FFD7/UniversalMac_13.3_22E252_Restore.ipsw",
+                        "addons": []
+                    },
+                    {
+                        "id": "macos13_22D68",
+                        "type": "macos",
+                        "name": "MacOS 13.2.1",
+                        "isoUrl": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-48346/EFF99C1E-C408-4E7A-A448-12E1468AF06C/UniversalMac_13.2.1_22D68_Restore.ipsw",
+                        "addons": []
+                    },
+                    {
+                        "id": "macos13_22C65",
+                        "type": "macos",
+                        "name": "MacOS 13.1",
+                        "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-60270/0A7F49BA-FC31-4AD9-8E45-49B1FB9128A6/UniversalMac_13.1_22C65_Restore.ipsw",
+                        "addons": []
+                    },
+                    {
+                        "id": "macos13_22C65",
+                        "type": "macos",
+                        "name": "MacOS 13.0.1",
+                        "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-93802/A7270B0F-05F8-43D1-A9AD-40EF5699E82C/UniversalMac_13.0.1_22A400_Restore.ipsw",
+                        "addons": []
+                    },
+                    {
+                        "id": "macos13_22A380",
+                        "type": "macos",
+                        "name": "MacOS 13.0",
+                        "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-92188/2C38BCD1-2BFF-4A10-B358-94E8E28BE805/UniversalMac_13.0_22A380_Restore.ipsw",
+                        "addons": []
+                    }
+                ]
+            }
+        ]
+    }
+]
