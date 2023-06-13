@@ -117,4 +117,7 @@ export class CommandsFlags {
   static treeViewResumeGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.resume-group-vms`;
   static treeViewSuspendGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.suspend-group-vms`;
   static treeViewStopGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.stop-group-vms`;
+  static vagrantBoxProviderRefresh = `${COMMAND_PREFIX}.vagrant.box.provider.refresh`;
+  static vagrantBoxProviderInit = `${COMMAND_PREFIX}.vagrant.box.provider.init`;
+  static vagrantBoxProviderDelete = `${COMMAND_PREFIX}.vagrant.box.provider.delete`;
 }

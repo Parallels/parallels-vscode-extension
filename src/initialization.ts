@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import {PackerService} from "./hashicorp/packer";
-import {VagrantService} from "./hashicorp/vagrant";
+import {PackerService} from "./services/packerService";
+import {VagrantService} from "./services/vagrantService";
 import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 
 export async function initialize() {

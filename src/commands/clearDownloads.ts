@@ -21,7 +21,7 @@ export function registerClearDownloadCacheCommand(context: vscode.ExtensionConte
           async () => {
             const downloadDir = getDownloadFolder(context);
             if (fs.existsSync(downloadDir)) {
-              fs.rmdirSync(downloadDir, {recursive: true});
+              fs.rmSync(downloadDir, {recursive: true});
             }
           }
         );

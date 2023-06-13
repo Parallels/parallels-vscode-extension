@@ -71,6 +71,16 @@ export class ParallelsDesktopService {
               parallelsOutputChannel.appendLine(`found vm: ${vm.Name}`);
             }
           });
+
+          // sync the config file
+          const configMachines = config.getAllMachines();
+          configMachines.forEach(configMachine => {
+            const vm = vms.find(vm => vm.ID === configMachine.ID);
+            if (vm === undefined) {
+              config.removeMachine(configMachine.ID);
+              config.save();
+            }
+          });
           resolve(vms);
         } catch (e) {
           parallelsOutputChannel.appendLine("error while parsing vms");
@@ -179,12 +189,12 @@ export class ParallelsDesktopService {
       });
       prlctl.stderr.on("data", data => {
         parallelsOutputChannel.appendLine(data);
-        reject(data);
       });
       prlctl.on("close", code => {
         if (code !== 0) {
           parallelsOutputChannel.appendLine(`prlctl set exited with code ${code}`);
-          return resolve(false);
+          parallelsOutputChannel.show();
+          return reject(code);
         }
         return resolve(true);
       });
@@ -528,16 +538,17 @@ export class ParallelsDesktopService {
     });
   }
 
-  static async captureScreen(path: string, destination: string): Promise<boolean> {
+  static async captureScreen(machineId: string, destination: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (!path) {
-        parallelsOutputChannel.appendLine(`vm path is empty`);
-        return reject("vm path is empty");
+      if (!machineId) {
+        parallelsOutputChannel.appendLine(`vm id is empty`);
+        return reject("vm id is empty");
       }
 
-      parallelsOutputChannel.appendLine(`registering vm on path: ${path}`);
-      const options = ["capture", `"${path}"`, "--file", `"${destination}"`];
+      parallelsOutputChannel.appendLine(`capturing machine screen ${machineId}`);
+      const options = ["capture", `"${machineId}"`, "--file", `"${destination}"`];
       const prlctl = cp.spawn("prlctl", options, {shell: true});
+      parallelsOutputChannel.appendLine(`prlctl ${options.join(" ")}`);
       prlctl.stdout.on("data", data => {
         parallelsOutputChannel.appendLine(data);
       });

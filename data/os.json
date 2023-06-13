@@ -2,27 +2,7 @@
     {
         "id": "windows",
         "name": "Windows",
-        "platforms": [
-            {
-                "id": "arm64",
-                "name": "ARM64",
-                "distros": [],
-                "images": [
-                    {
-                        "id": "win-11",
-                        "name": "Windows 11",
-                        "type": "internal",
-                        "addons": [
-                            {
-                                "deploy": false,
-                                "name": "WinGet",
-                                "id": "winget"
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
+        "platforms": []
     },
     {
         "id": "linux",
@@ -36,29 +16,6 @@
                         "id": "ubuntu",
                         "name": "Ubuntu",
                         "images": [
-                            {
-                                "id": "ubuntu-20.04",
-                                "name": "Ubuntu 20.04",
-                                "distro": "ubuntu",
-                                "type": "packer",
-                                "addons": [
-                                    {
-                                        "deploy": false,
-                                        "name": "User Interface",
-                                        "id": "ui"
-                                    },
-                                    {
-                                        "deploy": false,
-                                        "name": "Docker",
-                                        "id": "docker"
-                                    },
-                                    {
-                                        "deploy": false,
-                                        "name": "Visual Studio Code",
-                                        "id": "vscode"
-                                    }
-                                ]
-                            },
                             {
                                 "id": "ubuntu-server-22.04",
                                 "name": "Ubuntu Server 22.04 LTS",
@@ -136,19 +93,6 @@
                         ]
                     },
                     {
-                        "id": "kali",
-                        "name": "Kali Linux",
-                        "images": [
-                            {
-                                "id": "kali-2021.2",
-                                "name": "Kali Linux 2021.2",
-                                "distro": "kiali",
-                                "type": "internal",
-                                "addons": []
-                            }
-                        ]
-                    },
-                    {
                         "id": "photon",
                         "name": "Photon OS",
                         "images": [
@@ -163,12 +107,6 @@
                         ]
                     }
                 ],
-                "images": []
-            },
-            {
-                "id": "x86",
-                "name": "x86",
-                "distros": [],
                 "images": []
             }
         ]

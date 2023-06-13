@@ -1,17 +1,23 @@
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
 import {FLAG_CONFIGURATION} from "../constants/flags";
+import {getUserProfileFolder} from "../helpers/helpers";
 import {localStorage} from "../ioc/provider";
 import {VirtualMachineGroup} from "../models/virtualMachineGroup";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
+import {VirtualMachine} from "../models/virtualMachine";
 
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
 
-  constructor() {
+  constructor(private context: vscode.ExtensionContext) {
     this.virtualMachinesGroups = [];
   }
 
-  static fromJson(json: any): ConfigurationService {
-    const configuration = new ConfigurationService();
+  static fromJson(context: vscode.ExtensionContext, json: any): ConfigurationService {
+    const configuration = new ConfigurationService(context);
+    json = JSON.parse(json);
     if (json.virtualMachinesGroup !== undefined) {
       json.virtualMachinesGroup.forEach((group: VirtualMachineGroup) => {
         const newGroup = new VirtualMachineGroup(group.name);
@@ -27,9 +33,11 @@ export class ConfigurationService {
   }
 
   toJson(): any {
-    return {
+    const config = {
       virtualMachinesGroup: this.virtualMachinesGroups
     };
+
+    return JSON.stringify(config, null, 2);
   }
 
   existsVirtualMachineGroup(name: string): boolean {
@@ -43,7 +51,9 @@ export class ConfigurationService {
   }
 
   save() {
-    localStorage.set(FLAG_CONFIGURATION, this.toJson());
+    const configFolder = getUserProfileFolder(this.context);
+    const userProfile = path.join(configFolder, "profile.json");
+    fs.writeFileSync(userProfile, this.toJson());
   }
 
   addVirtualMachineGroup(group: VirtualMachineGroup) {
@@ -75,7 +85,9 @@ export class ConfigurationService {
 
   clearVirtualMachineGroupsVms() {
     this.virtualMachinesGroups.forEach(group => group.clear());
-    localStorage.set(FLAG_CONFIGURATION, this.toJson());
+    const configFolder = getUserProfileFolder(this.context);
+    const userProfile = path.join(configFolder, "profile.json");
+    fs.writeFileSync(userProfile, this.toJson());
   }
 
   setVmStatus(vmId: string, status: string) {
@@ -99,5 +111,26 @@ export class ConfigurationService {
     });
 
     return count;
+  }
+
+  getAllMachines(): VirtualMachine[] {
+    const machines: VirtualMachine[] = [];
+    this.virtualMachinesGroups.forEach(group => {
+      group.machines.forEach(machine => {
+        machines.push(machine);
+      });
+    });
+
+    return machines;
+  }
+
+  removeMachine(vmId: string) {
+    const groupId = this.inVMGroup(vmId);
+    if (groupId) {
+      const group = this.getVirtualMachineGroup(groupId);
+      if (group) {
+        group.remove(vmId);
+      }
+    }
   }
 }

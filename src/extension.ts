@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import {VirtualMachineProvider} from "./tree/virtual_machine";
-import {VagrantService} from "./hashicorp/vagrant";
-import {FLAG_VAGRANT_VERSION} from "./constants/flags";
-import {Provider, localStorage} from "./ioc/provider";
+import {VagrantService} from "./services/vagrantService";
+import {Provider} from "./ioc/provider";
 import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {initialize} from "./initialization";
 import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
+import {VagrantBoxProvider} from "./tree/vagrant_boxes";
 
 export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
@@ -30,30 +30,25 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Registering the  Virtual Machine Provider
   const virtualMachineProvider = new VirtualMachineProvider(context);
+  const vagrantBoxProvider = new VagrantBoxProvider(context);
 
   if (Provider.getConfiguration().countMachines() > 0) {
     vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", true);
   }
 
-  const vagrant = new VagrantService(context);
-  vagrant.getCurrentBoxes().then(boxes => {
-    boxes.forEach(box => {
-      console.log(box);
-    });
-  });
-
+  // TODO: Implement an auto refresh that is not as aggressive as the one below
   // Setting the auto refresh mechanism
-  const config = Provider.getSettings();
-  const autoRefresh = config.get<boolean>("autoRefresh");
-  if (autoRefresh) {
-    const interval = config.get<number>("refreshInterval");
-    setInterval(
-      () => {
-        virtualMachineProvider.refresh();
-      },
-      interval === undefined ? 30000 : interval
-    );
-  }
+  // const config = Provider.getSettings();
+  // const autoRefresh = config.get<boolean>("autoRefresh");
+  // if (autoRefresh) {
+  //   const interval = config.get<number>("refreshInterval");
+  //   setInterval(
+  //     () => {
+  //       virtualMachineProvider.refresh();
+  //     },
+  //     interval === undefined ? 30000 : interval
+  //   );
+  // }
 
   const list = await ParallelsDesktopService.getVms();
   list.forEach(vm => {

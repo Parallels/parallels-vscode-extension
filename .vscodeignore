@@ -5,5 +5,15 @@ out/
 src/
 tsconfig.json
 webpack.config.js
-media
 dist/*.map
+*.vsix
+.vscode-test*/
+downloads/
+packer-files/
+profile/
+screen-captures/
+vagrant-boxes/
+*.iso
+*.pvm
+*.macvm
+*.ipsw

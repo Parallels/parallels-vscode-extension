@@ -37,6 +37,7 @@ export class VirtualMachineGroup {
   remove(name: string): void {
     if (this.exists(name)) {
       this.machines = this.machines.filter(machine => machine.Name.toLowerCase() !== name.toLowerCase());
+      this.machines = this.machines.filter(machine => machine.ID.toLowerCase() !== name.toLowerCase());
     }
   }
 

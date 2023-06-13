@@ -2,11 +2,10 @@ import * as vscode from "vscode";
 import * as uuid from "uuid";
 import {Provider} from "../ioc/provider";
 import {VirtualMachineTreeItem} from "./virtual_machine_item";
-import {CommandsFlags, FLAG_NO_GROUP} from "../constants/flags";
+import {FLAG_NO_GROUP} from "../constants/flags";
 import {registerAddGroupCommand} from "./commands/addGroup";
 import {registerRemoveGroupCommand} from "./commands/removeGroup";
 import {registerViewVmDetailsCommand} from "./commands/viewVmDetails";
-import {registerAddVirtualMachineQuickPickCommand} from "./commands/addVirtualMachineQuickPick";
 import {registerStartVirtualMachineCommand} from "./commands/startVirtualMachine";
 import {registerStopVirtualMachineCommand} from "./commands/stopVirtualMachine";
 import {registerResumeVirtualMachineCommand} from "./commands/resumeVirtualMachine";
@@ -66,10 +65,6 @@ export class VirtualMachineProvider
   }
 
   data: VirtualMachineTreeItem[] = [];
-
-  public on_item_clicked(item: VirtualMachineTreeItem) {
-    console.log("on_item_clicked");
-  }
 
   getTreeItem(element: VirtualMachineTreeItem): vscode.TreeItem {
     return element;

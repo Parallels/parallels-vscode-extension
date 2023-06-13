@@ -1,9 +1,13 @@
 {
     "name": "parallels-desktop",
     "displayName": "parallels desktop",
-    "publisher": "Parallels",
+    "publisher": "ParallelsDesktop",
     "description": "Manage Parallels Desktop virtual appliances",
-    "version": "0.0.3",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Parallels/parallels-vscode-extension"
+    },
+    "version": "0.0.0",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -212,6 +216,24 @@
                 "command": "parallels-desktop.clear-download-cache",
                 "title": "Clear cached downloads",
                 "category": "Parallels"
+            },
+            {
+                "command": "parallels-desktop.vagrant.box.provider.refresh",
+                "title": "Vagrant: Refresh",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "parallels-desktop.vagrant.box.provider.init",
+                "title": "Vagrant: Init",
+                "icon": {
+                    "light": "img/light/init.svg",
+                    "dark": "img/dark/init.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.vagrant.box.provider.delete",
+                "title": "Vagrant: Delete",
+                "icon": "$(notebook-delete-cell)"
             }
         ],
         "viewsContainers": {
@@ -249,6 +271,14 @@
                 {
                     "command": "parallels-desktop.tree-view.pause-vm",
                     "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.vagrant.box.provider.init",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.vagrant.box.provider.delete",
+                    "when": "false"
                 }
             ],
             "view/title": [
@@ -265,6 +295,11 @@
                 {
                     "command": "parallels-desktop.tree-view.add-group",
                     "when": "view == parallels-desktop && parallels-desktop:initialized"
+                },
+                {
+                    "command": "parallels-desktop.vagrant.box.provider.refresh",
+                    "when": "view == parallels-desktop-vagrant && parallels-desktop:initialized",
+                    "group": "navigation"
                 }
             ],
             "view/item/context": [
@@ -351,8 +386,13 @@
                     "group": "inline"
                 },
                 {
-                    "command": "parallels-desktop.tree-view.remove-group",
-                    "when": "view == parallels-desktop && (viewItem == group.running || viewItem == group.mixed || viewItem == group.stopped || viewItem == group.paused || viewItem == group.suspended)",
+                    "command": "parallels-desktop.vagrant.box.provider.init",
+                    "when": "view == parallels-desktop-vagrant && viewItem == vagrant.box",
+                    "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.vagrant.box.provider.delete",
+                    "when": "view == parallels-desktop-vagrant && viewItem == vagrant.box",
                     "group": "inline"
                 }
             ]
@@ -361,21 +401,28 @@
             "parallels-desktop": [
                 {
                     "id": "parallels-desktop",
-                    "name": "Parallels Desktop",
+                    "name": "Virtual Machines",
                     "icon": "media/parallels_logo.svg",
                     "contextualTitle": "Parallels Desktop"
+                },
+                {
+                    "when": "parallels-desktop:vagrant == true",
+                    "id": "parallels-desktop-vagrant",
+                    "name": "Vagrant Boxes",
+                    "icon": "media/parallels_logo.svg",
+                    "contextualTitle": "Vagrant Boxes"
                 }
             ]
         },
         "viewsWelcome": [
             {
-                "view": "parallels-desktop1",
+                "view": "parallels-desktop",
                 "when": "parallels-desktop:initialized",
                 "contents": "Welcome to Parallels Desktop1"
             },
             {
-                "view": "parallels-desktop1",
-                "when": "parallels-desktop:initialized && parallels-desktop:parallels == false",
+                "view": "parallels-desktop-vagrant",
+                "when": "parallels-desktop:vagrant == false",
                 "contents": "Welcome to Parallels Desktop"
             }
         ]

@@ -8,8 +8,9 @@ import * as fs from "fs";
 import {parallelsOutputChannel} from "../helpers/channel";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
 import {getDownloadFolder, getPackerFilesFolder} from "../helpers/helpers";
-import {getVmType} from "../constants/flags";
-import {HashicorpPackerService} from "./packerService";
+import {CommandsFlags, getVmType} from "../constants/flags";
+import {PackerService} from "./packerService";
+import {VagrantService} from "./vagrantService";
 
 export class CreateMachineService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -348,19 +349,20 @@ export class CreateMachineService {
         request.distro = "win-11";
       }
       try {
-        const packerSvc = new HashicorpPackerService(this.context);
+        const packerSvc = new PackerService(this.context);
 
         // creating the folder for the packer files
-        const packerFolder = path.join(getPackerFilesFolder(this.context), img.id);
+        const packerFolder = path.join(getPackerFilesFolder(this.context), img.name.replace(/\s/g, "_"));
         if (!fs.existsSync(packerFolder)) {
           fs.mkdirSync(packerFolder);
         }
+        
         const specs: PackerVirtualMachineSpecs = {
           imgId: img.id,
           folder: packerFolder,
-          generateVagrantBox: generateVagrantBox,
+          generateVagrantBox: request.flags.generateVagrantBox,
           distro: img.distro,
-          toolsFlavor: HashicorpPackerService.getToolsFlavor(request.os, request.platform),
+          toolsFlavor: PackerService.getToolsFlavor(request.os, request.platform),
           bootCommand: img.bootCommand,
           bootWait: img.bootWait ? img.bootWait : "10s",
           cpus: Number.parseInt(request.specs.cpus),
@@ -389,12 +391,13 @@ export class CreateMachineService {
           httpContents: img.httpContents
         };
 
-        if (generateVagrantBox) {
+        if (request.flags.generateVagrantBox) {
           specs.sshUsername = "vagrant";
           specs.sshPassword = "vagrant";
           specs.sshEncryptedPassword =
-            "$6$XqGrcnLXv.jiEcha$JLt2ZyDU3/Jk5gzOPLzsvP.rQhQH53zl1bKcL//1qF4wECXXDdFrf8MXPIaM8LolALQc8Y7x5vwq8zZWj51VD.";
+            "$6$rounds=4096$5CU3LEj/MQvbkfPb$LmKEF9pCfU8R.dA.GemgE/8GT6r9blge3grJvdsVTMFKyLEQwzEF3SGWqAzjawY/XHRpWj4fOiLBrRyxJhIRJ1";
           specs.password = "vagrant";
+          specs.user = "vagrant";
         }
 
         packerSvc
@@ -417,7 +420,34 @@ export class CreateMachineService {
                     return reject(reason);
                   });
               } else {
-                return resolve(true);
+                const outputFolder = specs.outputFolder.replace("output", "box");
+                const boxName = `parallels_${specs.vmName.replace(/\s/g, "_").toLowerCase()}.box`;
+                const boxPath = path.join(outputFolder, boxName);
+                if (!fs.existsSync(boxPath)) {
+                  return reject("Error generating Vagrant box");
+                }
+
+                VagrantService.add(request.name, boxPath)
+                  .then(
+                    value => {
+                      if (!value) {
+                        return reject("Error adding Vagrant box");
+                      }
+
+                      if (fs.existsSync(outputFolder)) {
+                        fs.rmSync(outputFolder, {recursive: true});
+                      }
+
+                      vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
+                      return resolve(value);
+                    },
+                    reason => {
+                      return reject(reason);
+                    }
+                  )
+                  .catch(reason => {
+                    return reject(reason);
+                  });
               }
             },
             reason => {

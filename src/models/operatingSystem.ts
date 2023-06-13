@@ -9,7 +9,7 @@ export class OperatingSystemsData {
   }
 
   async get(): Promise<OperatingSystem[]> {
-    const osFileName = vscode.Uri.file(path.join(this.context.extensionPath, "media", "os.json"));
+    const osFileName = vscode.Uri.file(path.join(this.context.extensionPath, "data", "os.json"));
     const file = await vscode.workspace.fs.readFile(osFileName);
     const jsonObj = JSON.parse(file.toString());
     jsonObj.forEach((os: any) => {

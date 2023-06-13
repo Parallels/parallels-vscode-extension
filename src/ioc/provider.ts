@@ -3,6 +3,9 @@ import {ConfigurationService} from "../services/configurationService";
 import {LocalStorageService} from "../services/localStorage";
 import {CacheService} from "../services/memoryCache";
 import {FLAG_CONFIGURATION} from "../constants/flags";
+import {getUserProfileFolder} from "../helpers/helpers";
+import * as path from "path";
+import * as fs from "fs";
 
 export let localStorage: LocalStorageService;
 export let cache: CacheService;
@@ -32,14 +35,19 @@ export class Provider {
   }
 
   private loadConfiguration(): void {
-    // reading the configuration from the local storage
-    // localStorage.set(FLAG_CONFIGURATION, undefined);
-    const configJson = localStorage.get(FLAG_CONFIGURATION);
+    const configFolder = getUserProfileFolder(this.context);
+    const userProfile = path.join(configFolder, "profile.json");
+    if (!fs.existsSync(userProfile)) {
+      config = new ConfigurationService(this.context);
+      const test = config.toJson();
+      fs.writeFileSync(userProfile, config.toJson());
+    }
+
+    const configJson = fs.readFileSync(userProfile, "utf8");
     if (configJson) {
-      config = ConfigurationService.fromJson(configJson);
+      config = ConfigurationService.fromJson(this.context, configJson);
     } else {
-      config = new ConfigurationService();
-      localStorage.set(FLAG_CONFIGURATION, config.toJson());
+      config = new ConfigurationService(this.context);
     }
   }
 }

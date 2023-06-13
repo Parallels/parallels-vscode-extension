@@ -91,13 +91,13 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
                 title: `Creating VM ${request.name}`
               },
               async progress => {
+                panel.dispose();
                 await svc.createVm(request).then(
                   value => {
                     if (value) {
                       ParallelsDesktopService.getVms().then(() => {
                         provider.refresh();
                         vscode.window.showInformationMessage(`VM ${request.name} created successfully`);
-                        panel.dispose();
                         return;
                       });
                     } else {
@@ -105,10 +105,9 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
                     }
                   },
                   err => {
-                    panel.dispose();
                     parallelsOutputChannel.appendLine(`Error creating VM: ${err}`);
                     parallelsOutputChannel.show();
-                    vscode.window.showErrorMessage(`Error creating VM: ${err}}`);
+                    vscode.window.showErrorMessage(`Error creating VM: ${err}`);
                   }
                 );
                 return;
@@ -285,6 +284,37 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
         text: JSON.stringify(this.itemData, null, 2)
       });
     },
+    getButtonText() {
+      if (this.isPosting) {
+        if (this.getImageType() === 'iso') {
+          return 'Creating...'
+        } else if (this.getImageType() === 'internal') {
+          return 'Attaching...'
+        } else if (this.getImageType() === 'packer') {
+          if (this.itemData.options.generateVagrantBox) {
+            return 'Generating Vagrant Box...'
+          } else {
+            return 'Generating VM...'
+          }
+        } else {
+          return 'Creating...'
+        }
+      } else {
+        if (this.getImageType() === 'iso') {
+          return 'Create VM'
+        } else if (this.getImageType() === 'internal') {
+          return 'Attach Appliance...'
+        } else if (this.getImageType() === 'packer') {
+          if (this.itemData.options.generateVagrantBox) {
+            return 'Generate Vagrant Box'
+          } else {
+            return 'Generate VM'
+          }
+        } else {
+          return 'Create'
+        }
+      }
+    },
     options: ` +
     osData +
     `,
@@ -457,7 +487,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
     </li>
     <li class="flex flex-col gap-x-6 py-1 w-full items-end" x-show="itemData.image !== 'undefined'">
       <div class="flex items-end p-2" >
-        <button :disabled="isPosting" id="createVm" type="button" class="btn btn-primary w-40" @click="onPost">Create</button>
+        <button :disabled="isPosting" id="createVm" type="button" class="btn btn-primary w-40" @click="onPost" x-text="getButtonText()"></button>
       </div>
     </li>
   </ul>

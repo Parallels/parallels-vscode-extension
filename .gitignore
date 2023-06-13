@@ -12,6 +12,9 @@ tsconfig.lsif.json
 /.vscode-test*/
 /downloads/
 /packer-files/
+/profile/
+/screen-captures/
+/vagrant-boxes/
 *.iso
 *.pvm
 *.macvm

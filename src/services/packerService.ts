@@ -10,7 +10,7 @@ import {parallelsOutputChannel} from "../helpers/channel";
 const parallelsVersion = "1.0.1";
 const vagrantVersion = "1.0.2";
 
-export class HashicorpPackerService {
+export class PackerService {
   constructor(private context: vscode.ExtensionContext) {}
 
   static isInstalled() {
@@ -24,6 +24,7 @@ export class HashicorpPackerService {
       cp.exec("which packer", err => {
         if (err) {
           parallelsOutputChannel.appendLine("Packer is not installed");
+          parallelsOutputChannel.show();
           return resolve(false);
         }
         parallelsOutputChannel.appendLine(`Packer was found on path ${packerPath}`);
@@ -44,6 +45,7 @@ export class HashicorpPackerService {
       cp.exec("packer --version", (err, stdout, stderr) => {
         if (err) {
           parallelsOutputChannel.appendLine("Vagrant is not installed");
+          parallelsOutputChannel.show();
           return resolve(false);
         }
         version = stdout.replace("\n", "").trim();
@@ -68,6 +70,7 @@ export class HashicorpPackerService {
       brew.on("close", code => {
         if (code !== 0) {
           parallelsOutputChannel.appendLine(`brew tap exited with code ${code}`);
+          parallelsOutputChannel.show();
           return resolve(false);
         }
         const packer = cp.spawn("brew", ["install", "hashicorp/tap/packer"]);
@@ -80,6 +83,7 @@ export class HashicorpPackerService {
         packer.on("close", code => {
           if (code !== 0) {
             parallelsOutputChannel.appendLine(`brew install exited with code ${code}`);
+            parallelsOutputChannel.show();
             return resolve(false);
           }
           return resolve(true);
@@ -88,21 +92,28 @@ export class HashicorpPackerService {
     });
   }
 
-  getPackerConfig(): string {
-    return `
+  getPackerConfig(specs: PackerVirtualMachineSpecs): string {
+    let result = `
 packer {
     required_version = ">= 1.7.0"
+
     required_plugins {
         parallels = {
         version = ">= ${parallelsVersion}"
         source  = "github.com/hashicorp/parallels"
-        }
+        }`;
+    if (specs.generateVagrantBox) {
+      result += `
+
         vagrant = {
         version = ">= ${vagrantVersion}"
         source  = "github.com/hashicorp/vagrant"
-        }
+        }`;
+    }
+    result += `
     }
 }`;
+    return result;
   }
 
   getProvisionerConfig(machine: PackerVirtualMachineSpecs): string {
@@ -213,12 +224,7 @@ ${baseScripts
 
     for (const addon of machine.addons) {
       header += `
-    provisioner "file" {
-      destination = "/parallels-tools/scripts/"
-      source      = "\${path.root}/scripts/addons/${addon}.sh"
-      direction = "upload"
-    }
-  
+
     provisioner "shell" {
       environment_vars = [
           "HOME_DIR=/home/${machine.user}"
@@ -233,11 +239,15 @@ ${baseScripts
     }
 
     if (machine.generateVagrantBox) {
+      const outputFolder = machine.outputFolder.replace("output", "box");
+      if (!fs.existsSync(outputFolder)) {
+        fs.mkdirSync(outputFolder, {recursive: true});
+      }
       header += `
     post-processor "vagrant" {
       compression_level    = 9
       keep_input_artifact  = false
-      output               = "${machine.outputFolder}/{{ .Provider }}_${machine.vmName}.box"
+      output               = "${outputFolder}/{{ .Provider }}_${machine.vmName.replace(/\s/g, "_").toLowerCase()}.box"
       vagrantfile_template = null
     }`;
     }
@@ -271,7 +281,7 @@ ${baseScripts
     const machineBasePath = `${machine.folder}/scripts/${type}/`;
 
     if (fs.existsSync(machineBasePath)) {
-      fs.rmdirSync(machineBasePath, {recursive: true});
+      fs.rmSync(machineBasePath, {recursive: true});
     }
     fs.mkdirSync(machineBasePath, {recursive: true});
     const files = fs.readdirSync(scriptsBasePath);
@@ -290,7 +300,7 @@ ${baseScripts
     const machineBasePath = `${machine.folder}/files/`;
 
     if (fs.existsSync(machineBasePath)) {
-      fs.rmdirSync(machineBasePath, {recursive: true});
+      fs.rmSync(machineBasePath, {recursive: true});
     }
 
     fs.mkdirSync(machineBasePath, {recursive: true});
@@ -310,7 +320,7 @@ ${baseScripts
     const machineBasePath = `${machine.folder}/http/${machine.distro.toLowerCase()}`;
 
     if (fs.existsSync(machineBasePath)) {
-      fs.rmdirSync(machineBasePath, {recursive: true});
+      fs.rmSync(machineBasePath, {recursive: true});
     }
 
     fs.mkdirSync(machineBasePath, {recursive: true});
@@ -325,14 +335,6 @@ ${baseScripts
     }
   }
 
-  // generateHttpFiles(machine: PackerVirtualMachineSpecs) {
-  //   const extensionPath = this.context.extensionPath;
-  //   const scriptsBasePath = `${extensionPath}/packer/http/`;
-
-  //   fs.mkdirSync(`${machineBasePath}/http`, {recursive: true});
-  //   copy.copyFiles(scriptsBasePath, `${machineBasePath}/http/`);
-  // }
-
   generatePackerFile(machine: PackerVirtualMachineSpecs): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!machine.isoUrl || !machine.isoChecksum) {
@@ -340,8 +342,10 @@ ${baseScripts
       }
       if (fs.existsSync(machine.folder)) {
         parallelsOutputChannel.appendLine(`Deleting folder ${machine.folder}`);
-        fs.rmdirSync(machine.folder, {recursive: true});
+        fs.rmSync(machine.folder, {recursive: true});
       }
+
+      fs.mkdirSync(machine.folder, {recursive: true});
 
       parallelsOutputChannel.appendLine(`Creating folder ${machine.folder} and generating packer file`);
       const sourcesConfig = this.getProvisionerConfig(machine);
@@ -350,10 +354,11 @@ ${baseScripts
       this.copyAddonsFiles(machine);
       this.copyHttpContent(machine);
 
-      const packerConfig = this.getPackerConfig();
+      const packerConfig = this.getPackerConfig(machine);
       if (!packerConfig) {
         return reject("Error getting packer config");
       }
+
       fs.writeFileSync(path.join(machine.folder, `${machine.imgId}.pkr.hcl`), packerConfig);
       const provisionerConfig = this.getProvisionerConfig(machine);
       if (!provisionerConfig) {
@@ -368,20 +373,6 @@ ${baseScripts
       resolve(true);
     });
   }
-
-  // build(machine: PackerVirtualMachineSpecs): Promise<boolean> {
-  //   return new Promise<boolean>(async (resolve, reject) => {
-  //     this.generatePackerFile(machine);
-  //     const result = await copy.executeCommandInTerminal(
-  //       `cd ${destinationFolder} && PYTHONPATH=/Library/Frameworks/ParallelsVirtualizationSDK.framework/Versions/Current/Libraries/Python/3.7 packer build .`
-  //     );
-  //     if (result) {
-  //       resolve(true);
-  //     } else {
-  //       reject(false);
-  //     }
-  //   });
-  // }
 
   buildVm(machine: PackerVirtualMachineSpecs): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
