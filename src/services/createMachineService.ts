@@ -356,7 +356,7 @@ export class CreateMachineService {
         if (!fs.existsSync(packerFolder)) {
           fs.mkdirSync(packerFolder);
         }
-        
+
         const specs: PackerVirtualMachineSpecs = {
           imgId: img.id,
           folder: packerFolder,
