@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import {VirtualMachineProvider} from "./tree/virtual_machine";
-import {VagrantService} from "./services/vagrantService";
 import {Provider} from "./ioc/provider";
 import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {initialize} from "./initialization";

@@ -6,6 +6,8 @@ This extension allows you to manage a wide range of operations for your Virtual 
 
 > **Attention** This extension will only work on Apple Mac
 
+![extension](docs/extension.png)
+
 ## Features
 
 ### Manage Groups
@@ -28,6 +30,15 @@ This extension allows you to manage a wide range of operations for your Virtual 
 
 ![machine_state](docs/machine_states.gif)
 
+### Manage Machine Snapshots
+
+* Create a snapshot
+* Restore machine to a snapshot
+* Delete a snapshot
+* Visual Cue of snapshot tree
+
+![snapshot_tree](docs/snapshot_tree.png)
+
 ### Virtual Machine Details
 
 * Show Virtual Machine details
@@ -43,6 +54,14 @@ This extension allows you to manage a wide range of operations for your Virtual 
 * Open source for community expansion
 
 ![create_vm](docs/create_vm.gif)
+
+### Vagrant Boxes Management
+
+* List all available Vagrant Boxes
+* Init Vagrant Box
+* Delete Vagrant Box
+
+![vagrant_boxes](docs/vagrant_boxes.png)
 
 ## Requirements
 
@@ -60,18 +79,9 @@ This extension contributes the following settings:
 
 > Tip: The extension will use default values that will work on most cases and it will try to install all of the dependencies
 
-## Known Issues
+## Issues
 
-None at the moment
+This extension is still in development, so please refer to our [issue tracker](https://github.com/Parallels/parallels-vscode-extension/issues) for known issues, and please contribute with additional information if you encounter an issue yourself.
 
-## Release Notes
+## Contribute
 
-### 0.0.1
-
-* Initial release of the extension
-
-### 0.0.2
-
-* Added documentation
-
----
