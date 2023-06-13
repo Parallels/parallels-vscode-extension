@@ -1,73 +1,77 @@
-# parallels-desktop README
+# Parallels Desktop for VS Code
 
 [![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml)  
 
-This is an extension for parallels desktop.
+This extension allows you to manage a wide range of operations for your Virtual appliances
+
+> **Attention** This extension will only work on Apple Mac
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Manage Groups
 
-For example if there is an image subfolder under your extension project workspace:
+* Create groups for easier management of your virtual machines
+* Create group snapshots
+* Start/stop group virtual machines
+* Visual Cue for group state
 
-\!\[feature X\]\(images/feature-x.png\)
+![grouping](docs/feature_grouping.gif)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Manage Virtual Machine states
+
+* Start Machines
+* Stop Machines
+* Pause Machines
+* Suspend Machines
+* Show current state of Machines
+* Take snapshot of a Machine
+
+![machine_state](docs/machine_states.gif)
+
+### Virtual Machine Details
+
+* Show Virtual Machine details
+* Change Machine Settings
+
+![vm_details](docs/vm_details.png)
+
+### Creating Virtual Machines
+
+* Adding new custom Virtual Machines
+* Use "Addons" to get pre installed applications
+* Wide range of appliances and growing
+* Open source for community expansion
+
+![create_vm](docs/create_vm.gif)
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+You will need to be on Apple Mac and own a license of Parallels Desktop Pro or Business Edition, find more information [here](https://www.parallels.com/uk/products/desktop/pro/)
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `parallels-desktop.output_path`: Output path for the packer machines.
+* `parallels-desktop.path`: Path for your Parallels Desktop installation.
+* `parallels-desktop.downloadFolder`: Download folder for any Iso/IPSW that requires downloading.
+* `parallels-desktop.vagrant.path`: Path for the vagrant tool.
+* `parallels-desktop.hashicorp.packer.path`: Path for the packer tool.
+
+> Tip: The extension will use default values that will work on most cases and it will try to install all of the dependencies
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+None at the moment
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
+* Initial release of the extension
 
-Initial release of ...
+### 0.0.2
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+* Added documentation
 
 ---
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
