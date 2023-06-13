@@ -36,7 +36,7 @@ jobs:
           git config --global user.email "cjlapao@gmail.com"
           git config --global user.name "cjlapao"
 
-          NEW_VERSION=$(./script/workflows/increment-version.sh ${{ inputs.version }})
+          NEW_VERSION="0.0.1"
 
           git checkout -b release/$NEW_VERSION
 
