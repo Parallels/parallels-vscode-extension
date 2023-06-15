@@ -34,7 +34,7 @@ export class VirtualMachineProvider
   dragMimeTypes = ["text/uri-list"];
 
   constructor(context: vscode.ExtensionContext) {
-    const view = vscode.window.createTreeView("parallels-desktop", {
+    const view = vscode.window.createTreeView("parallels-desktop-machines", {
       treeDataProvider: this,
       showCollapseAll: true,
       canSelectMany: true,

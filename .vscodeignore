@@ -13,6 +13,8 @@ packer-files/
 profile/
 screen-captures/
 vagrant-boxes/
+script/
+docs/
 *.iso
 *.pvm
 *.macvm

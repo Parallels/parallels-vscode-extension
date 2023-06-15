@@ -35,7 +35,7 @@ export class Provider {
   }
 
   private loadConfiguration(): void {
-    const configFolder = getUserProfileFolder(this.context);
+    const configFolder = getUserProfileFolder();
     const userProfile = path.join(configFolder, "profile.json");
     if (!fs.existsSync(userProfile)) {
       config = new ConfigurationService(this.context);

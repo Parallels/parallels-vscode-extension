@@ -19,7 +19,7 @@ export function registerClearDownloadCacheCommand(context: vscode.ExtensionConte
             title: "Deleting all snapshot children..."
           },
           async () => {
-            const downloadDir = getDownloadFolder(context);
+            const downloadDir = getDownloadFolder();
             if (fs.existsSync(downloadDir)) {
               fs.rmSync(downloadDir, {recursive: true});
             }

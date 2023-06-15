@@ -51,7 +51,7 @@ export class ConfigurationService {
   }
 
   save() {
-    const configFolder = getUserProfileFolder(this.context);
+    const configFolder = getUserProfileFolder();
     const userProfile = path.join(configFolder, "profile.json");
     fs.writeFileSync(userProfile, this.toJson());
   }
@@ -85,7 +85,7 @@ export class ConfigurationService {
 
   clearVirtualMachineGroupsVms() {
     this.virtualMachinesGroups.forEach(group => group.clear());
-    const configFolder = getUserProfileFolder(this.context);
+    const configFolder = getUserProfileFolder();
     const userProfile = path.join(configFolder, "profile.json");
     fs.writeFileSync(userProfile, this.toJson());
   }
