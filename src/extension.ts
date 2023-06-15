@@ -5,6 +5,8 @@ import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {initialize} from "./initialization";
 import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
 import {VagrantBoxProvider} from "./tree/vagrant_boxes";
+import {CommandsFlags} from "./constants/flags";
+import {parallelsOutputChannel} from "./helpers/channel";
 
 export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
@@ -33,26 +35,35 @@ export async function activate(context: vscode.ExtensionContext) {
 
   if (Provider.getConfiguration().countMachines() > 0) {
     vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", true);
+  } else {
+    vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", false);
   }
 
-  // TODO: Implement an auto refresh that is not as aggressive as the one below
   // Setting the auto refresh mechanism
-  // const config = Provider.getSettings();
-  // const autoRefresh = config.get<boolean>("autoRefresh");
-  // if (autoRefresh) {
-  //   const interval = config.get<number>("refreshInterval");
-  //   setInterval(
-  //     () => {
-  //       virtualMachineProvider.refresh();
-  //     },
-  //     interval === undefined ? 30000 : interval
-  //   );
-  // }
+  const config = Provider.getSettings();
+  const autoRefresh = config.get<boolean>("autoRefresh");
+  if (autoRefresh) {
+    parallelsOutputChannel.appendLine("Auto refresh is enabled");
+    let interval = config.get<number>("refreshInterval");
+    if (interval === undefined) {
+      parallelsOutputChannel.appendLine("Auto refresh interval is not defined, setting default to 60 seconds");
+      interval = 60000;
+    }
+    if (interval < 10000) {
+      parallelsOutputChannel.appendLine("Auto refresh interval is too low, setting minimum to 10 seconds");
+      interval = 10000;
+    }
+
+    parallelsOutputChannel.appendLine("Auto refresh interval is " + interval);
+    setInterval(() => {
+      parallelsOutputChannel.appendLine("Refreshing the virtual machine tree view");
+      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+      parallelsOutputChannel.appendLine("Refreshing the vagrant box tree view");
+      vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
+    }, interval);
+  }
 
   const list = await ParallelsDesktopService.getVms();
-  list.forEach(vm => {
-    console.log(vm.OS);
-  });
   registerClearDownloadCacheCommand(context);
 
   vscode.commands.executeCommand("setContext", "parallels-desktop:initialized", true);

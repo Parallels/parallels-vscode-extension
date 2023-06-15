@@ -59,16 +59,16 @@ export class ParallelsDesktopService {
               const group = config.getVirtualMachineGroup(vmGroup);
 
               if (group === undefined) {
-                parallelsOutputChannel.appendLine(`group ${vmGroup} not found`);
+                parallelsOutputChannel.appendLine(`Group ${vmGroup} not found`);
                 return reject(`group ${vmGroup} not found`);
               }
 
               vm.group = group?.name;
               group.add(vm);
-              parallelsOutputChannel.appendLine(`found vm: ${vm.Name} in group ${vm.group}`);
+              parallelsOutputChannel.appendLine(`Found vm ${vm.Name} in group ${vm.group}`);
             } else {
               noGroup?.add(vm);
-              parallelsOutputChannel.appendLine(`found vm: ${vm.Name}`);
+              parallelsOutputChannel.appendLine(`Found vm ${vm.Name} with no group`);
             }
           });
 

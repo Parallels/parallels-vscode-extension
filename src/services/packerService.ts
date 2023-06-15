@@ -261,7 +261,7 @@ ${baseScripts
   getScriptsName(type: string, machine: PackerVirtualMachineSpecs): string[] {
     const result: string[] = [];
     const extensionPath = this.context.extensionPath;
-    const scriptsBasePath = `${extensionPath}/src/packer/scripts/${machine.base.toLowerCase()}/${machine.platform.toLowerCase()}/${machine.distro.toLowerCase()}/${type}/`;
+    const scriptsBasePath = `${extensionPath}/packer/scripts/${machine.base.toLowerCase()}/${machine.platform.toLowerCase()}/${machine.distro.toLowerCase()}/${type}/`;
     if (!fs.existsSync(scriptsBasePath)) {
       return result;
     }
@@ -276,16 +276,20 @@ ${baseScripts
   }
 
   copyScripts(type: string, machine: PackerVirtualMachineSpecs) {
+    parallelsOutputChannel.appendLine(`Copying ${type} scripts for ${machine.distro}...`);
     const extensionPath = this.context.extensionPath;
-    const scriptsBasePath = `${extensionPath}/src/packer/scripts/${machine.base.toLowerCase()}/${machine.platform.toLowerCase()}/${machine.distro.toLowerCase()}/${type}/`;
+    const scriptsBasePath = `${extensionPath}/packer/scripts/${machine.base.toLowerCase()}/${machine.platform.toLowerCase()}/${machine.distro.toLowerCase()}/${type}/`;
     const machineBasePath = `${machine.folder}/scripts/${type}/`;
 
     if (fs.existsSync(machineBasePath)) {
+      parallelsOutputChannel.appendLine(`Removing existing scripts for ${machine.distro}...`);
       fs.rmSync(machineBasePath, {recursive: true});
     }
+
     fs.mkdirSync(machineBasePath, {recursive: true});
     const files = fs.readdirSync(scriptsBasePath);
     for (const file of files) {
+      parallelsOutputChannel.appendLine(`Copying script ${file}...`);
       const srcFile = `${scriptsBasePath}/${file}`;
       const destFile = `${machineBasePath}/${file}`;
       if (!fs.lstatSync(srcFile).isDirectory()) {
@@ -295,8 +299,9 @@ ${baseScripts
   }
 
   copyAddonsFiles(machine: PackerVirtualMachineSpecs) {
+    parallelsOutputChannel.appendLine(`Copying addons files for ${machine.distro}...`);
     const extensionPath = this.context.extensionPath;
-    const scriptsBasePath = `${extensionPath}/src/packer/files/`;
+    const scriptsBasePath = `${extensionPath}/packer/files/`;
     const machineBasePath = `${machine.folder}/files/`;
 
     if (fs.existsSync(machineBasePath)) {
@@ -306,6 +311,7 @@ ${baseScripts
     fs.mkdirSync(machineBasePath, {recursive: true});
     const files = fs.readdirSync(scriptsBasePath);
     for (const file of files) {
+      parallelsOutputChannel.appendLine(`Copying addon file ${file}...`);
       const srcFile = `${scriptsBasePath}/${file}`;
       const destFile = `${machineBasePath}/${file}`;
       if (!fs.lstatSync(srcFile).isDirectory()) {
@@ -315,8 +321,9 @@ ${baseScripts
   }
 
   copyHttpContent(machine: PackerVirtualMachineSpecs) {
+    parallelsOutputChannel.appendLine(`Copying http content for ${machine.distro}...`);
     const extensionPath = this.context.extensionPath;
-    const httpContentBasePath = `${extensionPath}/src/packer/http/${machine.distro.toLowerCase()}`;
+    const httpContentBasePath = `${extensionPath}/packer/http/${machine.distro.toLowerCase()}`;
     const machineBasePath = `${machine.folder}/http/${machine.distro.toLowerCase()}`;
 
     if (fs.existsSync(machineBasePath)) {
@@ -329,6 +336,7 @@ ${baseScripts
         const srcFile = `${httpContentBasePath}/${file}.pkrtpl.hcl`;
         const destFile = `${machineBasePath}/${file}.pkrtpl.hcl`;
         if (!fs.lstatSync(srcFile).isDirectory()) {
+          parallelsOutputChannel.appendLine(`Copying http content ${file}...`);
           fs.copyFileSync(srcFile, destFile);
         }
       }
@@ -337,73 +345,81 @@ ${baseScripts
 
   generatePackerFile(machine: PackerVirtualMachineSpecs): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (!machine.isoUrl || !machine.isoChecksum) {
-        return reject("Error getting iso url or checksum");
-      }
-      if (fs.existsSync(machine.folder)) {
-        parallelsOutputChannel.appendLine(`Deleting folder ${machine.folder}`);
-        fs.rmSync(machine.folder, {recursive: true});
-      }
+      try {
+        if (!machine.isoUrl || !machine.isoChecksum) {
+          return reject("Error getting iso url or checksum");
+        }
+        if (fs.existsSync(machine.folder)) {
+          parallelsOutputChannel.appendLine(`Deleting folder ${machine.folder}`);
+          fs.rmSync(machine.folder, {recursive: true});
+        }
 
-      fs.mkdirSync(machine.folder, {recursive: true});
+        fs.mkdirSync(machine.folder, {recursive: true});
 
-      parallelsOutputChannel.appendLine(`Creating folder ${machine.folder} and generating packer file`);
-      const sourcesConfig = this.getProvisionerConfig(machine);
-      this.copyScripts("base", machine);
-      this.copyScripts("addons", machine);
-      this.copyAddonsFiles(machine);
-      this.copyHttpContent(machine);
+        parallelsOutputChannel.appendLine(`Creating folder ${machine.folder} and generating packer file`);
+        const sourcesConfig = this.getProvisionerConfig(machine);
+        this.copyScripts("base", machine);
+        this.copyScripts("addons", machine);
+        this.copyAddonsFiles(machine);
+        this.copyHttpContent(machine);
 
-      const packerConfig = this.getPackerConfig(machine);
-      if (!packerConfig) {
-        return reject("Error getting packer config");
-      }
+        const packerConfig = this.getPackerConfig(machine);
+        if (!packerConfig) {
+          return reject("Error getting packer config");
+        }
 
-      fs.writeFileSync(path.join(machine.folder, `${machine.imgId}.pkr.hcl`), packerConfig);
-      const provisionerConfig = this.getProvisionerConfig(machine);
-      if (!provisionerConfig) {
-        return reject("Error getting packer provisioner config");
+        fs.writeFileSync(path.join(machine.folder, `${machine.imgId}.pkr.hcl`), packerConfig);
+        const provisionerConfig = this.getProvisionerConfig(machine);
+        if (!provisionerConfig) {
+          return reject("Error getting packer provisioner config");
+        }
+        fs.writeFileSync(path.join(machine.folder, `${machine.imgId}.provisioner.pkr.hcl`), provisionerConfig);
+        const builderConfig = this.getBuilderConfig(machine);
+        if (!builderConfig) {
+          return reject("Error getting packer builder config");
+        }
+        fs.writeFileSync(path.join(machine.folder, `${machine.imgId}.build.pkr.hcl`), builderConfig);
+        resolve(true);
+      } catch (error) {
+        reject(error);
       }
-      fs.writeFileSync(path.join(machine.folder, `${machine.imgId}.provisioner.pkr.hcl`), provisionerConfig);
-      const builderConfig = this.getBuilderConfig(machine);
-      if (!builderConfig) {
-        return reject("Error getting packer builder config");
-      }
-      fs.writeFileSync(path.join(machine.folder, `${machine.imgId}.build.pkr.hcl`), builderConfig);
-      resolve(true);
     });
   }
 
   buildVm(machine: PackerVirtualMachineSpecs): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
-      const filesResult = await this.generatePackerFile(machine);
-      if (!filesResult) {
-        return reject("Error generating packer files");
-      }
+      try {
+        const filesResult = await this.generatePackerFile(machine);
+        if (!filesResult) {
+          return reject("Error generating packer files");
+        }
 
-      parallelsOutputChannel.appendLine(`starting to build vm ${machine.name}`);
-      const packer = cp.spawn(
-        "PYTHONPATH=/Library/Frameworks/ParallelsVirtualizationSDK.framework/Versions/Current/Libraries/Python/3.7",
-        ["packer", `build .`],
-        {
-          cwd: machine.folder,
-          shell: true
-        }
-      );
-      packer.stdout.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
-      });
-      packer.stderr.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
-        reject(data);
-      });
-      packer.on("close", code => {
-        if (code !== 0) {
-          parallelsOutputChannel.appendLine(`packer build exited with code ${code}`);
-          return resolve(false);
-        }
-        return resolve(true);
-      });
+        parallelsOutputChannel.appendLine(`starting to build vm ${machine.name}`);
+        const packer = cp.spawn(
+          "PYTHONPATH=/Library/Frameworks/ParallelsVirtualizationSDK.framework/Versions/Current/Libraries/Python/3.7",
+          ["packer", `build .`],
+          {
+            cwd: machine.folder,
+            shell: true
+          }
+        );
+        packer.stdout.on("data", data => {
+          parallelsOutputChannel.appendLine(data);
+        });
+        packer.stderr.on("data", data => {
+          parallelsOutputChannel.appendLine(data);
+          reject(data);
+        });
+        packer.on("close", code => {
+          if (code !== 0) {
+            parallelsOutputChannel.appendLine(`packer build exited with code ${code}`);
+            return resolve(false);
+          }
+          return resolve(true);
+        });
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 

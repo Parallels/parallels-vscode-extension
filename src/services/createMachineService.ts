@@ -26,52 +26,56 @@ export class CreateMachineService {
 
   async createVm(request: NewVirtualMachineRequest): Promise<boolean> {
     return new Promise<boolean>(async (resolve, reject) => {
-      parallelsOutputChannel.appendLine(`Creating VM ${request.name}`);
-      const data = new OperatingSystemsData(this.context);
-      await data.get();
-      switch (request.os) {
-        case "linux":
-          this.createLinux(data, request)
-            .then(
-              value => {
-                return resolve(value);
-              },
-              reason => {
+      try {
+        parallelsOutputChannel.appendLine(`Creating VM ${request.name}`);
+        const data = new OperatingSystemsData(this.context);
+        await data.get();
+        switch (request.os) {
+          case "linux":
+            this.createLinux(data, request)
+              .then(
+                value => {
+                  return resolve(value);
+                },
+                reason => {
+                  return reject(reason);
+                }
+              )
+              .catch(reason => {
                 return reject(reason);
-              }
-            )
-            .catch(reason => {
-              return reject(reason);
-            });
-          break;
-        case "windows":
-          this.createWindows(data, request)
-            .then(
-              value => {
-                return resolve(value);
-              },
-              reason => {
+              });
+            break;
+          case "windows":
+            this.createWindows(data, request)
+              .then(
+                value => {
+                  return resolve(value);
+                },
+                reason => {
+                  return reject(reason);
+                }
+              )
+              .catch(reason => {
                 return reject(reason);
-              }
-            )
-            .catch(reason => {
-              return reject(reason);
-            });
-          break;
-        case "macos":
-          this.createMacOs(data, request)
-            .then(
-              value => {
-                return resolve(value);
-              },
-              reason => {
+              });
+            break;
+          case "macos":
+            this.createMacOs(data, request)
+              .then(
+                value => {
+                  return resolve(value);
+                },
+                reason => {
+                  return reject(reason);
+                }
+              )
+              .catch(reason => {
                 return reject(reason);
-              }
-            )
-            .catch(reason => {
-              return reject(reason);
-            });
-          break;
+              });
+            break;
+        }
+      } catch (error) {
+        return reject(error);
       }
     });
   }
@@ -223,7 +227,7 @@ export class CreateMachineService {
 
       parallelsOutputChannel.appendLine(`Image found: ${img.name}`);
 
-      const filePath = path.join(getDownloadFolder(this.context), `${request.name}.ipsw`);
+      const filePath = path.join(getDownloadFolder(), `${request.name}.ipsw`);
       if (!fs.existsSync(filePath)) {
         await this.downloadFile(img.name, request.name, img.isoUrl, filePath)
           .then(result => {
@@ -308,7 +312,7 @@ export class CreateMachineService {
 
       parallelsOutputChannel.appendLine(`Image found: ${img.name}`);
       const isoName = `${request.name}.iso`;
-      const filePath = path.join(getDownloadFolder(this.context), isoName);
+      const filePath = path.join(getDownloadFolder(), isoName);
       if (!fs.existsSync(filePath)) {
         const isDownloaded = await this.downloadFile(img.name, request.name, img.isoUrl, filePath).catch(reason => {
           return reject(reason);
@@ -352,7 +356,7 @@ export class CreateMachineService {
         const packerSvc = new PackerService(this.context);
 
         // creating the folder for the packer files
-        const packerFolder = path.join(getPackerFilesFolder(this.context), img.name.replace(/\s/g, "_"));
+        const packerFolder = path.join(getPackerFilesFolder(), img.name.replace(/\s/g, "_"));
         if (!fs.existsSync(packerFolder)) {
           fs.mkdirSync(packerFolder);
         }

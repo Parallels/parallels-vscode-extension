@@ -119,7 +119,7 @@ export class VagrantService {
 
   static async init(boxName: string, context: vscode.ExtensionContext): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      const vagrantBoxFolder = getVagrantBoxFolder(context);
+      const vagrantBoxFolder = getVagrantBoxFolder();
       const vmBoxFolder = `${vagrantBoxFolder}/${boxName.replace(/\s/g, "_")}`;
       if (fs.existsSync(vmBoxFolder)) {
         fs.rmSync(vmBoxFolder, {recursive: true});

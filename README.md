@@ -85,3 +85,11 @@ This extension is still in development, so please refer to our [issue tracker](h
 
 ## Contribute
 
+If you're interested in contributing, or want to explore the source code of this extension yourself, see our [contributing guide](CONTRIBUTING.md), which includes:
+
+* [Prerequisites for running and testing code](CONTRIBUTING.md#prerequisites-for-running-and-testing-code)
+* [Submitting a pull request](CONTRIBUTING.md#submitting-a-pull-request)
+* [Dev loop & Testing changes](CONTRIBUTING.md#dev-loop-testing-changes)
+* [Npm Commands](CONTRIBUTING.md#npm-commands)
+* [Build](CONTRIBUTING.md#build)
+* [Run Tests](CONTRIBUTING.md#run-tests)

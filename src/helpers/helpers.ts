@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import * as cp from "child_process";
 import {Provider} from "../ioc/provider";
 
 export function isDarkTheme(): boolean {
@@ -27,10 +28,24 @@ export function formatDate(date: Date) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export function getDownloadFolder(context: vscode.ExtensionContext): string {
+export function getFoldersBasePath(): string {
+  let foldersBasePath = Provider.getSettings().get<string>("parallels-desktop.path");
+  if (!foldersBasePath) {
+    const homePath = cp.execSync(`echo $HOME`).toString();
+    foldersBasePath = path.join(homePath.trim(), ".parallels-desktop-vscode");
+    if (!fs.existsSync(foldersBasePath)) {
+      fs.mkdirSync(foldersBasePath, {recursive: true});
+    }
+    return foldersBasePath;
+  }
+
+  return foldersBasePath;
+}
+
+export function getDownloadFolder(): string {
   let downloadFolder = Provider.getSettings().get<string>("parallels-desktop.downloadFolder");
   if (!downloadFolder) {
-    downloadFolder = path.join(context.extensionPath, "downloads");
+    downloadFolder = path.join(getFoldersBasePath(), "downloads");
   }
 
   if (!fs.existsSync(downloadFolder)) {
@@ -40,10 +55,10 @@ export function getDownloadFolder(context: vscode.ExtensionContext): string {
   return downloadFolder;
 }
 
-export function getPackerFilesFolder(context: vscode.ExtensionContext): string {
+export function getPackerFilesFolder(): string {
   let packerFilesFolder = Provider.getSettings().get<string>("parallels-desktop.packerFilesFolder");
   if (!packerFilesFolder) {
-    packerFilesFolder = path.join(context.extensionPath, "packer-files");
+    packerFilesFolder = path.join(getFoldersBasePath(), "packer-files");
   }
 
   if (!fs.existsSync(packerFilesFolder)) {
@@ -53,12 +68,8 @@ export function getPackerFilesFolder(context: vscode.ExtensionContext): string {
   return packerFilesFolder;
 }
 
-export function getScreenCaptureFolder(context: vscode.ExtensionContext): string {
-  let packerFilesFolder = Provider.getSettings().get<string>("parallels-desktop.screenCaptureFolder");
-  if (!packerFilesFolder) {
-    packerFilesFolder = path.join(context.extensionPath, "screen-captures");
-  }
-
+export function getScreenCaptureFolder(): string {
+  const packerFilesFolder = path.join(getFoldersBasePath(), "screen-captures");
   if (!fs.existsSync(packerFilesFolder)) {
     fs.mkdirSync(packerFilesFolder, {recursive: true});
   }
@@ -66,10 +77,10 @@ export function getScreenCaptureFolder(context: vscode.ExtensionContext): string
   return packerFilesFolder;
 }
 
-export function getVagrantBoxFolder(context: vscode.ExtensionContext): string {
+export function getVagrantBoxFolder(): string {
   let packerFilesFolder = Provider.getSettings().get<string>("parallels-desktop.vagrantBoxFolder");
   if (!packerFilesFolder) {
-    packerFilesFolder = path.join(context.extensionPath, "vagrant-boxes");
+    packerFilesFolder = path.join(getFoldersBasePath(), "vagrant-boxes");
   }
 
   if (!fs.existsSync(packerFilesFolder)) {
@@ -79,11 +90,8 @@ export function getVagrantBoxFolder(context: vscode.ExtensionContext): string {
   return packerFilesFolder;
 }
 
-export function getUserProfileFolder(context: vscode.ExtensionContext): string {
-  let packerFilesFolder = Provider.getSettings().get<string>("parallels-desktop.userProfileFolder");
-  if (!packerFilesFolder) {
-    packerFilesFolder = path.join(context.extensionPath, "profile");
-  }
+export function getUserProfileFolder(): string {
+  const packerFilesFolder = path.join(getFoldersBasePath(), "profile");
 
   if (!fs.existsSync(packerFilesFolder)) {
     fs.mkdirSync(packerFilesFolder, {recursive: true});

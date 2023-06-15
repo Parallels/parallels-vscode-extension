@@ -86,7 +86,7 @@ export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, p
 
 function getMachineSnapshot(machineId: string, context: vscode.ExtensionContext): Promise<string> {
   return new Promise((resolve, reject) => {
-    const destinationFolder = getScreenCaptureFolder(context);
+    const destinationFolder = getScreenCaptureFolder();
     const destinationFile = path.join(destinationFolder, `${machineId}.png`);
     ParallelsDesktopService.captureScreen(machineId, destinationFile)
       .then(
