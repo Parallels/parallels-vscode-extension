@@ -21,3 +21,4 @@ Please delete options that are not relevant.
 - [ ] My changes generate no new warnings
 - [ ] I have run tests (npm run test) that prove my fix is effective or that my feature works
 - [ ] I have run format check (npm run format-check) that shows any code inconsistency
+- [ ] I have updated the CHANGELOG.md file accordingly
