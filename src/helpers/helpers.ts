@@ -69,7 +69,7 @@ export function getPackerFilesFolder(): string {
 }
 
 export function getScreenCaptureFolder(context: vscode.ExtensionContext): string {
-  const packerFilesFolder = path.join(context.extensionPath , "screen-captures");
+  const packerFilesFolder = path.join(context.extensionPath, "screen-captures");
   if (!fs.existsSync(packerFilesFolder)) {
     fs.mkdirSync(packerFilesFolder, {recursive: true});
   }
