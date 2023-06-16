@@ -418,7 +418,7 @@
                 },
                 {
                     "command": "parallels-desktop.tree-view.remove-group",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.stopped || viewItem == group.mixed || viewItem == group.running || viewItem == group.paused || viewItem == group.suspended)",
+                    "when": "view == parallels-desktop-machines && (viewItem == group.unknown || viewItem == group.stopped || viewItem == group.mixed || viewItem == group.running || viewItem == group.paused || viewItem == group.suspended)",
                     "group": "inline",
                     "order": "1"
                 },

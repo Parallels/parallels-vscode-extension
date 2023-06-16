@@ -13,15 +13,16 @@ export function registerDeleteVmSnapshotCommand(context: vscode.ExtensionContext
     vscode.commands.registerCommand(CommandsFlags.treeViewDeleteVmSnapshot, async (item: VirtualMachineTreeItem) => {
       const config = Provider.getConfiguration();
       const options: string[] = ["Yes", "No"];
-      const deleteChildren = await vscode.window.showQuickPick(options, {
-        placeHolder: "Delete all snapshot children?"
-      });
       if (item) {
         const vm = item.item as VirtualMachine;
         const confirmation = await vscode.window.showQuickPick(options, {
           placeHolder: `Are you sure you want to delete snapshot ${item.name} for vm ${vm?.Name ?? "unknown"}?`
         });
-        if (confirmation !== "Yes") {
+        if (confirmation === "Yes") {
+          const deleteChildren = await vscode.window.showQuickPick(options, {
+            placeHolder: "Delete all snapshot children?"
+          });
+
           vscode.window.withProgress(
             {
               location: vscode.ProgressLocation.Notification,

@@ -14,7 +14,7 @@ export function registerRemoveGroupCommand(context: vscode.ExtensionContext, pro
         const confirmation = await vscode.window.showQuickPick(options, {
           placeHolder: `Are you sure you want to remove group ${item.name}?`
         });
-        if (confirmation !== "Yes") {
+        if (confirmation === "Yes") {
           const noGroup = Provider.getConfiguration().getVirtualMachineGroup(FLAG_NO_GROUP);
           group.machines.forEach(vm => {
             noGroup?.add(vm);
