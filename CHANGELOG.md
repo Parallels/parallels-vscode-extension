@@ -34,4 +34,8 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * Added more OS icons
 * Added black screen is machine screenshot is not available
 * fixed missing group delete icon
-  
+
+## [0.0.6] - 2023-05-16
+
+* Fixed an issue where we could not delete an empty group
+* Fixed an issue with the confirmation dialog
