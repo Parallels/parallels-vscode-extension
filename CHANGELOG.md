@@ -23,3 +23,15 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * some commands were being rendered in the command pallet and should not
 * added the missing vagrant box refresh button
 * fixed the aggressive auto-refresh for VMS
+
+## [0.0.5] - 2023-05-16
+
+* Fixed issue with os icon not displaying correctly in details
+* Fixed issue with screenshot not displaying correctly in details
+* Added progress of operation to all VMs commands
+* Added the ability to drag multiple machines
+* Added 'preview' icon to the extension manifest -Added badge to the extension manifest
+* Added more OS icons
+* Added black screen is machine screenshot is not available
+* fixed missing group delete icon
+  

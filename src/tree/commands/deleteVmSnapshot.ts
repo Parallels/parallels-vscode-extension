@@ -18,22 +18,35 @@ export function registerDeleteVmSnapshotCommand(context: vscode.ExtensionContext
       });
       if (item) {
         const vm = item.item as VirtualMachine;
-        const result = await ParallelsDesktopService.deleteVmSnapshot(
-          vm.ID,
-          item.id,
-          deleteChildren === "Yes" ? true : false
-        ).catch(reject => {
-          vscode.window.showErrorMessage(`${reject}`);
-          return;
+        const confirmation = await vscode.window.showQuickPick(options, {
+          placeHolder: `Are you sure you want to delete snapshot ${item.name} for vm ${vm?.Name ?? "unknown"}?`
         });
-        if (!result) {
-          vscode.window.showErrorMessage(`Snapshot ${item.name} for vm ${vm.Name} failed to delete`);
-          return;
-        }
+        if (confirmation !== "Yes") {
+          vscode.window.withProgress(
+            {
+              location: vscode.ProgressLocation.Notification,
+              title: `Deleting snapshot ${item.name} for vm ${vm?.Name ?? "unknown"}`
+            },
+            async () => {
+              const result = await ParallelsDesktopService.deleteVmSnapshot(
+                vm.ID,
+                item.id,
+                deleteChildren === "Yes" ? true : false
+              ).catch(reject => {
+                vscode.window.showErrorMessage(`${reject}`);
+                return;
+              });
+              if (!result) {
+                vscode.window.showErrorMessage(`Snapshot ${item.name} for vm ${vm.Name} failed to delete`);
+                return;
+              }
 
-        vscode.window.showInformationMessage(`Snapshot ${item.name} for vm ${vm.Name} deleted`);
-        vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
-        parallelsOutputChannel.appendLine(`Snapshot ${item.name} for vm ${vm.Name} deleted`);
+              vscode.window.showInformationMessage(`Snapshot ${item.name} for vm ${vm.Name} deleted`);
+              vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+              parallelsOutputChannel.appendLine(`Snapshot ${item.name} for vm ${vm.Name} deleted`);
+            }
+          );
+        }
       }
     })
   );

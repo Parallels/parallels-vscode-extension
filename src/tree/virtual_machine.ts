@@ -149,7 +149,6 @@ export class VirtualMachineProvider
         }
         return resolve(this.data);
       } else {
-        console.log(`getChildren: ${element.label}`);
         if (element.type === "VirtualMachine") {
           const children: VirtualMachineTreeItem[] = [];
           ParallelsDesktopService.getVmSnapshots(element.id)
@@ -326,13 +325,11 @@ export class VirtualMachineProvider
     dataTransfer: vscode.DataTransfer,
     token: vscode.CancellationToken
   ): Promise<void> {
-    console.log(source, dataTransfer, token);
-    if (source.length === 1) {
-      dataTransfer.set("application/vnd.code.tree.virtualMachine", new vscode.DataTransferItem(source[0]));
-    } else {
+    if (source.length === 0) {
       token.isCancellationRequested = true;
     }
-    // dataTransfer.set("application/vnd.code.tree.testViewDragAndDrop", JSON.stringify(source)
+
+    dataTransfer.set("application/vnd.code.tree.virtualMachine", new vscode.DataTransferItem(source));
   }
 
   public async handleDrop(
@@ -340,45 +337,57 @@ export class VirtualMachineProvider
     dataTransfer: vscode.DataTransfer,
     token: vscode.CancellationToken
   ): Promise<void> {
+    const itemsToTransfer: VirtualMachineTreeItem[] = [];
+
     const transferItem = dataTransfer.get("application/vnd.code.tree.virtualMachine");
     if (!transferItem) {
       return;
     }
-    const vm = transferItem.value as VirtualMachineTreeItem;
 
-    if (target === undefined) {
-      target = new VirtualMachineTreeItem(
-        undefined,
-        "Group",
-        FLAG_NO_GROUP,
-        FLAG_NO_GROUP,
-        FLAG_NO_GROUP,
-        FLAG_NO_GROUP,
-        FLAG_NO_GROUP,
-        "",
-        "group",
-        vscode.TreeItemCollapsibleState.Collapsed,
-        "desktop_group_new"
-      );
+    if (!Array.isArray(transferItem.value)) {
+      itemsToTransfer.push(transferItem.value as VirtualMachineTreeItem);
+    } else {
+      itemsToTransfer.push(...(transferItem.value as VirtualMachineTreeItem[]));
     }
 
-    if (target.type != "Group") {
-      return;
-    }
+    itemsToTransfer.forEach(async item => {
+      const vm = item as VirtualMachineTreeItem;
 
-    const groups = Provider.getConfiguration().virtualMachinesGroups;
-    const targetGroup = groups.find(g => g.name === target.id);
-    const sourceGroup = groups.find(g => g.name === vm.group);
-    if (targetGroup === undefined) {
-      return;
-    }
-    if (sourceGroup === undefined) {
-      return;
-    }
+      if (target === undefined) {
+        target = new VirtualMachineTreeItem(
+          undefined,
+          "Group",
+          FLAG_NO_GROUP,
+          FLAG_NO_GROUP,
+          FLAG_NO_GROUP,
+          FLAG_NO_GROUP,
+          FLAG_NO_GROUP,
+          "",
+          "group",
+          vscode.TreeItemCollapsibleState.Collapsed,
+          "desktop_group_new"
+        );
+      }
 
-    targetGroup.add(vm.item as VirtualMachine);
+      if (target.type != "Group") {
+        return;
+      }
 
-    sourceGroup.remove(vm.name);
+      const groups = Provider.getConfiguration().virtualMachinesGroups;
+      const targetGroup = groups.find(g => g.name === target.id);
+      const sourceGroup = groups.find(g => g.name === vm.group);
+      if (targetGroup === undefined) {
+        return;
+      }
+      if (sourceGroup === undefined) {
+        return;
+      }
+
+      targetGroup.add(vm.item as VirtualMachine);
+
+      sourceGroup.remove(vm.name);
+    });
+
     Provider.getConfiguration().save();
     this.refresh();
   }

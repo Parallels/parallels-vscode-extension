@@ -9,40 +9,50 @@ import {Provider} from "../../ioc/provider";
 export function registerStopVirtualMachineCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeViewStopVm, async item => {
-      // refreshing the vm state in the config
-      const config = Provider.getConfiguration();
-      config.setVmStatus(item.id, "stopping...");
-      provider.refresh();
+      vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: `Stopping virtual machine ${item.name}`
+        },
+        async () => {
+          // refreshing the vm state in the config
+          const config = Provider.getConfiguration();
+          config.setVmStatus(item.id, "stopping...");
+          provider.refresh();
 
-      let foundError = false;
-      const ok = await ParallelsDesktopService.stopVm(item.id).catch(reject => {
-        vscode.window.showErrorMessage(`${reject}`);
-        foundError = true;
-        return;
-      });
-      if (!ok && !foundError) {
-        vscode.window.showErrorMessage(`Failed to stop virtual machine ${item.name}`);
-        return;
-      }
+          let foundError = false;
+          const ok = await ParallelsDesktopService.stopVm(item.id).catch(reject => {
+            vscode.window.showErrorMessage(`${reject}`);
+            foundError = true;
+            return;
+          });
+          if (!ok && !foundError) {
+            vscode.window.showErrorMessage(`Failed to stop virtual machine ${item.name}`);
+            return;
+          }
 
-      // awaiting for the status to be reported
-      let retry = 40;
-      while (true) {
-        provider.refresh();
-        const result = await ParallelsDesktopService.getVmStatus(item.id);
-        if (result === "stopped") {
-          parallelsOutputChannel.appendLine(`Virtual machine ${item.name} stopped`);
-          break;
+          // awaiting for the status to be reported
+          let retry = 40;
+          while (true) {
+            provider.refresh();
+            const result = await ParallelsDesktopService.getVmStatus(item.id);
+            if (result === "stopped") {
+              parallelsOutputChannel.appendLine(`Virtual machine ${item.name} stopped`);
+              break;
+            }
+            if (retry === 0) {
+              parallelsOutputChannel.appendLine(`Virtual machine ${item.name} failed to stop`);
+              vscode.window.showErrorMessage(
+                `Failed to check if the machine ${item.name} stopped, please check the logs`
+              );
+              break;
+            }
+            retry--;
+          }
+
+          vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
         }
-        if (retry === 0) {
-          parallelsOutputChannel.appendLine(`Virtual machine ${item.name} failed to stop`);
-          vscode.window.showErrorMessage(`Failed to check if the machine ${item.name} stopped, please check the logs`);
-          break;
-        }
-        retry--;
-      }
-
-      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+      );
     })
   );
 }

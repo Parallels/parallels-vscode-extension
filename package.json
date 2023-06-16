@@ -7,14 +7,22 @@
         "type": "git",
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
-    "icon": "media/parallels_logo.png",
+    "icon": "img/logo/parallels_logo.png",
     "version": "0.0.4",
     "engines": {
         "vscode": "^1.77.0"
     },
     "categories": [
-        "Other"
+        "Programming Languages"
     ],
+    "badges": [
+        {
+            "url": "https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main",
+            "href": "https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml",
+            "description": "Build Status"
+        }
+    ],
+    "preview": true,
     "keywords": [
         "parallels",
         "virtualization",
@@ -243,7 +251,7 @@
                 {
                     "id": "parallels-desktop",
                     "title": "Parallels Desktop",
-                    "icon": "media/parallels_logo.svg"
+                    "icon": "img/logo/parallels_logo.svg"
                 }
             ]
         },
@@ -407,6 +415,12 @@
                     "command": "parallels-desktop.tree-view.restore-vm-snapshot",
                     "when": "view == parallels-desktop-machines && viewItem == snapshot.other",
                     "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.remove-group",
+                    "when": "view == parallels-desktop-machines && (viewItem == group.stopped || viewItem == group.mixed || viewItem == group.running || viewItem == group.paused || viewItem == group.suspended)",
+                    "group": "inline",
+                    "order": "1"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-group-vms",

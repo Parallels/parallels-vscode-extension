@@ -10,6 +10,7 @@ import {VirtualMachine} from "../../models/virtualMachine";
 import {generateHtml} from "../../views/header.html";
 import {getScreenCaptureFolder, isDarkTheme} from "../../helpers/helpers";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
+import {parallelsOutputChannel} from "../../helpers/channel";
 
 let lastClickedTime: number | undefined;
 
@@ -31,7 +32,7 @@ export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, p
         );
 
         const screenshot = await getMachineSnapshot(item.vmId ?? "", context).catch(err => {
-          console.log(err);
+          parallelsOutputChannel.appendLine(`Error getting screenshot: ${err}`);
           return "";
         });
         const updateWebview = () => {
@@ -40,7 +41,7 @@ export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, p
             light: vscode.Uri.file(path.join(__filename, "..", "..", "img", "light", `desktop.svg`)),
             dark: vscode.Uri.file(path.join(__filename, "..", "..", "img", "dark", `desktop.svg`))
           };
-          const screenshotUri = panel.webview.asWebviewUri(vscode.Uri.file(screenshot));
+          const screenshotUri = screenshot !== "" ? panel.webview.asWebviewUri(vscode.Uri.file(screenshot)) : "";
           panel.webview.html = getWebviewContent(context, panel, item.item as VirtualMachine, screenshotUri.toString());
         };
 
@@ -49,7 +50,6 @@ export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, p
             case "updateVm": {
               const cmd = JSON.parse(message.text);
               for (const flag in cmd) {
-                console.log(flag);
                 switch (flag) {
                   case "startupAndShutdown__startView":
                     ParallelsDesktopService.setVmConfig(item.vmId ?? "", "startup-view", cmd[flag])
@@ -86,7 +86,7 @@ export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, p
 
 function getMachineSnapshot(machineId: string, context: vscode.ExtensionContext): Promise<string> {
   return new Promise((resolve, reject) => {
-    const destinationFolder = getScreenCaptureFolder();
+    const destinationFolder = getScreenCaptureFolder(context);
     const destinationFile = path.join(destinationFolder, `${machineId}.png`);
     ParallelsDesktopService.captureScreen(machineId, destinationFile)
       .then(
@@ -119,10 +119,9 @@ function getWebviewContent(
   context: vscode.ExtensionContext,
   panel: vscode.WebviewPanel,
   item: VirtualMachine,
-  snapshot?: string
+  screenshot?: string
 ) {
-  const cssUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media", "vscode.css")));
-  const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media")));
+  const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "img/os_logos")));
   let osImg = "/linux_logo_light.svg";
   if (item.OS === "win-11") {
     osImg = "/images/windows_logo_light.svg";
@@ -143,35 +142,7 @@ function getWebviewContent(
     activeTab: 'mouseAndKeyboard',
     itemData: {
     },
-    screenshot: '${snapshot ?? ""}',
-    getVmScreenshot() {
-      if (this.screenshot == '') {
-        let osLogo = this.options.OS
-        switch (this.options.OS) {
-          case 'ubuntu':
-            osLogo = 'ubuntu'
-            break;
-          case 'windows':
-            osLogo = 'windows'
-            break;
-          case 'macos':
-            osLogo = 'macos'
-            break;
-          case 'fedora':
-            osLogo = 'debian'
-            break;
-          case 'kiali':
-            osLogo = 'fedora'
-            break;
-          default:
-            osLogo = 'other'
-            break;
-        }
-        return \`https://file%2B.vscode-resource.vscode-cdn.net/Users/cjlapao/code/parallels/parallels-vscode-extension/media/\${osLogo}.png\`
-      } else {
-        return this.screenshot
-      }
-    },
+    screenshot: '${screenshot}',
     getOsLogo() {
       let osLogo = this.options.OS
       switch (this.options.OS) {
@@ -181,8 +152,14 @@ function getWebviewContent(
         case 'windows':
           osLogo = 'windows'
           break;
+        case 'win-11':
+          osLogo = 'windows'
+          break;
         case 'macos':
-          osLogo = 'macos'
+          osLogo = 'macosx'
+          break;
+        case 'macosx':
+          osLogo = 'macosx'
           break;
         case 'fedora':
           osLogo = 'fedora'
@@ -191,11 +168,11 @@ function getWebviewContent(
           osLogo = 'kali_linux'
           break;
         default:
-          osLogo = 'parallels'
+          osLogo = 'other'
           break;
       }
 
-      return \`https://file%2B.vscode-resource.vscode-cdn.net/Users/cjlapao/code/parallels/parallels-vscode-extension/media/\${osLogo}_logo.svg\`
+      return \`${imageUri}/\${osLogo}_logo.svg\`
     },
     pad(n, width) {
       var n = n + '';
@@ -226,8 +203,8 @@ function getWebviewContent(
     <div class="card-container mt-2">
       <ul role="list">
         <li class="flex w-full flex-row justify-between items-center gap-x-6 py-5">
-          <div class="h-12 w-12">
-            <img class="h-12 w-12 p-2 flex-none rounded-full bg-gray-50" :src="getOsLogo()" />
+          <div class="h-14 w-14 p-2 bg-gray-50 rounded-lg">
+            <img class="h-12 w-12 flex-none" :src="getOsLogo()" />
           </div>
           <div class="flex flex-col gap-x-4 items-start flex-auto">
             <div class="flex gap-x-2">
@@ -247,8 +224,11 @@ function getWebviewContent(
             <h1 class="card-title text-xl font-semibold">Description:</h1>
             <p x-text="options.Description"></p>
           </div>
-          <div class="flex" style="width: 300px; min-width: 300px; max-width: 300px">
-            <img width="300" :src="getVmScreenshot()" />
+          <div class="flex items-center justify-center" x-show="screenshot === ''" style="width: 300px; min-width: 300px; max-width: 300px; min-height: 190px; background-color: black;">
+          <img class="h-12 w-12 p-2 flex-none rounded-full" :src="getOsLogo()" />
+          </div>
+          <div x-show="screenshot !== ''" class="flex" style="width: 300px; min-width: 300px; max-width: 300px; min-height: 190px">
+            <img width="300" :src="screenshot" />
           </div>
         </li>
       </ul>
