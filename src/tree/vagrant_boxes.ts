@@ -6,6 +6,7 @@ import {FLAG_NO_GROUP} from "../constants/flags";
 import {registerVagrantBoxRefreshCommand} from "./commands/vagrantBoxesRefresh";
 import {registerVagrantBoxInitCommand} from "./commands/vagrantBoxesInit";
 import {registerVagrantBoxRemoveCommand} from "./commands/vagrantBoxesRemove";
+import { parallelsOutputChannel } from "../helpers/channel";
 
 export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTreeItem> {
   data: VagrantBoxTreeItem[] = [];
@@ -61,12 +62,12 @@ export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTre
             return resolve(this.data);
           },
           error => {
-            console.log(error);
+            parallelsOutputChannel.appendLine("Error getting vagrant boxes: " + error);
             return resolve([]);
           }
         )
         .catch(error => {
-          console.log(error);
+          parallelsOutputChannel.appendLine("Error getting vagrant boxes: " + error);
           return resolve([]);
         });
     });

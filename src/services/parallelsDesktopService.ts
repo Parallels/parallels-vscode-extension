@@ -27,7 +27,6 @@ export class ParallelsDesktopService {
     return new Promise((resolve, reject) => {
       cp.exec("prlctl --version", (err, stdout, stderr) => {
         if (err) {
-          console.log(err);
           return reject(err);
         }
         return resolve(stdout);
@@ -45,7 +44,6 @@ export class ParallelsDesktopService {
 
       cp.exec("prlctl list -a -i --json", (err, stdout, stderr) => {
         if (err) {
-          console.log(err);
           return reject(err);
         }
         try {

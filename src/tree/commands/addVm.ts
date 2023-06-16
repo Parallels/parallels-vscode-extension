@@ -20,11 +20,7 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
         osData += o.toString() + ",";
       });
       osData += "]";
-      console.log(osData);
-      if (item?.type === "Group") {
-        console.log("Add VM to group");
-      }
-      // if (lastClickedTime && clickedTime - lastClickedTime < 500) {
+
       const panel = vscode.window.createWebviewPanel(
         "create_vm", // Identifies the type of the webview. Used internally
         "Create VM", // Title of the panel displayed to the user
@@ -48,8 +44,6 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
         switch (message.command) {
           case "setFlag": {
             const cmd = JSON.parse(message.text);
-            console.log(cmd.flag);
-            console.log(cmd.value);
             vscode.window.showInformationMessage(message.text);
             panel.webview.postMessage({command: "updateFlag", text: cmd.value});
             return;
@@ -192,12 +186,9 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       this.itemData.distro = 'undefined'; 
       this.itemData.image = 'undefined'; 
       if (this.itemData.os !== 'undefined' && !this.showPlatform()) { 
-        console.log('here')
         this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
-        console.log(this.itemData.platform)
       } if (this.itemData.os !== 'undefined' && this.showPlatform()) {
         this.itemData.platform = 'undefined';
-        console.log(this.itemData.platform)
       }
     },
     onPlatformDropdownChange() {
@@ -211,7 +202,6 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       this.itemData.name = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.name ?? ''
     },
     showPlatform() {
-      console.log('asking for show platform')
       if (this.itemData.os === 'undefined') return true
       return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
     },
@@ -219,14 +209,12 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       return this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.type ?? ''
     },
     showPlatformDropdown() {
-      console.log('asking for show platform dropdown')
       return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
     },
     showDistroDropdown() {
       return  this.itemData.os === 'linux' && this.itemData.platform !== 'undefined';
     },
     showImageDropdown() {
-      console.log('asking for show image dropdown')
       if (this.itemData.os === 'linux') {
         return this.itemData.os === 'linux' && this.itemData.platform !== 'undefined' && this.itemData.distro !== 'undefined'
       } else {
@@ -238,7 +226,6 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
     },
     showMachineOptions() {
       const img = this.getImage();
-      console.log(img)
       if (img === undefined) return false
       if (img.type === 'internal' || img.type === 'iso' ) return false
       return this.itemData.image !== 'undefined' && this.itemData.os !== 'macos'
@@ -254,7 +241,6 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       return (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
     },
     addImageAddon(id, state) {
-      console.log('addAddon: ',id, state);
       if (this.itemData.addons.length === 0) {
         this.itemData.addons.push({id: id, deploy: state});
         return;
@@ -263,7 +249,6 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       for (let i = 0; i < this.itemData.addons.length; i++) {
         let found = false
         if (this.itemData.addons[i].id === id) {
-          console.log('found');
           if (!state){
             this.itemData.addons.splice(i, 1);
           }
@@ -272,7 +257,6 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
         }
         
         if (!found) {
-          console.log('not found');
           this.itemData.addons.push({id: id, deploy: state});
         }
       }

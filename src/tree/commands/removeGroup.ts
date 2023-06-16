@@ -10,13 +10,19 @@ export function registerRemoveGroupCommand(context: vscode.ExtensionContext, pro
     vscode.commands.registerCommand(CommandsFlags.treeViewRemoveGroup, async item => {
       const group = Provider.getConfiguration().getVirtualMachineGroup(item.name);
       if (group !== undefined) {
-        const noGroup = Provider.getConfiguration().getVirtualMachineGroup(FLAG_NO_GROUP);
-        group.machines.forEach(vm => {
-          noGroup?.add(vm);
+        const options: string[] = ["Yes", "No"];
+        const confirmation = await vscode.window.showQuickPick(options, {
+          placeHolder: `Are you sure you want to remove group ${item.name}?`
         });
-        Provider.getConfiguration().deleteVirtualMachineGroup(item.name);
-        vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
-        parallelsOutputChannel.appendLine(`Group ${item.name} removed`);
+        if (confirmation !== "Yes") {
+          const noGroup = Provider.getConfiguration().getVirtualMachineGroup(FLAG_NO_GROUP);
+          group.machines.forEach(vm => {
+            noGroup?.add(vm);
+          });
+          Provider.getConfiguration().deleteVirtualMachineGroup(item.name);
+          vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+          parallelsOutputChannel.appendLine(`Group ${item.name} removed`);
+        }
       }
     })
   );

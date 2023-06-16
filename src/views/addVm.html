@@ -74,12 +74,9 @@
             this.itemData.distro = 'undefined'; 
             this.itemData.image = 'undefined'; 
             if (this.itemData.os !== 'undefined' && !this.showPlatform()) { 
-              console.log('here')
               this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
-              console.log(this.itemData.platform)
             } if (this.itemData.os !== 'undefined' && this.showPlatform()) {
               this.itemData.platform = 'undefined';
-              console.log(this.itemData.platform)
             }
           },
           onPlatformDropdownChange() {
@@ -93,7 +90,6 @@
             this.itemData.name = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.name ?? ''
           },
           showPlatform() {
-            console.log('asking for show platform')
             if (this.itemData.os === 'undefined') return true
             return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
           },
