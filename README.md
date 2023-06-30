@@ -1,6 +1,7 @@
 # Parallels Desktop for VS Code
 
-[![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml)  
+[![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml) [![](https://dcbadge.vercel.app/api/server/79JrRMpv?style=flat&theme=default)](https://discord.gg/79JrRMpv)
+
 
 This extension allows you to manage a wide range of operations for your Virtual appliances
 
