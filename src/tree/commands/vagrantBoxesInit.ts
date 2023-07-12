@@ -21,7 +21,7 @@ export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, 
         const isWindowsMachine = await vscode.window.showQuickPick(["Yes", "No"], {
           placeHolder: "Is this a Windows machine?"
         });
-        
+
         if (!isWindowsMachine) {
           isWindowsMachine === "No";
         }
@@ -33,7 +33,7 @@ export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, 
               title: `Initializing Vagrant box ${item.name}`
             },
             async progress => {
-              await VagrantService.init(item.name, machineName, isWindowsMachine === 'Yes' ? true: false, context)
+              await VagrantService.init(item.name, machineName, isWindowsMachine === "Yes" ? true : false, context)
                 .then(
                   value => {
                     if (!value) {
