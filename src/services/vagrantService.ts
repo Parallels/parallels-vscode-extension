@@ -117,45 +117,41 @@ export class VagrantService {
     });
   }
 
-  static async init(boxName: string, context: vscode.ExtensionContext): Promise<boolean> {
+  static async init(
+    boxName: string,
+    machineName: string,
+    isWindowsMachine: boolean,
+    context: vscode.ExtensionContext
+  ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const vagrantBoxFolder = getVagrantBoxFolder();
-      const vmBoxFolder = `${vagrantBoxFolder}/${boxName.replace(/\s/g, "_")}`;
+      if (machineName === "") {
+        machineName = boxName;
+      }
+
+      const vmBoxFolder = `${vagrantBoxFolder}/${machineName.replace(/\s/g, "_")}`;
       if (fs.existsSync(vmBoxFolder)) {
         fs.rmSync(vmBoxFolder, {recursive: true});
       }
 
       fs.mkdirSync(vmBoxFolder);
+      this.generateVagrantFile(boxName, machineName, isWindowsMachine, context);
 
-      const vagrant = cp.spawn("vagrant", ["init", `"${boxName}"`], {shell: true, cwd: vmBoxFolder});
-      vagrant.stdout.on("data", data => {
+      const vagrantUp = cp.spawn("vagrant", ["up"], {shell: true, cwd: vmBoxFolder});
+      vagrantUp.stdout.on("data", data => {
         parallelsOutputChannel.appendLine(data);
       });
-      vagrant.stderr.on("data", data => {
+      vagrantUp.stderr.on("data", data => {
         parallelsOutputChannel.appendLine(data);
       });
-      vagrant.on("close", code => {
+      vagrantUp.on("close", code => {
         if (code !== 0) {
-          parallelsOutputChannel.appendLine(`vagrant init exited with code ${code}`);
+          parallelsOutputChannel.appendLine(`vagrant up exited with code ${code}`);
           parallelsOutputChannel.show();
           return reject(code);
         }
-        const vagrantUp = cp.spawn("vagrant", ["up"], {shell: true, cwd: vmBoxFolder});
-        vagrantUp.stdout.on("data", data => {
-          parallelsOutputChannel.appendLine(data);
-        });
-        vagrantUp.stderr.on("data", data => {
-          parallelsOutputChannel.appendLine(data);
-        });
-        vagrantUp.on("close", code => {
-          if (code !== 0) {
-            parallelsOutputChannel.appendLine(`vagrant up exited with code ${code}`);
-            parallelsOutputChannel.show();
-            return reject(code);
-          }
 
-          return resolve(true);
-        });
+        return resolve(true);
       });
     });
   }
@@ -200,5 +196,38 @@ export class VagrantService {
         resolve(true);
       });
     });
+  }
+
+  static generateVagrantFile(
+    boxName: string,
+    machineName: string,
+    isWindowsMachine: boolean,
+    context: vscode.ExtensionContext
+  ): boolean {
+    const vagrantBoxFolder = getVagrantBoxFolder();
+    if (machineName === "") {
+      machineName = boxName;
+    }
+
+    const vmBoxFolder = `${vagrantBoxFolder}/${machineName.replace(/\s/g, "_")}`;
+    const vagrantFile = `${vmBoxFolder}/Vagrantfile`;
+    let vagrantFileTemplate = `
+Vagrant.configure("2") do |config|
+  config.vm.box = "${boxName}"`;
+    if (isWindowsMachine) {
+      vagrantFileTemplate += `
+  config.vm.communicator = "winssh"
+  config.vm.guest = :windows`;
+    }
+
+    vagrantFileTemplate += `
+  config.vm.provider "parallels" do |prl|
+    prl.name = "${machineName}"
+  end
+end
+      `;
+    fs.writeFileSync(vagrantFile, vagrantFileTemplate);
+
+    return true;
   }
 }
