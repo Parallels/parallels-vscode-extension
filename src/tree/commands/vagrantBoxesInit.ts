@@ -9,33 +9,52 @@ export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, 
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderInit, async (item: VagrantBoxTreeItem) => {
       if (item.name !== "") {
-        vscode.window.withProgress(
-          {
-            location: vscode.ProgressLocation.Notification,
-            title: `Initializing Vagrant box ${item.name}`
-          },
-          async progress => {
-            await VagrantService.init(item.name, context)
-              .then(
-                value => {
-                  if (!value) {
-                    vscode.window.showErrorMessage(`Error initializing Vagrant box ${item.name}`);
+        const machineName = await vscode.window.showInputBox({
+          prompt: "Name of the Virtual Machine?",
+          placeHolder: item.name
+        });
+
+        if (!machineName) {
+          machineName === item.name;
+        }
+
+        const isWindowsMachine = await vscode.window.showQuickPick(["Yes", "No"], {
+          placeHolder: "Is this a Windows machine?"
+        });
+
+        if (!isWindowsMachine) {
+          isWindowsMachine === "No";
+        }
+
+        if (machineName && isWindowsMachine) {
+          vscode.window.withProgress(
+            {
+              location: vscode.ProgressLocation.Notification,
+              title: `Initializing Vagrant box ${item.name}`
+            },
+            async progress => {
+              await VagrantService.init(item.name, machineName, isWindowsMachine === "Yes" ? true : false, context)
+                .then(
+                  value => {
+                    if (!value) {
+                      vscode.window.showErrorMessage(`Error initializing Vagrant box ${item.name}`);
+                    }
+                    vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+                  },
+                  reason => {
+                    vscode.window.showErrorMessage(
+                      `Error initializing Vagrant box ${item.name}: vagrant exited with code ${reason}`
+                    );
                   }
-                  vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
-                },
-                reason => {
+                )
+                .catch(reason => {
                   vscode.window.showErrorMessage(
                     `Error initializing Vagrant box ${item.name}: vagrant exited with code ${reason}`
                   );
-                }
-              )
-              .catch(reason => {
-                vscode.window.showErrorMessage(
-                  `Error initializing Vagrant box ${item.name}: vagrant exited with code ${reason}`
-                );
-              });
-          }
-        );
+                });
+            }
+          );
+        }
       }
     })
   );

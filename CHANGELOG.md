@@ -39,3 +39,11 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 
 * Fixed an issue where we could not delete an empty group
 * Fixed an issue with the confirmation dialog
+
+## [0.0.7] - 2023-07-03
+
+* Updated documentation
+
+## [0.0.8] - 2023-07-12
+
+* Added the ability to init a vagrant box and give a name to the VM
