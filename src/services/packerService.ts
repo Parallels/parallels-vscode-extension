@@ -6,6 +6,7 @@ import {FLAG_PACKER_PATH, FLAG_PACKER_VERSION} from "../constants/flags";
 import {Provider} from "../ioc/provider";
 import {PackerVirtualMachineSpecs} from "../models/packerVirtualMachineSpecs";
 import {parallelsOutputChannel} from "../helpers/channel";
+import { VirtualMachineAddon } from "../models/VirtualMachineAddon";
 
 const parallelsVersion = "1.0.1";
 const vagrantVersion = "1.0.2";
@@ -455,5 +456,14 @@ ${baseScripts
     }
 
     return result;
+  }
+
+
+
+  // Starting the new file
+  static getAvailableAddonsForMachine(distro: string): Promise<VirtualMachineAddon[]> {
+    return new Promise((resolve, reject) => {
+      resolve([]);
+    });
   }
 }

@@ -5,8 +5,9 @@ import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {initialize} from "./initialization";
 import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
 import {VagrantBoxProvider} from "./tree/vagrant_boxes";
-import {CommandsFlags} from "./constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "./constants/flags";
 import {parallelsOutputChannel} from "./helpers/channel";
+import { LogService } from "./services/logService";
 
 export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
@@ -33,18 +34,19 @@ export async function activate(context: vscode.ExtensionContext) {
   const virtualMachineProvider = new VirtualMachineProvider(context);
   const vagrantBoxProvider = new VagrantBoxProvider(context);
 
-  if (Provider.getConfiguration().countMachines() > 0) {
+  if (Provider.getConfiguration().allMachines.length > 0) {
     vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", true);
   } else {
     vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", false);
   }
 
   // Setting the auto refresh mechanism
-  const config = Provider.getSettings();
-  const autoRefresh = config.get<boolean>("autoRefresh");
+  const settings = Provider.getSettings();
+  const config = Provider.getConfiguration();
+  const autoRefresh = settings.get<boolean>("autoRefresh");
   if (autoRefresh) {
     parallelsOutputChannel.appendLine("Auto refresh is enabled");
-    let interval = config.get<number>("refreshInterval");
+    let interval = settings.get<number>("refreshInterval");
     if (interval === undefined) {
       parallelsOutputChannel.appendLine("Auto refresh interval is not defined, setting default to 60 seconds");
       interval = 60000;
@@ -66,9 +68,14 @@ export async function activate(context: vscode.ExtensionContext) {
   const list = await ParallelsDesktopService.getVms();
   registerClearDownloadCacheCommand(context);
 
+  if (config.isDebugEnabled) {
+    LogService.info("Debug mode is enabled", "CoreService");
+  }
   vscode.commands.executeCommand("setContext", "parallels-desktop:initialized", true);
+  LogService.sendTelemetryEvent(TelemetryEventIds.ExtensionStarted)
   console.log("Parallels Desktop Extension is now active!");
 }
+
 
 // This method is called when your extension is deactivated
 export function deactivate() {

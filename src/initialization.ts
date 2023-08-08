@@ -2,6 +2,9 @@ import * as vscode from "vscode";
 import {PackerService} from "./services/packerService";
 import {VagrantService} from "./services/vagrantService";
 import {ParallelsDesktopService} from "./services/parallelsDesktopService";
+import {Provider} from "./ioc/provider";
+import {SettingsFlags} from "./constants/flags";
+import {LogService} from "./services/logService";
 
 export async function initialize() {
   await vscode.window.withProgress(
@@ -11,6 +14,8 @@ export async function initialize() {
       cancellable: false
     },
     async (progress, token) => {
+      const config = Provider.getConfiguration();
+      const settings = Provider.getSettings();
       progress.report({message: "Parallels Desktop: Checking for Parallels Desktop"});
       const isParallelsInstalled = await ParallelsDesktopService.isParallelsDesktopInstalled();
       if (!isParallelsInstalled) {
@@ -103,6 +108,21 @@ export async function initialize() {
         return;
       }
 
+      // Setting the default show hidden items based on settings
+      const showHidden = settings.get<boolean>(SettingsFlags.treeShowHiddenItems);
+      if (showHidden) {
+        config.showHidden = true;
+        vscode.commands.executeCommand("setContext", "parallels-desktop:enableShowHidden", true);
+        vscode.commands.executeCommand("setContext", "parallels-desktop:disableShowHidden", false);
+      } else {
+        config.showHidden = false;
+        vscode.commands.executeCommand("setContext", "parallels-desktop:enableShowHidden", false);
+        vscode.commands.executeCommand("setContext", "parallels-desktop:disableShowHidden", true);
+      }
+      // show the snapshot flat tree based on settings
+      config.showFlatSnapshotsList = settings.get<boolean>(SettingsFlags.treeShowFlatSnapshotList) ?? false;
+
+      vscode.commands.executeCommand("setContext", "parallels-desktop:vagrant", true);
       if (isPackerInstalled) {
         vscode.commands.executeCommand("setContext", "parallels-desktop:packer", true);
       }
@@ -111,6 +131,28 @@ export async function initialize() {
       }
       if (isParallelsInstalled) {
         vscode.commands.executeCommand("setContext", "parallels-desktop:parallels", true);
+      }
+      progress.report({message: "Initializing Configuration"});
+      await config.init();
+
+      if (config.isTelemetryEnabled === undefined) {
+        const options = ["Yes", "No"];
+        vscode.window
+          .showErrorMessage(
+            "Help us improve the Parallels Desktop extension by allowing anonymous usage data to be sent to Parallels.\nFind more on https://www.alludo.com/legal/privacy",
+            ...options
+          )
+          .then(selection => {
+            if (selection === "Yes") {
+              config.featureFlags.enableTelemetry = true;
+              LogService.info("Telemetry is enabled");
+            } else {
+              config.featureFlags.enableTelemetry = false;
+              LogService.info("Telemetry is disabled");
+            }
+          });
+      } else {
+        LogService.info(`Telemetry is ${config.isTelemetryEnabled ? "enabled" : "disabled"}`, "CoreService");
       }
 
       if (isParallelsInstalled) {

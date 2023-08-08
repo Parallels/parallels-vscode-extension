@@ -6,9 +6,9 @@ import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {CommandsFlags} from "../../constants/flags";
 import {generateHtml} from "../../views/header.html";
 import {CreateMachineService} from "../../services/createMachineService";
-import {NewVirtualMachineRequest} from "../../models/newVmRequest";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {parallelsOutputChannel} from "../../helpers/channel";
+import { NewVirtualMachineRequest } from "../../models/NewVirtualMachineRequest";
 
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(

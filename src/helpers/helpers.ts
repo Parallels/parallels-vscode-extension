@@ -68,6 +68,19 @@ export function getPackerFilesFolder(): string {
   return packerFilesFolder;
 }
 
+export function getPackerTemplateFolder(): string {
+  let packerFilesFolder = Provider.getSettings().get<string>("parallels-desktop.packerTenantFilesFolder");
+  if (!packerFilesFolder) {
+    packerFilesFolder = path.join(getFoldersBasePath(), "packer-templates");
+  }
+
+  if (!fs.existsSync(packerFilesFolder)) {
+    fs.mkdirSync(packerFilesFolder, {recursive: true});
+  }
+
+  return packerFilesFolder;
+}
+
 export function getScreenCaptureFolder(context: vscode.ExtensionContext): string {
   const packerFilesFolder = path.join(context.extensionPath, "screen-captures");
   if (!fs.existsSync(packerFilesFolder)) {

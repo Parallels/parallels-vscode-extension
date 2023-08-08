@@ -9,7 +9,9 @@ import {parallelsOutputChannel} from "../helpers/channel";
 import {VirtualMachine} from "../models/virtualMachine";
 import {MachineSnapshot} from "../models/virtualMachineSnapshot";
 import {generateMacConfigPvs} from "../helpers/pvsConfig";
-import {NewVirtualMachineSpecs} from "../models/newVmRequest";
+import { LogService } from "./logService";
+import { NewVirtualMachineSpecs } from "../models/NewVirtualMachineSpecs";
+import { ParallelsDesktopServerInfo } from "../models/ParallelsDesktopServerInfo";
 
 export class ParallelsDesktopService {
   static isParallelsDesktopInstalled(): Promise<boolean> {
@@ -50,28 +52,29 @@ export class ParallelsDesktopService {
           // Adding all of the VMs to the default group
           const vms: VirtualMachine[] = JSON.parse(stdout);
           const noGroup = config.getVirtualMachineGroup(FLAG_NO_GROUP);
-          noGroup?.clear();
           vms.forEach(vm => {
-            const vmGroup = config.inVMGroup(vm.ID);
-            if (vmGroup !== undefined) {
-              const group = config.getVirtualMachineGroup(vmGroup);
-
-              if (group === undefined) {
-                parallelsOutputChannel.appendLine(`Group ${vmGroup} not found`);
-                return reject(`group ${vmGroup} not found`);
+            const dbMachine = config.getVirtualMachine(vm.ID);
+            if (dbMachine !== undefined) {
+              const machineGroup = config.getVirtualMachineGroup(dbMachine.group);
+              
+              if (machineGroup === undefined) {
+                LogService.error(`Group ${dbMachine.group} not found, rejecting`, 'ParallelsDesktopService');
+                return reject(`Group ${dbMachine.group} not found, rejecting`);
               }
 
-              vm.group = group?.name;
-              group.add(vm);
-              parallelsOutputChannel.appendLine(`Found vm ${vm.Name} in group ${vm.group}`);
+              vm.group = machineGroup?.uuid;
+              vm.hidden = dbMachine.hidden;
+              machineGroup.addVm(vm);
+              LogService.debug(`Found vm ${vm.Name} in group ${vm.group}`, 'ParallelsDesktopService');
             } else {
-              noGroup?.add(vm);
-              parallelsOutputChannel.appendLine(`Found vm ${vm.Name} with no group`);
+              vm.hidden = false;
+              noGroup?.addVm(vm);
+              LogService.debug(`Found vm ${vm.Name} in group ${noGroup?.uuid}`, 'ParallelsDesktopService');
             }
           });
 
           // sync the config file
-          const configMachines = config.getAllMachines();
+          const configMachines = config.allMachines;
           configMachines.forEach(configMachine => {
             const vm = vms.find(vm => vm.ID === configMachine.ID);
             if (vm === undefined) {
@@ -81,7 +84,7 @@ export class ParallelsDesktopService {
           });
           resolve(vms);
         } catch (e) {
-          parallelsOutputChannel.appendLine("error while parsing vms");
+          LogService.error(`Error while parsing vms: ${e}`, 'ParallelsDesktopService');
           return reject(e);
         }
       });
@@ -277,6 +280,33 @@ export class ParallelsDesktopService {
     });
   }
 
+  static async deleteVm(vmId: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (!vmId) {
+        LogService.error(`vmId is empty`, "ParallelsDesktopService");
+        return reject("vmId is empty");
+      }
+
+      LogService.info(`Deleting Virtual Machine ${vmId}`, "ParallelsDesktopService");
+      const prlctl = cp.spawn("prlctl", ["delete", `"${vmId}"`], {shell: true});
+      prlctl.stdout.on("data", data => {
+        LogService.info(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlctl delete exited with code ${code}`, "ParallelsDesktopService");
+          return resolve(false);
+        }
+
+        LogService.info(`Virtual Machine ${vmId} deleted`, "ParallelsDesktopService");
+        return resolve(true);
+      });
+    });
+  }
+
   static async suspendVm(vmId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!vmId) {
@@ -302,6 +332,34 @@ export class ParallelsDesktopService {
       });
     });
   }
+
+  static async enterVm(vmId: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (!vmId) {
+        LogService.error(`vmId is empty`, "ParallelsDesktopService");
+        return reject("vmId is empty");
+      }
+
+      LogService.info(`Entering Virtual Machine ${vmId}`, "ParallelsDesktopService");
+      const prlctl = cp.spawn("prlctl", ["enter", `"${vmId}"`], {shell: true});
+      prlctl.stdout.on("data", data => {
+        LogService.info(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlctl enter exited with code ${code}`, "ParallelsDesktopService");
+          return resolve(false);
+        }
+
+        LogService.info(`Virtual Machine ${vmId} entered`, "ParallelsDesktopService");
+        return resolve(true);
+      });
+    });
+  }
+
 
   static async getVmStatus(
     vmId: string
@@ -780,6 +838,34 @@ export class ParallelsDesktopService {
             return reject(reason);
           });
       }
+    });
+  }
+
+  static async getServerInfo(): Promise<ParallelsDesktopServerInfo> {
+    return new Promise((resolve, reject) => {
+      let stdOut = ""
+      LogService.info("Getting server info", "ParallelsDesktopService");
+      const prlsrvctl = cp.spawn("prlsrvctl", ["info", "--json"], {shell: true});
+      prlsrvctl.stdout.on("data", data => {
+        stdOut += data.toString();
+        LogService.debug(data.toString(), "ParallelsDesktopService");
+      });
+      prlsrvctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlsrvctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlsrvctl info exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlsrvctl info exited with code ${code}`);
+        }
+        try {
+          const info = JSON.parse(stdOut);
+            return resolve(info as ParallelsDesktopServerInfo);
+        } catch (e) {
+          LogService.error(`prlsrvctl info: ${e}`, "ParallelsDesktopService");
+          return reject(e);
+        }
+      });
     });
   }
 }

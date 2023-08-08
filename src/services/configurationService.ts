@@ -1,18 +1,48 @@
+import {FeatureFlags} from "./../models/FeatureFlags";
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
-import {FLAG_CONFIGURATION} from "../constants/flags";
+import {FLAG_CONFIGURATION, FLAG_NO_GROUP, SettingsFlags} from "../constants/flags";
 import {getUserProfileFolder} from "../helpers/helpers";
-import {localStorage} from "../ioc/provider";
+import {Provider, localStorage} from "../ioc/provider";
 import {VirtualMachineGroup} from "../models/virtualMachineGroup";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
 import {VirtualMachine} from "../models/virtualMachine";
+import {HardwareInfo} from "../models/HardwareInfo";
+import {HelperService} from "./helperService";
+import {initialize} from "../initialization";
+import {config} from "process";
+import {LogService} from "./logService";
+import { ParallelsDesktopServerInfo } from "../models/ParallelsDesktopServerInfo";
 
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
+  featureFlags: FeatureFlags;
+  hardwareInfo?: HardwareInfo;
+  parallelsDesktopServerInfo?: ParallelsDesktopServerInfo
+  isInitialized = false;
+  showHidden = false;
+  showFlatSnapshotsList = false;
+  locale = "en_US";
 
   constructor(private context: vscode.ExtensionContext) {
     this.virtualMachinesGroups = [];
+    this.featureFlags = {
+      enableTelemetry: undefined,
+      hardwareId: undefined,
+      platform: undefined,
+      version: undefined,
+      hardwareModel: undefined,
+      serverVersion: undefined,
+      osVersion: undefined
+    };
+    this.isInitialized = false;
+  }
+
+  get isDebugEnabled(): boolean {
+    const debugEnvVariable = process.env.PARALLELS_DESKTOP_DEBUG;
+    console.log(`Debug Mode: ${debugEnvVariable}`);
+    return debugEnvVariable !== undefined && debugEnvVariable.toLowerCase() === "true";
   }
 
   static fromJson(context: vscode.ExtensionContext, json: any): ConfigurationService {
@@ -20,37 +50,68 @@ export class ConfigurationService {
     json = JSON.parse(json);
     if (json.virtualMachinesGroup !== undefined) {
       json.virtualMachinesGroup.forEach((group: VirtualMachineGroup) => {
-        const newGroup = new VirtualMachineGroup(group.name);
-        group.machines.forEach((vm: any) => {
-          newGroup.add(vm);
-        });
-
+        const jsonGroup = JSON.stringify(group);
+        const newGroup = VirtualMachineGroup.fromJson(jsonGroup);
         configuration.virtualMachinesGroups.push(newGroup);
       });
+    }
+    if (json.featureFlags !== undefined) {
+      configuration.featureFlags = json.featureFlags;
     }
 
     return configuration;
   }
 
+  async init(): Promise<void> {
+    const promises: Promise<any>[] = [];
+
+    promises.push(
+      HelperService.getHardwareInfo().then(info => {
+        this.hardwareInfo = info;
+      }),
+      ParallelsDesktopService.getServerInfo().then(info => {
+        this.parallelsDesktopServerInfo = info;
+      }),
+      HelperService.getLocale().then(locale => {
+        this.locale = locale;
+      })
+    );
+
+    await Promise.all(promises);
+    LogService.info("Configuration Service initialized", "CoreService");
+    this.isInitialized = true;
+  }
+
   toJson(): any {
     const config = {
-      virtualMachinesGroup: this.virtualMachinesGroups
+      virtualMachinesGroup: this.virtualMachinesGroups,
+      featureFlags: this.featureFlags
     };
 
     return JSON.stringify(config, null, 2);
   }
 
   existsVirtualMachineGroup(name: string): boolean {
-    return this.virtualMachinesGroups.some(
+    return this.allGroups.some(
       group => group.name.toLowerCase() === name.toLowerCase() || group.uuid.toLowerCase() === name.toLowerCase()
     );
   }
 
   getVirtualMachineGroup(name: string): VirtualMachineGroup | undefined {
-    return this.virtualMachinesGroups.find(group => group.name.toLowerCase() === name.toLowerCase());
+    return this.allGroups.find(
+      group => group.name.toLowerCase() === name.toLowerCase() || group.uuid.toLowerCase() === name.toLowerCase()
+    );
+  }
+
+  getVirtualMachine(nameOrId: string): VirtualMachine | undefined {
+    return this.allMachines.find(
+      machine =>
+        machine.Name.toLowerCase() === nameOrId.toLowerCase() || machine.ID.toLowerCase() === nameOrId.toLowerCase()
+    );
   }
 
   save() {
+    const settings = Provider.getSettings();
     const configFolder = getUserProfileFolder();
     const userProfile = path.join(configFolder, "profile.json");
     fs.writeFileSync(userProfile, this.toJson());
@@ -58,29 +119,118 @@ export class ConfigurationService {
 
   addVirtualMachineGroup(group: VirtualMachineGroup) {
     if (!this.existsVirtualMachineGroup(group.name)) {
-      this.virtualMachinesGroups.push(group);
+      if (group.parent !== undefined && group.parent !== "") {
+        const parentGroup = this.getVirtualMachineGroup(group.parent);
+        if (parentGroup) {
+          parentGroup.addGroup(group);
+        }
+      } else {
+        this.virtualMachinesGroups.push(group);
+      }
       this.save();
     }
   }
 
-  deleteVirtualMachineGroup(name: string) {
-    if (this.existsVirtualMachineGroup(name)) {
-      this.virtualMachinesGroups = this.virtualMachinesGroups.filter(
-        group => group.name.toLowerCase() !== name.toLowerCase()
-      );
+  renameVirtualMachineGroup(nameOrId: string, newName: string) {
+    const group = this.getVirtualMachineGroup(nameOrId);
+    if (group) {
+      group.name = newName;
       this.save();
     }
   }
 
-  inVMGroup(uuid: string): string | undefined {
-    for (let i = 0; i < this.virtualMachinesGroups.length; i++) {
-      const group = this.virtualMachinesGroups[i];
-      if (group !== undefined && group?.exists(uuid)) {
+  deleteVirtualMachineGroup(nameOrId: string) {
+    const group = this.getVirtualMachineGroup(nameOrId);
+    if (group) {
+      if (group.parent === undefined || group.parent === "") {
+        this.virtualMachinesGroups = this.virtualMachinesGroups.filter(
+          group => group.name.toLowerCase() !== nameOrId.toLowerCase()
+        );
+        this.virtualMachinesGroups = this.virtualMachinesGroups.filter(
+          group => group.uuid.toLowerCase() !== nameOrId.toLowerCase()
+        );
+      } else {
+        const parentGroup = this.getVirtualMachineGroup(group.parent);
+        if (parentGroup) {
+          parentGroup.removeGroup(group.name);
+        }
+      }
+      this.save();
+    }
+  }
+
+  vmExistsInGroup(uuid: string): string | undefined {
+    const groups = this.allGroups;
+    for (const group of groups) {
+      if (group?.existsVm(uuid)) {
         return group.name;
       }
     }
 
     return undefined;
+  }
+
+  moveGroupToGroup(groupName: string, destination: string) {
+    const group = this.getVirtualMachineGroup(groupName);
+    const destinationGroup = this.getVirtualMachineGroup(destination);
+    if (group && destinationGroup) {
+      this.deleteVirtualMachineGroup(groupName);
+      if (destinationGroup.name === FLAG_NO_GROUP) {
+        group.parent = undefined;
+        this.virtualMachinesGroups.push(group);
+      } else {
+        group.parent = destination;
+        destinationGroup.addGroup(group);
+      }
+      this.save();
+    }
+  }
+
+  moveVmToGroup(vmNameOrId: string, destination: string) {
+    const vm = this.getVirtualMachine(vmNameOrId);
+    const destinationGroup = this.getVirtualMachineGroup(destination);
+    if (vm && destinationGroup) {
+      if (vm.group !== undefined && vm.group !== "") {
+        const parentGroup = this.getVirtualMachineGroup(vm.group);
+        if (parentGroup) {
+          parentGroup.removeVm(vmNameOrId);
+        }
+      }
+      destinationGroup.addVm(vm);
+      this.save();
+    }
+  }
+
+  hideVm(uuidOrName: string) {
+    const vm = this.getVirtualMachine(uuidOrName);
+    if (vm) {
+      vm.hidden = true;
+      this.save();
+    }
+  }
+
+  showVm(uuidOrName: string) {
+    const vm = this.getVirtualMachine(uuidOrName);
+    if (vm) {
+      vm.hidden = false;
+      this.save();
+    }
+  }
+
+  showVirtualMachineGroup(groupName: string) {
+    const group = this.getVirtualMachineGroup(groupName);
+    if (group) {
+      group.hidden = false;
+      this.save();
+    }
+  }
+
+  hideVirtualMachineGroup(groupName: string) {
+    const group = this.getVirtualMachineGroup(groupName);
+    if (group) {
+      group.hidden = true;
+      this.save();
+    }
   }
 
   clearVirtualMachineGroupsVms() {
@@ -91,7 +241,7 @@ export class ConfigurationService {
   }
 
   setVmStatus(vmId: string, status: string) {
-    const groupId = this.inVMGroup(vmId);
+    const groupId = this.vmExistsInGroup(vmId);
     if (groupId) {
       const group = this.getVirtualMachineGroup(groupId);
       if (group) {
@@ -104,33 +254,103 @@ export class ConfigurationService {
     }
   }
 
-  countMachines(): number {
-    let count = 0;
+  get allGroups(): VirtualMachineGroup[] {
+    const groups: VirtualMachineGroup[] = [];
     this.virtualMachinesGroups.forEach(group => {
-      count += group.machines.length;
+      groups.push(group);
+      groups.push(...group.getAllGroups());
     });
 
-    return count;
+    return groups;
   }
 
-  getAllMachines(): VirtualMachine[] {
+  get allMachines(): VirtualMachine[] {
     const machines: VirtualMachine[] = [];
-    this.virtualMachinesGroups.forEach(group => {
-      group.machines.forEach(machine => {
-        machines.push(machine);
-      });
+    const groups = this.allGroups;
+    groups.forEach(group => {
+      machines.push(...group.getAllVms());
     });
 
     return machines;
   }
 
   removeMachine(vmId: string) {
-    const groupId = this.inVMGroup(vmId);
+    const groupId = this.vmExistsInGroup(vmId);
     if (groupId) {
       const group = this.getVirtualMachineGroup(groupId);
       if (group) {
-        group.remove(vmId);
+        group.removeVm(vmId);
       }
+    }
+  }
+
+  sortGroups() {
+    const settings = Provider.getSettings();
+    if (settings.get<boolean>(SettingsFlags.orderTreeAlphabetically)) {
+      const groups = this.allGroups;
+      groups.forEach(group => {
+        group.sortGroups();
+      });
+    }
+  }
+
+  sortVms() {
+    const settings = Provider.getSettings();
+    if (settings.get<boolean>(SettingsFlags.orderTreeAlphabetically)) {
+      const groups = this.allGroups;
+      groups.forEach(group => {
+        group.sortVms();
+      });
+    }
+  }
+
+  sort() {
+    this.sortGroups();
+    this.sortVms();
+  }
+
+  get parallelsCEPStatus(): boolean {
+    return this.parallelsDesktopServerInfo?.["CEP mechanism"] === "on" ? true : false;
+  }
+
+  get isTelemetryEnabled(): boolean | undefined {
+    if(this.featureFlags.enableTelemetry === undefined) {
+      if (this.parallelsCEPStatus) {
+        return true;
+      } else {
+        return undefined;
+      }
+    }
+
+    return this.featureFlags.enableTelemetry;
+  }
+
+  get parallelsDesktopVersion(): string {
+    const version = this.parallelsDesktopServerInfo?.["Version"].replace("Desktop ", "");
+    return version ? version : "";
+  }
+
+  get osVersion(): string {
+    const osVersion = this.parallelsDesktopServerInfo?.["OS"].replace("macOs ", "");
+    return osVersion ? osVersion : "";
+  }
+
+  get hardwareModel(): string {
+    const model = `${this.hardwareInfo?.SPHardwareDataType[0].machine_name.replace(" ","")}${this.hardwareInfo?.SPHardwareDataType[0].machine_model.replace("Mac","")}`
+    return model ? model : "";
+  }
+
+  get hardwareId(): string {
+    const hardwareId = `${this.hardwareInfo?.SPHardwareDataType[0].platform_UUID}`;
+    return hardwareId ? hardwareId : "";
+  }
+
+  get architecture(): string {
+    const chip = this.hardwareInfo?.SPHardwareDataType[0].chip_type ?? "unknown";
+    if (chip.indexOf("Apple") >= 0) {
+      return "arm64";
+    } else {
+      return "x86_64";
     }
   }
 }

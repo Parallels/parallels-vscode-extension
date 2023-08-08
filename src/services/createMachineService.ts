@@ -1,8 +1,7 @@
 import {PackerVirtualMachineSpecs} from "./../models/packerVirtualMachineSpecs";
 import * as vscode from "vscode";
-import {OperatingSystem, OperatingSystemImage, OperatingSystemsData} from "../models/operatingSystem";
+import {OperatingSystem} from "../models/operatingSystem";
 import * as path from "path";
-import {NewVirtualMachineRequest as NewVirtualMachineRequest} from "../models/newVmRequest";
 import axios from "axios";
 import * as fs from "fs";
 import {parallelsOutputChannel} from "../helpers/channel";
@@ -11,6 +10,9 @@ import {getDownloadFolder, getPackerFilesFolder} from "../helpers/helpers";
 import {CommandsFlags, getVmType} from "../constants/flags";
 import {PackerService} from "./packerService";
 import {VagrantService} from "./vagrantService";
+import { OperatingSystemsData } from "../models/OperatingSystemsData";
+import { OperatingSystemImage } from "../models/OperatingSystemImage";
+import { NewVirtualMachineRequest } from "../models/NewVirtualMachineRequest";
 
 export class CreateMachineService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -367,16 +369,16 @@ export class CreateMachineService {
           generateVagrantBox: request.flags.generateVagrantBox,
           distro: img.distro,
           toolsFlavor: PackerService.getToolsFlavor(request.os, request.platform),
-          bootCommand: img.bootCommand,
-          bootWait: img.bootWait ? img.bootWait : "10s",
+          bootCommand: [""],
+          bootWait: "10s",
           cpus: Number.parseInt(request.specs.cpus),
           memory: Number.parseInt(request.specs.memory),
           diskSize: Number.parseInt(request.specs.disk),
           isoChecksum: img.isoChecksum,
           isoUrl: img.isoUrl,
           vmName: request.name,
-          shutdownTimeout: img.shutdownTimeout ? img.shutdownTimeout : "10m",
-          shutdownCommand: img.shutdownCommand ? img.shutdownCommand : "sudo -S shutdown -P now",
+          shutdownTimeout:  "10m",
+          shutdownCommand:  "sudo -S shutdown -P now",
           sshPort: 22,
           sshUsername: request.specs.username == "undefined" ? request.distro : request.specs.username,
           sshEncryptedPassword:
@@ -392,7 +394,7 @@ export class CreateMachineService {
           password: "parallels",
           platform: request.platform,
           outputFolder: `${packerFolder}/output`,
-          httpContents: img.httpContents
+          httpContents: [""]
         };
 
         if (request.flags.generateVagrantBox) {

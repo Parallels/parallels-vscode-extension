@@ -17,7 +17,7 @@ export function registerRemoveGroupCommand(context: vscode.ExtensionContext, pro
         if (confirmation === "Yes") {
           const noGroup = Provider.getConfiguration().getVirtualMachineGroup(FLAG_NO_GROUP);
           group.machines.forEach(vm => {
-            noGroup?.add(vm);
+            noGroup?.addVm(vm);
           });
           Provider.getConfiguration().deleteVirtualMachineGroup(item.name);
           vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
