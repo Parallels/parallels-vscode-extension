@@ -83,9 +83,9 @@ function setAutoRefresh() {
 
     LogService.info("Auto refresh interval is " + interval + "ms", "CoreService");
     autoRefreshInterval = setInterval(() => {
-      parallelsOutputChannel.appendLine("Refreshing the virtual machine tree view");
+      LogService.info("Refreshing the virtual machine tree view", "CoreService");
       vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-      parallelsOutputChannel.appendLine("Refreshing the vagrant box tree view");
+      LogService.info("Refreshing the vagrant box tree view", "CoreService");
       vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
     }, interval);
   } else {

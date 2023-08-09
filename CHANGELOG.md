@@ -48,7 +48,7 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 
 * Added the ability to init a vagrant box and give a name to the VM
 
-## [0.5.9] - 2023-08-09
+## [0.5.8] - 2023-08-09
 
 * Fixed an issue where you were unable to resume suspended VMs in groups
 * Fixed an issue where you were unable to create a MacVM
@@ -62,3 +62,9 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * Added the ability to show the snapshot tree in a flat way, this is configured in settings
 * Further improved the UI
 * Further improvements in performance
+  
+## [0.5.9] - 2023-08-09
+
+* Fixed an issue with the Telemetry service
+* Renamed the Group telemetry
+  

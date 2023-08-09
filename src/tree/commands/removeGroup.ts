@@ -21,7 +21,7 @@ export function registerRemoveGroupCommand(context: vscode.ExtensionContext, pro
           Provider.getConfiguration().deleteVirtualMachineGroup(item.name);
           vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
           LogService.info(`Group ${item.name} removed`);
-          LogService.sendTelemetryEvent(TelemetryEventIds.AddGroup, `Group ${item.name} removed`);
+          LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, `Group ${item.name} removed`);
         }
       }
     })

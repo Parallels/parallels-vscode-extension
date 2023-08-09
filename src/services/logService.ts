@@ -43,7 +43,7 @@ export class LogService {
       const config = Provider.getConfiguration();
       const request: TelemetryRequest = {
         api: 2,
-        hwid: config.hardwareId.toLowerCase(),
+        hwid: config.hardwareId.toLowerCase().replace(/-/g, ""),
         version: config.parallelsDesktopVersion,
         arch: config.architecture,
         hw_model: config.hardwareModel,
@@ -66,7 +66,8 @@ export class LogService {
           license_status: 1
         };
       }
-      LogService.debug(JSON.stringify(request, null, 2));
+
+      LogService.debug(JSON.stringify(request, null, 2), "TelemetryService");
 
       const requestUrl = `https://reportus.parallels.com/pdfm/${
         Provider.getConfiguration().packerDesktopMajorVersion
@@ -78,10 +79,10 @@ export class LogService {
           }
         })
         .then(response => {
-          LogService.debug(`Telemetry event ${event} sent successfully to ${requestUrl} `);
+          LogService.debug(`Telemetry event ${event} sent successfully to ${requestUrl}`, "TelemetryService");
         })
         .catch(error => {
-          LogService.error(`Error sending telemetry event ${event} to ${requestUrl}: ${error}`);
+          LogService.error(`Error sending telemetry event ${event} to ${requestUrl}: ${error}`, "TelemetryService");
         });
     }
   }
