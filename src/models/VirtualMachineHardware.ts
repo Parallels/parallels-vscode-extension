@@ -1,13 +1,12 @@
-import { VirtualMachineExpiration } from "./VirtualMachineExpiration";
-import { VirtualMachineVideo } from "./VirtualMachineVideo";
-import { VirtualMachineSound } from "./VirtualMachineSound";
-import { VirtualMachineNet } from "./VirtualMachineNet";
-import { VirtualMachineMemoryQuota } from "./VirtualMachineMemoryQuota";
-import { VirtualMachineMemory } from "./VirtualMachineMemory";
-import { VirtualMachineHdd } from "./VirtualMachineHdd";
-import { VirtualMachineCPU } from "./VirtualMachineCPU";
-import { VirtualMachineCdrom } from "./VirtualMachineCdrom";
-
+import {VirtualMachineExpiration} from "./VirtualMachineExpiration";
+import {VirtualMachineVideo} from "./VirtualMachineVideo";
+import {VirtualMachineSound} from "./VirtualMachineSound";
+import {VirtualMachineNet} from "./VirtualMachineNet";
+import {VirtualMachineMemoryQuota} from "./VirtualMachineMemoryQuota";
+import {VirtualMachineMemory} from "./VirtualMachineMemory";
+import {VirtualMachineHdd} from "./VirtualMachineHdd";
+import {VirtualMachineCPU} from "./VirtualMachineCPU";
+import {VirtualMachineCdrom} from "./VirtualMachineCdrom";
 
 export interface VirtualMachineHardware {
   cpu: VirtualMachineCPU;

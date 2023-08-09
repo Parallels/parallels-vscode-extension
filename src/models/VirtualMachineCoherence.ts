@@ -1,4 +1,3 @@
-
 export interface VirtualMachineCoherence {
   "Show Windows systray in Mac menu": string;
   "Auto-switch to full screen": string;

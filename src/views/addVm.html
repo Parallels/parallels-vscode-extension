@@ -487,7 +487,16 @@
                     <input id="vmName" type="text" x-model="itemData.name" id="vmName" name="vmName" :value="itemData.image" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1" required>
                   </div>
                 </div>
-              </div>
+              </div
+              <div class="flex sm:flex-row sm:items-end flex-row" x-show="itemData.requireIsoDownload === true" >
+                <div class="pr-2 mb-2 w-3/5">
+                  <label for="isoUrl" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Iso Url/File</label>
+                  <input id="isoUrl" type="text" x-model="itemData.isoUrl" id="isoUrl" name="isoUrl" :value="itemData.isoUrl" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select a ISO file or an Url" required>
+                </div>
+                <div class="mb-2 w-2/5">
+                  <label for="isoChecksum" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Iso Checksum</label>
+                  <input id="isoChecksum" type="text" x-model="itemData.isoChecksum" id="isoChecksum" name="isoChecksum" :value="itemData.isoChecksum" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="sha256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required>
+                </div>
             </li>
             <li class="flex flex-col gap-x-6 py-1" x-show="showMachineSpecs()">
               <div class="w-full flex flex-col gap-x-4">
@@ -577,11 +586,11 @@
             </li>
             <li class="flex flex-col gap-x-6 py-1 w-full items-end" x-show="itemData.image !== 'undefined'">
               <div class="flex items-end p-2" >
-                <button :disabled="isPosting" id="createVm" type="button" class="btn btn-primary w-40" @click="onPost">Create</button>
+                <button :disabled="isPosting" id="createVm" type="button" class="btn btn-primary w-40" @click="onPost" x-text="getButtonText()"></button>
               </div>
             </li>
           </ul>
-        </div>
+        </div>        
       </div>
       </body>
       </html>

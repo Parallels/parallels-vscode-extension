@@ -6,12 +6,13 @@ export interface PackerVirtualMachineConfig {
   platform: string;
   distro: string;
   name: string;
-  isoChecksum: string;
   isoUrl: string;
+  isoChecksum: string;
   generateVagrantBox: boolean;
   outputFolder: string;
   packerScriptFolder: string;
-  variables: Map<string, any>;
+  variables: any;
   specs: MachineSpecs;
   addons: string[];
+  forceBuild: boolean;
 }

@@ -1,4 +1,3 @@
-
 export interface VirtualMachineVideo {
   "adapter-type": string;
   size: string;

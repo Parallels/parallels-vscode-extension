@@ -1,4 +1,3 @@
-
 export interface VirtualMachineSecurity {
   Encrypted: string;
   "TPM enabled": string;

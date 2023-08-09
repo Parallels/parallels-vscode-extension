@@ -1,4 +1,4 @@
-import { config } from 'process';
+import {config} from "process";
 import * as vscode from "vscode";
 import * as uuid from "uuid";
 import {Provider} from "../ioc/provider";
@@ -28,11 +28,11 @@ import {registerSuspendGroupVirtualMachinesCommand} from "./commands/suspendGrou
 import {registerTakeGroupSnapshotCommand} from "./commands/takeGroupSnapshot";
 import {registerAddVmCommand} from "./commands/addVm";
 import {VirtualMachineGroup} from "../models/virtualMachineGroup";
-import { registerToggleShowHiddenCommand } from './commands/toggleShowHide';
-import { registerRenameGroupCommand } from './commands/renameGroup';
-import { MachineSnapshot } from '../models/virtualMachineSnapshot';
-import { registerDeleteVmCommand } from './commands/deleteVm';
-import { registerEnterVmCommand } from './commands/enterVm';
+import {registerToggleShowHiddenCommand} from "./commands/toggleShowHide";
+import {registerRenameGroupCommand} from "./commands/renameGroup";
+import {MachineSnapshot} from "../models/virtualMachineSnapshot";
+import {registerDeleteVmCommand} from "./commands/deleteVm";
+import {registerEnterVmCommand} from "./commands/enterVm";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -100,20 +100,20 @@ export class VirtualMachineProvider
       allGroups.forEach(group => {
         if (group.name !== FLAG_NO_GROUP) {
           const groupState = group.state;
-          let icon = "desktop_group_new";
+          let icon = "group";
           if (groupState === "running") {
-            icon = "desktop_group_new_running";
+            icon = "group_running";
           } else if (groupState === "paused" || groupState === "suspended") {
-            icon = "desktop_group_new_paused";
+            icon = "group_paused";
           }
           const visibility = group.hidden ? "hidden" : "visible";
-          if (!group.hidden || this.config.showHidden) {
+          if ((!group.hidden || this.config.showHidden) && !this.checkIfExists(data, group.uuid)) {
             data.push(
               new VirtualMachineTreeItem(
                 group,
                 "Group",
                 FLAG_NO_GROUP,
-                group.name,
+                group.uuid,
                 undefined,
                 group.name,
                 group.name,
@@ -127,19 +127,18 @@ export class VirtualMachineProvider
             );
           }
         }
-        resolve(data);
       });
       const noGroup = allGroups.find(g => g.name === FLAG_NO_GROUP);
       if (noGroup !== undefined) {
         noGroup.machines.forEach(vm => {
-          let icon = "desktop";
+          let icon = "virtual_machine";
           if (vm.State === "running") {
-            icon = "desktop_running";
+            icon = "virtual_machine_running";
           } else if (vm.State === "paused" || vm.State === "suspended") {
-            icon = "desktop_paused";
+            icon = "virtual_machine_paused";
           }
           const visibility = vm.hidden ? "hidden" : "visible";
-          if (!vm.hidden || this.config.showHidden) {
+          if ((!vm.hidden || this.config.showHidden) && !this.checkIfExists(data, vm.ID)) {
             data.push(
               new VirtualMachineTreeItem(
                 vm,
@@ -158,10 +157,27 @@ export class VirtualMachineProvider
           }
         });
       }
+
+      resolve(data);
     });
   }
 
-  drawFlatSnapshotList(parent: VirtualMachineTreeItem, snapshots: MachineSnapshot[]): Promise<VirtualMachineTreeItem[]> {
+  checkIfExists(data: VirtualMachineTreeItem[], vmId: string): boolean {
+    data.forEach(element => {
+      if (element.id.toLowerCase() === vmId.toLowerCase()) {
+        if (element.name.toLowerCase().indexOf("vagrant_temp") >= 0) {
+          data.splice(data.indexOf(element), 1);
+          return false;
+        }
+        return true;
+      }
+    });
+    return false;
+  }
+  drawFlatSnapshotList(
+    parent: VirtualMachineTreeItem,
+    snapshots: MachineSnapshot[]
+  ): Promise<VirtualMachineTreeItem[]> {
     return new Promise((resolve, reject) => {
       const children: VirtualMachineTreeItem[] = [];
       snapshots.push({
@@ -170,12 +186,15 @@ export class VirtualMachineProvider
         id: "test",
         date: "",
         parent: "",
-        state: "running",
-      })
-      const flatSnapshotList = this.drawSnapshotListItem(snapshots, undefined, false, 0,);
+        state: "running"
+      });
+      const flatSnapshotList = this.drawSnapshotListItem(snapshots, undefined, false, 0);
 
       if (flatSnapshotList[flatSnapshotList.length - 1].name.startsWith("|")) {
-        flatSnapshotList[flatSnapshotList.length - 1].name = flatSnapshotList[flatSnapshotList.length - 1].name.replace("|", "└");
+        flatSnapshotList[flatSnapshotList.length - 1].name = flatSnapshotList[flatSnapshotList.length - 1].name.replace(
+          "|",
+          "└"
+        );
       }
       flatSnapshotList.forEach(snapshot => {
         children.push(
@@ -190,7 +209,7 @@ export class VirtualMachineProvider
             snapshot.state,
             `snapshot.${snapshot.current ? "current" : "other"}`,
             vscode.TreeItemCollapsibleState.None,
-            snapshot.current ? "images_current" : "images"
+            snapshot.current ? "snapshot_current" : "snapshot"
           )
         );
       });
@@ -199,22 +218,28 @@ export class VirtualMachineProvider
     });
   }
 
-  drawSnapshotListItem(snapshots: MachineSnapshot[], item?: MachineSnapshot, hasChildren = false, level = 0, prefix = "|  ", suffix = "├"): MachineSnapshot[] {
+  drawSnapshotListItem(
+    snapshots: MachineSnapshot[],
+    item?: MachineSnapshot,
+    hasChildren = false,
+    level = 0,
+    prefix = "|  ",
+    suffix = "├"
+  ): MachineSnapshot[] {
     const result: MachineSnapshot[] = [];
-    let parentId = ""
+    let parentId = "";
     if (item !== undefined) {
       parentId = item.id;
-        item.name = `${prefix}${suffix} ${item.name}`;
-        result.push(item);
+      item.name = `${prefix}${suffix} ${item.name}`;
+      result.push(item);
     }
     const children = snapshots.filter(f => f.parent === parentId);
     if (children.length > 0) {
-      
       let childPrefix = prefix;
       if (level > 0) {
         if (hasChildren) {
           childPrefix = childPrefix + " │   ";
-        }else{
+        } else {
           childPrefix = childPrefix + "    ";
         }
       } else {
@@ -228,10 +253,18 @@ export class VirtualMachineProvider
         } else {
           suffix = `├`;
         }
-        result.push(...this.drawSnapshotListItem(snapshots, child, hasChildren && children.length > 1, level + 1, childPrefix, suffix));
+        result.push(
+          ...this.drawSnapshotListItem(
+            snapshots,
+            child,
+            hasChildren && children.length > 1,
+            level + 1,
+            childPrefix,
+            suffix
+          )
+        );
       });
     }
-
 
     return result;
   }
@@ -255,7 +288,7 @@ export class VirtualMachineProvider
                   "",
                   "snapshot",
                   vscode.TreeItemCollapsibleState.None,
-                  "images"
+                  "snapshot"
                 )
               );
             }
@@ -264,26 +297,25 @@ export class VirtualMachineProvider
               resolve(children);
             } else {
               snapshots
-              .filter(f => f.parent === undefined || f.parent === "")
-              .forEach(snap => {
-                const hasChildren = snapshots.filter(f => f.parent === snap.id)?.length > 0;
-                children.push(
-                  new VirtualMachineTreeItem(
-                    item.item,
-                    "Snapshot",
-                    undefined,
-                    snap.id,
-                    (item.item as VirtualMachine).ID ?? undefined,
-                    snap.name,
-                    snap.name,
-                    snap.state,
-                    `snapshot.${snap.current ? "current" : "other"}`,
-                    hasChildren ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-                    snap.current ? "images_current" : "images"
-                  )
-                );
-              });
-
+                .filter(f => f.parent === undefined || f.parent === "")
+                .forEach(snap => {
+                  const hasChildren = snapshots.filter(f => f.parent === snap.id)?.length > 0;
+                  children.push(
+                    new VirtualMachineTreeItem(
+                      item.item,
+                      "Snapshot",
+                      undefined,
+                      snap.id,
+                      (item.item as VirtualMachine).ID ?? undefined,
+                      snap.name,
+                      snap.name,
+                      snap.state,
+                      `snapshot.${snap.current ? "current" : "other"}`,
+                      hasChildren ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                      snap.current ? "snapshot_current" : "snapshot"
+                    )
+                  );
+                });
             }
             resolve(children);
           },
@@ -334,7 +366,7 @@ export class VirtualMachineProvider
                   "",
                   "snapshot",
                   vscode.TreeItemCollapsibleState.None,
-                  "images"
+                  "snapshot"
                 )
               );
             }
@@ -354,7 +386,7 @@ export class VirtualMachineProvider
                     snap.state,
                     `snapshot.${snap.current ? "current" : "other"}`,
                     hasChildren ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-                    snap.current ? "images_current" : "images"
+                    snap.current ? "snapshot_current" : "snapshot"
                   )
                 );
               });
@@ -392,30 +424,30 @@ export class VirtualMachineProvider
     return new Promise((resolve, reject) => {
       const children: VirtualMachineTreeItem[] = [];
       const allGroups = Provider.getConfiguration().allGroups;
-      const group = allGroups.find(g => g.name === item.id);
+      const group = allGroups.find(g => g.name === item.id || g.uuid === item.id);
       if (group !== undefined) {
-        group.groups.forEach(g => {
+        group.groups.forEach(childGroup => {
           const groupState = group.state;
-          let icon = "desktop_group_new";
+          let icon = "group";
           if (groupState === "running") {
-            icon = "desktop_group_new_running";
+            icon = "group_running";
           } else if (groupState === "paused" || groupState === "suspended") {
-            icon = "desktop_group_new_paused";
+            icon = "group_paused";
           }
-          const visibility = g.hidden ? "hidden" : "visible";
-          if (!g.hidden || this.config.showHidden) {
+          const visibility = childGroup.hidden ? "hidden" : "visible";
+          if ((!childGroup.hidden || this.config.showHidden) && !this.checkIfExists(children, childGroup.uuid)) {
             children.push(
               new VirtualMachineTreeItem(
-                g,
+                childGroup,
                 "Group",
                 group.uuid,
-                g.name,
-                g.uuid,
-                g.name,
-                g.name,
+                childGroup.uuid,
+                undefined,
+                childGroup.name,
+                childGroup.name,
                 "",
                 `group.${visibility}.${groupState}`,
-                (g.visibleVmsCount > 0 || g.visibleGroupsCount > 0)
+                childGroup.visibleVmsCount > 0 || childGroup.visibleGroupsCount > 0
                   ? vscode.TreeItemCollapsibleState.Collapsed
                   : vscode.TreeItemCollapsibleState.None,
                 icon
@@ -423,27 +455,29 @@ export class VirtualMachineProvider
             );
           }
         });
-        group.machines.forEach(vm => {
-          let icon = "desktop";
-          if (vm.State === "running") {
-            icon = "desktop_running";
-          } else if (vm.State === "paused" || vm.State === "suspended") {
-            icon = "desktop_paused";
+        group.machines.forEach(childVm => {
+          let icon = "virtual_machine";
+          if (childVm.State === "running") {
+            icon = "virtual_machine_running";
+          } else if (childVm.State === "paused" || childVm.State === "suspended") {
+            icon = "virtual_machine_paused";
           }
-          const visibility = vm.hidden ? "hidden" : "visible";
-          if (!vm.hidden || this.config.showHidden) {
+          const visibility = childVm.hidden ? "hidden" : "visible";
+          if ((!childVm.hidden || this.config.showHidden) && !this.checkIfExists(children, childVm.ID)) {
             children.push(
               new VirtualMachineTreeItem(
-                vm,
+                childVm,
                 "VirtualMachine",
                 group.uuid,
-                vm.ID,
-                vm.ID,
-                vm.Name,
-                vm.Name,
-                vm.State,
-                `vm.${visibility}.${vm.State}`,
-                vm.OS === "macosx" ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
+                childVm.ID,
+                childVm.ID,
+                childVm.Name,
+                childVm.Name,
+                childVm.State,
+                `vm.${visibility}.${childVm.State}`,
+                childVm.OS === "macosx"
+                  ? vscode.TreeItemCollapsibleState.None
+                  : vscode.TreeItemCollapsibleState.Collapsed,
                 icon
               )
             );

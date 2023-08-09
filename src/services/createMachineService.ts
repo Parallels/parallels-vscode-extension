@@ -1,18 +1,20 @@
-import {PackerVirtualMachineSpecs} from "./../models/packerVirtualMachineSpecs";
 import * as vscode from "vscode";
 import {OperatingSystem} from "../models/operatingSystem";
 import * as path from "path";
-import axios from "axios";
 import * as fs from "fs";
-import {parallelsOutputChannel} from "../helpers/channel";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
-import {getDownloadFolder, getPackerFilesFolder} from "../helpers/helpers";
+import {getDownloadFolder, getPackerTemplateFolder, getVagrantBoxFolder} from "../helpers/helpers";
 import {CommandsFlags, getVmType} from "../constants/flags";
 import {PackerService} from "./packerService";
 import {VagrantService} from "./vagrantService";
-import { OperatingSystemsData } from "../models/OperatingSystemsData";
-import { OperatingSystemImage } from "../models/OperatingSystemImage";
-import { NewVirtualMachineRequest } from "../models/NewVirtualMachineRequest";
+import {OperatingSystemsData} from "../models/OperatingSystemsData";
+import {OperatingSystemImage} from "../models/OperatingSystemImage";
+import {NewVirtualMachineRequest} from "../models/NewVirtualMachineRequest";
+import {NewVirtualMachineSpecs} from "../models/NewVirtualMachineSpecs";
+import {HelperService} from "./helperService";
+import {PackerVirtualMachineConfig} from "../models/PackerVirtualMachineConfig";
+import {Provider} from "../ioc/provider";
+import {LogService} from "./logService";
 
 export class CreateMachineService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -26,10 +28,16 @@ export class CreateMachineService {
     });
   }
 
+  /**
+   * Creates a new virtual machine based on the provided request.
+   * @param request - The request object containing the necessary information to create the virtual machine.
+   * @returns A Promise that resolves to a boolean indicating whether the virtual machine was successfully created.
+   * @throws An error if there was an issue creating the virtual machine.
+   */
   async createVm(request: NewVirtualMachineRequest): Promise<boolean> {
     return new Promise<boolean>(async (resolve, reject) => {
       try {
-        parallelsOutputChannel.appendLine(`Creating VM ${request.name}`);
+        LogService.info(`Creating VM ${request.name}`, "CreateMachineService");
         const data = new OperatingSystemsData(this.context);
         await data.get();
         switch (request.os) {
@@ -89,8 +97,6 @@ export class CreateMachineService {
       if (!img) {
         return reject("Image not found");
       }
-
-      parallelsOutputChannel.appendLine(`Image found: ${img.name}`);
       switch (img.type) {
         case "iso":
           this.createIso(osData, request, img)
@@ -158,7 +164,7 @@ export class CreateMachineService {
       if (!img) {
         return reject("Image not found");
       }
-      parallelsOutputChannel.appendLine(`Image found: ${img.name}`);
+
       switch (img.type) {
         case "iso":
           this.createIso(osData, request, img)
@@ -227,11 +233,76 @@ export class CreateMachineService {
         return reject("Image not found");
       }
 
-      parallelsOutputChannel.appendLine(`Image found: ${img.name}`);
+      switch (img.type) {
+        case "macos":
+          this.createMacvm(osData, request, img)
+            .then(
+              value => {
+                if (!value) {
+                  return reject("Error creating VM");
+                }
 
+                return resolve(value);
+              },
+              reason => {
+                return reject(reason);
+              }
+            )
+            .catch(reason => {
+              return reject(reason);
+            });
+          break;
+        case "packer":
+          this.createPacker(osData, request, img)
+            .then(
+              value => {
+                if (!value) {
+                  return reject("Error creating VM");
+                }
+
+                return resolve(value);
+              },
+              reason => {
+                return reject(reason);
+              }
+            )
+            .catch(reason => {
+              return reject(reason);
+            });
+          break;
+        case "vagrant":
+          this.createPacker(osData, request, img)
+            .then(
+              value => {
+                if (!value) {
+                  return reject("Error creating VM");
+                }
+
+                return resolve(value);
+              },
+              reason => {
+                return reject(reason);
+              }
+            )
+            .catch(reason => {
+              return reject(reason);
+            });
+          break;
+        case "internal":
+          return resolve(true);
+      }
+    });
+  }
+
+  private createMacvm(
+    osData: OperatingSystemsData,
+    request: NewVirtualMachineRequest,
+    img: OperatingSystemImage
+  ): Promise<boolean> {
+    return new Promise<boolean>(async (resolve, reject) => {
       const filePath = path.join(getDownloadFolder(), `${request.name}.ipsw`);
       if (!fs.existsSync(filePath)) {
-        await this.downloadFile(img.name, request.name, img.isoUrl, filePath)
+        await HelperService.downloadFile(this.context, img.name, request.name, img.isoUrl, filePath)
           .then(result => {
             if (!result) {
               return reject("Error downloading image");
@@ -241,7 +312,7 @@ export class CreateMachineService {
             return reject(reason);
           });
       } else {
-        parallelsOutputChannel.appendLine(`Image already downloaded to ${filePath}`);
+        LogService.info(`Image already downloaded to ${filePath}`, "CreateMachineService");
       }
 
       await ParallelsDesktopService.createMacVm(filePath, request.name)
@@ -249,56 +320,13 @@ export class CreateMachineService {
           if (!value) {
             return reject("Error creating VM");
           }
-          parallelsOutputChannel.appendLine(`VM ${request.name} created`);
+          LogService.info(`VM ${request.name} created`, "CreateMachineService");
           return resolve(true);
         })
         .catch(reason => {
-          parallelsOutputChannel.appendLine(`There was an error creating the machine ${request.name}`);
+          LogService.error(`There was an error creating the machine ${request.name}`, "CreateMachineService");
           return reject(reason);
         });
-    });
-  }
-
-  private async downloadFile(name: string, fileName: string, url: string, filePath: string): Promise<boolean> {
-    return new Promise<boolean>(async (resolve, reject) => {
-      parallelsOutputChannel.appendLine(`Downloading image from ${url}`);
-      const response = await axios.get(url, {
-        responseType: "stream"
-      });
-      const totalLength = response.headers["content-length"];
-      let downloaded = 0;
-      const writer = fs.createWriteStream(filePath);
-      vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: `Downloading image for ${name}`
-        },
-        async progress => {
-          return new Promise<boolean>((resolve, reject) => {
-            response.data.on("data", (chunk: any) => {
-              downloaded += chunk.length;
-              const percent = Math.round((100 * downloaded) / totalLength);
-              progress.report({message: `${percent}%`});
-            });
-            writer.on("finish", () => {
-              parallelsOutputChannel.appendLine(
-                `Image downloaded to ${path.join(this.context.extensionPath, filePath)}`
-              );
-              return resolve(true);
-            });
-            response.data.on("error", (err: any) => {
-              return reject(err);
-            });
-          })
-            .then(result => {
-              return resolve(result);
-            })
-            .catch(reason => {
-              return reject(reason);
-            });
-        }
-      );
-      response.data.pipe(writer);
     });
   }
 
@@ -312,21 +340,66 @@ export class CreateMachineService {
         request.distro = "win-11";
       }
 
-      parallelsOutputChannel.appendLine(`Image found: ${img.name}`);
-      const isoName = `${request.name}.iso`;
-      const filePath = path.join(getDownloadFolder(), isoName);
-      if (!fs.existsSync(filePath)) {
-        const isDownloaded = await this.downloadFile(img.name, request.name, img.isoUrl, filePath).catch(reason => {
-          return reject(reason);
-        });
-        if (!isDownloaded) {
-          return reject("Error downloading image");
-        }
-      } else {
-        parallelsOutputChannel.appendLine(`Image already downloaded to ${filePath}`);
+      let isoUri = request.isoUrl ?? img.isoUrl ?? "";
+      const isoChecksum = request.isoChecksum ?? img.isoChecksum ?? "";
+
+      if (!isoUri) {
+        LogService.error("No ISO URL provided");
+        return reject("No ISO URL provided");
+      }
+      if (!isoChecksum) {
+        LogService.error("No ISO checksum provided");
+        return reject("No ISO checksum provided");
       }
 
-      ParallelsDesktopService.createIsoVm(request.name, filePath, getVmType(img.distro), request.specs)
+      if (isoUri.startsWith("http")) {
+        const isoName = `${request.name}.iso`;
+        const filePath = path.join(getDownloadFolder(), isoName);
+        if (!fs.existsSync(filePath)) {
+          const isDownloaded = await HelperService.downloadFile(
+            this.context,
+            request.name,
+            request.name,
+            isoUri,
+            filePath
+          ).catch(reason => {
+            return reject(reason);
+          });
+          if (!isDownloaded) {
+            LogService.error("Error downloading image");
+            return reject("Error downloading image");
+          }
+        } else {
+          LogService.info(`Iso already downloaded to ${filePath}`);
+        }
+        isoUri = filePath;
+      } else {
+        if (!fs.existsSync(isoUri)) {
+          LogService.error(`ISO file not found on ${isoUri}`);
+          return reject(`ISO file not found on ${isoUri}`);
+        }
+      }
+      const checksum = isoChecksum.split(":")[1];
+      const checksumType = isoChecksum.split(":")[0];
+      if (!checksum || !checksumType) {
+        LogService.error("Checksum not valid");
+        return reject("Checksum not valid");
+      }
+      const isChecksumValid = await HelperService.checkFileChecksum(isoUri, checksum, checksumType);
+      if (!isChecksumValid) {
+        LogService.error("Checksum failed");
+        return reject("Checksum failed");
+      }
+      LogService.info("Checksum OK", "CreateMachineService");
+      const specs: NewVirtualMachineSpecs = request.specs ?? {
+        cpus: 2,
+        memory: 2048,
+        disk: "51200",
+        username: "parallels",
+        password: "parallels"
+      };
+
+      ParallelsDesktopService.createIsoVm(request.name, isoUri, getVmType(img.distro), specs)
         .then(
           value => {
             if (!value) {
@@ -347,75 +420,88 @@ export class CreateMachineService {
   private createPacker(
     osData: OperatingSystemsData,
     request: NewVirtualMachineRequest,
-    img: OperatingSystemImage,
-    generateVagrantBox = false
+    img: OperatingSystemImage
   ): Promise<boolean> {
     return new Promise<boolean>(async (resolve, reject) => {
       if (request.os === "windows") {
         request.distro = "win-11";
       }
+
       try {
+        const config = Provider.getConfiguration();
         const packerSvc = new PackerService(this.context);
 
-        // creating the folder for the packer files
-        const packerFolder = path.join(getPackerFilesFolder(), img.name.replace(/\s/g, "_"));
-        if (!fs.existsSync(packerFolder)) {
-          fs.mkdirSync(packerFolder);
-        }
+        // Setting the packer machine folder
+        const outputFolder = `${config.vmHome}/${request.name}`;
 
-        const specs: PackerVirtualMachineSpecs = {
-          imgId: img.id,
-          folder: packerFolder,
-          generateVagrantBox: request.flags.generateVagrantBox,
-          distro: img.distro,
-          toolsFlavor: PackerService.getToolsFlavor(request.os, request.platform),
-          bootCommand: [""],
-          bootWait: "10s",
-          cpus: Number.parseInt(request.specs.cpus),
-          memory: Number.parseInt(request.specs.memory),
-          diskSize: Number.parseInt(request.specs.disk),
-          isoChecksum: img.isoChecksum,
-          isoUrl: img.isoUrl,
-          vmName: request.name,
-          shutdownTimeout:  "10m",
-          shutdownCommand:  "sudo -S shutdown -P now",
-          sshPort: 22,
-          sshUsername: request.specs.username == "undefined" ? request.distro : request.specs.username,
-          sshEncryptedPassword:
-            "$6$puLhc5BIC.nOFJMh$MENWZR.4Q0XAeMJcaWlLp2nGnMHx0tn1AQZZqR1M9mwGCJ6vUuTXvTryC8OyUvPzfObyPuUp/zcI1J/h3vJtP1",
-          sshPassword: "parallels",
-          sshWaitTimeout: "10000s",
-          sshTimeout: "60m",
-          addons: request.addons,
+        const machineConfig: PackerVirtualMachineConfig = {
+          id: img.id,
           base: request.os,
-          guestOs: request.os,
-          name: request.name,
-          user: request.specs.username == "undefined" ? request.distro : request.specs.username,
-          password: "parallels",
           platform: request.platform,
-          outputFolder: `${packerFolder}/output`,
-          httpContents: [""]
+          distro: img.distro,
+          name: request.name,
+          isoChecksum: request.isoChecksum ?? img.isoChecksum,
+          isoUrl: request.isoUrl ?? img.isoUrl,
+          generateVagrantBox: request.flags.generateVagrantBox,
+          outputFolder: outputFolder,
+          packerScriptFolder: path.join(getPackerTemplateFolder(), img.packerFolder),
+          variables: img.variables ?? {},
+          addons: request.addons ?? [],
+          specs: {
+            cpus: request.specs?.cpus ?? img.defaults?.specs?.cpus ?? 2,
+            memory: request.specs?.memory ?? img.defaults?.specs?.memory ?? 2048,
+            disk: request.specs?.disk ?? img.defaults?.specs?.diskSize ?? "40000"
+          },
+          forceBuild: false
         };
 
-        if (request.flags.generateVagrantBox) {
-          specs.sshUsername = "vagrant";
-          specs.sshPassword = "vagrant";
-          specs.sshEncryptedPassword =
-            "$6$rounds=4096$5CU3LEj/MQvbkfPb$LmKEF9pCfU8R.dA.GemgE/8GT6r9blge3grJvdsVTMFKyLEQwzEF3SGWqAzjawY/XHRpWj4fOiLBrRyxJhIRJ1";
-          specs.password = "vagrant";
-          specs.user = "vagrant";
+        if (machineConfig.name) {
+          machineConfig.variables["machine_name"] = request.name;
+        }
+        if (machineConfig.isoChecksum) {
+          machineConfig.variables[machineConfig.base === "macos" ? "ipsw_checksum" : "iso_checksum"] =
+            machineConfig.isoChecksum;
+        }
+        if (machineConfig.isoUrl) {
+          machineConfig.variables[machineConfig.base === "macos" ? "ipsw_url" : "iso_url"] = machineConfig.isoUrl;
+        }
+        if (machineConfig.generateVagrantBox) {
+          machineConfig.variables["create_vagrant_box"] = machineConfig.generateVagrantBox;
+          machineConfig.variables["output_vagrant_directory"] = getVagrantBoxFolder();
+        }
+        if (machineConfig.addons && machineConfig.addons.length > 0) {
+          machineConfig.variables["addons"] = machineConfig.addons;
+        }
+        if (machineConfig.specs) {
+          if (machineConfig.base === "macos") {
+            machineConfig.variables["machine_specs"] = {
+              cpus: machineConfig.specs.cpus ?? 2,
+              memory: machineConfig.specs.memory ?? 2048
+            };
+          } else {
+            machineConfig.variables["machine_specs"] = {
+              cpus: machineConfig.specs.cpus ?? 2,
+              memory: machineConfig.specs.memory ?? 2048,
+              disk_size: machineConfig.specs.disk ?? "40000"
+            };
+          }
+        }
+        if (machineConfig.outputFolder) {
+          machineConfig.variables["output_directory"] = machineConfig.outputFolder;
         }
 
         packerSvc
-          .buildVm(specs)
+          .buildVm(machineConfig)
           .then(
             value => {
               if (!value) {
                 return reject("Error generating packer file");
               }
               // Registering our new VM if we are not generating a Vagrant box
-              if (!specs.generateVagrantBox) {
-                ParallelsDesktopService.registerVm(`${specs.outputFolder}/${request.name}.pvm`)
+              if (!machineConfig.generateVagrantBox) {
+                ParallelsDesktopService.registerVm(
+                  `${machineConfig.outputFolder}/${request.name}.${machineConfig.base === "macos" ? "macvm" : "pvm"}`
+                )
                   .then(value => {
                     if (!value) {
                       return reject("Error registering VM");
@@ -426,9 +512,8 @@ export class CreateMachineService {
                     return reject(reason);
                   });
               } else {
-                const outputFolder = specs.outputFolder.replace("output", "box");
-                const boxName = `parallels_${specs.vmName.replace(/\s/g, "_").toLowerCase()}.box`;
-                const boxPath = path.join(outputFolder, boxName);
+                const outputFolder = path.join(getVagrantBoxFolder(), "box");
+                const boxPath = path.join(outputFolder, machineConfig.name + ".box");
                 if (!fs.existsSync(boxPath)) {
                   return reject("Error generating Vagrant box");
                 }

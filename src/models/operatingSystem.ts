@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { OperatingSystemPlatform } from "./OperatingSystemPlatform";
-import { OperatingSystemImage } from "./OperatingSystemImage";
+import {OperatingSystemPlatform} from "./OperatingSystemPlatform";
+import {OperatingSystemImage} from "./OperatingSystemImage";
 
 export class OperatingSystem {
   id: string;

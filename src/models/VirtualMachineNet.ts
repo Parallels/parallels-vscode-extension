@@ -1,4 +1,3 @@
-
 export interface VirtualMachineNet {
   enabled: boolean;
   type: string;

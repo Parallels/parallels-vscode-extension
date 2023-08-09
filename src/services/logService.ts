@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import axios from "axios";
-import { parallelsOutputChannel } from "../helpers/channel";
+import {parallelsOutputChannel} from "../helpers/channel";
 import {Provider} from "../ioc/provider";
 import {TelemetryRequest} from "../models/TelemetryRequest";
 import {TelemetryEventIds} from "../constants/flags";
@@ -36,14 +36,14 @@ export class LogService {
     }
   }
 
-  static sendTelemetryEvent(event: TelemetryEventIds, metadata?: TelemetryEventMetadata) {
+  static sendTelemetryEvent(event: TelemetryEventIds, additionalInfo?: string) {
     if (Provider.getConfiguration().isTelemetryEnabled) {
       const now = new Date();
       const formattedDate = now.toISOString().replace("T", " ").replace("Z", "").substr(0, 23);
       const config = Provider.getConfiguration();
       const request: TelemetryRequest = {
         api: 2,
-        hwid: config.hardwareId,
+        hwid: config.hardwareId.toLowerCase(),
         version: config.parallelsDesktopVersion,
         arch: config.architecture,
         hw_model: config.hardwareModel,
@@ -53,23 +53,44 @@ export class LogService {
             occured_at: formattedDate,
             version: config.parallelsDesktopVersion,
             os_locale: config.locale,
-            os_version: config.osVersion,
-            meta: metadata
+            os_version: config.osVersion
           }
         ]
       };
+      if (additionalInfo) {
+        request.events[0].meta = {
+          comment: additionalInfo,
+          guest_os_version: "Extension",
+          license_edition: 2,
+          license_type: 2,
+          license_status: 1
+        };
+      }
+      LogService.debug(JSON.stringify(request, null, 2));
 
-      // axios.post("https://reportus.parallels.com/pdfm/17/events", request)
-      //   .then(response => {
-      //     LogService.debug(`Telemetry event ${event} sent successfully`);
-      //   })
-      //   .catch(error => {
-      //     LogService.error(`Error sending telemetry event ${event}: ${error}`);
-      //   });
+      const requestUrl = `https://reportus.parallels.com/pdfm/${
+        Provider.getConfiguration().packerDesktopMajorVersion
+      }/events`;
+      axios
+        .post(requestUrl, request, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+        .then(response => {
+          LogService.debug(`Telemetry event ${event} sent successfully to ${requestUrl} `);
+        })
+        .catch(error => {
+          LogService.error(`Error sending telemetry event ${event} to ${requestUrl}: ${error}`);
+        });
     }
   }
 
   static log(level: LogLevel, message: string, service?: string, focusOnOutput = false, showOnUi = false) {
+    if (message === undefined) {
+      return;
+    }
+
     message = message.replace(/\n$/, "");
     message = message.replace(/\r$/, "");
     const config = Provider.getConfiguration();

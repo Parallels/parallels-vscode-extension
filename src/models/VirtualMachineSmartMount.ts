@@ -1,4 +1,3 @@
-
 export interface VirtualMachineSmartMount {
   enabled: boolean;
   "Removable drives": string;

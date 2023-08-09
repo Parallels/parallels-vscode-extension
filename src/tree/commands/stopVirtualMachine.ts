@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
 
 import {VirtualMachineProvider} from "../virtual_machine";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
-import {parallelsOutputChannel} from "../../helpers/channel";
 import {Provider} from "../../ioc/provider";
+import {LogService} from "../../services/logService";
 
 export function registerStopVirtualMachineCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewStopVm, async item => {
+    vscode.commands.registerCommand(CommandsFlags.treeStopVm, async item => {
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -37,11 +37,19 @@ export function registerStopVirtualMachineCommand(context: vscode.ExtensionConte
             provider.refresh();
             const result = await ParallelsDesktopService.getVmStatus(item.id);
             if (result === "stopped") {
-              parallelsOutputChannel.appendLine(`Virtual machine ${item.name} stopped`);
+              LogService.info(`Virtual machine ${item.name} stopped`, "StopVirtualMachineCommand");
+              LogService.sendTelemetryEvent(
+                TelemetryEventIds.VirtualMachineAction,
+                `Virtual machine ${item.name} stopped`
+              );
               break;
             }
             if (retry === 0) {
-              parallelsOutputChannel.appendLine(`Virtual machine ${item.name} failed to stop`);
+              LogService.error(`Virtual machine ${item.name} failed to stop`, "StopVirtualMachineCommand");
+              LogService.sendTelemetryEvent(
+                TelemetryEventIds.VirtualMachineAction,
+                `Virtual machine ${item.name} failed to stop`
+              );
               vscode.window.showErrorMessage(
                 `Failed to check if the machine ${item.name} stopped, please check the logs`
               );
@@ -50,7 +58,7 @@ export function registerStopVirtualMachineCommand(context: vscode.ExtensionConte
             retry--;
           }
 
-          vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+          vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         }
       );
     })

@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
 import {VirtualMachineProvider} from "../virtual_machine";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
+import {LogService} from "../../services/logService";
 
 export function registerDeleteVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.vmTreeRemoveVm, async (item: VirtualMachineTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.treeRemoveVm, async (item: VirtualMachineTreeItem) => {
       const options: string[] = ["Yes", "No"];
       if (item) {
         const confirmation = await vscode.window.showQuickPick(options, {
@@ -24,12 +25,20 @@ export function registerDeleteVmCommand(context: vscode.ExtensionContext, provid
                 return;
               });
               if (!result) {
+                LogService.sendTelemetryEvent(
+                  TelemetryEventIds.VirtualMachineAction,
+                  `Failed to delete vm ${item.name}`
+                );
                 vscode.window.showErrorMessage(`Failed to delete vm ${item.name}.`);
                 return;
               }
 
+              LogService.sendTelemetryEvent(
+                TelemetryEventIds.VirtualMachineAction,
+                `Successfully deleted vm ${item.name}`
+              );
               vscode.window.showInformationMessage(`Successfully deleted vm ${item.name}`);
-              vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+              vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             }
           );
         }

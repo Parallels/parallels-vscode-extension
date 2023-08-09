@@ -4,14 +4,23 @@ import * as vscode from "vscode";
 import * as cp from "child_process";
 import path = require("path");
 import axios from "axios";
-import { Provider } from "../ioc/provider";
-import { Constants } from "../constants/flags";
-import { HardwareInfo } from "../models/HardwareInfo";
-import { LogService } from "./logService";
+import {Provider} from "../ioc/provider";
+import {Constants} from "../constants/flags";
+import {HardwareInfo} from "../models/HardwareInfo";
+import {LogService} from "./logService";
 
 export class HelperService {
   static checkFileChecksum(filePath: string, expectedChecksum: string, algorithm: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
+      if (!fs.existsSync(filePath)) {
+        return resolve(false);
+      }
+      if (!expectedChecksum) {
+        return resolve(false);
+      }
+      if (!algorithm) {
+        return resolve(false);
+      }
       const hash = crypto.createHash(algorithm);
       const stream = fs.createReadStream(filePath);
       stream.on("error", err => {
@@ -119,7 +128,7 @@ export class HelperService {
     return new Promise((resolve, reject) => {
       let stdout = "";
       LogService.info(`Getting Machine Locale`, "CoreService");
-      const options = ["read", "-g", "AppleLanguages" ];
+      const options = ["read", "-g", "AppleLanguages"];
       const cmd = cp.spawn("defaults", options, {shell: true});
       cmd.stdout.on("data", data => {
         stdout += data.toString();
@@ -134,7 +143,11 @@ export class HelperService {
           return reject(code);
         }
         try {
-          stdout = stdout.replace(/[\n\r]/g, "").replace(/\(/g, "").replace(/\)/g, "").trim();
+          stdout = stdout
+            .replace(/[\n\r]/g, "")
+            .replace(/\(/g, "")
+            .replace(/\)/g, "")
+            .trim();
           LogService.info(`Hardware Info was collected successfully...`, "CoreService");
           return resolve(stdout);
         } catch (e) {

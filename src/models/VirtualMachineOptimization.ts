@@ -1,4 +1,3 @@
-
 export interface VirtualMachineOptimization {
   "Faster virtual machine": string;
   "Hypervisor type": string;

@@ -1,4 +1,3 @@
-
 export interface VirtualMachineCPU {
   cpus: number;
   auto: string;

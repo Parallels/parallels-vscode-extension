@@ -1,4 +1,3 @@
-
 export interface VirtualMachineStartupAndShutdown {
   Autostart: string;
   "Autostart delay": number;

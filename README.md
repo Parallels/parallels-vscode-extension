@@ -15,6 +15,7 @@ This extension allows you to manage a wide range of operations for your Virtual 
 
 * Create groups for easier management of your virtual machines
 * Create group snapshots
+* Rename groups
 * Start/stop group virtual machines
 * Visual Cue for group state
 

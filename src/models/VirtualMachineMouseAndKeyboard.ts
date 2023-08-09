@@ -1,4 +1,3 @@
-
 export interface VirtualMachineMouseAndKeyboard {
   "Smart mouse optimized for games": string;
   "Sticky mouse": string;

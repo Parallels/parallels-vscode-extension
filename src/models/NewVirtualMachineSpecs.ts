@@ -1,6 +1,6 @@
 export interface NewVirtualMachineSpecs {
-  cpus: string;
-  memory: string;
+  cpus: number;
+  memory: number;
   disk: string;
   username: string;
   password: string;

@@ -2,8 +2,22 @@ export const FLAG_NO_GROUP = "no_group";
 export const FLAG_CONFIGURATION = "parallels.configuration";
 export const FLAG_VAGRANT_VERSION = "hashicorp.vagrant.version";
 export const FLAG_VAGRANT_PATH = "hashicorp.vagrant.path";
+export const FLAG_VAGRANT_BOXES_PATH = "hashicorp.vagrant.boxes.path";
 export const FLAG_PACKER_VERSION = "hashicorp.packer.version";
 export const FLAG_PACKER_PATH = "hashicorp.packer.path";
+export const FLAG_PARALLELS_DESKTOP_PATH = "prlctl.path";
+export const FLAG_PARALLELS_EXTENSION_PATH = "extension.path";
+export const FLAG_PARALLELS_EXTENSION_DOWNLOAD_PATH = "extension.download.path";
+export const FLAG_HAS_VAGRANT_BOXES = "parallels-desktop:hasVagrantBoxes";
+export const FLAG_HAS_VIRTUAL_MACHINES = "parallels-desktop:hasVirtualMachines";
+export const FLAG_ENABLE_SHOW_HIDDEN = "parallels-desktop:enableShowHidden";
+export const FLAG_DISABLE_SHOW_HIDDEN = "parallels-desktop:disableShowHidden";
+export const FLAG_VAGRANT_EXISTS = "parallels-desktop:vagrant";
+export const FLAG_PACKER_EXISTS = "parallels-desktop:packer";
+export const FLAG_PARALLELS_DESKTOP_EXISTS = "parallels-desktop:parallels";
+export const FLAG_PARALLELS_EXTENSION_INITIALIZED = "parallels-desktop:initialized";
+export const FLAG_AUTO_REFRESH = "extension.refresh.auto";
+export const FLAG_AUTO_REFRESH_INTERVAL = "extension.refresh.interval";
 
 const COMMAND_PREFIX = "parallels-desktop";
 const TREE_VIEW_PREFIX = "tree-view";
@@ -101,7 +115,7 @@ export enum TelemetryEventIds {
   AddNewMachineCompleted = 202,
   AddNewMachineFailed = 203,
   AddGroup = 204,
-  VirtualMachineAction = 205,
+  VirtualMachineAction = 205
 }
 
 export class FeatureFlags {
@@ -114,41 +128,50 @@ export class SettingsFlags {
   static orderTreeAlphabetically = "tree.order-items-alphabetically";
   static treeShowHiddenItems = "tree.show-hidden-items";
   static treeShowFlatSnapshotList = "tree.show-flat-snapshot-tree";
+  static parallelsDesktopCliPath = "prlctl.path";
+  static extensionPath = "path";
+  static downloadCachePath = "download-cache-path";
+  static vagrantPath = "hashicorp.vagrant.path";
+  static packerPath = "hashicorp.packer.path";
 }
 
 export class Constants {
   static CacheFlagHardwareInfo = "parallels-desktop.hardware-info";
   static CacheFlagParallelsServerInfo = "parallels-desktop.server-info";
+  static CacheFlagPackerAddons = "parallels-desktop.packer-addons";
 }
 
 export class CommandsFlags {
   static clearDownloadCache = `${COMMAND_PREFIX}.clear-download-cache`;
-  static treeViewViewVmDetails = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.view-vm-details`;
-  static treeViewAddGroup = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.add-group`;
-  static treeViewRemoveGroup = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.remove-group`;
-  static treeViewAddVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.add-vm`;
-  static treeViewPauseVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.pause-vm`;
-  static treeViewSuspendVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.suspend-vm`;
-  static treeViewRefreshVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.refresh-vms`;
-  static treeViewResumeVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.resume-vm`;
-  static treeViewStartVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-vm`;
-  static treeViewStartHeadlessVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-headless-vm`;
-  static treeViewStopVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.stop-vm`;
-  static vmTreeRemoveVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.remove-vm`;
-  static vmTreeEnterVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.enter-vm`;
-  static treeViewTakeVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.take-vm-snapshot`;
-  static treeViewDeleteVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.delete-vm-snapshot`;
-  static treeViewRestoreVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.restore-vm-snapshot`;
-  static treeViewTakeGroupSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.take-group-snapshot`;
-  static treeViewStartGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-group-vms`;
-  static treeViewPauseGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.pause-group-vms`;
-  static treeViewResumeGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.resume-group-vms`;
-  static treeViewSuspendGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.suspend-group-vms`;
-  static treeViewStopGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.stop-group-vms`;
+
+  static treeVmInfo = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.view-vm-details`;
+  static treeAddVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.add-vm`;
+  static treePauseVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.pause-vm`;
+  static treeSuspendVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.suspend-vm`;
+  static treeRefreshVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.refresh-vms`;
+  static treeResumeVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.resume-vm`;
+  static treeStartVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-vm`;
+  static treeStartHeadlessVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-headless-vm`;
+  static treeStopVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.stop-vm`;
+  static treeRemoveVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.remove-vm`;
+  static treeEnterVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.enter-vm`;
+
+  static treeTakeVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.take-vm-snapshot`;
+  static treeDeleteVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.delete-vm-snapshot`;
+  static treeRestoreVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.restore-vm-snapshot`;
+  static treeTakeGroupSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.take-group-snapshot`;
+
   static treeShowItem = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.show-item`;
   static treeHideItem = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.hide-item`;
 
-  static treeRenameGroup = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.rename-group`;  
+  static treeAddGroup = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.add-group`;
+  static treeRemoveGroup = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.remove-group`;
+  static treeRenameGroup = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.rename-group`;
+  static treeStartGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-group-vms`;
+  static treePauseGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.pause-group-vms`;
+  static treeResumeGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.resume-group-vms`;
+  static treeSuspendGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.suspend-group-vms`;
+  static treeStopGroupVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.stop-group-vms`;
 
   static coreEnableShowHiddenItems = `${COMMAND_PREFIX}.core.enable-show-hidden-items`;
   static coreDisableShowHiddenItems = `${COMMAND_PREFIX}.core.disable-show-hidden-items`;

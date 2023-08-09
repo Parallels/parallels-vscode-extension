@@ -1,4 +1,3 @@
-
 export interface VirtualMachineUSBAndBluetooth {
   "Automatic sharing cameras": string;
   "Automatic sharing bluetooth": string;

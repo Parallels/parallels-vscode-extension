@@ -7,6 +7,7 @@ import {registerVagrantBoxRefreshCommand} from "./commands/vagrantBoxesRefresh";
 import {registerVagrantBoxInitCommand} from "./commands/vagrantBoxesInit";
 import {registerVagrantBoxRemoveCommand} from "./commands/vagrantBoxesRemove";
 import {parallelsOutputChannel} from "../helpers/channel";
+import {LogService} from "../services/logService";
 
 export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTreeItem> {
   data: VagrantBoxTreeItem[] = [];
@@ -55,19 +56,19 @@ export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTre
                   "",
                   "vagrant.box",
                   vscode.TreeItemCollapsibleState.None,
-                  "desktop_group_new"
+                  "vagrant_boxes"
                 )
               );
             });
             return resolve(this.data);
           },
           error => {
-            parallelsOutputChannel.appendLine("Error getting vagrant boxes: " + error);
+            LogService.error("Error getting vagrant boxes: " + error);
             return resolve([]);
           }
         )
         .catch(error => {
-          parallelsOutputChannel.appendLine("Error getting vagrant boxes: " + error);
+          LogService.error("Error getting vagrant boxes: " + error);
           return resolve([]);
         });
     });

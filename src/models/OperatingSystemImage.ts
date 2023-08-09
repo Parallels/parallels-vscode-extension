@@ -1,3 +1,4 @@
+import {stringify} from "querystring";
 import {OperatingSystemDefaults} from "./OperatingSystemDefaults";
 import {OperatingSystemImageAddons} from "./OperatingSystemImageAddons";
 
@@ -7,7 +8,7 @@ export class OperatingSystemImage {
   type: "packer" | "iso" | "vagrant" | "internal" | "macos";
   distro: string;
   requireIsoDownload: boolean;
-  variables: Map<string, any>;
+  variables: any;
   addons: OperatingSystemImageAddons[];
   isoUrl: string;
   isoChecksum: string;
@@ -23,7 +24,7 @@ export class OperatingSystemImage {
     distro = "",
     type: "packer" | "iso" | "vagrant" | "internal" | "macos" = "internal",
     requireIsoDownload = false,
-    variables: Map<string, any> = new Map(),
+    variables: any,
     addons: OperatingSystemImageAddons[] = [],
     isoUrl = "",
     isoChecksum = "",
@@ -61,9 +62,8 @@ export class OperatingSystemImage {
       allowMachineSpecs: ${this.allowMachineSpecs},
       allowUserOverride: ${this.allowUserOverride},
       allowAddons: ${this.allowAddons},
-      addons: [
-        ${this.addons.map(addon => addon.toString()).join(",\n")}
-      ]${this.defaults ? `,\ndefaults: ${this.defaults.toString()}` : ""}
+      addons: ${JSON.stringify(this.addons).replace(/"/g, "'")}
+      ${this.defaults ? `,\ndefaults: ${this.defaults.toString()}` : ""}
     }`;
   }
 
@@ -81,10 +81,6 @@ export class OperatingSystemImage {
     for (const httpContent of obj.httpContents ?? []) {
       httpContents.push(httpContent);
     }
-    const variables: Map<string, any> = new Map();
-    for (const [key, value] of Object.entries(obj.variables ?? {})) {
-      variables.set(key, value);
-    }
     const defaults = obj.defaults ? OperatingSystemDefaults.fromJson(JSON.stringify(obj.defaults)) : undefined;
 
     return new OperatingSystemImage(
@@ -93,7 +89,7 @@ export class OperatingSystemImage {
       obj.distro,
       obj.type,
       obj.requireIsoDownload,
-      variables,
+      obj.variables,
       addons,
       obj.isoUrl,
       obj.isoChecksum,

@@ -1,4 +1,3 @@
-
 export interface VirtualMachineCdrom {
   enabled: boolean;
   port: string;

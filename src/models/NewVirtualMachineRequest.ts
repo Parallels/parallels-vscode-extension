@@ -7,7 +7,7 @@ export interface NewVirtualMachineRequest {
   platform: string;
   distro: string;
   image: string;
-  specs: NewVirtualMachineSpecs;
+  specs?: NewVirtualMachineSpecs;
   flags: NewVirtualMachineFlags;
   isoUrl?: string;
   isoChecksum?: string;

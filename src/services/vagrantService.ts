@@ -5,25 +5,41 @@ import {FLAG_VAGRANT_PATH, FLAG_VAGRANT_VERSION} from "../constants/flags";
 import {Provider} from "../ioc/provider";
 import {parallelsOutputChannel} from "../helpers/channel";
 import {getVagrantBoxFolder} from "../helpers/helpers";
+import {LogService} from "./logService";
+import {log} from "console";
 
 export class VagrantService {
   constructor(private context: vscode.ExtensionContext) {}
 
   static isInstalled() {
     return new Promise(resolve => {
-      const vagrantPath = Provider.getCache().get(FLAG_VAGRANT_PATH);
-      if (vagrantPath) {
-        parallelsOutputChannel.appendLine(`Vagrant was found on path ${vagrantPath}`);
+      const settings = Provider.getSettings();
+      const cache = Provider.getCache();
+      if (cache.get(FLAG_VAGRANT_PATH)) {
+        LogService.info(`Packer was found on path ${cache.get(FLAG_VAGRANT_PATH)} from cache`, "VagrantService");
         return resolve(true);
       }
 
-      cp.exec("which vagrant", err => {
+      if (settings.get<string>(FLAG_VAGRANT_PATH)) {
+        LogService.info(
+          `Packer was found on path ${settings.get<string>(FLAG_VAGRANT_PATH)} from settings`,
+          "VagrantService"
+        );
+        return resolve(true);
+      }
+
+      cp.exec("which vagrant", (err, stdout) => {
         if (err) {
-          parallelsOutputChannel.appendLine("Vagrant is not installed");
+          LogService.error("Vagrant is not installed", "VagrantService", true, false);
           return resolve(false);
         }
-        parallelsOutputChannel.appendLine(`Vagrant was found on path ${vagrantPath}`);
-        Provider.getCache().set(FLAG_VAGRANT_PATH, vagrantPath);
+        const path = stdout.replace("\n", "").trim();
+        LogService.info(`Vagrant was found on path ${path}`, "VagrantService");
+        const packerPath = settings.get<string>(FLAG_VAGRANT_PATH);
+        if (!packerPath) {
+          settings.update(FLAG_VAGRANT_PATH, path, true);
+        }
+        Provider.getCache().set(FLAG_VAGRANT_PATH, path);
         return resolve(true);
       });
     });
@@ -33,19 +49,18 @@ export class VagrantService {
     return new Promise((resolve, reject) => {
       let version = Provider.getCache().get(FLAG_VAGRANT_VERSION);
       if (version) {
-        parallelsOutputChannel.appendLine(`${version} was found in the system`);
+        LogService.info(`Vagrant was found on version ${version} from cache`, "VagrantService");
         return resolve(true);
       }
 
-      parallelsOutputChannel.appendLine("Checking if Vagrant is installed...");
-      cp.exec("vagrant --version", (err, stdout, stderr) => {
+      LogService.info("Checking if Vagrant is installed...", "VagrantService");
+      cp.exec("vagrant --version", (err, stdout) => {
         if (err) {
-          parallelsOutputChannel.appendLine("Vagrant is not installed");
-          parallelsOutputChannel.show();
+          LogService.error("Vagrant is not installed", "VagrantService", true, false);
           return resolve(false);
         }
         version = stdout.replace("\n", "").trim();
-        parallelsOutputChannel.appendLine(`${version} was found in the system`);
+        LogService.info(`Vagrant ${version} was found in the system`, "VagrantService");
         Provider.getCache().set(FLAG_VAGRANT_VERSION, version);
         return resolve(true);
       });
@@ -53,36 +68,35 @@ export class VagrantService {
   }
 
   static install(): Promise<boolean> {
-    parallelsOutputChannel.show();
-    parallelsOutputChannel.appendLine("Installing Vagrant...");
+    LogService.info("Installing Vagrant...", "VagrantService");
     return new Promise((resolve, reject) => {
       const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
       brew.stdout.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.info(data.toString(), "VagrantService");
       });
       brew.stderr.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.error(data.toString(), "VagrantService");
       });
       brew.on("close", code => {
         if (code !== 0) {
-          parallelsOutputChannel.appendLine(`brew tap exited with code ${code}`);
-          parallelsOutputChannel.show();
+          LogService.error(`brew tap exited with code ${code}`, "VagrantService", true, false);
           return resolve(false);
         }
+
         const packer = cp.spawn("brew", ["install", "hashicorp/tap/hashicorp-vagrant"]);
         packer.stdout.on("data", data => {
-          parallelsOutputChannel.appendLine(data);
+          LogService.info(data.toString(), "VagrantService");
         });
         packer.stderr.on("data", data => {
-          parallelsOutputChannel.appendLine(data);
+          LogService.error(data.toString(), "VagrantService");
         });
         packer.on("close", code => {
           if (code !== 0) {
-            parallelsOutputChannel.appendLine(`brew install exited with code ${code}`);
-            parallelsOutputChannel.show();
-
+            LogService.error(`brew install exited with code ${code}`, "VagrantService", true, false);
             return resolve(false);
           }
+
+          LogService.info("Vagrant was installed successfully", "VagrantService");
           return resolve(true);
         });
       });
@@ -94,16 +108,15 @@ export class VagrantService {
       let stdOut = "";
       const vagrant = cp.spawn("vagrant", ["box", "list"]);
       vagrant.stdout.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
         stdOut += data;
+        LogService.debug(data.toString(), "VagrantService");
       });
       vagrant.stderr.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.error(data.toString(), "VagrantService");
       });
       vagrant.on("close", code => {
         if (code !== 0) {
-          parallelsOutputChannel.appendLine(`vagrant box list exited with code ${code}`);
-          parallelsOutputChannel.show();
+          LogService.error(`vagrant box list exited with code ${code}`, "VagrantService", true, false);
           return reject(code);
         }
 
@@ -112,6 +125,7 @@ export class VagrantService {
           return boxName;
         });
 
+        LogService.info(`Found ${boxes.length} vagrant boxes`, "VagrantService");
         return resolve(boxes.filter(box => box !== ""));
       });
     });
@@ -139,18 +153,18 @@ export class VagrantService {
 
       const vagrantUp = cp.spawn("vagrant", ["up"], {shell: true, cwd: vmBoxFolder});
       vagrantUp.stdout.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.info(data.toString(), "VagrantService");
       });
       vagrantUp.stderr.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.error(data.toString(), "VagrantService");
       });
       vagrantUp.on("close", code => {
         if (code !== 0) {
-          parallelsOutputChannel.appendLine(`vagrant up exited with code ${code}`);
-          parallelsOutputChannel.show();
+          LogService.error(`vagrant up exited with code ${code}`, "VagrantService", true, false);
           return reject(code);
         }
 
+        LogService.info(`Vagrant ${boxName} was initialized successfully`, "VagrantService");
         return resolve(true);
       });
     });
@@ -158,41 +172,57 @@ export class VagrantService {
 
   static async remove(boxName: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      const vagrant = cp.spawn("vagrant", ["box", "remove", `${boxName}`, "--all", "--force"]);
+      if (boxName === "") {
+        LogService.error("Vagrant box name is empty", "VagrantService", true, false);
+        return resolve(true);
+      }
+
+      LogService.info(`Removing vagrant box ${boxName}`, "VagrantService");
+      const vagrant = cp.spawn("vagrant", ["box", "remove", `"${boxName}"`, "--all", "--force"]);
       vagrant.stdout.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.info(data.toString(), "VagrantService");
       });
       vagrant.stderr.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.error(data.toString(), "VagrantService");
       });
       vagrant.on("close", code => {
         if (code !== 0) {
-          parallelsOutputChannel.appendLine(`vagrant box remove exited with code ${code}`);
-          parallelsOutputChannel.show();
+          LogService.error(`vagrant box remove exited with code ${code}`, "VagrantService", true, false);
           return reject(code);
         }
 
+        LogService.info(`Vagrant ${boxName} was removed successfully`, "VagrantService");
         resolve(true);
       });
     });
   }
 
   static async add(name: string, boxPath: string): Promise<boolean> {
+    if (name === "") {
+      LogService.error("Vagrant box name is empty", "VagrantService", true, false);
+      return false;
+    }
+    if (boxPath === "") {
+      LogService.error("Vagrant box path is empty", "VagrantService", true, false);
+      return false;
+    }
+
+    LogService.info(`Adding vagrant box ${name} from ${boxPath}`, "VagrantService");
     return new Promise((resolve, reject) => {
-      const vagrant = cp.spawn("vagrant", ["box", "add", boxPath, "--name", `"${name}"`], {shell: true});
+      const vagrant = cp.spawn("vagrant", ["box", "add", `"${boxPath}"`, "--name", `"${name}"`], {shell: true});
       vagrant.stdout.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.info(data.toString(), "VagrantService");
       });
       vagrant.stderr.on("data", data => {
-        parallelsOutputChannel.appendLine(data);
+        LogService.error(data.toString(), "VagrantService");
       });
       vagrant.on("close", code => {
         if (code !== 0) {
-          parallelsOutputChannel.appendLine(`vagrant box add exited with code ${code}`);
-          parallelsOutputChannel.show();
+          LogService.error(`vagrant box add exited with code ${code}`, "VagrantService", true, false);
           return reject(code);
         }
 
+        LogService.info(`Vagrant ${name} was added successfully`, "VagrantService");
         resolve(true);
       });
     });

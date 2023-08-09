@@ -1,5 +1,4 @@
-import { TelemetryEventMetadata } from "./TelemetryEventMetadata";
-
+import {TelemetryEventMetadata} from "./TelemetryEventMetadata";
 
 export interface TelemetryEvent {
   event_id: number;

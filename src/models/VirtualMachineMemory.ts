@@ -1,4 +1,3 @@
-
 export interface VirtualMachineMemory {
   size: string;
   auto: string;

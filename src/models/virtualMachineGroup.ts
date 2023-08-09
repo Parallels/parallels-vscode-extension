@@ -1,6 +1,6 @@
 import * as uuid from "uuid";
 import {VirtualMachine as VirtualMachine} from "./virtualMachine";
-import { Provider } from "../ioc/provider";
+import {Provider} from "../ioc/provider";
 
 export class VirtualMachineGroup {
   uuid: string;
@@ -20,11 +20,11 @@ export class VirtualMachineGroup {
   static fromJson(json: any): VirtualMachineGroup {
     const group = JSON.parse(json);
     const newGroup = new VirtualMachineGroup(group.name, group.uuid, group.parent, group.hidden);
-    
+
     group.machines.forEach((vm: any) => {
       newGroup.addVm(vm);
     });
-    
+
     group.groups.forEach((subGroup: any) => {
       const jsonGroup = JSON.stringify(subGroup);
       newGroup.addGroup(VirtualMachineGroup.fromJson(jsonGroup));
@@ -40,15 +40,21 @@ export class VirtualMachineGroup {
   }
 
   existsGroup(name: string): boolean {
-    return this.groups.some(group => group.name.toLowerCase() === name.toLowerCase() || group.uuid.toLowerCase() === name.toLowerCase());
+    return this.groups.some(
+      group => group.name.toLowerCase() === name.toLowerCase() || group.uuid.toLowerCase() === name.toLowerCase()
+    );
   }
 
   getVm(name: string): VirtualMachine | undefined {
-    return this.machines.find(machine => machine.Name.toLowerCase() === name.toLowerCase() || machine.ID.toLowerCase() === name.toLowerCase());
+    return this.machines.find(
+      machine => machine.Name.toLowerCase() === name.toLowerCase() || machine.ID.toLowerCase() === name.toLowerCase()
+    );
   }
 
   getGroup(name: string): VirtualMachineGroup | undefined {
-    return this.groups.find(group => group.name.toLowerCase() === name.toLowerCase() || group.uuid.toLowerCase() === name.toLowerCase());
+    return this.groups.find(
+      group => group.name.toLowerCase() === name.toLowerCase() || group.uuid.toLowerCase() === name.toLowerCase()
+    );
   }
 
   addVm(machine: VirtualMachine): void {
@@ -84,7 +90,6 @@ export class VirtualMachineGroup {
     }
   }
 
-
   getAllGroups(): VirtualMachineGroup[] {
     const result: VirtualMachineGroup[] = [];
     for (const group of this.groups) {
@@ -108,7 +113,6 @@ export class VirtualMachineGroup {
       this.groups = this.groups.filter(group => group.uuid.toLowerCase() !== name.toLowerCase());
     }
   }
-
 
   get visibleGroupsCount(): number {
     const groups = this.getAllGroups();
@@ -158,7 +162,7 @@ export class VirtualMachineGroup {
       if (currentState === "unknown") {
         currentState = vm.State;
       }
-      
+
       if (vm.State !== currentState) {
         currentState = "mixed";
         break;

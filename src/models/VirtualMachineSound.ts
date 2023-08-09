@@ -1,4 +1,3 @@
-
 export interface VirtualMachineSound {
   enabled: boolean;
   output: string;

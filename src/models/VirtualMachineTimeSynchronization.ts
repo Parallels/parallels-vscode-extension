@@ -1,4 +1,3 @@
-
 export interface VirtualMachineTimeSynchronization {
   enabled: boolean;
   "Smart mode": string;

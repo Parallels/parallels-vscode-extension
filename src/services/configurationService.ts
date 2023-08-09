@@ -13,13 +13,13 @@ import {HelperService} from "./helperService";
 import {initialize} from "../initialization";
 import {config} from "process";
 import {LogService} from "./logService";
-import { ParallelsDesktopServerInfo } from "../models/ParallelsDesktopServerInfo";
+import {ParallelsDesktopServerInfo} from "../models/ParallelsDesktopServerInfo";
 
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
   featureFlags: FeatureFlags;
   hardwareInfo?: HardwareInfo;
-  parallelsDesktopServerInfo?: ParallelsDesktopServerInfo
+  parallelsDesktopServerInfo?: ParallelsDesktopServerInfo;
   isInitialized = false;
   showHidden = false;
   showFlatSnapshotsList = false;
@@ -41,7 +41,6 @@ export class ConfigurationService {
 
   get isDebugEnabled(): boolean {
     const debugEnvVariable = process.env.PARALLELS_DESKTOP_DEBUG;
-    console.log(`Debug Mode: ${debugEnvVariable}`);
     return debugEnvVariable !== undefined && debugEnvVariable.toLowerCase() === "true";
   }
 
@@ -73,7 +72,7 @@ export class ConfigurationService {
         this.parallelsDesktopServerInfo = info;
       }),
       HelperService.getLocale().then(locale => {
-        this.locale = locale;
+        this.locale = locale.replace(/"/g, "").trim();
       })
     );
 
@@ -314,8 +313,10 @@ export class ConfigurationService {
   }
 
   get isTelemetryEnabled(): boolean | undefined {
-    if(this.featureFlags.enableTelemetry === undefined) {
+    if (this.featureFlags.enableTelemetry === undefined) {
       if (this.parallelsCEPStatus) {
+        this.featureFlags.enableTelemetry = true;
+        this.save();
         return true;
       } else {
         return undefined;
@@ -331,12 +332,12 @@ export class ConfigurationService {
   }
 
   get osVersion(): string {
-    const osVersion = this.parallelsDesktopServerInfo?.["OS"].replace("macOs ", "");
+    const osVersion = this.parallelsDesktopServerInfo?.["OS"].replace("macOS ", "").split("(")[0];
     return osVersion ? osVersion : "";
   }
 
   get hardwareModel(): string {
-    const model = `${this.hardwareInfo?.SPHardwareDataType[0].machine_name.replace(" ","")}${this.hardwareInfo?.SPHardwareDataType[0].machine_model.replace("Mac","")}`
+    const model = this.hardwareInfo?.SPHardwareDataType[0].machine_model;
     return model ? model : "";
   }
 
@@ -352,5 +353,18 @@ export class ConfigurationService {
     } else {
       return "x86_64";
     }
+  }
+
+  get packerDesktopMajorVersion(): number {
+    const version = this.parallelsDesktopVersion;
+    if (version) {
+      return parseInt(version.split(".")[0]);
+    }
+    return 0;
+  }
+
+  get vmHome(): string {
+    const home = this.parallelsDesktopServerInfo?.["VM home"].replace(/\\/g, "") ?? "";
+    return home;
   }
 }

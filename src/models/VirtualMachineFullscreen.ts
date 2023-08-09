@@ -1,4 +1,3 @@
-
 export interface VirtualMachineFullscreen {
   "Use all displays": string;
   "Activate spaces on click": string;

@@ -1,16 +1,15 @@
 import * as vscode from "vscode";
-
-import {parallelsOutputChannel} from "../../helpers/channel";
 import {VirtualMachineProvider} from "../virtual_machine";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
 import {VirtualMachine} from "../../models/virtualMachine";
+import {LogService} from "../../services/logService";
 
 export function registerTakeGroupSnapshotCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewTakeGroupSnapshot, async (item: VirtualMachineTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.treeTakeGroupSnapshot, async (item: VirtualMachineTreeItem) => {
       const snapshotName = await vscode.window.showInputBox({
         prompt: "Snapshot Name?",
         placeHolder: "Enter the name for your snapshot"
@@ -35,10 +34,22 @@ export function registerTakeGroupSnapshotCommand(context: vscode.ExtensionContex
             await Promise.all(promises).then(
               () => {
                 vscode.window.showInformationMessage(`Snapshot ${snapshotName} created for ${group.name}`);
-                vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
-                parallelsOutputChannel.appendLine(`Snapshot ${snapshotName} created for ${group.name}`);
+                vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+                LogService.info(`Snapshot ${snapshotName} created for ${group.name}`, "TakeGroupSnapshotCommand");
+                LogService.sendTelemetryEvent(
+                  TelemetryEventIds.VirtualMachineAction,
+                  `Snapshot ${snapshotName} created for ${group.name}`
+                );
               },
               () => {
+                LogService.error(
+                  `Snapshot ${snapshotName} failed to create for ${group.name}`,
+                  "TakeGroupSnapshotCommand"
+                );
+                LogService.sendTelemetryEvent(
+                  TelemetryEventIds.VirtualMachineAction,
+                  `Snapshot ${snapshotName} failed to create for ${group.name}`
+                );
                 vscode.window.showErrorMessage(`Snapshot ${snapshotName} failed to create for ${group.name}`);
               }
             );
@@ -73,11 +84,11 @@ function takeSnapshot(
       provider.refresh();
       const result = await ParallelsDesktopService.getVmStatus(vm.ID);
       if (result !== "snapshooting") {
-        parallelsOutputChannel.appendLine(`Virtual machine ${vm.Name} finished snapshooting`);
+        LogService.info(`Virtual machine ${vm.Name} finished snapshooting`);
         break;
       }
       if (retry === 0) {
-        parallelsOutputChannel.appendLine(`Virtual machine ${vm.Name} failed to take the snapshoot`);
+        LogService.error(`Virtual machine ${vm.Name} failed to take the snapshoot`);
         vscode.window.showErrorMessage(
           `Virtual machine ${vm.Name} failed to take the snapshoot, please check the logs`
         );

@@ -1,4 +1,3 @@
-
 export interface VirtualMachineModality {
   "Opacity (percentage)": number;
   "Stay on top": string;

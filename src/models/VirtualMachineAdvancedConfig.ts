@@ -1,4 +1,3 @@
-
 export interface VirtualMachineAdvancedConfig {
   "VM hostname synchronization": string;
   "Public SSH keys synchronization": string;

@@ -1,4 +1,3 @@
-
 export interface TelemetryEventMetadata {
   comment: string;
   guest_os_version: string;

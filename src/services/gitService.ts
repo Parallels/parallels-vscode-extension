@@ -2,10 +2,10 @@ import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
 import {Provider} from "../ioc/provider";
-import {getPackerTemplateFolder } from "../helpers/helpers";
+import {getPackerTemplateFolder} from "../helpers/helpers";
 import {LogService} from "./logService";
 import path = require("path");
-import { FeatureFlags } from "../constants/flags";
+import {FeatureFlags} from "../constants/flags";
 
 export class GitService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -32,7 +32,7 @@ export class GitService {
         return resolve(version);
       }
 
-      LogService.info("Checking if Git is installed...", "GitService");
+      LogService.info("Getting Git version...", "GitService");
       cp.exec("git --version", (err, stdout, stderr) => {
         if (err) {
           LogService.error("Git is not installed", "GitService", false, false);
@@ -44,7 +44,8 @@ export class GitService {
           Provider.getCache().set(FeatureFlags.FLAG_GIT_VERSION, versionMatch[1]);
           return resolve(versionMatch[1]);
         } else {
-          return reject("Could not extract version number from output");
+          LogService.error("Could not extract git version number from output", "GitService", false, false);
+          return reject("Could not extract git version number from output");
         }
       });
     });

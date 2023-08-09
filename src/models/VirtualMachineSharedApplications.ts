@@ -1,4 +1,3 @@
-
 export interface VirtualMachineSharedApplications {
   enabled: boolean;
   "Host-to-guest apps sharing": string;

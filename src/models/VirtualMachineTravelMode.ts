@@ -1,4 +1,3 @@
-
 export interface VirtualMachineTravelMode {
   "Enter condition": string;
   "Enter threshold": number;
