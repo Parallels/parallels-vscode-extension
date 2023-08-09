@@ -114,7 +114,7 @@ export enum TelemetryEventIds {
   AddNewMachine = 201,
   AddNewMachineCompleted = 202,
   AddNewMachineFailed = 203,
-  AddGroup = 204,
+  GroupAction = 204,
   VirtualMachineAction = 205
 }
 

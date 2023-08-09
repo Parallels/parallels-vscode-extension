@@ -14,7 +14,7 @@ export function registerAddGroupCommand(context: vscode.ExtensionContext, provid
         placeHolder: "Enter the name for the group"
       });
       if (groupName) {
-        LogService.sendTelemetryEvent(TelemetryEventIds.AddGroup, "Group Added");
+        LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, "Group Added");
         config.addVirtualMachineGroup(new VirtualMachineGroup(groupName));
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         LogService.info(`Group ${groupName} added`, "AddGroupCommand");

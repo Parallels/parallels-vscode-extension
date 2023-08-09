@@ -21,7 +21,7 @@ export function registerRenameGroupCommand(context: vscode.ExtensionContext, pro
         config.renameVirtualMachineGroup(item.name, groupName);
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         LogService.info(`Group ${item.name} renamed to ${groupName}`, "RenameGroupCommand");
-        LogService.sendTelemetryEvent(TelemetryEventIds.AddGroup, `Group ${item.name} renamed to ${groupName}`);
+        LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, `Group ${item.name} renamed to ${groupName}`);
       }
     })
   );
