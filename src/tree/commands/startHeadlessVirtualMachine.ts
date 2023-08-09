@@ -1,17 +1,17 @@
 import * as vscode from "vscode";
 
 import {VirtualMachineProvider} from "../virtual_machine";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
-import {parallelsOutputChannel} from "../../helpers/channel";
 import {Provider} from "../../ioc/provider";
+import {LogService} from "../../services/logService";
 
 export function registerStartHeadlessVirtualMachineCommand(
   context: vscode.ExtensionContext,
   provider: VirtualMachineProvider
 ) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewStartHeadlessVm, async item => {
+    vscode.commands.registerCommand(CommandsFlags.treeStartHeadlessVm, async item => {
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -40,11 +40,20 @@ export function registerStartHeadlessVirtualMachineCommand(
             provider.refresh();
             const result = await ParallelsDesktopService.getVmStatus(item.id);
             if (result === "running") {
-              parallelsOutputChannel.appendLine(`Virtual machine ${item.name} started`);
+              LogService.info(`Virtual machine ${item.name} started`, "StartHeadlessVirtualMachineCommand");
+              LogService.sendTelemetryEvent(
+                TelemetryEventIds.VirtualMachineAction,
+                `Virtual machine ${item.name} started`
+              );
+
               break;
             }
             if (retry === 0) {
-              parallelsOutputChannel.appendLine(`Virtual machine ${item.name} failed to start`);
+              LogService.error(`Virtual machine ${item.name} failed to start`, "StartHeadlessVirtualMachineCommand");
+              LogService.sendTelemetryEvent(
+                TelemetryEventIds.VirtualMachineAction,
+                `Virtual machine ${item.name} failed to start`
+              );
               vscode.window.showErrorMessage(
                 `Failed to check if the machine ${item.name} started, please check the logs`
               );
@@ -53,7 +62,7 @@ export function registerStartHeadlessVirtualMachineCommand(
             retry--;
           }
 
-          vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+          vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         }
       );
     })

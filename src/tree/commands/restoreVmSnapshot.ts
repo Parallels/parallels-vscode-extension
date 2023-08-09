@@ -1,15 +1,14 @@
 import * as vscode from "vscode";
-
-import {parallelsOutputChannel} from "../../helpers/channel";
 import {VirtualMachineProvider} from "../virtual_machine";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachine} from "../../models/virtualMachine";
+import {LogService} from "../../services/logService";
 
 export function registerRestoreVmSnapshotCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewRestoreVmSnapshot, async (item: VirtualMachineTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.treeRestoreVmSnapshot, async (item: VirtualMachineTreeItem) => {
       if (item) {
         const vm = item.item as VirtualMachine;
         vscode.window.withProgress(
@@ -24,12 +23,21 @@ export function registerRestoreVmSnapshotCommand(context: vscode.ExtensionContex
             });
             if (!result) {
               vscode.window.showErrorMessage(`Snapshot ${item.name} for vm ${vm.Name} failed to restore`);
+              LogService.error(`Snapshot ${item.name} for vm ${vm.Name} failed to restore`, "RestoreVmSnapshotCommand");
+              LogService.sendTelemetryEvent(
+                TelemetryEventIds.VirtualMachineAction,
+                `Snapshot ${item.name} for vm ${vm.Name} failed to restore`
+              );
               return;
             }
 
             vscode.window.showInformationMessage(`Snapshot ${item.name} for vm ${vm.Name} restored`);
-            vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
-            parallelsOutputChannel.appendLine(`Snapshot ${item.name} for vm ${vm.Name} restored`);
+            vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+            LogService.info(`Snapshot ${item.name} for vm ${vm.Name} restored`, "RestoreVmSnapshotCommand");
+            LogService.sendTelemetryEvent(
+              TelemetryEventIds.VirtualMachineAction,
+              `Snapshot ${item.name} for vm ${vm.Name} restored`
+            );
           }
         );
       }

@@ -1,6 +1,7 @@
 export interface VirtualMachine {
   ID: string;
   group: string;
+  hidden: boolean;
   Name: string;
   Description: string;
   Type: string;

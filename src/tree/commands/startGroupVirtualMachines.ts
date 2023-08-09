@@ -1,19 +1,19 @@
 import * as vscode from "vscode";
 
 import {VirtualMachineProvider} from "../virtual_machine";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
-import {parallelsOutputChannel} from "../../helpers/channel";
 import {Provider} from "../../ioc/provider";
 import {VirtualMachine} from "../../models/virtualMachine";
 import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
+import {LogService} from "../../services/logService";
 
 export function registerStartGroupVirtualMachinesCommand(
   context: vscode.ExtensionContext,
   provider: VirtualMachineProvider
 ) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewStartGroupVms, async item => {
+    vscode.commands.registerCommand(CommandsFlags.treeStartGroupVms, async item => {
       vscode.window.withProgress(
         {
           title: `Starting Vms on ${item.name}`,
@@ -34,7 +34,7 @@ export function registerStartGroupVirtualMachinesCommand(
 
           await Promise.all(promises).then(
             () => {
-              vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+              vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             },
             () => {
               vscode.window.showErrorMessage(`Failed to suspend one or more VMs for ${group.name}`);
@@ -70,11 +70,17 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
       provider.refresh();
       const result = await ParallelsDesktopService.getVmStatus(item.ID);
       if (result === "running") {
-        parallelsOutputChannel.appendLine(`Virtual machine ${item.Name} started`);
+        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} started`);
+        LogService.info(`Virtual machine ${item.Name} started`);
         break;
       }
       if (retry === 0) {
-        parallelsOutputChannel.appendLine(`Virtual machine ${item.Name} failed to start`);
+        LogService.error(`Virtual machine ${item.Name} failed to start`);
+        LogService.sendTelemetryEvent(
+          TelemetryEventIds.VirtualMachineAction,
+          `Virtual machine ${item.Name} failed to start`
+        );
+
         vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} started, please check the logs`);
         break;
       }
@@ -110,11 +116,11 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
       provider.refresh();
       const result = await ParallelsDesktopService.getVmStatus(item.ID);
       if (result === "running") {
-        parallelsOutputChannel.appendLine(`Virtual machine ${item.Name} resumed`);
+        LogService.info(`Virtual machine ${item.Name} resumed`);
         break;
       }
       if (retry === 0) {
-        parallelsOutputChannel.appendLine(`Virtual machine ${item.Name} failed to resume`);
+        LogService.error(`Virtual machine ${item.Name} failed to resume`);
         vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} resumed, please check the logs`);
         break;
       }

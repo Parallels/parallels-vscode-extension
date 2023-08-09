@@ -5,8 +5,17 @@ import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {initialize} from "./initialization";
 import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
 import {VagrantBoxProvider} from "./tree/vagrant_boxes";
-import {CommandsFlags} from "./constants/flags";
+import {
+  CommandsFlags,
+  FLAG_AUTO_REFRESH,
+  FLAG_AUTO_REFRESH_INTERVAL,
+  FLAG_PARALLELS_EXTENSION_INITIALIZED,
+  TelemetryEventIds
+} from "./constants/flags";
 import {parallelsOutputChannel} from "./helpers/channel";
+import {LogService} from "./services/logService";
+
+let autoRefreshInterval: NodeJS.Timeout | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
@@ -19,55 +28,72 @@ export async function activate(context: vscode.ExtensionContext) {
     onDidChange = this.onDidChangeEmitter.event;
 
     provideTextDocumentContent(uri: vscode.Uri): string {
-      // simply invoke cowsay, use uri-path as text
       return `test`;
     }
   })();
-
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(myScheme, myProvider));
-
-  // Initializing the extension
-  await initialize();
 
   // Registering the  Virtual Machine Provider
   const virtualMachineProvider = new VirtualMachineProvider(context);
   const vagrantBoxProvider = new VagrantBoxProvider(context);
 
-  if (Provider.getConfiguration().countMachines() > 0) {
-    vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", true);
-  } else {
-    vscode.commands.executeCommand("setContext", "parallels-desktop:hasVirtualMachines", false);
-  }
+  // Initializing the extension
+  await initialize();
 
   // Setting the auto refresh mechanism
-  const config = Provider.getSettings();
-  const autoRefresh = config.get<boolean>("autoRefresh");
+  const settings = Provider.getSettings();
+  const config = Provider.getConfiguration();
+  setAutoRefresh();
+
+  vscode.workspace.onDidChangeConfiguration(e => {
+    if (e.affectsConfiguration("parallels-desktop")) {
+      // Re-initialize the extension
+      setAutoRefresh();
+      vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+    }
+  });
+
+  // Registering global commands
+  registerClearDownloadCacheCommand(context);
+
+  if (config.isDebugEnabled) {
+    LogService.info("Debug mode is enabled", "CoreService");
+  }
+  vscode.commands.executeCommand("setContext", FLAG_PARALLELS_EXTENSION_INITIALIZED, true);
+  LogService.sendTelemetryEvent(TelemetryEventIds.ExtensionStarted);
+  console.log("Parallels Desktop Extension is now active!");
+}
+
+function setAutoRefresh() {
+  const settings = Provider.getSettings();
+  const autoRefresh = settings.get<boolean>(FLAG_AUTO_REFRESH);
   if (autoRefresh) {
-    parallelsOutputChannel.appendLine("Auto refresh is enabled");
-    let interval = config.get<number>("refreshInterval");
+    LogService.info("Auto refresh is enabled", "CoreService");
+    let interval = settings.get<number>(FLAG_AUTO_REFRESH_INTERVAL);
     if (interval === undefined) {
-      parallelsOutputChannel.appendLine("Auto refresh interval is not defined, setting default to 60 seconds");
+      LogService.info("Auto refresh interval is not defined, setting default to 60 seconds", "CoreService");
+      settings.update(FLAG_AUTO_REFRESH_INTERVAL, 60000);
       interval = 60000;
     }
     if (interval < 10000) {
-      parallelsOutputChannel.appendLine("Auto refresh interval is too low, setting minimum to 10 seconds");
+      LogService.info("Auto refresh interval is too low, setting minimum to 10 seconds", "CoreService");
+      settings.update(FLAG_AUTO_REFRESH_INTERVAL, 10000);
       interval = 10000;
     }
 
-    parallelsOutputChannel.appendLine("Auto refresh interval is " + interval);
-    setInterval(() => {
+    LogService.info("Auto refresh interval is " + interval + "ms", "CoreService");
+    autoRefreshInterval = setInterval(() => {
       parallelsOutputChannel.appendLine("Refreshing the virtual machine tree view");
-      vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+      vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
       parallelsOutputChannel.appendLine("Refreshing the vagrant box tree view");
       vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
     }, interval);
+  } else {
+    if (autoRefreshInterval) {
+      clearInterval(autoRefreshInterval);
+    }
+    LogService.info("Auto refresh is disabled", "CoreService");
   }
-
-  const list = await ParallelsDesktopService.getVms();
-  registerClearDownloadCacheCommand(context);
-
-  vscode.commands.executeCommand("setContext", "parallels-desktop:initialized", true);
-  console.log("Parallels Desktop Extension is now active!");
 }
 
 // This method is called when your extension is deactivated

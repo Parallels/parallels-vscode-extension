@@ -4,19 +4,18 @@ import * as fs from "fs";
 
 import {VirtualMachineProvider} from "../virtual_machine";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
-import {Provider} from "../../ioc/provider";
 import {CommandsFlags} from "../../constants/flags";
 import {VirtualMachine} from "../../models/virtualMachine";
 import {generateHtml} from "../../views/header.html";
 import {getScreenCaptureFolder, isDarkTheme} from "../../helpers/helpers";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
-import {parallelsOutputChannel} from "../../helpers/channel";
+import {LogService} from "../../services/logService";
 
 let lastClickedTime: number | undefined;
 
 export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewViewVmDetails, async (item: VirtualMachineTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.treeVmInfo, async (item: VirtualMachineTreeItem) => {
       if (item.type !== "Group" && item.type !== "Snapshot") {
         const clickedTime = Date.now();
         // if (lastClickedTime && clickedTime - lastClickedTime < 500) {
@@ -32,7 +31,7 @@ export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, p
         );
 
         const screenshot = await getMachineSnapshot(item.vmId ?? "", context).catch(err => {
-          parallelsOutputChannel.appendLine(`Error getting screenshot: ${err}`);
+          LogService.error(`Error getting screenshot: ${err}`);
           return "";
         });
         const updateWebview = () => {

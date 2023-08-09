@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-
 import {CommandsFlags} from "../../constants/flags";
 import {VagrantBoxProvider} from "../vagrant_boxes";
 import {VagrantBoxTreeItem} from "../vagrant_box_item";
@@ -9,13 +8,14 @@ export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, 
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderInit, async (item: VagrantBoxTreeItem) => {
       if (item.name !== "") {
-        const machineName = await vscode.window.showInputBox({
+        let machineName = item.name;
+        const machineNamePrompt = await vscode.window.showInputBox({
           prompt: "Name of the Virtual Machine?",
           placeHolder: item.name
         });
 
-        if (!machineName) {
-          machineName === item.name;
+        if (machineNamePrompt) {
+          machineName = machineNamePrompt;
         }
 
         const isWindowsMachine = await vscode.window.showQuickPick(["Yes", "No"], {
@@ -39,7 +39,7 @@ export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, 
                     if (!value) {
                       vscode.window.showErrorMessage(`Error initializing Vagrant box ${item.name}`);
                     }
-                    vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+                    vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
                   },
                   reason => {
                     vscode.window.showErrorMessage(

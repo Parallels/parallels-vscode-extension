@@ -1,20 +1,20 @@
 import * as vscode from "vscode";
 
 import {VirtualMachineProvider} from "../virtual_machine";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
-import {parallelsOutputChannel} from "../../helpers/channel";
 import {Provider} from "../../ioc/provider";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
 import {VirtualMachine} from "../../models/virtualMachine";
+import {LogService} from "../../services/logService";
 
 export function registerStopGroupVirtualMachinesCommand(
   context: vscode.ExtensionContext,
   provider: VirtualMachineProvider
 ) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewStopGroupVms, async (item: VirtualMachineTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.treeStopGroupVms, async (item: VirtualMachineTreeItem) => {
       vscode.window.withProgress(
         {
           title: `Stopping Vms on ${item.name}`,
@@ -32,7 +32,7 @@ export function registerStopGroupVirtualMachinesCommand(
 
           await Promise.all(promises).then(
             () => {
-              vscode.commands.executeCommand(CommandsFlags.treeViewRefreshVms);
+              vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             },
             () => {
               vscode.window.showErrorMessage(`Failed to suspend one or more VMs for ${group.name}`);
@@ -68,11 +68,16 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
       provider.refresh();
       const result = await ParallelsDesktopService.getVmStatus(item.ID);
       if (result === "stopped") {
-        parallelsOutputChannel.appendLine(`Virtual machine ${item.Name} stopped`);
+        LogService.info(`Virtual machine ${item.Name} stopped`);
+        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} stopped`);
         break;
       }
       if (retry === 0) {
-        parallelsOutputChannel.appendLine(`Virtual machine ${item.Name} failed to stop`);
+        LogService.error(`Virtual machine ${item.Name} failed to stop`);
+        LogService.sendTelemetryEvent(
+          TelemetryEventIds.VirtualMachineAction,
+          `Virtual machine ${item.Name} failed to stop`
+        );
         vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} stopped, please check the logs`);
         break;
       }

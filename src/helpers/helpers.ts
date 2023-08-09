@@ -3,6 +3,11 @@ import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import {Provider} from "../ioc/provider";
+import {
+  FLAG_PARALLELS_EXTENSION_DOWNLOAD_PATH,
+  FLAG_PARALLELS_EXTENSION_PATH,
+  FLAG_VAGRANT_BOXES_PATH
+} from "../constants/flags";
 
 export function isDarkTheme(): boolean {
   const currentThemeKind = vscode.window.activeColorTheme.kind;
@@ -29,13 +34,15 @@ export function formatDate(date: Date) {
 }
 
 export function getFoldersBasePath(): string {
-  let foldersBasePath = Provider.getSettings().get<string>("parallels-desktop.path");
+  let foldersBasePath = Provider.getSettings().get<string>(FLAG_PARALLELS_EXTENSION_PATH);
   if (!foldersBasePath) {
     const homePath = cp.execSync(`echo $HOME`).toString();
     foldersBasePath = path.join(homePath.trim(), ".parallels-desktop-vscode");
     if (!fs.existsSync(foldersBasePath)) {
       fs.mkdirSync(foldersBasePath, {recursive: true});
     }
+
+    Provider.getSettings().update(FLAG_PARALLELS_EXTENSION_PATH, foldersBasePath, true);
     return foldersBasePath;
   }
 
@@ -43,9 +50,10 @@ export function getFoldersBasePath(): string {
 }
 
 export function getDownloadFolder(): string {
-  let downloadFolder = Provider.getSettings().get<string>("parallels-desktop.downloadFolder");
+  let downloadFolder = Provider.getSettings().get<string>(FLAG_PARALLELS_EXTENSION_DOWNLOAD_PATH);
   if (!downloadFolder) {
     downloadFolder = path.join(getFoldersBasePath(), "downloads");
+    Provider.getSettings().update(FLAG_PARALLELS_EXTENSION_DOWNLOAD_PATH, downloadFolder, true);
   }
 
   if (!fs.existsSync(downloadFolder)) {
@@ -55,12 +63,8 @@ export function getDownloadFolder(): string {
   return downloadFolder;
 }
 
-export function getPackerFilesFolder(): string {
-  let packerFilesFolder = Provider.getSettings().get<string>("parallels-desktop.packerFilesFolder");
-  if (!packerFilesFolder) {
-    packerFilesFolder = path.join(getFoldersBasePath(), "packer-files");
-  }
-
+export function getPackerTemplateFolder(): string {
+  const packerFilesFolder = path.join(getFoldersBasePath(), "packer-templates");
   if (!fs.existsSync(packerFilesFolder)) {
     fs.mkdirSync(packerFilesFolder, {recursive: true});
   }
@@ -78,9 +82,10 @@ export function getScreenCaptureFolder(context: vscode.ExtensionContext): string
 }
 
 export function getVagrantBoxFolder(): string {
-  let packerFilesFolder = Provider.getSettings().get<string>("parallels-desktop.vagrantBoxFolder");
+  let packerFilesFolder = Provider.getSettings().get<string>(FLAG_VAGRANT_BOXES_PATH);
   if (!packerFilesFolder) {
     packerFilesFolder = path.join(getFoldersBasePath(), "vagrant-boxes");
+    Provider.getSettings().update(FLAG_VAGRANT_BOXES_PATH, packerFilesFolder, true);
   }
 
   if (!fs.existsSync(packerFilesFolder)) {

@@ -3,16 +3,17 @@ import * as path from "path";
 
 import {VirtualMachineProvider} from "../virtual_machine";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
-import {CommandsFlags} from "../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {generateHtml} from "../../views/header.html";
 import {CreateMachineService} from "../../services/createMachineService";
-import {NewVirtualMachineRequest} from "../../models/newVmRequest";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
-import {parallelsOutputChannel} from "../../helpers/channel";
+import {NewVirtualMachineRequest} from "../../models/NewVirtualMachineRequest";
+import {LogService} from "../../services/logService";
 
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeViewAddVm, async (item: VirtualMachineTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.treeAddVm, async (item: VirtualMachineTreeItem) => {
+      LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachine);
       const svc = new CreateMachineService(context);
       const os = await svc.get();
       let osData = "[";
@@ -60,6 +61,8 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
               platform: cmd.platform,
               distro: cmd.distro,
               image: cmd.image,
+              isoChecksum: cmd.isoChecksum,
+              isoUrl: cmd.isoUrl,
               specs: {
                 cpus: cmd.specs?.cpu ?? "2",
                 memory: cmd.specs?.memory ?? "2048",
@@ -90,17 +93,20 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
                   value => {
                     if (value) {
                       ParallelsDesktopService.getVms().then(() => {
+                        LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineCompleted);
+                        LogService.info(`VM ${request.name} created`, "AddVmCommand");
                         provider.refresh();
                         vscode.window.showInformationMessage(`VM ${request.name} created successfully`);
                         return;
                       });
                     } else {
+                      LogService.info(`VM ${request.name} not created`, "AddVmCommand");
                       vscode.window.showErrorMessage(`VM ${request.name} not created`);
                     }
                   },
                   err => {
-                    parallelsOutputChannel.appendLine(`Error creating VM: ${err}`);
-                    parallelsOutputChannel.show();
+                    LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineFailed);
+                    LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
                     vscode.window.showErrorMessage(`Error creating VM: ${err}`);
                   }
                 );
@@ -133,6 +139,12 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       distro: 'undefined',
       image: 'undefined',
       name: 'undefined',
+      isoUrl: 'undefined',
+      isoChecksum: 'undefined',
+      requireIsoDownload: false,
+      allowMachineSpecs: false,
+      allowUserOverride: false,
+      allowAddons: false,
       specs: {
         cpu: 2,
         memory: 2048,
@@ -143,6 +155,13 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       options: {
         startHeadless: false,
         generateVagrantBox: false,
+      },
+      defaults: {
+        specs: {
+          cpu: 2,
+          memory: 2048,
+          diskSize: 65536,
+        }
       },
       addons: []
     },
@@ -185,6 +204,10 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       this.itemData.platform = 'undefined'; 
       this.itemData.distro = 'undefined'; 
       this.itemData.image = 'undefined'; 
+      this.itemData.requireIsoDownload = false;
+      this.itemData.allowMachineSpecs = false;
+      this.itemData.allowUserOverride = false;
+      this.itemData.allowAddons = false;
       if (this.itemData.os !== 'undefined' && !this.showPlatform()) { 
         this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
       } if (this.itemData.os !== 'undefined' && this.showPlatform()) {
@@ -193,13 +216,36 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
     },
     onPlatformDropdownChange() {
       this.itemData.distro = 'undefined'; 
-      this.itemData.image = 'undefined'; 
+      this.itemData.image = 'undefined';
+      this.itemData.requireIsoDownload = false;
+      this.itemData.allowMachineSpecs = false;
+      this.itemData.allowUserOverride = false;
+      this.itemData.allowAddons = false;
     },
     onDistroDropdownChange() {
       this.itemData.image = 'undefined'; 
+      this.itemData.requireIsoDownload = false;
+      this.itemData.allowMachineSpecs = false;
+      this.itemData.allowUserOverride = false;
+      this.itemData.allowAddons = false;
     },
     onImageDropdownChange() {
-      this.itemData.name = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.name ?? ''
+      let img = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image);
+      this.itemData.name = img?.name ?? ''
+      console.log(img.requireIsoDownload)
+      this.itemData.requireIsoDownload = img.requireIsoDownload ?? false;
+      this.itemData.allowMachineSpecs = img.allowMachineSpecs ?? false;
+      this.itemData.allowUserOverride = img.allowUserOverride ?? false;
+      this.itemData.allowAddons = img.allowAddons ?? false;
+      this.itemData.isoUrl = img.isoUrl ?? '';
+      this.itemData.isoChecksum = img.isoChecksum ?? '';
+      console.log(img.type)
+      if(img.defaults?.specs) {
+        console.log(img.defaults.specs.cpus)
+        this.itemData.specs.cpu = img.defaults.specs.cpus ?? this.itemData.defaults.specs.cpus;
+        this.itemData.specs.memory = img.defaults.specs.memory ?? this.itemData.defaults.specs.memory;
+        this.itemData.specs.diskSize = img.defaults.specs.diskSize ?? this.itemData.defaults.specs.diskSize;
+      }
     },
     showPlatform() {
       if (this.itemData.os === 'undefined') return true
@@ -222,6 +268,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       }
     },
     showMachineSpecs() {
+      if (!this.itemData.allowMachineSpecs) return false
       return this.itemData.image !== 'undefined' && this.itemData.os !== 'macos'
     },
     showMachineOptions() {
@@ -233,6 +280,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
     showMachineAddons() {
       const img = this.getImage();
       if (img === undefined) return false
+      if (img.allowAddons === false) return false
       if (img.type === 'internal' || img.type === 'iso' ) return false
       return img.addons.length > 0
     },
@@ -272,6 +320,8 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       if (this.isPosting) {
         if (this.getImageType() === 'iso') {
           return 'Creating...'
+        } else if (this.getImageType() === 'macos') {
+          return 'Creating...'
         } else if (this.getImageType() === 'internal') {
           return 'Attaching...'
         } else if (this.getImageType() === 'packer') {
@@ -285,6 +335,8 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
         }
       } else {
         if (this.getImageType() === 'iso') {
+          return 'Create VM'
+        } else if (this.getImageType() === 'macos') {
           return 'Create VM'
         } else if (this.getImageType() === 'internal') {
           return 'Attach Appliance...'
@@ -382,6 +434,16 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           </div>
         </div>
       </div>
+      <div class="flex sm:flex-row sm:items-end flex-row" x-show="itemData.image !== 'undefined' && itemData.requireIsoDownload === true" >
+        <div class="pr-2 mb-2 w-3/5">
+          <label for="isoUrl" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Iso Url/File</label>
+          <input id="isoUrl" type="text" x-model="itemData.isoUrl" id="isoUrl" name="isoUrl" :value="itemData.isoUrl" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select a ISO file or an Url" required>
+        </div>
+        <div class="mb-2 w-2/5">
+          <label for="isoChecksum" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Iso Checksum</label>
+          <input id="isoChecksum" type="text" x-model="itemData.isoChecksum" id="isoChecksum" name="isoChecksum" :value="itemData.isoChecksum" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="sha256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required>
+        </div>
+      </div>
     </li>
     <li class="flex flex-col gap-x-6 py-1" x-show="showMachineSpecs()">
       <div class="w-full flex flex-col gap-x-4">
@@ -409,7 +471,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
             </select>
           </div>
         </div>
-        <div class="hidden sm:flex sm:flex-col sm:items-end" >
+        <div class="hidden sm:flex sm:flex-col sm:items-end" x-show="itemData.type !== 'undefined' && itemData.type !== 'macos'" >
           <div class="mb-2">
             <label for="disk" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Disk Size</label>
             <input id="itemData__specs__disk"  type="number" x-model="itemData.specs.disk" id="disk" name="disk" min="32768" max="92160" step="1024" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="32768" required>

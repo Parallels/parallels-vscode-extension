@@ -47,3 +47,18 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 ## [0.0.8] - 2023-07-12
 
 * Added the ability to init a vagrant box and give a name to the VM
+
+## [0.5.9] - 2023-08-09
+
+* Fixed an issue where you were unable to resume suspended VMs in groups
+* Fixed an issue where you were unable to create a MacVM
+* Fixed an issue where you were unable to create Ubuntu Machines
+* Added ability to create Windows Machines
+* Upgraded Packer engine to use the packer-examples repo from Parallels
+* Added the ability to Hide/Show Vms
+* Added the ability to Hide/Show Groups
+* Added the ability to Hide/Show All Vms or Groups
+* Added the ability to rename a Group
+* Added the ability to show the snapshot tree in a flat way, this is configured in settings
+* Further improved the UI
+* Further improvements in performance
