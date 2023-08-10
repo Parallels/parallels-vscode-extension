@@ -283,7 +283,7 @@ export class VirtualMachineProvider
                   "snapshot"
                 )
               );
-            }else if (Provider.getSettings().get<boolean>(SettingsFlags.treeShowFlatSnapshotList)) {
+            } else if (Provider.getSettings().get<boolean>(SettingsFlags.treeShowFlatSnapshotList)) {
               const children = this.drawFlatSnapshotList(item, snapshots);
               resolve(children);
             } else {

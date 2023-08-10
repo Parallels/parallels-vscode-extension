@@ -505,14 +505,14 @@ export class CreateMachineService {
                 }`;
                 const newVmFile = `${config.vmHome}/${request.name}.${
                   machineConfig.base === "macos" ? "macvm" : "pvm"
-                  }`;
+                }`;
                 // Moving the vm to the right folder
                 if (fs.existsSync(originalVmFile)) {
                   fs.renameSync(originalVmFile, newVmFile);
                 }
                 // Removing the output folder
                 if (fs.existsSync(machineConfig.outputFolder)) {
-                  fs.rmSync(machineConfig.outputFolder, { recursive: true });
+                  fs.rmSync(machineConfig.outputFolder, {recursive: true});
                 }
                 if (!fs.existsSync(newVmFile)) {
                   return reject("Error moving VM");
