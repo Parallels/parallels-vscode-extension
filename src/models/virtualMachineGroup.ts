@@ -21,14 +21,18 @@ export class VirtualMachineGroup {
     const group = JSON.parse(json);
     const newGroup = new VirtualMachineGroup(group.name, group.uuid, group.parent, group.hidden);
 
-    group.machines.forEach((vm: any) => {
-      newGroup.addVm(vm);
-    });
+    if (group.machines !== undefined) {
+      group.machines.forEach((vm: any) => {
+        newGroup.addVm(vm);
+      });
+    }
 
-    group.groups.forEach((subGroup: any) => {
-      const jsonGroup = JSON.stringify(subGroup);
-      newGroup.addGroup(VirtualMachineGroup.fromJson(jsonGroup));
-    });
+    if (group.groups !== undefined) {
+      group.groups.forEach((subGroup: any) => {
+        const jsonGroup = JSON.stringify(subGroup);
+        newGroup.addGroup(VirtualMachineGroup.fromJson(jsonGroup));
+      });
+    }
 
     return newGroup;
   }

@@ -180,17 +180,9 @@ export class VirtualMachineProvider
   ): Promise<VirtualMachineTreeItem[]> {
     return new Promise((resolve, reject) => {
       const children: VirtualMachineTreeItem[] = [];
-      snapshots.push({
-        name: "last",
-        current: false,
-        id: "test",
-        date: "",
-        parent: "",
-        state: "running"
-      });
       const flatSnapshotList = this.drawSnapshotListItem(snapshots, undefined, false, 0);
 
-      if (flatSnapshotList[flatSnapshotList.length - 1].name.startsWith("|")) {
+      if (flatSnapshotList.length > 0 && flatSnapshotList[flatSnapshotList.length - 1].name.startsWith("|")) {
         flatSnapshotList[flatSnapshotList.length - 1].name = flatSnapshotList[flatSnapshotList.length - 1].name.replace(
           "|",
           "└"
@@ -291,8 +283,7 @@ export class VirtualMachineProvider
                   "snapshot"
                 )
               );
-            }
-            if (Provider.getSettings().get<boolean>(SettingsFlags.treeShowFlatSnapshotList)) {
+            }else if (Provider.getSettings().get<boolean>(SettingsFlags.treeShowFlatSnapshotList)) {
               const children = this.drawFlatSnapshotList(item, snapshots);
               resolve(children);
             } else {

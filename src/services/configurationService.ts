@@ -45,20 +45,26 @@ export class ConfigurationService {
   }
 
   static fromJson(context: vscode.ExtensionContext, json: any): ConfigurationService {
-    const configuration = new ConfigurationService(context);
-    json = JSON.parse(json);
-    if (json.virtualMachinesGroup !== undefined) {
-      json.virtualMachinesGroup.forEach((group: VirtualMachineGroup) => {
-        const jsonGroup = JSON.stringify(group);
-        const newGroup = VirtualMachineGroup.fromJson(jsonGroup);
-        configuration.virtualMachinesGroups.push(newGroup);
-      });
-    }
-    if (json.featureFlags !== undefined) {
-      configuration.featureFlags = json.featureFlags;
-    }
+    LogService.info("Loading configuration", "CoreService");
+    try {
+      const configuration = new ConfigurationService(context);
+      json = JSON.parse(json);
+      if (json.virtualMachinesGroup !== undefined) {
+        json.virtualMachinesGroup.forEach((group: VirtualMachineGroup) => {
+          const jsonGroup = JSON.stringify(group);
+          const newGroup = VirtualMachineGroup.fromJson(jsonGroup);
+          configuration.virtualMachinesGroups.push(newGroup);
+        });
+      }
+      if (json.featureFlags !== undefined) {
+        configuration.featureFlags = json.featureFlags;
+      }
 
-    return configuration;
+      return configuration;
+    } catch (e) {
+      LogService.error("Error loading configuration", "CoreService");
+      throw e;
+    }
   }
 
   async init(): Promise<void> {

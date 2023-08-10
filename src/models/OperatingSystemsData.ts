@@ -3,6 +3,7 @@ import * as path from "path";
 import {PackerService} from "../services/packerService";
 import {OperatingSystemImage} from "./OperatingSystemImage";
 import {OperatingSystem} from "./operatingSystem";
+import {LogService} from "../services/logService";
 
 export class OperatingSystemsData {
   operatingSystems: OperatingSystem[];
@@ -13,7 +14,9 @@ export class OperatingSystemsData {
 
   get(): Promise<OperatingSystem[]> {
     return new Promise<OperatingSystem[]>(async (resolve, reject) => {
-      const osFileName = vscode.Uri.file(path.join(this.context.extensionPath, "data", "os.json"));
+      const dataPath = path.join(this.context.extensionPath, "data");
+      const osFileName = vscode.Uri.file(path.join(dataPath, "os.json"));
+      LogService.info(`Loading operating systems from ${osFileName.fsPath}`, "OperatingSystemsData");
       const file = await vscode.workspace.fs.readFile(osFileName);
       const jsonObj = JSON.parse(file.toString());
       jsonObj.forEach((os: any) => {
@@ -61,6 +64,7 @@ export class OperatingSystemsData {
 
       Promise.all(promises)
         .then(() => {
+          LogService.info("Operating systems loaded", "OperatingSystemsData");
           resolve(this.operatingSystems);
         })
         .catch(reject);

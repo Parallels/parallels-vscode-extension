@@ -68,3 +68,7 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * Fixed an issue with the Telemetry service
 * Renamed the Group telemetry
   
+## [0.6.0] - 2023-08-10
+
+* Fixed an issue where the VMs would not show up in the tree view
+* Fixed an issue where the snapshots would generate a duplicate error

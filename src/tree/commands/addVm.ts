@@ -13,15 +13,24 @@ import {LogService} from "../../services/logService";
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeAddVm, async (item: VirtualMachineTreeItem) => {
+      LogService.info("Add VM command called", "AddVmCommand");
       LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachine);
       const svc = new CreateMachineService(context);
-      const os = await svc.get();
+      const operatingSystemContent = await svc.get();
+
+      // operatingSystemContent.forEach(os => {
+      //   is
+      //   os.platforms.forEach(platform => {
+
+      // }
+
       let osData = "[";
-      os.forEach(o => {
+      operatingSystemContent.forEach(o => {
         osData += o.toString() + ",";
       });
       osData += "]";
 
+      LogService.info("Creating webview", "AddVmCommand");
       const panel = vscode.window.createWebviewPanel(
         "create_vm", // Identifies the type of the webview. Used internally
         "Create VM", // Title of the panel displayed to the user
@@ -34,8 +43,8 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
 
       const updateWebview = () => {
         panel.iconPath = {
-          light: vscode.Uri.file(path.join(__filename, "..", "..", "img", "light", `desktop.svg`)),
-          dark: vscode.Uri.file(path.join(__filename, "..", "..", "img", "dark", `desktop.svg`))
+          light: vscode.Uri.file(path.join(__filename, "..", "..", "img", "light", `virtual_machine.svg`)),
+          dark: vscode.Uri.file(path.join(__filename, "..", "..", "img", "dark", `virtual_machine.svg`))
         };
 
         panel.webview.html = getWebviewContent(context, panel, osData);
