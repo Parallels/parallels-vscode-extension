@@ -860,7 +860,7 @@ export class ParallelsDesktopService {
       // check if file exist, if it does let's just try to attach the machine
       if (fs.existsSync(fileName)) {
         // registering the vm
-        this.registerVm(`${Provider.getConfiguration().vmHome}/${name}.pvm`)
+        this.registerVm(name)
           .then(value => {
             if (!value) {
               return reject(false);

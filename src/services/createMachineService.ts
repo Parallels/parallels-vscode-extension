@@ -499,9 +499,26 @@ export class CreateMachineService {
               }
               // Registering our new VM if we are not generating a Vagrant box
               if (!machineConfig.generateVagrantBox) {
-                ParallelsDesktopService.registerVm(
-                  `${machineConfig.outputFolder}/${request.name}.${machineConfig.base === "macos" ? "macvm" : "pvm"}`
-                )
+                // Moving the VM from the packer folder to the VMs folder
+                const originalVmFile = `${machineConfig.outputFolder}/${request.name}.${
+                  machineConfig.base === "macos" ? "macvm" : "pvm"
+                }`;
+                const newVmFile = `${config.vmHome}/${request.name}.${
+                  machineConfig.base === "macos" ? "macvm" : "pvm"
+                }`;
+                // Moving the vm to the right folder
+                if (fs.existsSync(originalVmFile)) {
+                  fs.renameSync(originalVmFile, newVmFile);
+                }
+                // Removing the output folder
+                if (fs.existsSync(machineConfig.outputFolder)) {
+                  fs.rmSync(machineConfig.outputFolder, {recursive: true});
+                }
+                if (!fs.existsSync(newVmFile)) {
+                  return reject("Error moving VM");
+                }
+
+                ParallelsDesktopService.registerVm(newVmFile)
                   .then(value => {
                     if (!value) {
                       return reject("Error registering VM");
