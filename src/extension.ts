@@ -1,3 +1,4 @@
+import { config } from 'process';
 import * as vscode from "vscode";
 import {VirtualMachineProvider} from "./tree/virtual_machine";
 import {Provider} from "./ioc/provider";
@@ -33,16 +34,17 @@ export async function activate(context: vscode.ExtensionContext) {
   })();
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(myScheme, myProvider));
 
-  // Registering the  Virtual Machine Provider
-  const virtualMachineProvider = new VirtualMachineProvider(context);
-  const vagrantBoxProvider = new VagrantBoxProvider(context);
-
+      // Registering the  Virtual Machine Provider
+      const virtualMachineProvider = new VirtualMachineProvider(context);
+  
   // Initializing the extension
   await initialize();
-
-  // Setting the auto refresh mechanism
-  const settings = Provider.getSettings();
+    
   const config = Provider.getConfiguration();
+  if (config.tools.vagrant?.isInstalled) {
+    const vagrantBoxProvider = new VagrantBoxProvider(context);
+  }
+
   setAutoRefresh();
 
   vscode.workspace.onDidChangeConfiguration(e => {
@@ -59,6 +61,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (config.isDebugEnabled) {
     LogService.info("Debug mode is enabled", "CoreService");
   }
+  
   vscode.commands.executeCommand("setContext", FLAG_PARALLELS_EXTENSION_INITIALIZED, true);
   LogService.sendTelemetryEvent(TelemetryEventIds.ExtensionStarted);
   console.log("Parallels Desktop Extension is now active!");
@@ -90,6 +93,7 @@ function setAutoRefresh() {
     }, interval);
   } else {
     if (autoRefreshInterval) {
+      LogService.info("Clearing the auto refresh interval", "CoreService");
       clearInterval(autoRefreshInterval);
     }
     LogService.info("Auto refresh is disabled", "CoreService");
@@ -99,5 +103,7 @@ function setAutoRefresh() {
 // This method is called when your extension is deactivated
 export function deactivate() {
   console.log("Deactivating Parallels Desktop Extension");
+  const config = Provider.getConfiguration();
+  config.save();
   //TODO: remove all the commands
 }

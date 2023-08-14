@@ -1,25 +1,29 @@
 import * as uuid from "uuid";
 import {VirtualMachine as VirtualMachine} from "./virtualMachine";
 import {Provider} from "../ioc/provider";
+import { FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY } from "../constants/flags";
 
 export class VirtualMachineGroup {
   uuid: string;
   name: string;
   hidden: boolean;
   parent?: string;
+  path?: string;
   machines: VirtualMachine[] = [];
   groups: VirtualMachineGroup[] = [];
 
-  constructor(name: string, id?: string, parent?: string, hidden?: boolean) {
+  constructor(name: string, id?: string, parent?: string, hidden?: boolean, path?: string) {
     this.uuid = id ?? uuid.v4();
     this.name = name;
     this.hidden = hidden ?? false;
     this.parent = parent ?? undefined;
+    this.path = path ?? undefined;
   }
 
-  static fromJson(json: any): VirtualMachineGroup {
+  static fromJson(json: any, path?: string): VirtualMachineGroup {
     const group = JSON.parse(json);
     const newGroup = new VirtualMachineGroup(group.name, group.uuid, group.parent, group.hidden);
+    newGroup.path = path ? `${path}/${newGroup.name}` : `/${newGroup.name}`;
 
     if (group.machines !== undefined) {
       group.machines.forEach((vm: any) => {
@@ -30,7 +34,8 @@ export class VirtualMachineGroup {
     if (group.groups !== undefined) {
       group.groups.forEach((subGroup: any) => {
         const jsonGroup = JSON.stringify(subGroup);
-        newGroup.addGroup(VirtualMachineGroup.fromJson(jsonGroup));
+        const testPath = newGroup.path;
+        newGroup.addGroup(VirtualMachineGroup.fromJson(jsonGroup, testPath));
       });
     }
 
@@ -62,18 +67,17 @@ export class VirtualMachineGroup {
   }
 
   addVm(machine: VirtualMachine): void {
-    if (!this.existsVm(machine.Name)) {
-      machine.group = this.name;
+    if (!this.existsVm(machine.ID)) {
+      machine.group = this.uuid;
       this.machines.push(machine);
     } else {
-      for (const vm of this.machines) {
+      this.machines.forEach((vm, index) => {
         if (vm.Name.toLowerCase() === machine.Name.toLowerCase() || vm.ID.toLowerCase() === machine.ID.toLowerCase()) {
-          vm.State = machine.State;
-          vm.group = machine.group;
-          vm.hidden = machine.hidden;
+          this.machines[index] = machine;
         }
-      }
+      });
     }
+    this.sortVms();
   }
 
   getAllVms(): VirtualMachine[] {
@@ -90,8 +94,10 @@ export class VirtualMachineGroup {
   addGroup(group: VirtualMachineGroup): void {
     if (!this.existsGroup(group.name)) {
       group.parent = this.uuid;
+      group.path = group.path ? `${this.path}/${group.name}` : `/${group.name}`;
       this.groups.push(group);
     }
+    this.sortGroups();
   }
 
   getAllGroups(): VirtualMachineGroup[] {
@@ -144,11 +150,17 @@ export class VirtualMachineGroup {
   }
 
   sortVms(): void {
-    this.machines.sort((a, b) => a.Name.localeCompare(b.Name));
+    const settings = Provider.getSettings();
+    if (settings.get<boolean>(FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY)) {
+      this.machines.sort((a, b) => a.Name.localeCompare(b.Name));
+    }
   }
 
   sortGroups(): void {
-    this.groups.sort((a, b) => a.name.localeCompare(b.name));
+    const settings = Provider.getSettings();
+    if (settings.get<boolean>(FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY)) {
+      this.groups.sort((a, b) => a.name.localeCompare(b.name));
+    }
   }
 
   sortAll(): void {

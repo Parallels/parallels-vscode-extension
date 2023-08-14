@@ -5,20 +5,37 @@ import {Provider} from "../ioc/provider";
 import {getPackerTemplateFolder} from "../helpers/helpers";
 import {LogService} from "./logService";
 import path = require("path");
-import {FeatureFlags} from "../constants/flags";
+import {FLAG_GIT_PATH, FLAG_GIT_VERSION} from "../constants/flags";
 
 export class GitService {
   constructor(private context: vscode.ExtensionContext) {}
 
-  static isInstalled() {
+  static isInstalled(): Promise<boolean> {
     return new Promise(resolve => {
+      const settings = Provider.getSettings();
+      const cache = Provider.getCache();
+      if (cache.get(FLAG_GIT_PATH)) {
+        LogService.info(`Git was found on path ${cache.get(FLAG_GIT_PATH)} from cache`, "GitService");
+        return resolve(true);
+      }
+
+      if (settings.get<string>(FLAG_GIT_PATH)) {
+        LogService.info(`Git was found on path ${settings.get<string>(FLAG_GIT_PATH)} from settings`, "GitService");
+        return resolve(true);
+      }
+
       cp.exec("which git", (err, stdout) => {
         if (err) {
-          LogService.error("Git is not installed", "GitService", false, false);
+          LogService.error("Git is not installed", "GitService", true, false);
           return resolve(false);
         }
-        LogService.info(`Git was found on path ${stdout}`, "GitService");
-        Provider.getCache().set(FeatureFlags.FLAG_GIT_PATH, stdout);
+        const path = stdout.replace("\n", "").trim();
+        LogService.info(`Git was found on path ${path}`, "GitService");
+        const gitPath = settings.get<string>(FLAG_GIT_PATH);
+        if (!gitPath) {
+          settings.update(FLAG_GIT_PATH, path, true);
+        }
+        Provider.getCache().set(FLAG_GIT_PATH, path);
         return resolve(true);
       });
     });
@@ -26,9 +43,9 @@ export class GitService {
 
   static version(): Promise<string> {
     return new Promise((resolve, reject) => {
-      const version = Provider.getCache().get(FeatureFlags.FLAG_GIT_VERSION);
+      const version = Provider.getCache().get(FLAG_GIT_VERSION);
       if (version) {
-        LogService.info(`${version} was found in the system`, "GitService");
+        LogService.info(`Git ${version} was found in the system`, "GitService");
         return resolve(version);
       }
 
@@ -40,8 +57,8 @@ export class GitService {
         }
         const versionMatch = stdout.match(/git version (\d+\.\d+\.\d+)/);
         if (versionMatch) {
-          LogService.info(`${versionMatch[1]} was found in the system`);
-          Provider.getCache().set(FeatureFlags.FLAG_GIT_VERSION, versionMatch[1]);
+          LogService.info(`Git ${versionMatch[1]} was found in the system`, "GitService");
+          Provider.getCache().set(FLAG_GIT_VERSION, versionMatch[1]);
           return resolve(versionMatch[1]);
         } else {
           LogService.error("Could not extract git version number from output", "GitService", false, false);
@@ -53,21 +70,43 @@ export class GitService {
 
   static install(): Promise<boolean> {
     LogService.info("Installing Git...", "GitService");
-    return new Promise((resolve, reject) => {
-      const brew = cp.spawn("brew", ["install", "git"]);
-      brew.stdout.on("data", data => {
-        LogService.info(data.toString(), "GitService");
-      });
-      brew.stderr.on("data", data => {
-        LogService.error(data.toString(), "GitService");
-      });
-      brew.on("close", code => {
-        if (code !== 0) {
-          LogService.error(`brew install git exited with code ${code}`, "GitService", true, false);
-          return resolve(false);
+    return new Promise(async (resolve, reject) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Parallels Desktop",
+          cancellable: false
+        },
+        async (progress, token) => {
+          progress.report({message: "Installing Git..."});
+          const result = await new Promise(async (resolve, reject) => {
+            const brew = cp.spawn("brew", ["install", "git"]);
+            brew.stdout.on("data", data => {
+              LogService.info(data.toString(), "GitService");
+            });
+            brew.stderr.on("data", data => {
+              LogService.error(data.toString(), "GitService");
+            });
+            brew.on("close", code => {
+              if (code !== 0) {
+                LogService.error(`brew install git exited with code ${code}`, "GitService", true, false);
+                return resolve(false);
+              }
+              return resolve(true);
+            });
+          });
+          if (!result) {
+            progress.report({message: "Failed to install Git, see logs for more details"});
+            vscode.window.showErrorMessage("Failed to install Git, see logs for more details");
+            return resolve(false);
+          } else {
+            progress.report({message: "Git was installed successfully"});
+            vscode.window.showInformationMessage("Git was installed successfully");
+            return resolve(true);
+          }
         }
-        return resolve(true);
-      });
+      );
+      return resolve(true);
     });
   }
 
@@ -88,12 +127,13 @@ export class GitService {
           LogService.error(data.toString(), "GitService");
         });
         git.on("close", code => {
+          const config = Provider.getConfiguration();
           if (code !== 0) {
             LogService.error(`git pull exited with code ${code}`, "GitService", true, false);
             return reject(code);
           }
           LogService.info("Packer templates updated", "GitService");
-
+          config.packerTemplatesCloned = true;
           return resolve(true);
         });
       } else {
@@ -112,12 +152,13 @@ export class GitService {
           LogService.error(data.toString(), "GitService");
         });
         git.on("close", code => {
+          const config = Provider.getConfiguration();
           if (code !== 0) {
             LogService.error(`git clone exited with code ${code}`, "GitService", true, false);
             return reject(code);
           }
           LogService.info("Packer templates cloned", "GitService");
-
+          config.packerTemplatesCloned = true;
           return resolve(true);
         });
       }

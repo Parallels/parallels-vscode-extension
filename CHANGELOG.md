@@ -72,3 +72,19 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 
 * Fixed an issue where the VMs would not show up in the tree view
 * Fixed an issue where the snapshots would generate a duplicate error
+
+## [0.7.0] - 2023-08-14
+
+* Fixed an issue where you could move folders inside themselves and that would delete them
+* Fixed an issue where you where unable to create a folder with the same name even if it was a subfolder
+* Fixed the automatic installation of Vagrant [#22](https://github.com/Parallels/parallels-vscode-extension/issues/22) and [#30](https://github.com/Parallels/parallels-vscode-extension/issues/30)
+* Improved other dependencies installation
+* Improved startup speed after first initialization by caching the settings in the profile file
+* Added backup of the profile file
+* Added the ability to set dynamic flags when creating Virtual Machines
+* Added the ability to enable/disable the rosetta flag when creating Mac Virtual Machines
+* Added the ability to enable/disable the rosetta flag in the tree
+* Added visual queue when VM has rosetta enabled
+* Added a fix that prevents MacVMs from being able to show the take snapshot as this would crash
+* added other small bug fixes
+* 

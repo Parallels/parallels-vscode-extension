@@ -14,6 +14,14 @@ export function registerAddGroupCommand(context: vscode.ExtensionContext, provid
         placeHolder: "Enter the name for the group"
       });
       if (groupName) {
+        const group = config.getVirtualMachineGroup(`/${groupName}`);
+        if (group) {
+          vscode.window.showErrorMessage(`Group ${groupName} already exists on the root`);
+          LogService.error(`Group ${groupName} already exists`, "AddGroupCommand");
+          LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, `Group ${groupName} already exists`);
+          return;
+        }
+
         LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, "Group Added");
         config.addVirtualMachineGroup(new VirtualMachineGroup(groupName));
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);

@@ -3,26 +3,24 @@ import * as cp from "child_process";
 import * as fs from "fs";
 import {FLAG_VAGRANT_PATH, FLAG_VAGRANT_VERSION} from "../constants/flags";
 import {Provider} from "../ioc/provider";
-import {parallelsOutputChannel} from "../helpers/channel";
 import {getVagrantBoxFolder} from "../helpers/helpers";
 import {LogService} from "./logService";
-import {log} from "console";
 
 export class VagrantService {
   constructor(private context: vscode.ExtensionContext) {}
 
-  static isInstalled() {
+  static isInstalled(): Promise<boolean> {
     return new Promise(resolve => {
       const settings = Provider.getSettings();
       const cache = Provider.getCache();
       if (cache.get(FLAG_VAGRANT_PATH)) {
-        LogService.info(`Packer was found on path ${cache.get(FLAG_VAGRANT_PATH)} from cache`, "VagrantService");
+        LogService.info(`Vagrant was found on path ${cache.get(FLAG_VAGRANT_PATH)} from cache`, "VagrantService");
         return resolve(true);
       }
 
       if (settings.get<string>(FLAG_VAGRANT_PATH)) {
         LogService.info(
-          `Packer was found on path ${settings.get<string>(FLAG_VAGRANT_PATH)} from settings`,
+          `Vagrant was found on path ${settings.get<string>(FLAG_VAGRANT_PATH)} from settings`,
           "VagrantService"
         );
         return resolve(true);
@@ -35,8 +33,8 @@ export class VagrantService {
         }
         const path = stdout.replace("\n", "").trim();
         LogService.info(`Vagrant was found on path ${path}`, "VagrantService");
-        const packerPath = settings.get<string>(FLAG_VAGRANT_PATH);
-        if (!packerPath) {
+        const vagrantPath = settings.get<string>(FLAG_VAGRANT_PATH);
+        if (!vagrantPath) {
           settings.update(FLAG_VAGRANT_PATH, path, true);
         }
         Provider.getCache().set(FLAG_VAGRANT_PATH, path);
@@ -45,61 +43,92 @@ export class VagrantService {
     });
   }
 
-  static version(): Promise<boolean> {
+  static version(): Promise<string> {
     return new Promise((resolve, reject) => {
-      let version = Provider.getCache().get(FLAG_VAGRANT_VERSION);
+      const version = Provider.getCache().get(FLAG_VAGRANT_VERSION);
       if (version) {
-        LogService.info(`Vagrant was found on version ${version} from cache`, "VagrantService");
-        return resolve(true);
+        LogService.info(`Vagrant ${version} was found in the system`, "VagrantService");
+        return resolve(version);
       }
 
-      LogService.info("Checking if Vagrant is installed...", "VagrantService");
       cp.exec("vagrant --version", (err, stdout) => {
         if (err) {
           LogService.error("Vagrant is not installed", "VagrantService", true, false);
-          return resolve(false);
+          return reject(err);
         }
-        version = stdout.replace("\n", "").trim();
-        LogService.info(`Vagrant ${version} was found in the system`, "VagrantService");
-        Provider.getCache().set(FLAG_VAGRANT_VERSION, version);
-        return resolve(true);
+
+        const versionMatch = stdout.match(/(\d+\.\d+\.\d+)\n/);
+        if (versionMatch) {
+          LogService.info(`Vagrant ${versionMatch[1]} was found in the system`, "VagrantService");
+          Provider.getCache().set(FLAG_VAGRANT_VERSION, version);
+          return resolve(versionMatch[1]);
+        } else {
+          LogService.error("Could not extract vagrant version number from output", "VagrantService", false, false);
+          return reject("Could not extract vagrant version number from output");
+        }
       });
     });
   }
 
   static install(): Promise<boolean> {
     LogService.info("Installing Vagrant...", "VagrantService");
-    return new Promise((resolve, reject) => {
-      const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
-      brew.stdout.on("data", data => {
-        LogService.info(data.toString(), "VagrantService");
-      });
-      brew.stderr.on("data", data => {
-        LogService.error(data.toString(), "VagrantService");
-      });
-      brew.on("close", code => {
-        if (code !== 0) {
-          LogService.error(`brew tap exited with code ${code}`, "VagrantService", true, false);
-          return resolve(false);
-        }
-
-        const packer = cp.spawn("brew", ["install", "hashicorp/tap/hashicorp-vagrant"]);
-        packer.stdout.on("data", data => {
-          LogService.info(data.toString(), "VagrantService");
-        });
-        packer.stderr.on("data", data => {
-          LogService.error(data.toString(), "VagrantService");
-        });
-        packer.on("close", code => {
-          if (code !== 0) {
-            LogService.error(`brew install exited with code ${code}`, "VagrantService", true, false);
+    return new Promise(async (resolve) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Parallels Desktop",
+          cancellable: false
+        },
+        async (progress, token) => {
+          progress.report({ message: "Installing Vagrant..." });
+          const result = await new Promise(async (resolve, reject) => {
+            const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
+            brew.stdout.on("data", data => {
+              LogService.info(data.toString(), "VagrantService");
+            });
+            brew.stderr.on("data", data => {
+              LogService.error(data.toString(), "VagrantService");
+            });
+            brew.on("close", code => {
+              if (code !== 0) {
+                LogService.error(`brew tap exited with code ${code}`, "VagrantService", true, false);
+                progress.report({ message: "Failed to install Vagrant, see logs for more details" });
+                return resolve(false);
+              }
+              progress.report({ message: "Vagrant needs sudo to install correctly,\n please introduce the password in the input box" });
+              const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing Vagrant`);
+              terminal.show();
+              terminal.sendText(`brew install hashicorp/tap/hashicorp-vagrant`);
+              terminal.sendText(`vagrant plugin repair`);
+              terminal.sendText(`exit $?`);
+              vscode.window.onDidCloseTerminal(async (closedTerminal) => {
+                if (closedTerminal.name === terminal.name) {
+                  if (terminal.exitStatus?.code !== 0) {
+                    LogService.error(`brew install exited with code ${terminal.exitStatus?.code}`, "VagrantService", true, false);
+                    progress.report({ message: "Failed to install Vagrant, see logs for more details" });
+                    return resolve(false);
+                  }
+                  const config = Provider.getConfiguration();
+                  config.tools.vagrant.isInstalled = true;
+                  config.tools.vagrant.version = await VagrantService.version();
+                  config.save();
+                  return resolve(true);
+                }
+              });
+            })
+          });
+          if (!result) {
+            progress.report({ message: "Failed to install Vagrant, see logs for more details" });
+            vscode.window.showErrorMessage("Failed to install Vagrant, see logs for more details");
             return resolve(false);
+          } else {
+            progress.report({ message: "Vagrant was installed successfully" });
+            vscode.window.showInformationMessage("Vagrant was installed successfully");
+            return resolve(true);
           }
-
-          LogService.info("Vagrant was installed successfully", "VagrantService");
-          return resolve(true);
-        });
-      });
+        }
+      );
+      return resolve(true);
     });
   }
 

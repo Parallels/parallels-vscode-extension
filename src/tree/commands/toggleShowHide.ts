@@ -5,7 +5,7 @@ import {
   CommandsFlags,
   FLAG_DISABLE_SHOW_HIDDEN,
   FLAG_ENABLE_SHOW_HIDDEN,
-  SettingsFlags,
+  FLAG_TREE_SHOW_HIDDEN,
   TelemetryEventIds
 } from "../../constants/flags";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
@@ -17,7 +17,7 @@ export function registerToggleShowHiddenCommand(context: vscode.ExtensionContext
     vscode.commands.registerCommand(CommandsFlags.coreEnableShowHiddenItems, async (item: VirtualMachineTreeItem) => {
       LogService.debug(`Toggling show hidden to true`, "TreeViewCommand");
       Provider.getConfiguration().showHidden = true;
-      console.log(Provider.getSettings().get<boolean>(SettingsFlags.treeShowHiddenItems));
+      console.log(Provider.getSettings().get<boolean>(FLAG_TREE_SHOW_HIDDEN));
       vscode.commands.executeCommand("setContext", FLAG_ENABLE_SHOW_HIDDEN, true);
       vscode.commands.executeCommand("setContext", FLAG_DISABLE_SHOW_HIDDEN, false);
       vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
@@ -33,7 +33,7 @@ export function registerToggleShowHiddenCommand(context: vscode.ExtensionContext
     }),
     vscode.commands.registerCommand(CommandsFlags.coreToggleShowHiddenItems, async (item: VirtualMachineTreeItem) => {
       LogService.debug(
-        `Toggling show hidden to ${!Provider.getSettings().get<boolean>(SettingsFlags.treeShowHiddenItems)}`,
+        `Toggling show hidden to ${!Provider.getSettings().get<boolean>(FLAG_TREE_SHOW_HIDDEN)}`,
         "TreeViewCommand"
       );
       const newValue = !Provider.getConfiguration().showHidden;
