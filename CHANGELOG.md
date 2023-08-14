@@ -87,4 +87,3 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * Added visual queue when VM has rosetta enabled
 * Added a fix that prevents MacVMs from being able to show the take snapshot as this would crash
 * added other small bug fixes
-* 
