@@ -412,19 +412,19 @@ export class CreateMachineService {
 
       ParallelsDesktopService.createIsoVm(request.name, isoUri, getVmType(img.distro), specs)
         .then(
-          async (value) => {
+          async value => {
             if (!value) {
               return reject("Error creating VM");
             }
             if (request.flags) {
-              request.flags.forEach(async (flag) => {
-                if (flag.code  === "startHeadless" && flag.enabled) {
+              request.flags.forEach(async flag => {
+                if (flag.code === "startHeadless" && flag.enabled) {
                   await ParallelsDesktopService.setVmConfig(request.name, "startup-view", "headless");
                 }
-                if (flag.code  === "enableRosetta" && flag.enabled) {
-                  await ParallelsDesktopService.setVmConfig(request.name, "rosetta-linux", "on")
+                if (flag.code === "enableRosetta" && flag.enabled) {
+                  await ParallelsDesktopService.setVmConfig(request.name, "rosetta-linux", "on");
                 }
-              })
+              });
             }
             return resolve(value);
           },
@@ -477,12 +477,12 @@ export class CreateMachineService {
         };
 
         if (request.flags) {
-          request.flags.forEach((flag) => {
-            if (flag.code  === "generateVagrantBox" && flag.enabled) {
-              machineConfig.generateVagrantBox = true
+          request.flags.forEach(flag => {
+            if (flag.code === "generateVagrantBox" && flag.enabled) {
+              machineConfig.generateVagrantBox = true;
             }
-          })
-        } 
+          });
+        }
 
         if (machineConfig.name) {
           machineConfig.variables["machine_name"] = request.name;
@@ -553,15 +553,15 @@ export class CreateMachineService {
                       return reject("Error registering VM");
                     }
                     if (request.flags) {
-                      request.flags.forEach(async (flag) => {
-                        if (flag.code  === "startHeadless" && flag.enabled) {
+                      request.flags.forEach(async flag => {
+                        if (flag.code === "startHeadless" && flag.enabled) {
                           await ParallelsDesktopService.setVmConfig(request.name, "startup-view", "headless");
                         }
-                        if (flag.code  === "enableRosetta" && flag.enabled) {
-                          await ParallelsDesktopService.setVmConfig(request.name, "rosetta-linux", "on")
+                        if (flag.code === "enableRosetta" && flag.enabled) {
+                          await ParallelsDesktopService.setVmConfig(request.name, "rosetta-linux", "on");
                         }
-                      })
-                    }        
+                      });
+                    }
                     return resolve(value);
                   })
                   .catch(reason => {

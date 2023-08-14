@@ -1,4 +1,4 @@
-import { config } from 'process';
+import {config} from "process";
 import * as vscode from "vscode";
 import {VirtualMachineProvider} from "./tree/virtual_machine";
 import {Provider} from "./ioc/provider";
@@ -34,12 +34,12 @@ export async function activate(context: vscode.ExtensionContext) {
   })();
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(myScheme, myProvider));
 
-      // Registering the  Virtual Machine Provider
-      const virtualMachineProvider = new VirtualMachineProvider(context);
-  
+  // Registering the  Virtual Machine Provider
+  const virtualMachineProvider = new VirtualMachineProvider(context);
+
   // Initializing the extension
   await initialize();
-    
+
   const config = Provider.getConfiguration();
   if (config.tools.vagrant?.isInstalled) {
     const vagrantBoxProvider = new VagrantBoxProvider(context);
@@ -61,7 +61,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (config.isDebugEnabled) {
     LogService.info("Debug mode is enabled", "CoreService");
   }
-  
+
   vscode.commands.executeCommand("setContext", FLAG_PARALLELS_EXTENSION_INITIALIZED, true);
   LogService.sendTelemetryEvent(TelemetryEventIds.ExtensionStarted);
   console.log("Parallels Desktop Extension is now active!");

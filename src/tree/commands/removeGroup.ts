@@ -3,7 +3,7 @@ import {Provider} from "../../ioc/provider";
 import {CommandsFlags, FLAG_NO_GROUP, TelemetryEventIds} from "../../constants/flags";
 import {VirtualMachineProvider} from "../virtual_machine";
 import {LogService} from "../../services/logService";
-import { VirtualMachineTreeItem } from "../virtual_machine_item";
+import {VirtualMachineTreeItem} from "../virtual_machine_item";
 
 export function registerRemoveGroupCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(

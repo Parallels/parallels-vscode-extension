@@ -560,16 +560,16 @@ export class ConfigurationService {
       }
 
       BrewService.version()
-      .then(version => {
-        this.tools.brew.version = version;
-        return resolve(true);
-      })
-      .catch(reason => {
-        this.tools.brew.isInstalled = false;
-        this.tools.brew.version = "";
-        LogService.error(`Brew is not installed, err: ${reason}`, "ConfigService");
-        return resolve(false);
-      })
+        .then(version => {
+          this.tools.brew.version = version;
+          return resolve(true);
+        })
+        .catch(reason => {
+          this.tools.brew.isInstalled = false;
+          this.tools.brew.version = "";
+          LogService.error(`Brew is not installed, err: ${reason}`, "ConfigService");
+          return resolve(false);
+        });
     });
   }
 
@@ -593,7 +593,7 @@ export class ConfigurationService {
           this.tools.git.version = "";
           LogService.error(`Git is not installed, err: ${reason}`, "ConfigService");
           return resolve(false);
-        })
+        });
     });
   }
 
@@ -620,7 +620,7 @@ export class ConfigurationService {
           this.tools.packer.isInstalled = false;
           LogService.error(`Packer is not installed, err: ${reason}`, "ConfigService");
           return resolve(false);
-        })
+        });
     });
   }
 
