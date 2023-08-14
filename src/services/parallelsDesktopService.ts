@@ -72,7 +72,7 @@ export class ParallelsDesktopService {
             const dbMachine = config.getVirtualMachine(vm.ID);
             if (dbMachine !== undefined) {
               // This will try to fix any wrong groups that might have been set
-              if (!(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(dbMachine.group))) {
+              if (!/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(dbMachine.group)) {
                 dbMachine.group = noGroup?.uuid ?? "";
               }
               const machineGroup = config.getVirtualMachineGroup(dbMachine.group);
@@ -80,8 +80,6 @@ export class ParallelsDesktopService {
                 LogService.error(`Group ${dbMachine.group} not found, rejecting`, "ParallelsDesktopService");
                 return reject(`Group ${dbMachine.group} not found, rejecting`);
               }
-
-
 
               vm.group = machineGroup?.uuid;
               vm.hidden = dbMachine.hidden;
@@ -94,7 +92,6 @@ export class ParallelsDesktopService {
             }
           });
           // Checking for duplicated VMs, this can happen if a machine has been renamed
-
 
           // sync the config file and clean any unwanted machines
           const configMachines = config.allMachines;
@@ -126,21 +123,21 @@ export class ParallelsDesktopService {
         async (progress, token) => {
           progress.report({message: "Installing Parallels Desktop..."});
           const result = await new Promise(async (resolve, reject) => {
-      const brew = cp.spawn("brew", ["install", "parallels"]);
-      brew.stdout.on("data", data => {
-        LogService.info(data.toString(), "ParallelsDesktopService");
-      });
-      brew.stderr.on("data", data => {
-        LogService.error(data.toString(), "ParallelsDesktopService");
-      });
-      brew.on("close", code => {
-        if (code !== 0) {
-          LogService.error(`brew install exited with code ${code}`, "ParallelsDesktopService");
-          return reject(code);
-        }
-        LogService.info(`Parallels Desktop was installed successfully`, "ParallelsDesktopService");
-        return resolve(true);
-      });
+            const brew = cp.spawn("brew", ["install", "parallels"]);
+            brew.stdout.on("data", data => {
+              LogService.info(data.toString(), "ParallelsDesktopService");
+            });
+            brew.stderr.on("data", data => {
+              LogService.error(data.toString(), "ParallelsDesktopService");
+            });
+            brew.on("close", code => {
+              if (code !== 0) {
+                LogService.error(`brew install exited with code ${code}`, "ParallelsDesktopService");
+                return reject(code);
+              }
+              LogService.info(`Parallels Desktop was installed successfully`, "ParallelsDesktopService");
+              return resolve(true);
+            });
           });
           if (!result) {
             progress.report({message: "Failed to install Parallels Desktop, see logs for more details"});

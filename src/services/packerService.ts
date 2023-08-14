@@ -105,7 +105,7 @@ export class PackerService {
               packer.stderr.on("data", data => {
                 LogService.error(data.toString(), "PackerService");
               });
-              packer.on("close", async (code) => {
+              packer.on("close", async code => {
                 if (code !== 0) {
                   LogService.error(`brew install exited with code ${code}`, "PackerService", true, false);
                   return resolve(false);

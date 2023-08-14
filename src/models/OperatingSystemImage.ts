@@ -1,7 +1,7 @@
 import {stringify} from "querystring";
 import {OperatingSystemDefaults} from "./OperatingSystemDefaults";
 import {OperatingSystemImageAddons} from "./OperatingSystemImageAddons";
-import { OperatingSystemImageFlag } from "./OperatingSystemImageFlag";
+import {OperatingSystemImageFlag} from "./OperatingSystemImageFlag";
 
 export class OperatingSystemImage {
   id: string;

@@ -9,27 +9,26 @@ import {LogService} from "../../services/logService";
 export function registerRenameGroupCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRenameGroup, async (item: VirtualMachineTreeItem) => {
-      let itemId: string | undefined
-      let itemName: string |  undefined
+      let itemId: string | undefined;
+      let itemName: string | undefined;
       if (!item) {
         const config = Provider.getConfiguration();
-        const groups = config.allGroups
+        const groups = config.allGroups;
         const options: string[] = [];
-        groups.forEach(async (group) => {
-          options.push(group.path ?? group.name)
-        })
-        const groupName = await vscode.window.showQuickPick(options,{
-          placeHolder: `Select a Group`,
+        groups.forEach(async group => {
+          options.push(group.path ?? group.name);
         });
-        groups.forEach((group) => {
+        const groupName = await vscode.window.showQuickPick(options, {
+          placeHolder: `Select a Group`
+        });
+        groups.forEach(group => {
           if (group.path === groupName) {
-            itemId = group.uuid,
-              itemName = group.name
+            (itemId = group.uuid), (itemName = group.name);
           }
         });
       } else {
-        itemId = item.id
-        itemName = item.name
+        itemId = item.id;
+        itemName = item.name;
       }
       if (itemId && itemName) {
         const config = Provider.getConfiguration();

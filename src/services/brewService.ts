@@ -1,11 +1,11 @@
-import { config } from 'process';
+import {config} from "process";
 import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
 import {Provider} from "../ioc/provider";
 import {LogService} from "./logService";
 import path = require("path");
-import { FLAG_BREW_PATH, FLAG_BREW_VERSION } from "../constants/flags";
+import {FLAG_BREW_PATH, FLAG_BREW_VERSION} from "../constants/flags";
 
 export class BrewService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -20,10 +20,7 @@ export class BrewService {
       }
 
       if (settings.get<string>(FLAG_BREW_PATH)) {
-        LogService.info(
-          `Brew was found on path ${settings.get<string>(FLAG_BREW_PATH)} from settings`,
-          "BrewService"
-        );
+        LogService.info(`Brew was found on path ${settings.get<string>(FLAG_BREW_PATH)} from settings`, "BrewService");
         return resolve(true);
       }
 
@@ -73,7 +70,7 @@ export class BrewService {
 
   static install(): Promise<boolean> {
     LogService.info("Installing Brew...", "BrewService");
-    return new Promise(async (resolve) => {
+    return new Promise(async resolve => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -81,7 +78,7 @@ export class BrewService {
           cancellable: false
         },
         async (progress, token) => {
-          progress.report({ message: "Installing Brew..." });
+          progress.report({message: "Installing Brew..."});
           const result = await new Promise(async (resolve, reject) => {
             const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
             brew.stdout.on("data", data => {
@@ -93,19 +90,28 @@ export class BrewService {
             brew.on("close", code => {
               if (code !== 0) {
                 LogService.error(`brew tap exited with code ${code}`, "BrewService", true, false);
-                progress.report({ message: "Failed to install Brew, see logs for more details" });
+                progress.report({message: "Failed to install Brew, see logs for more details"});
                 return resolve(false);
               }
-              progress.report({ message: "Brew needs sudo to install correctly,\n please introduce the password in the input box" });
+              progress.report({
+                message: "Brew needs sudo to install correctly,\n please introduce the password in the input box"
+              });
               const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing Brew`);
               terminal.show();
-              terminal.sendText(`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`);
+              terminal.sendText(
+                `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+              );
               terminal.sendText(`exit $?`);
-              vscode.window.onDidCloseTerminal(async (closedTerminal) => {
+              vscode.window.onDidCloseTerminal(async closedTerminal => {
                 if (closedTerminal.name === terminal.name) {
                   if (terminal.exitStatus?.code !== 0) {
-                    LogService.error(`brew install exited with code ${terminal.exitStatus?.code}`, "BrewService", true, false);
-                    progress.report({ message: "Failed to install Brew, see logs for more details" });
+                    LogService.error(
+                      `brew install exited with code ${terminal.exitStatus?.code}`,
+                      "BrewService",
+                      true,
+                      false
+                    );
+                    progress.report({message: "Failed to install Brew, see logs for more details"});
                     return resolve(false);
                   }
                   const config = Provider.getConfiguration();
@@ -115,14 +121,14 @@ export class BrewService {
                   return resolve(true);
                 }
               });
-            })
+            });
           });
           if (!result) {
-            progress.report({ message: "Failed to install Brew, see logs for more details" });
+            progress.report({message: "Failed to install Brew, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Brew, see logs for more details");
             return resolve(false);
           } else {
-            progress.report({ message: "Brew was installed successfully" });
+            progress.report({message: "Brew was installed successfully"});
             vscode.window.showInformationMessage("Brew was installed successfully");
             return resolve(true);
           }
@@ -131,5 +137,4 @@ export class BrewService {
       return resolve(true);
     });
   }
-
 }

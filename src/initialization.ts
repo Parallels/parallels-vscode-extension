@@ -8,7 +8,7 @@ import {
   FLAG_DISABLE_SHOW_HIDDEN,
   FLAG_ENABLE_SHOW_HIDDEN,
   FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE,
-  FLAG_TREE_SHOW_HIDDEN,
+  FLAG_TREE_SHOW_HIDDEN
 } from "./constants/flags";
 import {LogService} from "./services/logService";
 import {GitService} from "./services/gitService";
@@ -181,7 +181,7 @@ export async function initialize() {
         });
       }
 
-      progress.report({ message: "Parallels Desktop: Reading Feature Flags" });
+      progress.report({message: "Parallels Desktop: Reading Feature Flags"});
       // Setting the default show hidden items based on settings
       const showHidden = settings.get<boolean>(FLAG_TREE_SHOW_HIDDEN);
       if (showHidden) {

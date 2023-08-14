@@ -72,7 +72,7 @@ export class VagrantService {
 
   static install(): Promise<boolean> {
     LogService.info("Installing Vagrant...", "VagrantService");
-    return new Promise(async (resolve) => {
+    return new Promise(async resolve => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -80,7 +80,7 @@ export class VagrantService {
           cancellable: false
         },
         async (progress, token) => {
-          progress.report({ message: "Installing Vagrant..." });
+          progress.report({message: "Installing Vagrant..."});
           const result = await new Promise(async (resolve, reject) => {
             const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
             brew.stdout.on("data", data => {
@@ -92,20 +92,27 @@ export class VagrantService {
             brew.on("close", code => {
               if (code !== 0) {
                 LogService.error(`brew tap exited with code ${code}`, "VagrantService", true, false);
-                progress.report({ message: "Failed to install Vagrant, see logs for more details" });
+                progress.report({message: "Failed to install Vagrant, see logs for more details"});
                 return resolve(false);
               }
-              progress.report({ message: "Vagrant needs sudo to install correctly,\n please introduce the password in the input box" });
+              progress.report({
+                message: "Vagrant needs sudo to install correctly,\n please introduce the password in the input box"
+              });
               const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing Vagrant`);
               terminal.show();
               terminal.sendText(`brew install hashicorp/tap/hashicorp-vagrant`);
               terminal.sendText(`vagrant plugin repair`);
               terminal.sendText(`exit $?`);
-              vscode.window.onDidCloseTerminal(async (closedTerminal) => {
+              vscode.window.onDidCloseTerminal(async closedTerminal => {
                 if (closedTerminal.name === terminal.name) {
                   if (terminal.exitStatus?.code !== 0) {
-                    LogService.error(`brew install exited with code ${terminal.exitStatus?.code}`, "VagrantService", true, false);
-                    progress.report({ message: "Failed to install Vagrant, see logs for more details" });
+                    LogService.error(
+                      `brew install exited with code ${terminal.exitStatus?.code}`,
+                      "VagrantService",
+                      true,
+                      false
+                    );
+                    progress.report({message: "Failed to install Vagrant, see logs for more details"});
                     return resolve(false);
                   }
                   const config = Provider.getConfiguration();
@@ -115,14 +122,14 @@ export class VagrantService {
                   return resolve(true);
                 }
               });
-            })
+            });
           });
           if (!result) {
-            progress.report({ message: "Failed to install Vagrant, see logs for more details" });
+            progress.report({message: "Failed to install Vagrant, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Vagrant, see logs for more details");
             return resolve(false);
           } else {
-            progress.report({ message: "Vagrant was installed successfully" });
+            progress.report({message: "Vagrant was installed successfully"});
             vscode.window.showInformationMessage("Vagrant was installed successfully");
             return resolve(true);
           }

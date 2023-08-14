@@ -1,7 +1,7 @@
 import * as uuid from "uuid";
 import {VirtualMachine as VirtualMachine} from "./virtualMachine";
 import {Provider} from "../ioc/provider";
-import { FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY } from "../constants/flags";
+import {FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY} from "../constants/flags";
 
 export class VirtualMachineGroup {
   uuid: string;

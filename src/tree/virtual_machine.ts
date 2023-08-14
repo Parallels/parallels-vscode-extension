@@ -33,8 +33,8 @@ import {registerRenameGroupCommand} from "./commands/renameGroup";
 import {MachineSnapshot} from "../models/virtualMachineSnapshot";
 import {registerDeleteVmCommand} from "./commands/deleteVm";
 import {registerEnterVmCommand} from "./commands/enterVm";
-import { registerRenameVmCommand } from "./commands/renameMachine";
-import { registerToggleRosettaLinuxCommand } from "./commands/toggleRosettaLinux";
+import {registerRenameVmCommand} from "./commands/renameMachine";
+import {registerToggleRosettaLinuxCommand} from "./commands/toggleRosettaLinux";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -154,7 +154,9 @@ export class VirtualMachineProvider
                 vm.Name,
                 vm.Name,
                 vm.State,
-                `vm.${vm.OS}.${visibility}.${vm.Advanced["Rosetta Linux"] === 'on' ? 'rosetta_on':'rosetta_off'}.${vm.State}`,
+                `vm.${vm.OS}.${visibility}.${vm.Advanced["Rosetta Linux"] === "on" ? "rosetta_on" : "rosetta_off"}.${
+                  vm.State
+                }`,
                 vm.OS === "macosx" ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
                 icon
               )
@@ -470,7 +472,9 @@ export class VirtualMachineProvider
                 childVm.Name,
                 childVm.Name,
                 childVm.State,
-                `vm.${childVm.OS}.${visibility}.${childVm.Advanced["Rosetta Linux"] === 'on' ? 'rosetta_on':'rosetta_off'}.${childVm.State}`,
+                `vm.${childVm.OS}.${visibility}.${
+                  childVm.Advanced["Rosetta Linux"] === "on" ? "rosetta_on" : "rosetta_off"
+                }.${childVm.State}`,
                 childVm.OS === "macosx"
                   ? vscode.TreeItemCollapsibleState.None
                   : vscode.TreeItemCollapsibleState.Collapsed,
@@ -574,10 +578,10 @@ export class VirtualMachineProvider
           this.config.moveVmToGroup(treeItem.id, targetGroup.uuid);
           break;
         case "Group":
-          if (targetGroup.uuid === treeItem.id) { 
+          if (targetGroup.uuid === treeItem.id) {
             return;
           }
-          
+
           this.config.moveGroupToGroup(treeItem.id, targetGroup.uuid);
           break;
       }

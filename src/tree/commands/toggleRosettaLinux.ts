@@ -11,7 +11,7 @@ import {
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
-import { ParallelsDesktopService } from "../../services/parallelsDesktopService";
+import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 
 export function registerToggleRosettaLinuxCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
@@ -21,14 +21,22 @@ export function registerToggleRosettaLinuxCommand(context: vscode.ExtensionConte
       }
 
       LogService.debug(`Enabling Rosetta Linux on ${item.name} `, "ToggleRosettaLinuxCommand");
-      await ParallelsDesktopService.setVmConfig(item.id, "rosetta-linux", "on").then((result) => {
-        vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-        LogService.info(`Enabled Rosetta Linux on ${item.name}`, "ToggleRosettaLinuxCommand");
-        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Enabling Rosetta Linux on ${item.name}`);
-      }).catch(reject => {
-        LogService.error(`Failed Enabling Rosetta Linux on ${item.name}: ${reject}`, "ToggleRosettaLinuxCommand");
-        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Failed Enabling Rosetta Linux on ${item.name}`);
-      });
+      await ParallelsDesktopService.setVmConfig(item.id, "rosetta-linux", "on")
+        .then(result => {
+          vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+          LogService.info(`Enabled Rosetta Linux on ${item.name}`, "ToggleRosettaLinuxCommand");
+          LogService.sendTelemetryEvent(
+            TelemetryEventIds.VirtualMachineAction,
+            `Enabling Rosetta Linux on ${item.name}`
+          );
+        })
+        .catch(reject => {
+          LogService.error(`Failed Enabling Rosetta Linux on ${item.name}: ${reject}`, "ToggleRosettaLinuxCommand");
+          LogService.sendTelemetryEvent(
+            TelemetryEventIds.VirtualMachineAction,
+            `Failed Enabling Rosetta Linux on ${item.name}`
+          );
+        });
     }),
     vscode.commands.registerCommand(CommandsFlags.treeDisableRosetta, async (item: VirtualMachineTreeItem) => {
       if (!item || item.status !== "stopped") {
@@ -36,14 +44,22 @@ export function registerToggleRosettaLinuxCommand(context: vscode.ExtensionConte
       }
 
       LogService.debug(`Disabling Rosetta Linux on ${item.name} `, "ToggleRosettaLinuxCommand");
-      await ParallelsDesktopService.setVmConfig(item.id, "rosetta-linux", "off").then((result) => {
-        vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-        LogService.info(`Disabled Rosetta Linux on ${item.name}`, "ToggleRosettaLinuxCommand");
-        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Disabling Rosetta Linux on ${item.name}`);
-      }).catch(reject => {
-        LogService.error(`Failed Disabling Rosetta Linux on ${item.name}: ${reject}`, "ToggleRosettaLinuxCommand");
-        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Failed Disabling Rosetta Linux on ${item.name}`);
-      });
-    }),
+      await ParallelsDesktopService.setVmConfig(item.id, "rosetta-linux", "off")
+        .then(result => {
+          vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+          LogService.info(`Disabled Rosetta Linux on ${item.name}`, "ToggleRosettaLinuxCommand");
+          LogService.sendTelemetryEvent(
+            TelemetryEventIds.VirtualMachineAction,
+            `Disabling Rosetta Linux on ${item.name}`
+          );
+        })
+        .catch(reject => {
+          LogService.error(`Failed Disabling Rosetta Linux on ${item.name}: ${reject}`, "ToggleRosettaLinuxCommand");
+          LogService.sendTelemetryEvent(
+            TelemetryEventIds.VirtualMachineAction,
+            `Failed Disabling Rosetta Linux on ${item.name}`
+          );
+        });
+    })
   );
 }

@@ -104,16 +104,16 @@ export class OperatingSystemsData {
         os.platforms.forEach(platform => {
           platform.images.forEach(image => {
             if (image.type === "packer") {
-              image.allowedFlags.push({ code: "generateVagrantBox", name: "Generate Vagrant Box", enabled: false });
+              image.allowedFlags.push({code: "generateVagrantBox", name: "Generate Vagrant Box", enabled: false});
             }
+          });
+          platform.distros.forEach(distro => {
+            distro.images.forEach(image => {
+              if (image.type === "packer") {
+                image.allowedFlags.push({code: "generateVagrantBox", name: "Generate Vagrant Box", enabled: false});
+              }
             });
-            platform.distros.forEach(distro => {
-              distro.images.forEach(image => {
-                if (image.type === "packer") {
-                  image.allowedFlags.push({ code: "generateVagrantBox", name: "Generate Vagrant Box" , enabled: false});
-                }
-              });
-            });
+          });
         });
       });
     }
@@ -131,9 +131,9 @@ export class OperatingSystemsData {
               image.allowedFlags.push({code: "startHeadless", name: "Start Machine in Headless Mode", enabled: false});
             });
           });
-      });
-    }
-  });
+        });
+      }
+    });
   }
 
   private addEnableRosettaFlag() {
@@ -148,9 +148,9 @@ export class OperatingSystemsData {
               image.allowedFlags.push({code: "enableRosetta", name: "Use Rosetta to run x86 binaries", enabled: false});
             });
           });
-      });
-    }
-  });
+        });
+      }
+    });
   }
 
   getImage(osId: string, platformId: string, distroId: string, imageId: string): OperatingSystemImage | undefined {
