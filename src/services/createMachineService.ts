@@ -339,6 +339,12 @@ export class CreateMachineService {
       if (request.os === "windows") {
         request.distro = "win-11";
       }
+      const config = Provider.getConfiguration();
+      const existsVMName = config.allMachines.filter(m => m.Name.toLowerCase() === request.name.toLowerCase());
+      if (existsVMName.length > 0) {
+        LogService.error(`Machine ${request.name} already exists`, "CreateMachineService");
+        return reject(`Machine ${request.name} already exists`);
+      }
 
       let isoUri = request.isoUrl ?? img.isoUrl ?? "";
       const isoChecksum = request.isoChecksum ?? img.isoChecksum ?? "";
@@ -354,7 +360,12 @@ export class CreateMachineService {
 
       if (isoUri.startsWith("http")) {
         const isoName = `${request.name}.iso`;
-        const filePath = path.join(getDownloadFolder(), isoName);
+        let isoUrlFilename = isoUri.substring(isoUri.lastIndexOf("/") + 1);
+        console.log(isoUrlFilename);
+        if (isoUrlFilename.indexOf(".iso") === -1) {
+          isoUrlFilename = isoName;
+        }
+        const filePath = path.join(getDownloadFolder(), isoUrlFilename);
         if (!fs.existsSync(filePath)) {
           const isDownloaded = await HelperService.downloadFile(
             this.context,
@@ -401,9 +412,19 @@ export class CreateMachineService {
 
       ParallelsDesktopService.createIsoVm(request.name, isoUri, getVmType(img.distro), specs)
         .then(
-          value => {
+          async (value) => {
             if (!value) {
               return reject("Error creating VM");
+            }
+            if (request.flags) {
+              request.flags.forEach(async (flag) => {
+                if (flag.code  === "startHeadless" && flag.enabled) {
+                  await ParallelsDesktopService.setVmConfig(request.name, "startup-view", "headless");
+                }
+                if (flag.code  === "enableRosetta" && flag.enabled) {
+                  await ParallelsDesktopService.setVmConfig(request.name, "rosetta-linux", "on")
+                }
+              })
             }
             return resolve(value);
           },
@@ -442,7 +463,7 @@ export class CreateMachineService {
           name: request.name,
           isoChecksum: request.isoChecksum ?? img.isoChecksum,
           isoUrl: request.isoUrl ?? img.isoUrl,
-          generateVagrantBox: request.flags.generateVagrantBox,
+          generateVagrantBox: false,
           outputFolder: outputFolder,
           packerScriptFolder: path.join(getPackerTemplateFolder(), img.packerFolder),
           variables: img.variables ?? {},
@@ -454,6 +475,14 @@ export class CreateMachineService {
           },
           forceBuild: false
         };
+
+        if (request.flags) {
+          request.flags.forEach((flag) => {
+            if (flag.code  === "generateVagrantBox" && flag.enabled) {
+              machineConfig.generateVagrantBox = true
+            }
+          })
+        } 
 
         if (machineConfig.name) {
           machineConfig.variables["machine_name"] = request.name;
@@ -523,6 +552,16 @@ export class CreateMachineService {
                     if (!value) {
                       return reject("Error registering VM");
                     }
+                    if (request.flags) {
+                      request.flags.forEach(async (flag) => {
+                        if (flag.code  === "startHeadless" && flag.enabled) {
+                          await ParallelsDesktopService.setVmConfig(request.name, "startup-view", "headless");
+                        }
+                        if (flag.code  === "enableRosetta" && flag.enabled) {
+                          await ParallelsDesktopService.setVmConfig(request.name, "rosetta-linux", "on")
+                        }
+                      })
+                    }        
                     return resolve(value);
                   })
                   .catch(reason => {

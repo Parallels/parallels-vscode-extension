@@ -1,6 +1,7 @@
 import {stringify} from "querystring";
 import {OperatingSystemDefaults} from "./OperatingSystemDefaults";
 import {OperatingSystemImageAddons} from "./OperatingSystemImageAddons";
+import { OperatingSystemImageFlag } from "./OperatingSystemImageFlag";
 
 export class OperatingSystemImage {
   id: string;
@@ -17,6 +18,7 @@ export class OperatingSystemImage {
   allowUserOverride: boolean;
   allowAddons: boolean;
   defaults: OperatingSystemDefaults | undefined;
+  allowedFlags: OperatingSystemImageFlag[] = [];
 
   constructor(
     id: string,
@@ -32,6 +34,7 @@ export class OperatingSystemImage {
     allowMachineSpecs = false,
     allowUserOverride = false,
     allowAddons = false,
+    allowedFlags = [],
     defaults: OperatingSystemDefaults | undefined = undefined
   ) {
     this.id = id;
@@ -47,6 +50,7 @@ export class OperatingSystemImage {
     this.allowMachineSpecs = allowMachineSpecs;
     this.allowUserOverride = allowUserOverride;
     this.allowAddons = allowAddons;
+    this.allowedFlags = allowedFlags;
     this.defaults = defaults;
   }
 
@@ -62,6 +66,7 @@ export class OperatingSystemImage {
       allowMachineSpecs: ${this.allowMachineSpecs},
       allowUserOverride: ${this.allowUserOverride},
       allowAddons: ${this.allowAddons},
+      allowedFlags: ${JSON.stringify(this.allowedFlags).replace(/"/g, "'")},
       addons: ${JSON.stringify(this.addons).replace(/"/g, "'")}
       ${this.defaults ? `,\ndefaults: ${this.defaults.toString()}` : ""}
     }`;
@@ -97,6 +102,7 @@ export class OperatingSystemImage {
       obj.allowMachineSpecs,
       obj.allowUserOverride,
       obj.allowAddons,
+      obj.allowedFlags,
       defaults
     );
   }

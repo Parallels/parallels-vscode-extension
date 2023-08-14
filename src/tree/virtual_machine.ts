@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import * as uuid from "uuid";
 import {Provider} from "../ioc/provider";
 import {VirtualMachineTreeItem} from "./virtual_machine_item";
-import {FLAG_NO_GROUP, FeatureFlags, SettingsFlags} from "../constants/flags";
+import {FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE, FLAG_NO_GROUP} from "../constants/flags";
 import {registerAddGroupCommand} from "./commands/addGroup";
 import {registerRemoveGroupCommand} from "./commands/removeGroup";
 import {registerViewVmDetailsCommand} from "./commands/viewVmDetails";
@@ -33,6 +33,8 @@ import {registerRenameGroupCommand} from "./commands/renameGroup";
 import {MachineSnapshot} from "../models/virtualMachineSnapshot";
 import {registerDeleteVmCommand} from "./commands/deleteVm";
 import {registerEnterVmCommand} from "./commands/enterVm";
+import { registerRenameVmCommand } from "./commands/renameMachine";
+import { registerToggleRosettaLinuxCommand } from "./commands/toggleRosettaLinux";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -63,6 +65,7 @@ export class VirtualMachineProvider
     registerSuspendVirtualMachineCommand(context, this);
     registerDeleteVmCommand(context, this);
     registerEnterVmCommand(context, this);
+    registerRenameVmCommand(context, this);
     registerRefreshVirtualMachineCommand(context, this);
     registerTakeSnapshotCommand(context, this);
     registerDeleteVmSnapshotCommand(context, this);
@@ -74,6 +77,8 @@ export class VirtualMachineProvider
     registerRenameGroupCommand(context, this);
     registerSuspendGroupVirtualMachinesCommand(context, this);
     registerTakeGroupSnapshotCommand(context, this);
+
+    registerToggleRosettaLinuxCommand(context, this);
 
     registerToggleShowHiddenCommand(context, this);
   }
@@ -131,11 +136,11 @@ export class VirtualMachineProvider
       const noGroup = allGroups.find(g => g.name === FLAG_NO_GROUP);
       if (noGroup !== undefined) {
         noGroup.machines.forEach(vm => {
-          let icon = "virtual_machine";
+          let icon = `virtual_machine${vm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           if (vm.State === "running") {
-            icon = "virtual_machine_running";
+            icon = `virtual_machine_running${vm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           } else if (vm.State === "paused" || vm.State === "suspended") {
-            icon = "virtual_machine_paused";
+            icon = `virtual_machine_paused${vm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           }
           const visibility = vm.hidden ? "hidden" : "visible";
           if ((!vm.hidden || this.config.showHidden) && !this.checkIfExists(data, vm.ID)) {
@@ -149,7 +154,7 @@ export class VirtualMachineProvider
                 vm.Name,
                 vm.Name,
                 vm.State,
-                `vm.${visibility}.${vm.State}`,
+                `vm.${vm.OS}.${visibility}.${vm.Advanced["Rosetta Linux"] === 'on' ? 'rosetta_on':'rosetta_off'}.${vm.State}`,
                 vm.OS === "macosx" ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
                 icon
               )
@@ -283,7 +288,7 @@ export class VirtualMachineProvider
                   "snapshot"
                 )
               );
-            } else if (Provider.getSettings().get<boolean>(SettingsFlags.treeShowFlatSnapshotList)) {
+            } else if (Provider.getSettings().get<boolean>(FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE)) {
               const children = this.drawFlatSnapshotList(item, snapshots);
               resolve(children);
             } else {
@@ -447,11 +452,11 @@ export class VirtualMachineProvider
           }
         });
         group.machines.forEach(childVm => {
-          let icon = "virtual_machine";
+          let icon = `virtual_machine${childVm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           if (childVm.State === "running") {
-            icon = "virtual_machine_running";
+            icon = `virtual_machine_running${childVm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           } else if (childVm.State === "paused" || childVm.State === "suspended") {
-            icon = "virtual_machine_paused";
+            icon = `virtual_machine_paused${childVm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           }
           const visibility = childVm.hidden ? "hidden" : "visible";
           if ((!childVm.hidden || this.config.showHidden) && !this.checkIfExists(children, childVm.ID)) {
@@ -465,7 +470,7 @@ export class VirtualMachineProvider
                 childVm.Name,
                 childVm.Name,
                 childVm.State,
-                `vm.${visibility}.${childVm.State}`,
+                `vm.${childVm.OS}.${visibility}.${childVm.Advanced["Rosetta Linux"] === 'on' ? 'rosetta_on':'rosetta_off'}.${childVm.State}`,
                 childVm.OS === "macosx"
                   ? vscode.TreeItemCollapsibleState.None
                   : vscode.TreeItemCollapsibleState.Collapsed,
@@ -569,6 +574,10 @@ export class VirtualMachineProvider
           this.config.moveVmToGroup(treeItem.id, targetGroup.uuid);
           break;
         case "Group":
+          if (targetGroup.uuid === treeItem.id) { 
+            return;
+          }
+          
           this.config.moveGroupToGroup(treeItem.id, targetGroup.uuid);
           break;
       }

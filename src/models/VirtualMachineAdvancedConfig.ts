@@ -4,4 +4,5 @@ export interface VirtualMachineAdvancedConfig {
   "Show developer tools": string;
   "Swipe from edges": string;
   "Share host location": string;
+  "Rosetta Linux": string;
 }

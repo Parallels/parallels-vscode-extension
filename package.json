@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -74,6 +74,16 @@
                     "default": "",
                     "description": "Path to packer executable"
                 },
+                "parallels-desktop.git.path": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to git executable"
+                },
+                "parallels-desktop.brew.path": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Path to brew executable"
+                },
                 "parallels-desktop.extension.refresh.auto": {
                     "type": "boolean",
                     "default": true,
@@ -89,12 +99,12 @@
                     "default": false,
                     "description": "Shows Hidden items in the tree"
                 },
-                "parallels-desktop.tree.order-items-alphabetically": {
+                "parallels-desktop.extension.order-items-alphabetically": {
                     "type": "boolean",
                     "default": true,
                     "description": "Order Groups and VMs alphabetically"
                 },
-                "parallels-desktop.tree.show-flat-snapshot-tree": {
+                "parallels-desktop.extension.show-flat-snapshot-tree": {
                     "type": "boolean",
                     "default": false,
                     "description": "Show snapshots as a flat list"
@@ -179,6 +189,14 @@
                 }
             },
             {
+                "command": "parallels-desktop.tree-view.enable-rosetta-linux",
+                "title": "Parallels Desktop: Enable Rosetta for Linux VM"
+            },
+            {
+                "command": "parallels-desktop.tree-view.disable-rosetta-linux",
+                "title": "Parallels Desktop: Disable Rosetta for Linux VM"
+            },
+            {
                 "command": "parallels-desktop.tree-view.refresh-vms",
                 "title": "Parallels: Refresh",
                 "icon": {
@@ -196,6 +214,16 @@
                     "dark": "img/dark/info.svg"
                 }
             },
+            {
+                "command": "parallels-desktop.tree-view.rename-vm",
+                "title": "Rename Machine",
+                "shortTitle": "Rename Group",
+                "icon": {
+                    "light": "img/light/edit.svg",
+                    "dark": "img/dark/edit.svg"
+                }
+            },
+
             {
                 "command": "parallels-desktop.tree-view.add-group",
                 "title": "Add Group",
@@ -280,19 +308,28 @@
                 "command": "parallels-desktop.tree-view.stop-group-vms",
                 "title": "Stop VMs",
                 "category": "Parallels",
-                "icon": "$(debug-stop)"
+                "icon": {
+                    "light": "img/light/stop.svg",
+                    "dark": "img/dark/stop.svg"
+                }
             },
             {
                 "command": "parallels-desktop.tree-view.resume-group-vms",
                 "title": "Resume VMs",
                 "category": "Parallels",
-                "icon": "$(debug-start)"
+                "icon": {
+                    "light": "img/light/start.svg",
+                    "dark": "img/dark/start.svg"
+                }
             },
             {
                 "command": "parallels-desktop.tree-view.pause-group-vms",
                 "title": "Pause VMs",
                 "category": "Parallels",
-                "icon": "$(debug-pause)"
+                "icon": {
+                    "light": "img/light/pause.svg",
+                    "dark": "img/dark/pause.svg"
+                }
             },
             {
                 "command": "parallels-desktop.tree-view.suspend-group-vms",
@@ -421,6 +458,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "parallels-desktop.tree-view.rename-vm",
+                    "when": "false"
+                },
+                {
                     "command": "parallels-desktop.get-details",
                     "when": "false"
                 },
@@ -448,10 +489,7 @@
                     "command": "parallels-desktop.tree-view.remove-group",
                     "when": "false"
                 },
-                {
-                    "command": "parallels-desktop.tree-view.rename-group",
-                    "when": "false"
-                },
+
                 {
                     "command": "parallels-desktop.tree-view.start-group-vms",
                     "when": "false"
@@ -495,6 +533,14 @@
                 {
                     "command": "parallels-desktop.tree-view.hide-item",
                     "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.enable-rosetta-linux",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.disable-rosetta-linux",
+                    "when": "false"
                 }
             ],
             "view/title": [
@@ -510,12 +556,12 @@
                 },
                 {
                     "command": "parallels-desktop.core.enable-show-hidden-items",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:disableShowHidden",
+                    "when": "view == parallels-desktop-machines && parallels-desktop:disableShowHidden && parallels-desktop:initialized",
                     "group": "navigation@2"
                 },
                 {
                     "command": "parallels-desktop.core.disable-show-hidden-items",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:enableShowHidden",
+                    "when": "view == parallels-desktop-machines && parallels-desktop:enableShowHidden && parallels-desktop:initialized",
                     "group": "navigation@2"
                 },
                 {
@@ -536,52 +582,65 @@
             "view/item/context": [
                 {
                     "command": "parallels-desktop.tree-view.take-vm-snapshot",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.paused || viewItem == vm.visible.suspended || viewItem == vm.visible.running || viewItem == vm.visible.stopped ||viewItem == vm.hidden.paused || viewItem == vm.hidden.suspended || viewItem == vm.hidden.running || viewItem == vm.hidden.stopped)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!macosx)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\..*/",
                     "group": "inline@19"
                 },
                 {
                     "command": "parallels-desktop.tree-view.view-vm-details",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.paused || viewItem == vm.visible.suspended || viewItem == vm.visible.running || viewItem == vm.visible.stopped || viewItem == vm.hidden.paused || viewItem == vm.hidden.suspended || viewItem == vm.hidden.running || viewItem == vm.hidden.stopped)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\..*/",
                     "group": "inline@20"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.stopped || viewItem == vm.hidden.stopped)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-headless-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.stopped || viewItem == vm.hidden.stopped)"
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.enable-rosetta-linux",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!win-11)(?!win-11)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(rosetta_off)\\.(stopped)/"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.disable-rosetta-linux",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!win-11)(?!win-11)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(rosetta_on)\\.(stopped)/"
                 },
                 {
                     "command": "parallels-desktop.tree-view.enter-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.running || viewItem == vm.hidden.running)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline@21"
                 },
                 {
                     "command": "parallels-desktop.tree-view.remove-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.invalid || viewItem == vm.visible.stopped || viewItem == v.hidden.invalid || viewItem == vm.hidden.stopped)",
+                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/ || viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(invalid)/)",
                     "group": "inline@22"
                 },
                 {
                     "command": "parallels-desktop.tree-view.stop-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.running || viewItem == vm.hidden.running)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.resume-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.paused || viewItem == vm.visible.suspended || viewItem == vm.hidden.paused || viewItem == vm.hidden.suspended)",
+                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(paused)/ || viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(suspended)/)",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.pause-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.running || viewItem == vm.hidden.running)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.suspend-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.running || viewItem == vm.hidden.running)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.rename-vm",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
+                    "group": "inline@23"
                 },
                 {
                     "command": "parallels-desktop.tree-view.delete-vm-snapshot",
@@ -595,52 +654,52 @@
                 },
                 {
                     "command": "parallels-desktop.tree-view.remove-group",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.hidden.unknown || viewItem == group.hidden.stopped || viewItem == group.hidden.mixed || viewItem == group.hidden.running || viewItem == group.hidden.paused || viewItem == group.hidden.suspended || viewItem == group.visible.unknown || viewItem == group.visible.stopped || viewItem == group.visible.mixed || viewItem == group.visible.running || viewItem == group.visible.paused || viewItem == group.visible.suspended)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\..*/",
                     "group": "inline@24"
                 },
                 {
                     "command": "parallels-desktop.tree-view.show-item",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.hidden.invalid || viewItem == vm.hidden.stopped || viewItem == vm.hidden.running ||viewItem == vm.hidden.paused || viewItem == vm.hidden.suspended || viewItem == group.hidden.unknown || viewItem == group.hidden.stopped || viewItem == group.hidden.mixed || viewItem == group.hidden.running || viewItem == group.hidden.paused || viewItem == group.hidden.suspended)",
+                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.hidden\\.[a-z0-9_-]{0,100}\\..*/ || viewItem =~ /group\\.hidden\\..*/)",
                     "group": "inline@25"
                 },
                 {
                     "command": "parallels-desktop.tree-view.hide-item",
-                    "when": "view == parallels-desktop-machines && (viewItem == vm.visible.invalid || viewItem == vm.visible.stopped || viewItem == vm.visible.running ||viewItem == vm.visible.paused || viewItem == vm.visible.suspended || viewItem == group.visible.unknown || viewItem == group.visible.stopped || viewItem == group.visible.mixed || viewItem == group.visible.running || viewItem == group.visible.paused || viewItem == group.visible.suspended)",
+                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.visible\\.[a-z0-9_-]{0,100}\\..*/ || viewItem =~ /group\\.visible\\..*/)",
                     "group": "inline@25"
                 },
                 {
                     "command": "parallels-desktop.tree-view.rename-group",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.hidden.unknown || viewItem == group.hidden.stopped || viewItem == group.hidden.mixed || viewItem == group.hidden.running || viewItem == group.hidden.paused || viewItem == group.hidden.suspended || viewItem == group.visible.unknown || viewItem == group.visible.stopped || viewItem == group.visible.mixed || viewItem == group.visible.running || viewItem == group.visible.paused || viewItem == group.visible.suspended)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\..*/",
                     "group": "inline@26"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-group-vms",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.visible.stopped || viewItem == group.visible.mixed || viewItem == group.hidden.stopped || viewItem == group.hidden.mixed)",
+                    "when": "view == parallels-desktop-machines && (viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.stopped/ || viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.mixed/)",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.tree-view.stop-group-vms",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.visible.running || viewItem == group.hidden.running )",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
                     "group": "inline@2"
                 },
                 {
                     "command": "parallels-desktop.tree-view.resume-group-vms",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.visible.paused || viewItem == group.visible.suspended || viewItem == group.hidden.paused || viewItem == group.hidden.suspended)",
+                    "when": "view == parallels-desktop-machines && (viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.paused/ || viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.suspended/)",
                     "group": "inline@3"
                 },
                 {
                     "command": "parallels-desktop.tree-view.pause-group-vms",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.visible.running || viewItem == group.hidden.running)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
                     "group": "inline@4"
                 },
                 {
                     "command": "parallels-desktop.tree-view.suspend-group-vms",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.visible.running || viewItem == group.hidden.running)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
                     "group": "inline@5"
                 },
                 {
                     "command": "parallels-desktop.tree-view.take-group-snapshot",
-                    "when": "view == parallels-desktop-machines && (viewItem == group.visible.running || viewItem == group.visible.mixed || viewItem == group.visible.stopped || viewItem == group.visible.paused || viewItem == group.visible.suspended || viewItem == group.hidden.running || viewItem == group.hidden.mixed || viewItem == group.hidden.stopped || viewItem == group.hidden.paused || viewItem == group.hidden.suspended)",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\..*/",
                     "group": "inline@6"
                 },
                 {
@@ -668,7 +727,8 @@
                     "id": "parallels-desktop-vagrant",
                     "name": "Vagrant Boxes",
                     "icon": "media/parallels_logo.svg",
-                    "contextualTitle": "Vagrant Boxes"
+                    "contextualTitle": "Vagrant Boxes",
+                    "type": "tree"
                 }
             ]
         },

@@ -7,12 +7,8 @@ import {
   Constants,
   FLAG_DISABLE_SHOW_HIDDEN,
   FLAG_ENABLE_SHOW_HIDDEN,
-  FLAG_HAS_VAGRANT_BOXES,
-  FLAG_HAS_VIRTUAL_MACHINES,
-  FLAG_PACKER_EXISTS,
-  FLAG_PARALLELS_DESKTOP_EXISTS,
-  FLAG_VAGRANT_EXISTS,
-  SettingsFlags
+  FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE,
+  FLAG_TREE_SHOW_HIDDEN,
 } from "./constants/flags";
 import {LogService} from "./services/logService";
 import {GitService} from "./services/gitService";
@@ -27,11 +23,16 @@ export async function initialize() {
     async (progress, token) => {
       const config = Provider.getConfiguration();
       const settings = Provider.getSettings();
+
+      progress.report({message: "Initializing Configuration"});
+      await config.init();
+
       progress.report({message: "Parallels Desktop: Checking for Parallels Desktop"});
-      const isParallelsInstalled = await ParallelsDesktopService.isParallelsDesktopInstalled();
-      if (!isParallelsInstalled) {
+      if (!config.tools.parallelsDesktop.isInstalled) {
         const options: string[] = [];
-        options.push("Install Parallels Desktop");
+        if (config.tools.brew.isInstalled) {
+          options.push("Install Parallels Desktop");
+        }
         options.push("Download Parallels Desktop");
         vscode.window
           .showErrorMessage(
@@ -40,6 +41,13 @@ export async function initialize() {
             ...options
           )
           .then(selection => {
+            if (selection === "Open Parallels Desktop Website") {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse("https://www.parallels.com/uk/products/desktop/pro/")
+              );
+              return;
+            }
             if (selection === "Install Parallels Desktop") {
               ParallelsDesktopService.install();
               return;
@@ -47,104 +55,135 @@ export async function initialize() {
             if (selection === "Download Parallels Desktop") {
               vscode.commands.executeCommand(
                 "vscode.open",
-                vscode.Uri.parse("https://www.parallels.com/products/desktop/")
+                vscode.Uri.parse("https://www.parallels.com/uk/products/desktop/download/")
               );
               return;
             }
           });
       }
 
-      progress.report({message: "Checking for Packer tool"});
-      let isPackerInstalled = await PackerService.isInstalled();
-      progress.report({message: "Checking for Vagrant tool"});
-      let isVagrantInstalled = await VagrantService.isInstalled();
-
-      if (!isPackerInstalled || !isVagrantInstalled) {
+      progress.report({message: "Parallels Desktop: Checking for Hashicorp Packer"});
+      if (!config.tools.packer.isInstalled) {
         const options: string[] = [];
-        if (!isPackerInstalled && !isVagrantInstalled) {
-          options.push("Install Dependencies");
-        } else {
-          if (!isPackerInstalled) {
-            options.push("Install Packer");
-          }
-          if (!isVagrantInstalled) {
-            options.push("Install Vagrant");
-          }
+        if (config.tools.brew.isInstalled) {
+          options.push("Install Hashicorp Packer");
         }
+        options.push("Download Hashicorp Packer");
         vscode.window
           .showErrorMessage(
-            "Packer or Vagrant is not installed, please install Packer and Vagrant and try again.",
+            "Hashicorp Packer is not installed, please install Hashicorp Packer to be able to create virtual machines with Packer scripts.",
+            "Open Packer Website",
             ...options
           )
           .then(selection => {
-            if (selection === "Install Dependencies") {
-              PackerService.install().then(result => {
-                if (result) {
-                  isPackerInstalled = true;
-                  vscode.window.showInformationMessage("Packer installed successfully");
-                } else {
-                  vscode.window.showErrorMessage("Packer installation failed");
-                }
-              });
-              VagrantService.install().then(result => {
-                if (result) {
-                  isVagrantInstalled = true;
-                  vscode.window.showInformationMessage("Vagrant installed successfully");
-                } else {
-                  vscode.window.showErrorMessage("Vagrant installation failed");
-                }
-              });
-            } else {
-              if (selection === "Install Packer") {
-                PackerService.install().then(result => {
-                  if (result) {
-                    isPackerInstalled = true;
-                    vscode.window.showInformationMessage("Packer installed successfully");
-                  } else {
-                    vscode.window.showErrorMessage("Packer installation failed");
-                  }
-                });
-              } else if (selection === "Install Vagrant") {
-                VagrantService.install().then(result => {
-                  if (result) {
-                    vscode.window.showInformationMessage("Vagrant installed successfully");
-                    isVagrantInstalled = true;
-                  } else {
-                    vscode.window.showErrorMessage("Vagrant installation failed");
-                  }
-                });
-              }
+            if (selection === "Open Packer Website") {
+              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://developer.hashicorp.com/packer"));
+              return;
+            }
+            if (selection === "Install Hashicorp Packer") {
+              PackerService.install();
+              return;
+            }
+            if (selection === "Download Hashicorp Packer") {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse(
+                  "https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli"
+                )
+              );
+              return;
             }
           });
-        return;
-      }
-      progress.report({message: "Checking for Packer tool"});
-      let isGitInstalled = await GitService.isInstalled();
-      if (!isGitInstalled) {
-        progress.report({message: "Installing Git tool"});
-        isGitInstalled = await GitService.install();
-        if (!isGitInstalled) {
-          vscode.window.showErrorMessage("Git installation failed");
-        } else {
-          // Cloning Packer example repo, need to wait to allow background process to finish
-          GitService.cloneOrUpdatePackerExamples();
-        }
-      } else {
-        // Cloning Packer example repo, need to wait to allow background process to finish
-        GitService.cloneOrUpdatePackerExamples();
       }
 
-      // Caching Packer Addons
-      const platforms = ["windows", "ubuntu", "macos"];
-      if (isPackerInstalled && isGitInstalled) {
-        platforms.forEach(platform => {
-          const addons = PackerService.getPlatformAddons(platform);
-          Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, addons);
+      progress.report({message: "Parallels Desktop: Checking for Hashicorp Vagrant"});
+      if (!config.tools.vagrant.isInstalled) {
+        const options: string[] = [];
+        if (config.tools.brew.isInstalled) {
+          options.push("Install Hashicorp Vagrant");
+        }
+        options.push("Download Hashicorp Vagrant");
+        vscode.window
+          .showErrorMessage(
+            "Hashicorp Vagrant is not installed, please install Hashicorp Vagrant to be able to create and manage Vagrant Boxes.",
+            "Open Vagrant Website",
+            ...options
+          )
+          .then(selection => {
+            if (selection === "Open Vagrant Website") {
+              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://www.vagrantup.com/"));
+              return;
+            }
+            if (selection === "Install Hashicorp Vagrant") {
+              VagrantService.install();
+              return;
+            }
+            if (selection === "Download Hashicorp Vagrant") {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse("https://developer.hashicorp.com/vagrant/docs/installation")
+              );
+              return;
+            }
+          });
+      }
+
+      progress.report({message: "Parallels Desktop: Checking for Git"});
+      if (!config.tools.git.isInstalled) {
+        const options: string[] = [];
+        if (config.tools.brew.isInstalled) {
+          options.push("Install Git");
+        }
+        options.push("Download Git");
+        vscode.window
+          .showErrorMessage(
+            "Git is not installed, please install git to be able to create Packer Virtual Machines.",
+            "Open Git Website",
+            ...options
+          )
+          .then(selection => {
+            if (selection === "Open Vagrant Website") {
+              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://www.vagrantup.com/"));
+              return;
+            }
+            if (selection === "Install Git") {
+              GitService.install().then(isGitInstalled => {
+                if (!isGitInstalled) {
+                  return;
+                }
+                // Cloning Packer example repo, need to wait to allow background process to finish
+                GitService.cloneOrUpdatePackerExamples();
+              });
+              return;
+            }
+            if (selection === "Download Git") {
+              vscode.commands.executeCommand(
+                "vscode.open",
+                vscode.Uri.parse("https://git-scm.com/book/en/v2/Getting-Started-Installing-Git")
+              );
+              return;
+            }
+          });
+      }
+
+      progress.report({message: "Parallels Desktop: Updating Packer Recipes"});
+      if (config.tools.git.isInstalled) {
+        // Cloning Packer example repo, need to wait to allow background process to finish
+        GitService.cloneOrUpdatePackerExamples().then(() => {
+          // Caching Packer Addons
+          if (config.tools.packer.isInstalled && config.tools.git.isInstalled && config.packerTemplatesCloned) {
+            const platforms = ["windows", "ubuntu", "macos"];
+            platforms.forEach(platform => {
+              const addons = PackerService.getPlatformAddons(platform);
+              Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, addons);
+            });
+          }
         });
       }
 
+      progress.report({ message: "Parallels Desktop: Reading Feature Flags" });
       // Setting the default show hidden items based on settings
-      const showHidden = settings.get<boolean>(SettingsFlags.treeShowHiddenItems);
+      const showHidden = settings.get<boolean>(FLAG_TREE_SHOW_HIDDEN);
       if (showHidden) {
         config.showHidden = true;
         vscode.commands.executeCommand("setContext", FLAG_ENABLE_SHOW_HIDDEN, true);
@@ -155,19 +194,7 @@ export async function initialize() {
         vscode.commands.executeCommand("setContext", FLAG_DISABLE_SHOW_HIDDEN, true);
       }
       // show the snapshot flat tree based on settings
-      config.showFlatSnapshotsList = settings.get<boolean>(SettingsFlags.treeShowFlatSnapshotList) ?? false;
-
-      if (isPackerInstalled) {
-        vscode.commands.executeCommand("setContext", FLAG_PACKER_EXISTS, true);
-      }
-      if (isVagrantInstalled) {
-        vscode.commands.executeCommand("setContext", FLAG_VAGRANT_EXISTS, true);
-      }
-      if (isParallelsInstalled) {
-        vscode.commands.executeCommand("setContext", FLAG_PARALLELS_DESKTOP_EXISTS, true);
-      }
-      progress.report({message: "Initializing Configuration"});
-      await config.init();
+      config.showFlatSnapshotsList = settings.get<boolean>(FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE) ?? false;
 
       if (config.isTelemetryEnabled === undefined) {
         const options = ["Yes", "No"];
@@ -189,25 +216,6 @@ export async function initialize() {
           });
       } else {
         LogService.info(`Telemetry is ${config.isTelemetryEnabled ? "enabled" : "disabled"}`, "CoreService");
-      }
-
-      if (isParallelsInstalled) {
-        progress.report({message: "Checking for Virtual Machines"});
-        const vms = await ParallelsDesktopService.getVms();
-        if (vms.length > 0) {
-          vscode.commands.executeCommand("setContext", FLAG_HAS_VIRTUAL_MACHINES, true);
-        } else {
-          vscode.commands.executeCommand("setContext", FLAG_HAS_VIRTUAL_MACHINES, false);
-        }
-      }
-      if (isVagrantInstalled) {
-        progress.report({message: "Checking for Vagrant Boxes"});
-        const boxes = await VagrantService.getBoxes();
-        if (boxes.length > 0) {
-          vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT_BOXES, true);
-        } else {
-          vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT_BOXES, false);
-        }
       }
 
       progress.report({message: "Finished"});

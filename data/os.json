@@ -18,8 +18,8 @@
                         "allowMachineSpecs": true,
                         "allowUserOverride": false,
                         "allowAddons": true,
-                        "isoUrl": "/Users/cjlapao/code/parallels/packer-examples/windows/22621.1702.230505-1222.ni_release_svc_refresh_CLIENTCONSUMER_RET_A64FRE_en-us.iso",
-                        "isoChecksum": "sha256:bf625d07c44b5efbb1b1e8ed62b4e2d7f9e2514801467da125f17b8e1222d7dd",
+                        "isoUrl": "",
+                        "isoChecksum": "",
                         "defaults": {
                             "specs": {
                                 "cpus": 2,
@@ -85,6 +85,9 @@
                                     "iso_checksum": "file:https://cdimage.ubuntu.com/releases/22.04/release/SHA256SUMS"
                                 },
                                 "addons": [],
+                                "allowedFlags": [
+                                    "rosetta"
+                                ],
                                 "defaults": {
                                     "specs": {
                                         "cpus": 4,

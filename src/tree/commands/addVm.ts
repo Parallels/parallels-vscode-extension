@@ -79,10 +79,7 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
                 username: cmd.specs?.username ?? "",
                 password: cmd.specs?.password ?? ""
               },
-              flags: {
-                startHeadless: cmd.options?.startHeadless == false,
-                generateVagrantBox: cmd.options?.generateVagrantBox == true
-              },
+              flags: cmd.allowedFlags,
               addons: []
             };
 
@@ -154,6 +151,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       allowMachineSpecs: false,
       allowUserOverride: false,
       allowAddons: false,
+      allowedFlags: [],
       specs: {
         cpu: 2,
         memory: 2048,
@@ -199,6 +197,11 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       if (img === undefined) return []
       return img.addons ?? []
     },
+    getImageFlags() {
+      const img = this.getImage();
+      if (img === undefined) return []
+      return img.allowedFlags ?? []
+    },
     getImage() {
       if (this.itemData.os === 'undefined' || this.itemData.image === 'undefined') return undefined
       if(this.itemData.os === 'linux') {
@@ -241,16 +244,13 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
     onImageDropdownChange() {
       let img = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image);
       this.itemData.name = img?.name ?? ''
-      console.log(img.requireIsoDownload)
       this.itemData.requireIsoDownload = img.requireIsoDownload ?? false;
       this.itemData.allowMachineSpecs = img.allowMachineSpecs ?? false;
       this.itemData.allowUserOverride = img.allowUserOverride ?? false;
       this.itemData.allowAddons = img.allowAddons ?? false;
       this.itemData.isoUrl = img.isoUrl ?? '';
       this.itemData.isoChecksum = img.isoChecksum ?? '';
-      console.log(img.type)
       if(img.defaults?.specs) {
-        console.log(img.defaults.specs.cpus)
         this.itemData.specs.cpu = img.defaults.specs.cpus ?? this.itemData.defaults.specs.cpus;
         this.itemData.specs.memory = img.defaults.specs.memory ?? this.itemData.defaults.specs.memory;
         this.itemData.specs.diskSize = img.defaults.specs.diskSize ?? this.itemData.defaults.specs.diskSize;
@@ -281,10 +281,9 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       return this.itemData.image !== 'undefined' && this.itemData.os !== 'macos'
     },
     showMachineOptions() {
-      const img = this.getImage();
-      if (img === undefined) return false
-      if (img.type === 'internal' || img.type === 'iso' ) return false
-      return this.itemData.image !== 'undefined' && this.itemData.os !== 'macos'
+      const flags = this.getImageFlags();
+      if (flags === undefined) return false
+      return flags.length > 0
     },
     showMachineAddons() {
       const img = this.getImage();
@@ -315,6 +314,28 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
         
         if (!found) {
           this.itemData.addons.push({id: id, deploy: state});
+        }
+      }
+    },
+    addImageFlags(id, state) {
+      console.log(id + ': ' + state)
+      if (this.itemData.allowedFlags.length === 0) {
+        this.itemData.allowedFlags.push({code: id, enabled: state});
+        return;
+      }
+
+      for (let i = 0; i < this.itemData.allowedFlags.length; i++) {
+        let found = false
+        if (this.itemData.allowedFlags[i].code === id) {
+          if (!state){
+            this.itemData.allowedFlags.splice(i, 1);
+          }
+          found = true;
+          return;
+        }
+        
+        if (!found) {
+          this.itemData.allowedFlags.push({code: id, enabled: state});
         }
       }
     },
@@ -493,28 +514,19 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
       </div>
       <div class="flex gap-x-6 py-3">
         <ul role="list" class="py-0 w-full">
-          <li class="flex flex-col gap-x-6 py-1 w-full">
-            <div class="hidden sm:flex sm:items-end" >
-              <div class="mr-3 flex flex-auto">
-                <span class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Start Headless</span>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input id="itemData__options__startHeadless" x-model="itemData.options.startHeadless" type="checkbox" value="" class="sr-only peer">
-                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-          </li>
-          <li class="flex flex-col gap-x-6 py-1 w-full" x-show="getImage()?.type ?? 'undefined' === 'packer'">
-            <div class="hidden sm:flex sm:items-end" >
-              <div class="mr-3 flex flex-auto">
-                <span class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Build Vagrant Box</span>
-              </div>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input id="itemData__options__generateVagrantBox" x-model="itemData.options.generateVagrantBox" type="checkbox" value="" class="sr-only peer">
-                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-              </label>
-            </div>
-          </li>
+            <template x-for="option in getImageFlags()" :key="option">
+              <li class="flex flex-col gap-x-6 py-1 w-full">
+                <div class="hidden sm:flex sm:items-end" >
+                  <div class="mr-3 flex flex-auto">
+                    <span x-text="option.name" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white"></span>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input :id="'itemData__addons__' + option.code" x-model="option.enabled" type="checkbox" value="" class="sr-only peer" @change="addImageFlags(option.code, $event.target.checked)"">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  </label>
+                </div
+              </li>
+            </template> 
         </ul>
       </div
     </li>

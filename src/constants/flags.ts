@@ -18,6 +18,13 @@ export const FLAG_PARALLELS_DESKTOP_EXISTS = "parallels-desktop:parallels";
 export const FLAG_PARALLELS_EXTENSION_INITIALIZED = "parallels-desktop:initialized";
 export const FLAG_AUTO_REFRESH = "extension.refresh.auto";
 export const FLAG_AUTO_REFRESH_INTERVAL = "extension.refresh.interval";
+export const FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY = "extension.order-items-alphabetically"
+export const FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE = "extension.show-flat-snapshot-tree"
+export const FLAG_TREE_SHOW_HIDDEN = "tree.show-hidden-items";
+export const FLAG_GIT_PATH = "git.path";
+export const FLAG_GIT_VERSION = "git.version";
+export const FLAG_BREW_PATH = "brew.path";
+export const FLAG_BREW_VERSION = "brew.version";
 
 const COMMAND_PREFIX = "parallels-desktop";
 const TREE_VIEW_PREFIX = "tree-view";
@@ -118,23 +125,6 @@ export enum TelemetryEventIds {
   VirtualMachineAction = 205
 }
 
-export class FeatureFlags {
-  static enableTelemetry = "enableTelemetry";
-  static FLAG_GIT_PATH = "git.path";
-  static FLAG_GIT_VERSION = "git.version";
-}
-
-export class SettingsFlags {
-  static orderTreeAlphabetically = "tree.order-items-alphabetically";
-  static treeShowHiddenItems = "tree.show-hidden-items";
-  static treeShowFlatSnapshotList = "tree.show-flat-snapshot-tree";
-  static parallelsDesktopCliPath = "prlctl.path";
-  static extensionPath = "path";
-  static downloadCachePath = "download-cache-path";
-  static vagrantPath = "hashicorp.vagrant.path";
-  static packerPath = "hashicorp.packer.path";
-}
-
 export class Constants {
   static CacheFlagHardwareInfo = "parallels-desktop.hardware-info";
   static CacheFlagParallelsServerInfo = "parallels-desktop.server-info";
@@ -155,6 +145,9 @@ export class CommandsFlags {
   static treeStopVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.stop-vm`;
   static treeRemoveVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.remove-vm`;
   static treeEnterVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.enter-vm`;
+  static treeRenameVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.rename-vm`;
+  static treeEnableRosetta = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.enable-rosetta-linux`;
+  static treeDisableRosetta = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.disable-rosetta-linux`;
 
   static treeTakeVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.take-vm-snapshot`;
   static treeDeleteVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.delete-vm-snapshot`;

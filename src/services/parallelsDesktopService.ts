@@ -2,6 +2,7 @@ import {FLAG_PARALLELS_DESKTOP_PATH, VM_TYPE} from "./../constants/flags";
 import * as cp from "child_process";
 import * as path from "path";
 import * as fs from "fs";
+import * as vscode from "vscode";
 import {Provider} from "../ioc/provider";
 import {FLAG_NO_GROUP} from "../constants/flags";
 import {VirtualMachineGroup} from "../models/virtualMachineGroup";
@@ -13,7 +14,7 @@ import {NewVirtualMachineSpecs} from "../models/NewVirtualMachineSpecs";
 import {ParallelsDesktopServerInfo} from "../models/ParallelsDesktopServerInfo";
 
 export class ParallelsDesktopService {
-  static isParallelsDesktopInstalled(): Promise<boolean> {
+  static isInstalled(): Promise<boolean> {
     return new Promise(resolve => {
       const settings = Provider.getSettings();
       const cache = Provider.getCache();
@@ -70,12 +71,17 @@ export class ParallelsDesktopService {
           vms.forEach(vm => {
             const dbMachine = config.getVirtualMachine(vm.ID);
             if (dbMachine !== undefined) {
+              // This will try to fix any wrong groups that might have been set
+              if (!(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(dbMachine.group))) {
+                dbMachine.group = noGroup?.uuid ?? "";
+              }
               const machineGroup = config.getVirtualMachineGroup(dbMachine.group);
-
               if (machineGroup === undefined) {
                 LogService.error(`Group ${dbMachine.group} not found, rejecting`, "ParallelsDesktopService");
                 return reject(`Group ${dbMachine.group} not found, rejecting`);
               }
+
+
 
               vm.group = machineGroup?.uuid;
               vm.hidden = dbMachine.hidden;
@@ -87,6 +93,8 @@ export class ParallelsDesktopService {
               LogService.debug(`Found vm ${vm.Name} in group ${noGroup?.uuid}`, "ParallelsDesktopService");
             }
           });
+          // Checking for duplicated VMs, this can happen if a machine has been renamed
+
 
           // sync the config file and clean any unwanted machines
           const configMachines = config.allMachines;
@@ -97,6 +105,7 @@ export class ParallelsDesktopService {
               config.save();
             }
           });
+          config.sort();
           resolve(vms);
         } catch (e) {
           LogService.error(`Error while parsing vms: ${e}`, "ParallelsDesktopService");
@@ -107,7 +116,16 @@ export class ParallelsDesktopService {
   }
 
   static async install(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Parallels Desktop",
+          cancellable: false
+        },
+        async (progress, token) => {
+          progress.report({message: "Installing Parallels Desktop..."});
+          const result = await new Promise(async (resolve, reject) => {
       const brew = cp.spawn("brew", ["install", "parallels"]);
       brew.stdout.on("data", data => {
         LogService.info(data.toString(), "ParallelsDesktopService");
@@ -123,6 +141,19 @@ export class ParallelsDesktopService {
         LogService.info(`Parallels Desktop was installed successfully`, "ParallelsDesktopService");
         return resolve(true);
       });
+          });
+          if (!result) {
+            progress.report({message: "Failed to install Parallels Desktop, see logs for more details"});
+            vscode.window.showErrorMessage("Failed to install Parallels Desktop, see logs for more details");
+            return resolve(false);
+          } else {
+            progress.report({message: "Parallels Desktop was installed successfully"});
+            vscode.window.showInformationMessage("Parallels Desktop was installed successfully");
+            return resolve(true);
+          }
+        }
+      );
+      return resolve(true);
     });
   }
 
@@ -238,7 +269,7 @@ export class ParallelsDesktopService {
       prlctl.on("close", code => {
         if (code !== 0) {
           LogService.error(`prlctl stop exited with code ${code}`, "ParallelsDesktopService", true);
-          return resolve(false);
+          return reject(`Error stopping Virtual Machine, return code: ${code}`);
         }
 
         LogService.info(`Vm ${vmId} stopped successfully`, "ParallelsDesktopService");
@@ -651,6 +682,38 @@ export class ParallelsDesktopService {
     });
   }
 
+  static async renameVm(machineIdOrName: string, newMachineName: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (!machineIdOrName) {
+        LogService.error(`Machine name or id is missing`, "ParallelsDesktopService");
+        return reject("Machine name or id is missing");
+      }
+      if (!newMachineName) {
+        LogService.error(`New machine name is missing`, "ParallelsDesktopService");
+        return reject("New machine name is missing");
+      }
+
+      LogService.info(`Renaming Virtual Machine ${machineIdOrName}`, "ParallelsDesktopService");
+      const options = ["set", `"${machineIdOrName}"`, "--name", `"${newMachineName}"`];
+      const prlctl = cp.spawn("prlctl", options, {shell: true});
+      prlctl.stdout.on("data", data => {
+        LogService.info(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlctl set rename exited with code ${code}`, "ParallelsDesktopService", true);
+          return reject(code);
+        }
+
+        LogService.info(`Virtual Machine ${machineIdOrName} renamed to ${newMachineName}`, "ParallelsDesktopService");
+        return resolve(true);
+      });
+    });
+  }
+
   static async captureScreen(machineId: string, destination: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!machineId) {
@@ -855,7 +918,7 @@ export class ParallelsDesktopService {
 
       isoPath = isoPath.replace(/\s/g, "\\ ");
       const originalName = name;
-      name = name.replace(/\s/g, "\\ ");
+
       const fileName = `${Provider.getConfiguration().vmHome}/${originalName}.pvm`;
       // check if file exist, if it does let's just try to attach the machine
       if (fs.existsSync(fileName)) {
@@ -905,16 +968,7 @@ export class ParallelsDesktopService {
                         if (!value) {
                           return reject(false);
                         }
-                        this.startVm(originalName)
-                          .then(value => {
-                            if (!value) {
-                              return reject(false);
-                            }
-                            return resolve(true);
-                          })
-                          .catch(reason => {
-                            return reject(reason);
-                          });
+                        return resolve(true);
                       })
                       .catch(reason => {
                         return reject(reason);

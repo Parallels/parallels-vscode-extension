@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
-import {Constants, FLAG_PACKER_PATH, FLAG_PACKER_VERSION, SettingsFlags} from "../constants/flags";
+import {Constants, FLAG_PACKER_PATH, FLAG_PACKER_VERSION} from "../constants/flags";
 import {Provider} from "../ioc/provider";
 import {VirtualMachineAddon} from "../models/VirtualMachineAddon";
 import {PackerVirtualMachineConfig} from "../models/PackerVirtualMachineConfig";
@@ -12,7 +12,7 @@ import {getPackerTemplateFolder} from "../helpers/helpers";
 export class PackerService {
   constructor(private context: vscode.ExtensionContext) {}
 
-  static isInstalled() {
+  static isInstalled(): Promise<boolean> {
     return new Promise(resolve => {
       const settings = Provider.getSettings();
       const cache = Provider.getCache();
@@ -21,9 +21,9 @@ export class PackerService {
         return resolve(true);
       }
 
-      if (settings.get<string>(SettingsFlags.packerPath)) {
+      if (settings.get<string>(FLAG_PACKER_PATH)) {
         LogService.info(
-          `Packer was found on path ${settings.get<string>(SettingsFlags.packerPath)} from settings`,
+          `Packer was found on path ${settings.get<string>(FLAG_PACKER_PATH)} from settings`,
           "PackerService"
         );
         return resolve(true);
@@ -36,9 +36,9 @@ export class PackerService {
         }
         const path = stdout.replace("\n", "").trim();
         LogService.info(`Packer was found on path ${path}`, "PackerService");
-        const packerPath = settings.get<string>(SettingsFlags.packerPath);
+        const packerPath = settings.get<string>(FLAG_PACKER_PATH);
         if (!packerPath) {
-          settings.update(SettingsFlags.packerPath, path, true);
+          settings.update(FLAG_PACKER_PATH, path, true);
         }
         Provider.getCache().set(FLAG_PACKER_PATH, path);
         return resolve(true);
@@ -46,60 +46,91 @@ export class PackerService {
     });
   }
 
-  static getVersion(): Promise<boolean> {
+  static version(): Promise<string> {
     return new Promise((resolve, reject) => {
-      let version = Provider.getCache().get(FLAG_PACKER_VERSION);
+      const version = Provider.getCache().get(FLAG_PACKER_VERSION);
       if (version) {
         LogService.info(`Packer ${version} was found in the system`, "PackerService");
-        return resolve(true);
+        return resolve(version);
       }
 
-      cp.exec("packer --version", (err, stdout, stderr) => {
+      cp.exec("packer --version", (err, stdout) => {
         if (err) {
           LogService.error("Packer is not installed", "PackerService", true, false);
-          return resolve(false);
+          return reject(err);
         }
 
-        version = stdout.replace("\n", "").trim();
-        LogService.info(`Packer ${version} was found in the system`, "PackerService");
-        Provider.getCache().set(FLAG_PACKER_VERSION, version);
-        return resolve(true);
+        const versionMatch = stdout.match(/(\d+\.\d+\.\d+)\n/);
+        if (versionMatch) {
+          LogService.info(`Packer ${versionMatch[1]} was found in the system`, "PackerService");
+          Provider.getCache().set(FLAG_PACKER_VERSION, version);
+          return resolve(versionMatch[1]);
+        } else {
+          LogService.error("Could not extract packer version number from output", "PackerService", false, false);
+          return reject("Could not extract packer version number from output");
+        }
       });
     });
   }
 
   static install(): Promise<boolean> {
     LogService.info("Installing Packer...", "PackerService");
-    return new Promise((resolve, reject) => {
-      const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
-      brew.stdout.on("data", data => {
-        LogService.info(data.toString(), "PackerService");
-      });
-      brew.stderr.on("data", data => {
-        LogService.error(data.toString(), "PackerService");
-      });
-      brew.on("close", code => {
-        if (code !== 0) {
-          LogService.error(`brew tap exited with code ${code}`, "PackerService", true, false);
-          return resolve(false);
-        }
+    return new Promise(async (resolve, reject) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Parallels Desktop",
+          cancellable: false
+        },
+        async (progress, token) => {
+          progress.report({message: "Installing Packer..."});
+          const result = await new Promise(async (resolve, reject) => {
+            const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
+            brew.stdout.on("data", data => {
+              LogService.info(data.toString(), "PackerService");
+            });
+            brew.stderr.on("data", data => {
+              LogService.error(data.toString(), "PackerService");
+            });
+            brew.on("close", code => {
+              if (code !== 0) {
+                LogService.error(`brew tap exited with code ${code}`, "PackerService", true, false);
+                return resolve(false);
+              }
 
-        const packer = cp.spawn("brew", ["install", "hashicorp/tap/packer"]);
-        packer.stdout.on("data", data => {
-          LogService.info(data.toString(), "PackerService");
-        });
-        packer.stderr.on("data", data => {
-          LogService.error(data.toString(), "PackerService");
-        });
-        packer.on("close", code => {
-          if (code !== 0) {
-            LogService.error(`brew install exited with code ${code}`, "PackerService", true, false);
+              const packer = cp.spawn("brew", ["install", "hashicorp/tap/packer"]);
+              packer.stdout.on("data", data => {
+                LogService.info(data.toString(), "PackerService");
+              });
+              packer.stderr.on("data", data => {
+                LogService.error(data.toString(), "PackerService");
+              });
+              packer.on("close", async (code) => {
+                if (code !== 0) {
+                  LogService.error(`brew install exited with code ${code}`, "PackerService", true, false);
+                  return resolve(false);
+                }
+                const config = Provider.getConfiguration();
+                config.tools.packer.isInstalled = true;
+                config.tools.packer.version = await PackerService.version();
+                config.save();
+                LogService.info("Packer was installed successfully", "PackerService");
+                return resolve(true);
+              });
+            });
+          });
+          if (!result) {
+            progress.report({message: "Failed to install Packer, see logs for more details"});
+            vscode.window.showErrorMessage("Failed to install Packer, see logs for more details");
             return resolve(false);
+          } else {
+            progress.report({message: "Packer was installed successfully"});
+            vscode.window.showInformationMessage("Packer was installed successfully");
+            return resolve(true);
           }
-          LogService.info("Packer was installed successfully", "PackerService");
-          return resolve(true);
-        });
-      });
+        }
+      );
+      return resolve(true);
     });
   }
 

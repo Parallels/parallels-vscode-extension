@@ -4,6 +4,7 @@ import {PackerService} from "../services/packerService";
 import {OperatingSystemImage} from "./OperatingSystemImage";
 import {OperatingSystem} from "./operatingSystem";
 import {LogService} from "../services/logService";
+import {Provider} from "../ioc/provider";
 
 export class OperatingSystemsData {
   operatingSystems: OperatingSystem[];
@@ -64,11 +65,92 @@ export class OperatingSystemsData {
 
       Promise.all(promises)
         .then(() => {
+          const config = Provider.getConfiguration();
+          if (!config.tools.packer.isInstalled) {
+            // Filter out packer images if packer is not installed
+            this.operatingSystems.forEach(os => {
+              os.platforms.forEach(platform => {
+                platform.images = platform.images.filter(image => image.type !== "packer");
+                platform.distros.forEach(distro => {
+                  distro.images = distro.images.filter(image => image.type !== "packer");
+                });
+                platform.distros = platform.distros.filter(distro => distro.images.length > 0);
+              });
+              os.platforms = os.platforms.filter(platform => platform.images.length > 0 || platform.distros.length > 0);
+            });
+            this.operatingSystems = this.operatingSystems.filter(os => os.platforms.length > 0);
+          }
+
+          // Adding the startHeadless flag to linux and windows machines
+          this.addStartHeadlessFlag();
+
+          // Adding the generateVagrantBox if vagrant is enabled
+          this.addGenerateVagrantBoxFlag();
+
+          // Adding the enableRosetta flag to macos machines
+          this.addEnableRosettaFlag();
+
           LogService.info("Operating systems loaded", "OperatingSystemsData");
           resolve(this.operatingSystems);
         })
         .catch(reject);
     });
+  }
+
+  private addGenerateVagrantBoxFlag() {
+    const config = Provider.getConfiguration();
+    if (config.tools.vagrant.isInstalled) {
+      this.operatingSystems.forEach(os => {
+        os.platforms.forEach(platform => {
+          platform.images.forEach(image => {
+            if (image.type === "packer") {
+              image.allowedFlags.push({ code: "generateVagrantBox", name: "Generate Vagrant Box", enabled: false });
+            }
+            });
+            platform.distros.forEach(distro => {
+              distro.images.forEach(image => {
+                if (image.type === "packer") {
+                  image.allowedFlags.push({ code: "generateVagrantBox", name: "Generate Vagrant Box" , enabled: false});
+                }
+              });
+            });
+        });
+      });
+    }
+  }
+
+  private addStartHeadlessFlag() {
+    this.operatingSystems.forEach(os => {
+      if (os.id === "linux" || os.id === "windows") {
+        os.platforms.forEach(platform => {
+          platform.images.forEach(image => {
+            image.allowedFlags.push({code: "startHeadless", name: "Start Machine in Headless Mode", enabled: false});
+          });
+          platform.distros.forEach(distro => {
+            distro.images.forEach(image => {
+              image.allowedFlags.push({code: "startHeadless", name: "Start Machine in Headless Mode", enabled: false});
+            });
+          });
+      });
+    }
+  });
+  }
+
+  private addEnableRosettaFlag() {
+    this.operatingSystems.forEach(os => {
+      if (os.id === "linux") {
+        os.platforms.forEach(platform => {
+          platform.images.forEach(image => {
+            image.allowedFlags.push({code: "enableRosetta", name: "Use Rosetta to run x86 binaries", enabled: false});
+          });
+          platform.distros.forEach(distro => {
+            distro.images.forEach(image => {
+              image.allowedFlags.push({code: "enableRosetta", name: "Use Rosetta to run x86 binaries", enabled: false});
+            });
+          });
+      });
+    }
+  });
   }
 
   getImage(osId: string, platformId: string, distroId: string, imageId: string): OperatingSystemImage | undefined {

@@ -9,19 +9,40 @@ import {LogService} from "../../services/logService";
 export function registerRenameGroupCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRenameGroup, async (item: VirtualMachineTreeItem) => {
+      let itemId: string | undefined
+      let itemName: string |  undefined
       if (!item) {
-        return;
+        const config = Provider.getConfiguration();
+        const groups = config.allGroups
+        const options: string[] = [];
+        groups.forEach(async (group) => {
+          options.push(group.path ?? group.name)
+        })
+        const groupName = await vscode.window.showQuickPick(options,{
+          placeHolder: `Select a Group`,
+        });
+        groups.forEach((group) => {
+          if (group.path === groupName) {
+            itemId = group.uuid,
+              itemName = group.name
+          }
+        });
+      } else {
+        itemId = item.id
+        itemName = item.name
       }
-      const config = Provider.getConfiguration();
-      const groupName = await vscode.window.showInputBox({
-        prompt: `New Name for group ${item.name}?`,
-        placeHolder: `Enter the new name for the group ${item.name}`
-      });
-      if (groupName) {
-        config.renameVirtualMachineGroup(item.name, groupName);
-        vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-        LogService.info(`Group ${item.name} renamed to ${groupName}`, "RenameGroupCommand");
-        LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, `Group ${item.name} renamed to ${groupName}`);
+      if (itemId && itemName) {
+        const config = Provider.getConfiguration();
+        const groupName = await vscode.window.showInputBox({
+          prompt: `New Name for group ${itemName}?`,
+          placeHolder: `Enter the new name for the group ${itemName}`
+        });
+        if (groupName) {
+          config.renameVirtualMachineGroup(itemId, groupName);
+          vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+          LogService.info(`Group ${itemName} renamed to ${groupName}`, "RenameGroupCommand");
+          LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, `Group ${itemName} renamed to ${groupName}`);
+        }
       }
     })
   );

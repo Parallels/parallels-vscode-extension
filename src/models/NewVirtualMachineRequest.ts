@@ -8,7 +8,7 @@ export interface NewVirtualMachineRequest {
   distro: string;
   image: string;
   specs?: NewVirtualMachineSpecs;
-  flags: NewVirtualMachineFlags;
+  flags?: any[];
   isoUrl?: string;
   isoChecksum?: string;
   addons: string[];
