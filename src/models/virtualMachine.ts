@@ -16,11 +16,13 @@ import {VirtualMachineStartupAndShutdown} from "./VirtualMachineStartupAndShutdo
 import {VirtualMachineTimeSynchronization} from "./VirtualMachineTimeSynchronization";
 import {VirtualMachineTravelMode} from "./VirtualMachineTravelMode";
 import {VirtualMachineUSBAndBluetooth} from "./VirtualMachineUSBAndBluetooth";
+import {DockerImage} from "./docker-image";
 
 export interface VirtualMachine {
   ID: string;
   group: string;
   hidden: boolean;
+  dockerImages: DockerImage[];
   Name: string;
   Description: string;
   Type: string;

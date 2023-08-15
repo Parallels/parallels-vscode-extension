@@ -9,10 +9,10 @@ export function registerEnterVmCommand(context: vscode.ExtensionContext, provide
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeEnterVm, async (item: VirtualMachineTreeItem) => {
       if (item && item.status === "running") {
-        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, ``);
+        LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Enter VM ${item.name}`);
         const terminal = vscode.window.createTerminal(`Parallels Desktop: ${item.name}`);
-        terminal.sendText(`prlctl enter "${item.id}"`);
         terminal.show();
+        terminal.sendText(`prlctl enter "${item.id}"`);
       }
     })
   );

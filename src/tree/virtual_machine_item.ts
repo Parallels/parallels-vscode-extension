@@ -17,7 +17,7 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
 
   constructor(
     item: VirtualMachine | VirtualMachineGroup | MachineSnapshot | undefined,
-    public type: "Group" | "VirtualMachine" | "Snapshot" | "Empty",
+    public type: "Group" | "VirtualMachine" | "Snapshot" | "DockerRoot" | "DockerImage" | "Empty",
     public group: string | undefined,
     public id: string,
     vmId: string | undefined,
@@ -27,6 +27,7 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
     context: string,
     public collapsibleState: vscode.TreeItemCollapsibleState,
     public iconName: string,
+    public description?: string,
     public command?: vscode.Command
   ) {
     super(label, collapsibleState);
@@ -39,7 +40,7 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
     };
     this.label = label;
     this.status = version;
-    this.description = version;
+    this.description = description ?? version;
     this.collapsibleState = collapsibleState;
     this.command = command;
     this.contextValue = context;

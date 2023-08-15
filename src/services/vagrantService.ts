@@ -214,7 +214,7 @@ export class VagrantService {
       }
 
       LogService.info(`Removing vagrant box ${boxName}`, "VagrantService");
-      const vagrant = cp.spawn("vagrant", ["box", "remove", `"${boxName}"`, "--all", "--force"]);
+      const vagrant = cp.spawn("vagrant", ["box", "remove", `${boxName}`, "--all", "--force"]);
       vagrant.stdout.on("data", data => {
         LogService.info(data.toString(), "VagrantService");
       });
