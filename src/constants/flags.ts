@@ -173,4 +173,14 @@ export class CommandsFlags {
   static vagrantBoxProviderRefresh = `${COMMAND_PREFIX}.vagrant.box.provider.refresh`;
   static vagrantBoxProviderInit = `${COMMAND_PREFIX}.vagrant.box.provider.init`;
   static vagrantBoxProviderDelete = `${COMMAND_PREFIX}.vagrant.box.provider.delete`;
+
+  static dockerStartContainer = `${COMMAND_PREFIX}.docker.start-container`;
+  static dockerStopContainer = `${COMMAND_PREFIX}.docker.stop-container`;
+  static dockerRestartContainer = `${COMMAND_PREFIX}.docker.restart-container`;
+  static dockerPauseContainer = `${COMMAND_PREFIX}.docker.pause-container`;
+  static dockerResumeContainer = `${COMMAND_PREFIX}.docker.resume-container`;
+  static dockerRemoveContainer = `${COMMAND_PREFIX}.docker.remove-container`;
+  static dockerGetContainerLogs = `${COMMAND_PREFIX}.docker.get-container-logs`;
+  static dockerEnterContainer = `${COMMAND_PREFIX}.docker.enter-container`;
+  static dockerRunContainer = `${COMMAND_PREFIX}.docker.run-container`;
 }

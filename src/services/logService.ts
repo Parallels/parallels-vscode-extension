@@ -125,7 +125,7 @@ export class LogService {
     }
 
     if (focusOnOutput) {
-      parallelsOutputChannel.show();
+      // parallelsOutputChannel.show();
     }
     if (showOnUi) {
       switch (level) {

@@ -11,7 +11,7 @@ export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, 
         let machineName = item.name;
         const machineNamePrompt = await vscode.window.showInputBox({
           prompt: "Name of the Virtual Machine?",
-          placeHolder: item.name
+          placeHolder: machineName
         });
 
         if (machineNamePrompt) {

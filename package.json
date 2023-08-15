@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "0.7.1",
+    "version": "0.8.0",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -412,6 +412,70 @@
                     "light": "img/light/hide.svg",
                     "dark": "img/dark/hide.svg"
                 }
+            },
+            {
+                "command": "parallels-desktop.docker.start-container",
+                "title": "Start Container",
+                "icon": {
+                    "light": "img/light/start.svg",
+                    "dark": "img/dark/start.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.stop-container",
+                "title": "Stop Container",
+                "icon": {
+                    "light": "img/light/stop.svg",
+                    "dark": "img/dark/stop.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.pause-container",
+                "title": "Pause Container",
+                "icon": {
+                    "light": "img/light/pause.svg",
+                    "dark": "img/dark/pause.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.resume-container",
+                "title": "Resume Container",
+                "icon": {
+                    "light": "img/light/resume.svg",
+                    "dark": "img/dark/resume.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.restart-container",
+                "title": "Restart Container",
+                "icon": {
+                    "light": "img/light/refresh.svg",
+                    "dark": "img/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.remove-container",
+                "title": "Remove Container",
+                "icon": {
+                    "light": "img/light/trash.svg",
+                    "dark": "img/dark/trash.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.get-container-logs",
+                "title": "Getting container logs",
+                "icon": {
+                    "light": "img/light/docker_logs.svg",
+                    "dark": "img/dark/docker_logs.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.enter-container",
+                "title": "Getting container logs",
+                "icon": {
+                    "light": "img/light/terminal.svg",
+                    "dark": "img/dark/terminal.svg"
+                }
             }
         ],
         "viewsContainers": {
@@ -540,6 +604,34 @@
                 },
                 {
                     "command": "parallels-desktop.tree-view.disable-rosetta-linux",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.docker.start-container",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.docker.stop-container",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.docker.pause-container",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.docker.resume-container",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.docker.resume-container",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.docker.restart-container",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.docker.get-container-logs",
                     "when": "false"
                 }
             ],
@@ -711,6 +803,46 @@
                     "command": "parallels-desktop.vagrant.box.provider.delete",
                     "when": "view == parallels-desktop-vagrant && viewItem == vagrant.box",
                     "group": "inline"
+                },
+                {
+                    "command": "parallels-desktop.docker.remove-container",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.(exited|created)/",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "parallels-desktop.docker.start-container",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.exited/",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "parallels-desktop.docker.stop-container",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.(running|paused)/",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "parallels-desktop.docker.pause-container",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.running/",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "parallels-desktop.docker.resume-container",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.paused/",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "parallels-desktop.docker.restart-container",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.running/",
+                    "group": "inline@3"
+                },
+                {
+                    "command": "parallels-desktop.docker.get-container-logs",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\..*/",
+                    "group": "inline@4"
+                },
+                {
+                    "command": "parallels-desktop.docker.enter-container",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.running/",
+                    "group": "inline@5"
                 }
             ]
         },

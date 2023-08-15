@@ -449,6 +449,39 @@ export class ParallelsDesktopService {
     });
   }
 
+  static async executeOnVm(vmId: string, command: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!vmId) {
+        LogService.error(`vmId is empty`, "ParallelsDesktopService");
+        return reject("vmId is empty");
+      }
+      let stdOut = "";
+
+      LogService.info(`Executing ${command} on Virtual Machine ${vmId}`, "ParallelsDesktopService");
+      const commandArgs = command.split(" ");
+      const prlctl = cp.spawn("prlctl", ["exec", `"${vmId}"`, ...commandArgs], {shell: true});
+      prlctl.stdout.on("data", data => {
+        stdOut += data.toString();
+        LogService.info(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlctl enter exited with code ${code}`, "ParallelsDesktopService", true);
+          return reject(`The command could not be executed on the Virtual Machine, err: ${code}`);
+        }
+
+        LogService.info(
+          `Command ${command} was executed successfully on Virtual Machine ${vmId}`,
+          "ParallelsDesktopService"
+        );
+        return resolve(stdOut);
+      });
+    });
+  }
+
   static async getVmStatus(
     vmId: string
   ): Promise<"running" | "stopped" | "suspended" | "paused" | "snapshooting" | "unknown"> {
