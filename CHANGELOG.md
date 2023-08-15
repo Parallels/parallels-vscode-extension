@@ -91,3 +91,15 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 ## [0.7.1] - 2023-08-14
 
 * Fixed an issue with the latest version of the extension
+
+## [0.8.0] - 2023-08-15
+
+* Added the ability to control docker from a virtual machine
+* Fixed the issue with the discord server link
+* Added the Helpful links section
+* Added the new icons
+* Added the ability to create a VM with the x86_64 architecture
+* Fixed some extra bugs in the folders
+* Added extra caching to the profile file
+* Fixed other small issues
+

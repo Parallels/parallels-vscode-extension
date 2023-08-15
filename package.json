@@ -861,6 +861,13 @@
                     "icon": "media/parallels_logo.svg",
                     "contextualTitle": "Vagrant Boxes",
                     "type": "tree"
+                },
+                {
+                    "id": "parallels-desktop-help",
+                    "name": "Helpful Links",
+                    "icon": "media/parallels_logo.svg",
+                    "contextualTitle": "Helpful",
+                    "visibility": "collapsed"
                 }
             ]
         },
@@ -879,6 +886,10 @@
                 "view": "parallels-desktop-vagrant",
                 "when": "parallels-desktop:initialized == true && parallels-desktop:vagrant == true && parallels-desktop:hasVagrantBoxes == false",
                 "contents": "Welcome to Vagrant Boxes Management\n Please add a Vagrant box to start using the extension."
+            },
+            {
+                "view": "parallels-desktop-help",
+                "contents": "Welcome to Parallels Desktop\n Please use the follow links to get help\n[Discord Server](https://discord.gg/etqdafGvjK)\n[Report a Bug](https://github.com/Parallels/parallels-vscode-extension/issues/new?assignees=&labels=bug&projects=&template=bug_report.md&title=)\n[Request a Feature](https://github.com/Parallels/parallels-vscode-extension/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md&title=)"
             }
         ]
     },

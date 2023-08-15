@@ -561,7 +561,10 @@ export class CreateMachineService {
                           await ParallelsDesktopService.setVmConfig(request.name, "rosetta-linux", "on");
                           if (machineConfig.distro === "ubuntu") {
                             await ParallelsDesktopService.startVm(request.name);
-                            await ParallelsDesktopService.executeOnVm(request.name, `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Parallels/packer-examples/main/scripts/ubuntu/base/rosetta_x86_sources.sh)"`);
+                            await ParallelsDesktopService.executeOnVm(
+                              request.name,
+                              `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Parallels/packer-examples/main/scripts/ubuntu/base/rosetta_x86_sources.sh)"`
+                            );
                             await ParallelsDesktopService.stopVm(request.name);
                           }
                         }

@@ -41,9 +41,9 @@ import {registerStopDockerContainerCommand} from "./commands/docker/stopContaine
 import {registerPauseDockerContainerCommand} from "./commands/docker/pauseContainer";
 import {registerResumeDockerContainerCommand} from "./commands/docker/resumeContainer";
 import {registerRestartDockerContainerCommand} from "./commands/docker/restartContainer";
-import { registerRemoveDockerContainerCommand } from "./commands/docker/removeContainer";
-import { registerGetContainerLogsCommand } from "./commands/docker/getContainerLogs";
-import { registerEnterContainerLogsCommand as registerEnterContainerCommand } from "./commands/docker/enterContainer";
+import {registerRemoveDockerContainerCommand} from "./commands/docker/removeContainer";
+import {registerGetContainerLogsCommand} from "./commands/docker/getContainerLogs";
+import {registerEnterContainerLogsCommand as registerEnterContainerCommand} from "./commands/docker/enterContainer";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -569,7 +569,13 @@ export class VirtualMachineProvider
               dockerImage.State,
               `docker.container.${dockerImage.State}`,
               vscode.TreeItemCollapsibleState.None,
-              `${dockerImage.State === 'running' ? "container_running": dockerImage.State === 'paused' ? 'container_paused' : "container"}`,
+              `${
+                dockerImage.State === "running"
+                  ? "container_running"
+                  : dockerImage.State === "paused"
+                  ? "container_paused"
+                  : "container"
+              }`,
               `${dockerImage.Status} (${dockerImage.Image})`
             )
           );
