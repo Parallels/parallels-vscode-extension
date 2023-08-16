@@ -361,7 +361,6 @@ export class CreateMachineService {
       if (isoUri.startsWith("http")) {
         const isoName = `${request.name}.iso`;
         let isoUrlFilename = isoUri.substring(isoUri.lastIndexOf("/") + 1);
-        console.log(isoUrlFilename);
         if (isoUrlFilename.indexOf(".iso") === -1) {
           isoUrlFilename = isoName;
         }

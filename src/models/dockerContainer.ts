@@ -1,4 +1,4 @@
-export interface DockerImage {
+export interface DockerContainer {
   Command: string;
   CreatedAt: string;
   ID: string;

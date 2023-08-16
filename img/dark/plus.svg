@@ -1,3 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#d6d6d6" class="bi bi-plus-lg" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#d6d6d6" class="bi bi-plus-lg"
+  viewBox="0 0 16 16">
+  <path
+    d="M8,3 C8.27614237,3 8.5,3.22385763 8.5,3.5 L8.5,12.5 C8.5,12.7761424 8.27614237,13 8,13 C7.72385763,13 7.5,12.7761424 7.5,12.5 L7.5,3.5 C7.5,3.22385763 7.72385763,3 8,3 Z"
+    id="Combined-Shape" fill="#d6d6d6"></path>
+  <path
+    d="M8,3 C8.27614237,3 8.5,3.22385763 8.5,3.5 L8.5,12.5 C8.5,12.7761424 8.27614237,13 8,13 C7.72385763,13 7.5,12.7761424 7.5,12.5 L7.5,3.5 C7.5,3.22385763 7.72385763,3 8,3 Z"
+    id="Combined-Shape-Copy" fill="#d6d6d6"
+    transform="translate(8, 8) rotate(-270) translate(-8, -8)"></path>
 </svg>

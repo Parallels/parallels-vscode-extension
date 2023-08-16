@@ -6,7 +6,7 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {VirtualMachine} from "../../../models/virtualMachine";
 
-export function registerEnterContainerLogsCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+export function registerEnterContainerCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerEnterContainer, async (item: VirtualMachineTreeItem) => {
       if (item) {
@@ -22,7 +22,7 @@ export function registerEnterContainerLogsCommand(context: vscode.ExtensionConte
         );
         const terminal = vscode.window.createTerminal(`Parallels Desktop: ${item.name} Logs`);
         terminal.show();
-        terminal.sendText(`prlctl exec "${vm.ID}" sudo docker exec -i ${item.id} /bin/bash`);
+        terminal.sendText(`prlctl exec "${vm.ID}" sudo docker exec -i ${item.id.replace(vm.ID, "")} /bin/bash`);
       }
     })
   );

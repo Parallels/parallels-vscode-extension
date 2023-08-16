@@ -9,6 +9,7 @@ import {CreateMachineService} from "../../services/createMachineService";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {NewVirtualMachineRequest} from "../../models/NewVirtualMachineRequest";
 import {LogService} from "../../services/logService";
+import {Provider} from "../../ioc/provider";
 
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
@@ -133,432 +134,614 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
 function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.WebviewPanel, osData: string) {
   const cssUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media", "vscode.css")));
   const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media")));
+  const config = Provider.getConfiguration();
+  const cpus = config.hardwareInfo?.SPHardwareDataType[0].number_processors ?? "2";
+  const memory = config.hardwareInfo?.SPHardwareDataType[0].physical_memory ?? "2048";
 
   const script = `<script></script>`;
   const html =
     `
-  <div id="t" class="card-container mt-2" x-data="{
-    isPosting: false,
-    itemData: {
-      os: 'undefined',
-      platform: 'undefined',
-      distro: 'undefined',
-      image: 'undefined',
-      name: 'undefined',
-      isoUrl: 'undefined',
-      isoChecksum: 'undefined',
-      requireIsoDownload: false,
-      allowMachineSpecs: false,
-      allowUserOverride: false,
-      allowAddons: false,
-      allowedFlags: [],
-      specs: {
-        cpu: 2,
-        memory: 2048,
-        disk: 65536,
-        username: 'parallels',
-        password: 'parallels',
-      },
-      options: {
-        startHeadless: false,
-        generateVagrantBox: false,
-      },
-      defaults: {
-        specs: {
-          cpu: 2,
-          memory: 2048,
-          diskSize: 65536,
-        }
-      },
-      addons: []
-    },
-    getAllOs() {
-      return this.options
-    },
-    getAllOsPlatforms() {
-      if (this.itemData.os === 'undefined') return []
-      return this.options.find(o => o.id === this.itemData.os)?.platforms ?? []
-    },
-    getAllOsPlatformsDistros() {
-      if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
-      return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros ?? []
-    },
-    getAllOsPlatformsDistrosImages() {
-      if(this.itemData.os === 'linux') {
-        if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
-        return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images ?? []  
-      } else {
-        if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
-        return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images ?? []  
-      }
-    },
-    getAllOsPlatformsDistrosImageAddons() {
-      const img = this.getImage();
-      if (img === undefined) return []
-      return img.addons ?? []
-    },
-    getImageFlags() {
-      const img = this.getImage();
-      if (img === undefined) return []
-      return img.allowedFlags ?? []
-    },
-    getImage() {
-      if (this.itemData.os === 'undefined' || this.itemData.image === 'undefined') return undefined
-      if(this.itemData.os === 'linux') {
-        if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
-        return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images.find(i => i.id === this.itemData.image) ?? undefined
-      } else {
-        if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
-        return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images.find(i => i.id === this.itemData.image) ?? undefined
-      }
-    },
-    onOsChange() {
-      this.itemData.platform = 'undefined'; 
-      this.itemData.distro = 'undefined'; 
-      this.itemData.image = 'undefined'; 
-      this.itemData.requireIsoDownload = false;
-      this.itemData.allowMachineSpecs = false;
-      this.itemData.allowUserOverride = false;
-      this.itemData.allowAddons = false;
-      if (this.itemData.os !== 'undefined' && !this.showPlatform()) { 
-        this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
-      } if (this.itemData.os !== 'undefined' && this.showPlatform()) {
-        this.itemData.platform = 'undefined';
-      }
-    },
-    onPlatformDropdownChange() {
-      this.itemData.distro = 'undefined'; 
-      this.itemData.image = 'undefined';
-      this.itemData.requireIsoDownload = false;
-      this.itemData.allowMachineSpecs = false;
-      this.itemData.allowUserOverride = false;
-      this.itemData.allowAddons = false;
-    },
-    onDistroDropdownChange() {
-      this.itemData.image = 'undefined'; 
-      this.itemData.requireIsoDownload = false;
-      this.itemData.allowMachineSpecs = false;
-      this.itemData.allowUserOverride = false;
-      this.itemData.allowAddons = false;
-    },
-    onImageDropdownChange() {
-      let img = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image);
-      this.itemData.name = img?.name ?? ''
-      this.itemData.requireIsoDownload = img.requireIsoDownload ?? false;
-      this.itemData.allowMachineSpecs = img.allowMachineSpecs ?? false;
-      this.itemData.allowUserOverride = img.allowUserOverride ?? false;
-      this.itemData.allowAddons = img.allowAddons ?? false;
-      this.itemData.isoUrl = img.isoUrl ?? '';
-      this.itemData.isoChecksum = img.isoChecksum ?? '';
-      if(img.defaults?.specs) {
-        this.itemData.specs.cpu = img.defaults.specs.cpus ?? this.itemData.defaults.specs.cpus;
-        this.itemData.specs.memory = img.defaults.specs.memory ?? this.itemData.defaults.specs.memory;
-        this.itemData.specs.diskSize = img.defaults.specs.diskSize ?? this.itemData.defaults.specs.diskSize;
-      }
-    },
-    showPlatform() {
-      if (this.itemData.os === 'undefined') return true
-      return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
-    },
-    getImageType() {
-      return this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.type ?? ''
-    },
-    showPlatformDropdown() {
-      return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
-    },
-    showDistroDropdown() {
-      return  this.itemData.os === 'linux' && this.itemData.platform !== 'undefined';
-    },
-    showImageDropdown() {
-      if (this.itemData.os === 'linux') {
-        return this.itemData.os === 'linux' && this.itemData.platform !== 'undefined' && this.itemData.distro !== 'undefined'
-      } else {
-        return  this.itemData.os !== 'undefined' && this.itemData.platform !== 'undefined';
-      }
-    },
-    showMachineSpecs() {
-      if (!this.itemData.allowMachineSpecs) return false
-      return this.itemData.image !== 'undefined' && this.itemData.os !== 'macos'
-    },
-    showMachineOptions() {
-      const flags = this.getImageFlags();
-      if (flags === undefined) return false
-      return flags.length > 0
-    },
-    showMachineAddons() {
-      const img = this.getImage();
-      if (img === undefined) return false
-      if (img.allowAddons === false) return false
-      if (img.type === 'internal' || img.type === 'iso' ) return false
-      return img.addons.length > 0
-    },
-    getDefaultPlatform() {
-      if (this.itemData.os === 'undefined') return 'undefined'
-      return (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
-    },
-    addImageAddon(id, state) {
-      if (this.itemData.addons.length === 0) {
-        this.itemData.addons.push({id: id, deploy: state});
-        return;
-      }
-
-      for (let i = 0; i < this.itemData.addons.length; i++) {
-        let found = false
-        if (this.itemData.addons[i].id === id) {
-          if (!state){
-            this.itemData.addons.splice(i, 1);
-          }
-          found = true;
-          return;
-        }
-        
-        if (!found) {
-          this.itemData.addons.push({id: id, deploy: state});
-        }
-      }
-    },
-    addImageFlags(id, state) {
-      console.log(id + ': ' + state)
-      if (this.itemData.allowedFlags.length === 0) {
-        this.itemData.allowedFlags.push({code: id, enabled: state});
-        return;
-      }
-
-      for (let i = 0; i < this.itemData.allowedFlags.length; i++) {
-        let found = false
-        if (this.itemData.allowedFlags[i].code === id) {
-          if (!state){
-            this.itemData.allowedFlags.splice(i, 1);
-          }
-          found = true;
-          return;
-        }
-        
-        if (!found) {
-          this.itemData.allowedFlags.push({code: id, enabled: state});
-        }
-      }
-    },
-    onPost() {
-      this.isPosting = true;
-      vscode.postMessage({
-        command: 'createVm',
-        text: JSON.stringify(this.itemData, null, 2)
-      });
-    },
-    getButtonText() {
-      if (this.isPosting) {
-        if (this.getImageType() === 'iso') {
-          return 'Creating...'
-        } else if (this.getImageType() === 'macos') {
-          return 'Creating...'
-        } else if (this.getImageType() === 'internal') {
-          return 'Attaching...'
-        } else if (this.getImageType() === 'packer') {
-          if (this.itemData.options.generateVagrantBox) {
-            return 'Generating Vagrant Box...'
+    <div class="content">
+      <div
+        id="data"
+        class="page-body mt-2"
+        x-data="{
+        isPosting: false,
+        version: '` +
+    config.parallelsDesktopVersion +
+    `',
+        host: {
+          cpu: '` +
+    cpus +
+    `',
+          memory: '` +
+    memory +
+    `',
+        },
+        itemData: {
+          os: 'undefined',
+          platform: 'undefined',
+          distro: 'undefined',
+          image: 'undefined',
+          name: 'undefined',
+          isoUrl: 'undefined',
+          isoChecksum: 'undefined',
+          requireIsoDownload: false,
+          allowMachineSpecs: false,
+          allowUserOverride: false,
+          allowAddons: false,
+          allowedFlags: [],
+          specs: {
+            cpu: 2,
+            memory: 2048,
+            disk: 65536,
+            username: 'parallels',
+            password: 'parallels',
+          },
+          options: {
+            startHeadless: false,
+            generateVagrantBox: false,
+          },
+          defaults: {
+            specs: {
+              cpu: 2,
+              memory: 2048,
+              diskSize: 65536,
+            }
+          },
+          addons: []
+        },
+        getAllOs() {
+          return this.options
+        },
+        getVersion() {
+          return this.version
+        },
+        getHostSpecs() {
+          return 'Host - ' + this.host.cpu + ' CPU, ' + this.host.memory + ' RAM'
+        },
+        getAllOsPlatforms() {
+          if (this.itemData.os === 'undefined') return []
+          return this.options.find(o => o.id === this.itemData.os)?.platforms ?? []
+        },
+        getAllOsPlatformsDistros() {
+          if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
+          return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros ?? []
+        },
+        getAllOsPlatformsDistrosImages() {
+          if(this.itemData.os === 'linux') {
+            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
+            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images ?? []  
           } else {
-            return 'Generating VM...'
+            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
+            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images ?? []  
           }
-        } else {
-          return 'Creating...'
-        }
-      } else {
-        if (this.getImageType() === 'iso') {
-          return 'Create VM'
-        } else if (this.getImageType() === 'macos') {
-          return 'Create VM'
-        } else if (this.getImageType() === 'internal') {
-          return 'Attach Appliance...'
-        } else if (this.getImageType() === 'packer') {
-          if (this.itemData.options.generateVagrantBox) {
-            return 'Generate Vagrant Box'
+        },
+        getAllOsPlatformsDistrosImageAddons() {
+          const img = this.getImage();
+          if (img === undefined) return []
+          return img.addons ?? []
+        },
+        getImageFlags() {
+          const img = this.getImage();
+          if (img === undefined) return []
+          return img.allowedFlags ?? []
+        },
+        getImage() {
+          if (this.itemData.os === 'undefined' || this.itemData.image === 'undefined') return undefined
+          if(this.itemData.os === 'linux') {
+            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
+            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images.find(i => i.id === this.itemData.image) ?? undefined
           } else {
-            return 'Generate VM'
+            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
+            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images.find(i => i.id === this.itemData.image) ?? undefined
           }
-        } else {
-          return 'Create'
-        }
-      }
-    },
-    options: ` +
+        },
+        onOsChange() {
+          this.itemData.platform = 'undefined'; 
+          this.itemData.distro = 'undefined'; 
+          this.itemData.image = 'undefined'; 
+          this.itemData.requireIsoDownload = false;
+          this.itemData.allowMachineSpecs = false;
+          this.itemData.allowUserOverride = false;
+          this.itemData.allowAddons = false;
+          if (this.itemData.os !== 'undefined' && !this.showPlatform()) { 
+            this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
+          } if (this.itemData.os !== 'undefined' && this.showPlatform()) {
+            this.itemData.platform = 'undefined';
+          }
+        },
+        onPlatformDropdownChange() {
+          this.itemData.distro = 'undefined'; 
+          this.itemData.image = 'undefined';
+          this.itemData.requireIsoDownload = false;
+          this.itemData.allowMachineSpecs = false;
+          this.itemData.allowUserOverride = false;
+          this.itemData.allowAddons = false;
+        },
+        onDistroDropdownChange() {
+          this.itemData.image = 'undefined'; 
+          this.itemData.requireIsoDownload = false;
+          this.itemData.allowMachineSpecs = false;
+          this.itemData.allowUserOverride = false;
+          this.itemData.allowAddons = false;
+        },
+        onImageDropdownChange() {
+          let img = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image);
+          this.itemData.name = img?.name ?? ''
+          this.itemData.requireIsoDownload = img.requireIsoDownload ?? false;
+          this.itemData.allowMachineSpecs = img.allowMachineSpecs ?? false;
+          this.itemData.allowUserOverride = img.allowUserOverride ?? false;
+          this.itemData.allowAddons = img.allowAddons ?? false;
+          this.itemData.isoUrl = img.isoUrl ?? '';
+          this.itemData.isoChecksum = img.isoChecksum ?? '';
+          if(img.defaults?.specs) {
+            this.itemData.specs.cpu = img.defaults.specs.cpus ?? this.itemData.defaults.specs.cpus;
+            this.itemData.specs.memory = img.defaults.specs.memory ?? this.itemData.defaults.specs.memory;
+            this.itemData.specs.diskSize = img.defaults.specs.diskSize ?? this.itemData.defaults.specs.diskSize;
+          }
+        },
+        showPlatform() {
+          if (this.itemData.os === 'undefined') return true
+          return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
+        },
+        getImageType() {
+          return this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.type ?? ''
+        },
+        showPlatformDropdown() {
+          return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
+        },
+        showDistroDropdown() {
+          return  this.itemData.os === 'linux' && this.itemData.platform !== 'undefined';
+        },
+        showImageDropdown() {
+          if (this.itemData.os === 'linux') {
+            return this.itemData.os === 'linux' && this.itemData.platform !== 'undefined' && this.itemData.distro !== 'undefined'
+          } else {
+            return  this.itemData.os !== 'undefined' && this.itemData.platform !== 'undefined';
+          }
+        },
+        showMachineSpecs() {
+          if(this.itemData.allowMachineSpecs === 'undefined') return this.itemData.image !== 'undefined'
+          return this.itemData.allowMachineSpecs
+        },
+        showMachineOptions() {
+          const flags = this.getImageFlags();
+          if (flags === undefined) return false
+          return flags.length > 0
+        },
+        showMachineAddons() {
+          const img = this.getImage();
+          if (img === undefined) return false
+          if (img.allowAddons === false) return false
+          if (img.type === 'internal' || img.type === 'iso' ) return false
+          return img.addons.length > 0
+        },
+        showSaveButton() {
+          const img = this.getImage();
+          return !img === undefined;
+        },
+        getDefaultPlatform() {
+          if (this.itemData.os === 'undefined') return 'undefined'
+          return (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
+        },
+        addImageAddon(id, state) {
+          if (this.itemData.addons.length === 0) {
+            this.itemData.addons.push({id: id, deploy: state});
+            return;
+          }
+    
+          for (let i = 0; i < this.itemData.addons.length; i++) {
+            let found = false
+            if (this.itemData.addons[i].id === id) {
+              if (!state){
+                this.itemData.addons.splice(i, 1);
+              }
+              found = true;
+              return;
+            }
+            
+            if (!found) {
+              this.itemData.addons.push({id: id, deploy: state});
+            }
+          }
+        },
+        addImageFlags(id, state) {
+          if (this.itemData.allowedFlags.length === 0) {
+            this.itemData.allowedFlags.push({code: id, enabled: state});
+            return;
+          }
+    
+          for (let i = 0; i < this.itemData.allowedFlags.length; i++) {
+            let found = false
+            if (this.itemData.allowedFlags[i].code === id) {
+              if (!state){
+                this.itemData.allowedFlags.splice(i, 1);
+              }
+              found = true;
+              return;
+            }
+            
+            if (!found) {
+              this.itemData.allowedFlags.push({code: id, enabled: state});
+            }
+          }
+        },
+        onPost() {
+          this.isPosting = true;
+          vscode.postMessage({
+            command: 'createVm',
+            text: JSON.stringify(this.itemData, null, 2)
+          });
+        },
+        getButtonText() {
+          if (this.isPosting) {
+            if (this.getImageType() === 'iso') {
+              return 'Creating...'
+            } else if (this.getImageType() === 'macos') {
+              return 'Creating...'
+            } else if (this.getImageType() === 'internal') {
+              return 'Attaching...'
+            } else if (this.getImageType() === 'packer') {
+              if (this.itemData.options.generateVagrantBox) {
+                return 'Generating Vagrant Box...'
+              } else {
+                return 'Generating VM...'
+              }
+            } else {
+              return 'Creating...'
+            }
+          } else {
+            if (this.getImageType() === 'iso') {
+              return 'Create VM'
+            } else if (this.getImageType() === 'macos') {
+              return 'Create VM'
+            } else if (this.getImageType() === 'internal') {
+              return 'Attach Appliance...'
+            } else if (this.getImageType() === 'packer') {
+              if (this.itemData.options.generateVagrantBox) {
+                return 'Generate Vagrant Box'
+              } else {
+                return 'Generate VM'
+              }
+            } else {
+              return 'Create'
+            }
+          }
+        },
+        options: ` +
     osData +
-    `,
-  }">
-  <template x-if="isPosting">
-  <div class="flex justify-center items-center h-full w-full absolute top-0 left-0 loading">
-    <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue"></div>
-  </div>
-</template>
-  <ul role="list" class="divide-y divide-gray-200">
-    <li class="flex justify-between gap-x-6 py-5">
-      <div class="w-full flex gap-x-4">
-        <div class="min-w-0 flex-auto">
-          <h1 class="card-title text-xl font-semibold">Creating Virtual Machine
-            <span x-show="itemData.image !== 'undefined'" class="text-xs align-middle" x-text="'(' +getImageType() + ')'" ></span>
-          </h1>
-      </div>
-    </li>
-  </ul>
-  <ul role="list" class="divide-y divide-gray-200">
-    <li class="flex flex-col gap-x-6 py-0">
-      <div class="w-full flex flex-col gap-x-4">
-        <h2 class="card-title">Operating System
-          <template x-if="!showPlatform()">
-              <span class="text-xs align-middle" x-text="'(' +getDefaultPlatform() + ')'" ></span>
-          </template>
-        </h2>
-      </div>
-      <div class="flex gap-x-6 py-1">
-        <div class="hidden sm:flex sm:flex-col sm:items-end" >
-          <div class="relative inline-block text-left"">
-            <select id="itemData__os" x-model="itemData.os" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" @change="onOsChange" >
-              <option selected :value="'undefined'" >Choose Operating System</option>
-              <template x-for="option in getAllOs()" :key="option">
-                <option :value="option.id" x-text="option.name"></option>
-              </template>
-            </select>
+    `
+      }"
+      >
+        <template x-if="isPosting">
+          <div class="flex justify-center items-center h-full w-full absolute top-0 left-0 loading">
+            <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue"></div>
           </div>
-        </div>
-        <div class="hidden sm:flex sm:flex-col sm:items-end" x-show="showPlatformDropdown()" >
-          <div class="relative inline-block text-left"">
-            <select id="itemData__platform" x-show="showPlatformDropdown()" x-model="itemData.platform" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" @change="onPlatformDropdownChange">
-              <option selected :value="'undefined'">Choose a platform</option>
-              <template x-for="option in getAllOsPlatforms()" :key="option">
-                <option :value="option.id" x-text="option.name"></option>
-              </template>
-            </select>
-          </div>
-        </div>
-        <!-- <template x-if="os !== 'undefined' && (options.find(o => o.id === os)?.platforms ?? []).length == 1">
-          <div class="flex items-center">
-            <span x-text="(options.find(o => o.id === os)?.platforms ?? [])[0].name"></span>
-          </div>
-        </template> -->
-        <div class="hidden sm:flex sm:flex-col sm:items-end" x-show="showDistroDropdown()" >
-          <div class="relative inline-block text-left"">
-            <select id="itemData__distro" x-show="showDistroDropdown()" x-model="itemData.distro" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" @change="onDistroDropdownChange">
-              <option selected :value="'undefined'">Choose a Distribution</option>
-              <template x-for="option in getAllOsPlatformsDistros()" :key="option">
-                <option :value="option.id" x-text="option.name"></option>
-              </template>
-            </select>
-          </div>
-        </div>
-        <div class="hidden sm:flex sm:flex-col sm:items-end" x-show="showImageDropdown()" >
-          <div class="relative inline-block text-left"">
-            <select x-show="showImageDropdown()" x-model="itemData.image" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  @change="onImageDropdownChange">
-              <option selected :value="'undefined'">Choose a Version</option>
-              <template x-for="option in getAllOsPlatformsDistrosImages()" :key="option">
-                <option :value="option.id" x-text="option.name"></option>
-              </template>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-row gap-x-1 py-1" x-show="itemData.image !== 'undefined'">
-        <div class="hidden sm:flex sm:flex-col sm:items-end w-full" >
-          <div class="mb-2 w-full">
-            <label for="vmName" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Machine Name</label>
-            <input id="vmName" type="text" x-model="itemData.name" id="vmName" name="vmName" :value="itemData.image" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1" required>
-          </div>
-        </div>
-      </div>
-      <div class="flex sm:flex-row sm:items-end flex-row" x-show="itemData.image !== 'undefined' && itemData.requireIsoDownload === true" >
-        <div class="pr-2 mb-2 w-3/5">
-          <label for="isoUrl" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Iso Url/File</label>
-          <input id="isoUrl" type="text" x-model="itemData.isoUrl" id="isoUrl" name="isoUrl" :value="itemData.isoUrl" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Select a ISO file or an Url" required>
-        </div>
-        <div class="mb-2 w-2/5">
-          <label for="isoChecksum" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Iso Checksum</label>
-          <input id="isoChecksum" type="text" x-model="itemData.isoChecksum" id="isoChecksum" name="isoChecksum" :value="itemData.isoChecksum" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="sha256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" required>
-        </div>
-      </div>
-    </li>
-    <li class="flex flex-col gap-x-6 py-1" x-show="showMachineSpecs()">
-      <div class="w-full flex flex-col gap-x-4">
-        <h2 class="card-title">Machine Specs</h2>
-      </div>
-      <div class="flex gap-x-6 py-5">
-        <div class="hidden sm:flex sm:flex-col sm:items-end" >
-          <div class="mb-2">
-            <label for="cpu" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">CPU's</label>
-            <input id="itemData__specs__cpu" type="number" x-model="itemData.specs.cpu" id="cpu" name="cpu" min="1" max="32" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="2" required>
-          </div>
-        </div>
-        <div class="hidden sm:flex sm:flex-col sm:items-end" >
-          <div class="relative inline-block text-left"">
-          <label for="itemData__specs__memory" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Memory</label>
-          <select id="itemData__specs__memory" x-model="itemData.specs.memory" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-              <option :value="1024">1 GB</option>
-              <option selected :value="2048">2 GB's</option>
-              <option :value="3072">3 GB's</option>
-              <option :value="4096">4 GB's</option>
-              <option :value="5120">5 GB's</option>
-              <option :value="6144">6 GB's</option>
-              <option :value="7168">7 GB's</option>
-              <option :value="8192">8 GB's</option>
-            </select>
-          </div>
-        </div>
-        <div class="hidden sm:flex sm:flex-col sm:items-end" x-show="itemData.type !== 'undefined' && itemData.type !== 'macos'" >
-          <div class="mb-2">
-            <label for="disk" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Disk Size</label>
-            <input id="itemData__specs__disk"  type="number" x-model="itemData.specs.disk" id="disk" name="disk" min="32768" max="92160" step="1024" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="32768" required>
-          </div>
-        </div>
-    </li>
-    <li class="flex flex-col gap-x-6 py-5 w-full" x-show="showMachineOptions()">
-      <div class="w-full flex flex-col gap-x-4">
-        <h2 class="card-title">Options</h2>
-      </div>
-      <div class="flex gap-x-6 py-3">
-        <ul role="list" class="py-0 w-full">
-            <template x-for="option in getImageFlags()" :key="option">
-              <li class="flex flex-col gap-x-6 py-1 w-full">
-                <div class="hidden sm:flex sm:items-end" >
-                  <div class="mr-3 flex flex-auto">
-                    <span x-text="option.name" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white"></span>
+        </template>
+        <div class="flex flex-row panel-body">
+          <div class="main-panel">
+            <div class="text-panel title-text gap-x-6 py-0">Create New Virtual Machine</div>
+            <ul role="list" class="panel panel-color">
+              <li class="flex flex-col gap-x-6 py-0">
+                <div class="w-full flex flex-col gap-x-4">
+                  <h2 class="title-text mb-2">Operating System</h2>
+                  <div class="mb-3" x-show="!showPlatform()">
+                    <template x-if="!showPlatform()">
+                      <span class="caption-text" x-text="'Compatible with ' +getDefaultPlatform() + (getImageType() !== '' ? ', Image format is '+ getImageType() :'') "></span>
+                    </template>
                   </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input :id="'itemData__addons__' + option.code" x-model="option.enabled" type="checkbox" value="" class="sr-only peer" @change="addImageFlags(option.code, $event.target.checked)"">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  </label>
-                </div
-              </li>
-            </template> 
-        </ul>
-      </div
-    </li>
-    <li class="flex flex-col gap-x-6 py-1" x-show="showMachineAddons()">
-      <div class="w-full flex flex-col gap-x-4">
-        <h2 class="card-title">Addons</h2>
-      </div>
-      <div class="flex gap-x-6 py-3">
-        <ul role="list" class="py-0 w-full">
-          <template x-for="option in getAllOsPlatformsDistrosImageAddons()" :key="option">
-            <li class="flex flex-col gap-x-6 py-1 w-full">
-              <div class="hidden sm:flex sm:items-end" >
-                <div class="mr-3 flex flex-auto">
-                  <span x-text="option.name" class="block mb-1 text-sm font-medium text-gray-700 dark:text-white"></span>
                 </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input :id="'itemData__addons__' + option.id" x-model="option.deploy" type="checkbox" value="" class="sr-only peer" @change="addImageAddon(option.id, $event.target.checked)"">
-                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                </label>
-              </div
-            </li>
-          </template> 
-        </ul>
+                <div class="flex gap-x-6 py-1">
+                  <div class="sm:flex sm:flex-col sm:items-end w-1/4">
+                    <div class="relative inline-block text-left">
+                      <select
+                        name="os"
+                        title="os"
+                        id="itemData__os"
+                        x-model="itemData.os"
+                        class="input block w-full p-2.5"
+                        @change="onOsChange"
+                      >
+                        <option selected="" :value="'undefined'" value="undefined">Choose Operating System</option>
+                        <template x-for="option in getAllOs()" :key="option">
+                          <option :value="option.id" x-text="option.name"></option>
+                        </template>
+                      </select>
+                    </div>
+                  </div>
+                  <!-- <div class="sm:flex sm:flex-col sm:items-end w-2/6" x-show="showPlatformDropdown()">
+                    <div class="relative inline-block text-left">
+                      <select
+                        name="platform"
+                        title="platform"
+                        id="itemData__platform"
+                        x-show="showPlatformDropdown()"
+                        x-model="itemData.platform"
+                        class="input block w-full p-2.5"
+                        @change="onPlatformDropdownChange"
+                      >
+                        <option selected="" :value="'undefined'" value="undefined">Choose a platform</option>
+                        <template x-for="option in getAllOsPlatforms()" :key="option">
+                          <option :value="option.id" x-text="option.name"></option>
+                        </template>
+                      </select>
+                    </div>
+                  </div> -->
+                  <div class="sm:flex sm:flex-col sm:items-end w-1/4" x-show="showDistroDropdown()">
+                    <div class="relative inline-block text-left">
+                      <select
+                        name="distro"
+                        title="distro"
+                        id="itemData__distro"
+                        x-show="showDistroDropdown()"
+                        x-model="itemData.distro"
+                        class="input block w-full p-2.5"
+                        @change="onDistroDropdownChange"
+                      >
+                        <option selected="" :value="'undefined'" value="undefined">Choose a Distribution</option>
+                        <template x-for="option in getAllOsPlatformsDistros()" :key="option">
+                          <option :value="option.id" x-text="option.name"></option>
+                        </template>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="sm:flex sm:flex-col sm:items-end" :class="showDistroDropdown() ? 'w-2/4': 'w-3/4'" x-show="showImageDropdown()">
+                    <div class="relative inline-block text-left">
+                      <select
+                        name="image"
+                        title="image"
+                        x-show="showImageDropdown()"
+                        x-model="itemData.image"
+                        class="input block w-full p-2.5"
+                        @change="onImageDropdownChange"
+                      >
+                        <option selected="" :value="'undefined'" value="undefined">Choose a Version</option>
+                        <template x-for="option in getAllOsPlatformsDistrosImages()" :key="option">
+                          <option :value="option.id" x-text="option.name"></option>
+                        </template>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-row gap-x-1 py-1 mt-2" x-show="itemData.image !== 'undefined'">
+                  <div class="sm:flex sm:flex-col sm:items-end w-full">
+                    <div class="mb-2 w-full">
+                      <label for="vmName" class="block mb-1 input-label">Virtual Machine Name</label>
+                      <input
+                        id="vmName"
+                        type="text"
+                        x-model="itemData.name"
+                        name="vmName"
+                        :value="itemData.image"
+                        class="input block w-full p-2.5"
+                        placeholder="1"
+                        required="true"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li class="flex flex-col gap-x-6 py-0">
+                <div
+                  class="flex sm:flex-row sm:items-end flex-row"
+                  x-show="itemData.image !== 'undefined' && itemData.requireIsoDownload === true"
+                >
+                  <div class="pr-2 mb-2 w-3/5">
+                    <label for="isoUrl" class="block mb-1 input-label">Iso Url/File</label>
+                    <input
+                      id="isoUrl"
+                      type="text"
+                      x-model="itemData.isoUrl"
+                      name="isoUrl"
+                      :value="itemData.isoUrl"
+                      class="input block w-full p-2.5"
+                      placeholder="Select a ISO file or an Url"
+                      required=""
+                    />
+                  </div>
+                  <div class="mb-2 w-2/5">
+                    <label for="isoChecksum" class="block mb-1 input-label">Iso Checksum</label>
+                    <input
+                      id="isoChecksum"
+                      type="text"
+                      x-model="itemData.isoChecksum"
+                      name="isoChecksum"
+                      :value="itemData.isoChecksum"
+                      class="input block w-full p-2.5"
+                      placeholder="sha256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      required=""
+                    />
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <ul role="list" class="panel panel-color" x-show="showMachineSpecs()">
+              <li class="flex flex-col gap-x-6 py-1" x-show="showMachineSpecs()">
+                <div class="w-full flex flex-col gap-x-4">
+                  <h2 class="title-text">Machine Specs</h2>
+                  <div class="mt-2">
+                    <span class="caption-text" x-text="getHostSpecs()"></span>
+                  </div>
+                </div>
+                <div class="flex gap-x-6 py-5">
+                  <div
+                    class="sm:flex sm:flex-col sm:items-end"
+                    :class="itemData.os !== 'undefined' && itemData.os !== 'macos' ? 'w-1/4': 'w-2/4'"
+                  >
+                    <div class="mb-2">
+                      <label for="cpu" class="block mb-1 input-label">CPU's</label>
+                      <input
+                        id="itemData__specs__cpu"
+                        type="number"
+                        x-model="itemData.specs.cpu"
+                        name="cpu"
+                        min="1"
+                        max="32"
+                        class="input block w-full p-2.5"
+                        placeholder="2"
+                        required=""
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="sm:flex sm:flex-col sm:items-end"
+                    :class="itemData.os !== 'undefined' && itemData.os !== 'macos' ? 'w-1/4': 'w-2/4'"
+                  >
+                    <div class="relative inline-block text-left">
+                      <label for="itemData__specs__memory" class="block mb-1 input-label">Memory</label>
+                      <select
+                        id="itemData__specs__memory"
+                        x-model="itemData.specs.memory"
+                        class="input block w-full p-2.5"
+                      >
+                        <option :value="1024" value="1024">1 GB</option>
+                        <option selected="" :value="2048" value="2048">2 GB's</option>
+                        <option :value="3072" value="3072">3 GB's</option>
+                        <option :value="4096" value="4096">4 GB's</option>
+                        <option :value="5120" value="5120">5 GB's</option>
+                        <option :value="6144" value="6144">6 GB's</option>
+                        <option :value="7168" value="7168">7 GB's</option>
+                        <option :value="8192" value="8192">8 GB's</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div
+                    class="sm:flex sm:flex-col sm:items-end w-2/4"
+                    x-show="itemData.os !== 'undefined' && itemData.os !== 'macos'"
+                  >
+                    <div class="mb-2">
+                      <label for="disk" class="block mb-1 input-label">Disk Size</label>
+                      <div class="suffix-container input-with-suffix">
+                        <input
+                          id="itemData__specs__disk"
+                          type="number"
+                          x-model="itemData.specs.disk"
+                          name="disk"
+                          min="32768"
+                          max="92160"
+                          step="1024"
+                          class="input block w-full p-2.5"
+                          placeholder="32768"
+                          required=""
+                        />
+                        <span class="suffix">MB</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <ul role="list" class="panel panel-color" x-show="showMachineOptions() || showMachineAddons()">
+              <li class="flex flex-col w-full mb-3" x-show="showMachineOptions()">
+                <div class="w-full flex flex-col gap-x-4">
+                  <h2 class="title-text">Additional</h2>
+                </div>
+              </li>
+              <li class="flex flex-col w-full sub-panel sub-panel-color mb-3" x-show="showMachineOptions()">
+                <div class="w-full flex flex-col gap-x-4 mb-4">
+                  <h2 class="normal-text">Options:</h2>
+                </div>
+                <div class="flex gap-x-6 options-panel">
+                  <template x-for="option in getImageFlags()" :key="option">
+                    <div class="sm:flex sm:items-end">
+                      <div class="option-checkbox">
+                        <input
+                          :id="'itemData__addons__' + option.code"
+                          x-model="option.enabled"
+                          type="checkbox"
+                          value=""
+                          @change="addImageFlags(option.code, $event.target.checked)"
+                        />
+                        <label class="ml-2 input-label">
+                          <span x-text="option.name" class="input-label"></span>
+                        </label>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </li>
+              <li class="flex flex-col w-full sub-panel sub-panel-color mb-3" x-show="showMachineAddons()">
+                <div class="w-full flex flex-col gap-x-4 mb-4">
+                  <h2 class="normal-text">Addons</h2>
+                </div>
+                <div class="flex gap-x-6 options-panel">
+                  <template x-for="option in getAllOsPlatformsDistrosImageAddons()" :key="option">
+                    <div class="sm:flex sm:items-end">
+                      <div class="option-checkbox">
+                        <input
+                          :id="'itemData__addons__' + option.id"
+                          x-model="option.deploy"
+                          type="checkbox"
+                          value=""
+                          @change="addImageAddon(option.id, $event.target.checked)"
+                        />
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <label class="ml-2 input-label">
+                            <span x-text="option.name" class="input-label"></span>
+                          </label>
+                        </label>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </li>
+            </ul>
+            <ul role="list" class="mb-4 mt-4" x-show="itemData.image !== 'undefined'">
+              <li class="flex flex-col gap-x-6 py-1 w-full items-end" x-show="itemData.image !== 'undefined'">
+                <div class="flex items-end p-2">
+                  <button
+                    :disabled="isPosting"
+                    id="createVm"
+                    type="button"
+                    class="btn btn-primary w-40"
+                    @click="onPost"
+                    x-text="getButtonText()"
+                  >
+                    Create
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="side-panel">
+            <div>
+              <span class="title-text">Parallels Desktop 19 for Mac</span>
+            </div>
+            <div>
+              <span class="caption-text" x-text="getVersion()"></span>
+            </div>
+            <div class="logo-side">
+              <img src="` +
+    imageUri +
+    `/logo_new.png" width="160px" alt="logo" />
+            </div>
+            <div class="link">
+              <a class="link-text" href="https://my.parallels.com/login" target="_blank" rel="noopener noreferrer"
+                >Account & Licenses</a
+              >
+            </div>
+            <hr class="divider" />
+            <div class="link">
+              <a class="link-text" href="https://www.parallels.com/blogs/" target="_blank" rel="noopener noreferrer"
+                >Parallels Blog</a
+              >
+            </div>
+            <div class="link">
+              <a class="link-text" href="https://forum.parallels.com/" target="_blank" rel="noopener noreferrer"
+                >Parallels Forum</a
+              >
+            </div>
+            <div class="link">
+              <a class="link-text" href="https://discord.gg/etqdafGvjK" target="_blank" rel="noopener noreferrer"
+                >Parallels Discord Server</a
+              >
+            </div>
+          </div>
+        </div>
       </div>
-    </li>
-    <li class="flex flex-col gap-x-6 py-1 w-full items-end" x-show="itemData.image !== 'undefined'">
-      <div class="flex items-end p-2" >
-        <button :disabled="isPosting" id="createVm" type="button" class="btn btn-primary w-40" @click="onPost" x-text="getButtonText()"></button>
-      </div>
-    </li>
-  </ul>
-</div>
+    </div>
 `;
 
   return generateHtml(context, panel, html, [script]);

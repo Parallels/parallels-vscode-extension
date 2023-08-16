@@ -30,15 +30,9 @@ export function generateHtml(
         const vscode = acquireVsCodeApi();
       </script>
       <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
-
     </head>`;
-  const htmlBody = `<body ${isDarkModeEnabled ? 'class="vscode-dark bg-gray-900"' : 'class="bg-gray-50 vscode-light"'}>
-    <div class="logo-container p-6">
-      <img src="${imageUri + logoUri}" alt="Logo" />
-    </div>
-    <div class="content">
+  const htmlBody = `<body ${isDarkModeEnabled ? 'class="background-color"' : 'class="background-color"'}>
       ${body}
-    </div>
     </body>`;
   let htmlScripts = "";
   for (const script of scripts) {

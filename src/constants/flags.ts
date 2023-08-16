@@ -16,6 +16,7 @@ export const FLAG_VAGRANT_EXISTS = "parallels-desktop:vagrant";
 export const FLAG_PACKER_EXISTS = "parallels-desktop:packer";
 export const FLAG_PARALLELS_DESKTOP_EXISTS = "parallels-desktop:parallels";
 export const FLAG_PARALLELS_EXTENSION_INITIALIZED = "parallels-desktop:initialized";
+export const FLAG_DOCKER_CONTAINER_ITEMS_EXISTS = "parallels-desktop:docker-container-items";
 export const FLAG_AUTO_REFRESH = "extension.refresh.auto";
 export const FLAG_AUTO_REFRESH_INTERVAL = "extension.refresh.interval";
 export const FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY = "extension.order-items-alphabetically";
@@ -183,4 +184,5 @@ export class CommandsFlags {
   static dockerGetContainerLogs = `${COMMAND_PREFIX}.docker.get-container-logs`;
   static dockerEnterContainer = `${COMMAND_PREFIX}.docker.enter-container`;
   static dockerRunContainer = `${COMMAND_PREFIX}.docker.run-container`;
+  static dockerRemoveImage = `${COMMAND_PREFIX}.docker.remove-image`;
 }
