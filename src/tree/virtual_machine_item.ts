@@ -17,7 +17,7 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
 
   constructor(
     item: VirtualMachine | VirtualMachineGroup | MachineSnapshot | undefined,
-    public type: "Group" | "VirtualMachine" | "Snapshot" | "DockerRoot" | "DockerImage" | "Empty",
+    public type: "Group" | "VirtualMachine" | "Snapshot" | "DockerContainerRoot" | "DockerImageRoot"| "DockerContainer" | "DockerImage" | "Empty",
     public group: string | undefined,
     public id: string,
     vmId: string | undefined,

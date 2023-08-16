@@ -1,0 +1,14 @@
+[
+    {
+        "label": "Microsoft SQL Server 2022",
+        "description": "x86",
+        "details": "Run Microsoft SQL Server 2022 on your linux",
+        "command": "-e \"ACCEPT_EULA=Y\" -e \"MSSQL_SA_PASSWORD=VeryStr0ngP@ssw0rd\" -p 1433:1433 --name mssql --hostname mssql --platform linux/amd64 -d mcr.microsoft.com/mssql/server:2022-latest"
+    },
+    {
+        "label": "Redis Server",
+        "description": "arm64",
+        "details": "Run Redis Server on your linux",
+        "command": "--name redis-server -d arm64v8/redis redis-server --save 60 1 --loglevel warning"
+    }
+]

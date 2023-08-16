@@ -4,6 +4,7 @@ import * as path from "path";
 import * as fs from "fs";
 import {
   CommandsFlags,
+  FLAG_DOCKER_CONTAINER_ITEMS_EXISTS,
   FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY,
   FLAG_HAS_VAGRANT_BOXES,
   FLAG_HAS_VIRTUAL_MACHINES,
@@ -26,6 +27,7 @@ import {BrewService} from "./brewService";
 import {GitService} from "./gitService";
 import {PackerService} from "./packerService";
 import {VagrantService} from "./vagrantService";
+import {DockerRunItem} from "../models/dockerRunItem";
 
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
@@ -38,10 +40,12 @@ export class ConfigurationService {
   showFlatSnapshotsList = false;
   locale = "en_US";
   packerTemplatesCloned = false;
+  dockerRunItems: DockerRunItem[] = [];
   lastSynced: number | undefined;
 
   constructor(private context: vscode.ExtensionContext) {
     this.virtualMachinesGroups = [];
+    this.dockerRunItems = [];
     this.featureFlags = {
       enableTelemetry: undefined,
       hardwareId: undefined,
@@ -138,6 +142,7 @@ export class ConfigurationService {
       this.initParallelsDesktop(),
       this.initPacker(),
       this.initVagrant(),
+      this.loadDockerRunItems(),
       HelperService.getHardwareInfo().then(info => {
         this.hardwareInfo = info;
       }),
@@ -165,6 +170,24 @@ export class ConfigurationService {
         this.isInitialized = true;
         this.save();
       });
+    }
+  }
+
+  async loadDockerRunItems(): Promise<void> {
+    try {
+      const dataPath = path.join(this.context.extensionPath, "data");
+      const dockerFileName = vscode.Uri.file(path.join(dataPath, "docker.json"));
+      LogService.info(`Loading docker items from ${dockerFileName.fsPath}`, "ConfigurationService");
+      const file = await vscode.workspace.fs.readFile(dockerFileName);
+      const jsonObj = JSON.parse(file.toString());
+      this.dockerRunItems = jsonObj;
+      if (this.loadDockerRunItems != undefined && this.dockerRunItems.length > 0) {
+        vscode.commands.executeCommand("setContext", FLAG_DOCKER_CONTAINER_ITEMS_EXISTS, true);
+      } else {
+        vscode.commands.executeCommand("setContext", FLAG_DOCKER_CONTAINER_ITEMS_EXISTS, false);
+      }
+    } catch (e) {
+      LogService.error(`Error loading docker items ${e}`, "ConfigurationService");
     }
   }
 

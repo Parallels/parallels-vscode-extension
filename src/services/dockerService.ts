@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
-import {DockerImage as DockerContainer} from "../models/docker-image";
+import {DockerContainer as DockerContainer} from "../models/dockerContainer";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
 import {LogService} from "./logService";
+import { DockerImage } from "../models/dockerImage";
 
 export enum DockerContainerOperation {
   Start = "start",
@@ -12,13 +13,17 @@ export enum DockerContainerOperation {
   Remove = "rm"
 }
 
+export enum DockerImageOperation {
+  Remove = "rm"
+}
+
 export class DockerService {
   constructor(private context: vscode.ExtensionContext) {}
 
   static getVmContainers(vmId: string): Promise<DockerContainer[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        LogService.info(`Getting Docker images from VM ${vmId}`, "DockerService");
+        LogService.info(`Getting Docker docker from VM ${vmId}`, "DockerService");
         ParallelsDesktopService.executeOnVm(vmId, "sudo docker ps -a --no-trunc --format json")
           .then((imagesOut: string) => {
             const containerLines = imagesOut.split("\n");
@@ -61,20 +66,110 @@ export class DockerService {
     });
   }
 
-  static containerOp(operation: DockerContainerOperation, vmId: string, containerId: string): Promise<boolean> {
+  static getVmDockerImages(vmId: string): Promise<DockerImage[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        if (containerId === "") {
+        LogService.info(`Getting Docker images from VM ${vmId}`, "DockerService");
+        ParallelsDesktopService.executeOnVm(vmId, "sudo docker image ls -a --format json")
+          .then((imagesOut: string) => {
+            const containerLines = imagesOut.split("\n");
+            const containers: DockerImage[] = [];
+            containerLines.forEach((line: string) => {
+              if (line === "") {
+                return;
+              }
+              const container = JSON.parse(line.replace(/\\\\/g, "\\"));
+              containers.push({
+                Containers: container.Container,
+                CreatedAt: container.CreatedAt,
+                CreatedSince: container.CreatedSince,
+                Digest: container.Digest,
+                ID: container.ID,
+                Repository: container.Repository,
+                SharedSize: container.SharedSize,
+                Size: container.Size,
+                Tag: container.Tag,
+                UniqueSize: container.UniqueSize,
+                VirtualSize: container.VirtualSize
+              });
+            });
+            LogService.info(`Got ${containers.length} Docker images from VM ${vmId}`, "DockerService");
+            return resolve(containers);
+          })
+          .catch((error: any) => {
+            LogService.error(
+              `Error getting Docker images from VM ${vmId}, either docker is not enabled or machine is not started`,
+              "DockerService"
+            );
+            return reject(error);
+          });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  static imageOp(operation: DockerImageOperation, vmId: string, imageId: string): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (imageId === "") {
           return resolve(false);
         }
-        LogService.info(`Starting Docker container ${containerId} on VM ${vmId}`, "DockerService");
-        ParallelsDesktopService.executeOnVm(vmId, `sudo docker ${operation} ${containerId}`)
+        LogService.info(`${operation} Docker container ${imageId} on VM ${vmId}`, "DockerService");
+        ParallelsDesktopService.executeOnVm(vmId, `sudo docker image ${operation} ${imageId}`)
           .then(() => {
-            LogService.info(`Started Docker container ${containerId} on VM ${vmId}`, "DockerService");
+            LogService.info(`${operation} Docker container ${imageId} on VM ${vmId}`, "DockerService");
             return resolve(true);
           })
           .catch((error: any) => {
-            LogService.error(`Error starting Docker container ${containerId} on VM ${vmId}`, "DockerService");
+            LogService.error(`Error ${operation} Docker container ${imageId} on VM ${vmId}`, "DockerService");
+            return reject(error);
+          });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  static containerOp(operation: DockerContainerOperation, vmId: string, imageId: string): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (imageId === "") {
+          return resolve(false);
+        }
+        LogService.info(`${operation} Docker container ${imageId} on VM ${vmId}`, "DockerService");
+        ParallelsDesktopService.executeOnVm(vmId, `sudo docker ${operation} ${imageId}`)
+          .then(() => {
+            LogService.info(`${operation} Docker container ${imageId} on VM ${vmId}`, "DockerService");
+            return resolve(true);
+          })
+          .catch((error: any) => {
+            LogService.error(`Error ${operation} Docker container ${imageId} on VM ${vmId}`, "DockerService");
+            return reject(error);
+          });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  static runContainer(vmId: string, command: string): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (command === "") {
+          return resolve(false);
+        }
+        if (vmId === "") {
+          return resolve(false);
+        }
+        LogService.info(`Running Docker container ${command} on VM ${vmId}`, "DockerService");
+        ParallelsDesktopService.executeOnVm(vmId, command)
+          .then(() => {
+            LogService.info(`Container ${command} started on VM ${vmId}`, "DockerService");
+            return resolve(true);
+          })
+          .catch((error: any) => {
+            LogService.error(`Error starting container ${command} on VM ${vmId}`, "DockerService");
             return reject(error);
           });
       } catch (error) {

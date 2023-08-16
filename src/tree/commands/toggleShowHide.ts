@@ -17,7 +17,6 @@ export function registerToggleShowHiddenCommand(context: vscode.ExtensionContext
     vscode.commands.registerCommand(CommandsFlags.coreEnableShowHiddenItems, async (item: VirtualMachineTreeItem) => {
       LogService.debug(`Toggling show hidden to true`, "TreeViewCommand");
       Provider.getConfiguration().showHidden = true;
-      console.log(Provider.getSettings().get<boolean>(FLAG_TREE_SHOW_HIDDEN));
       vscode.commands.executeCommand("setContext", FLAG_ENABLE_SHOW_HIDDEN, true);
       vscode.commands.executeCommand("setContext", FLAG_DISABLE_SHOW_HIDDEN, false);
       vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);

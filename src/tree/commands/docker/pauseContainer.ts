@@ -28,7 +28,7 @@ export function registerPauseDockerContainerCommand(
               return;
             }
 
-            await DockerService.containerOp(DockerContainerOperation.Pause, currentVm.ID, item.id)
+            await DockerService.containerOp(DockerContainerOperation.Pause, currentVm.ID, item.id.replace(currentVm.ID,""))
               .then(result => {
                 if (result) {
                   vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
@@ -59,7 +59,7 @@ export function registerPauseDockerContainerCommand(
               });
           } catch (error) {
             vscode.window.showErrorMessage(`Failed to pause docker container ${item.name}`);
-            LogService.error(`Failed to pause docker container ${item.name}: ${error}`, "StartDockerContainerCommand");
+            LogService.error(`Failed to pause docker container ${item.name}: ${error}`, "PauseDockerContainerCommand");
             LogService.sendTelemetryEvent(
               TelemetryEventIds.VirtualMachineAction,
               `Failed to pause docker container ${item.name}`

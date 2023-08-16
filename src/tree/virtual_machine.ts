@@ -34,7 +34,7 @@ import {registerDeleteVmCommand} from "./commands/deleteVm";
 import {registerEnterVmCommand} from "./commands/enterVm";
 import {registerRenameVmCommand} from "./commands/renameMachine";
 import {registerToggleRosettaLinuxCommand} from "./commands/toggleRosettaLinux";
-import {DockerImage} from "../models/docker-image";
+import {DockerContainer} from "../models/dockerContainer";
 import {DockerService} from "../services/dockerService";
 import {registerStartDockerContainerCommand} from "./commands/docker/startContainer";
 import {registerStopDockerContainerCommand} from "./commands/docker/stopContainer";
@@ -43,7 +43,11 @@ import {registerResumeDockerContainerCommand} from "./commands/docker/resumeCont
 import {registerRestartDockerContainerCommand} from "./commands/docker/restartContainer";
 import {registerRemoveDockerContainerCommand} from "./commands/docker/removeContainer";
 import {registerGetContainerLogsCommand} from "./commands/docker/getContainerLogs";
-import {registerEnterContainerLogsCommand as registerEnterContainerCommand} from "./commands/docker/enterContainer";
+import { registerEnterContainerCommand } from "./commands/docker/enterContainer";
+import { registerRunContainerCommand } from "./commands/docker/runContainer";
+import { DockerImage } from "../models/dockerImage";
+import { registerRemoveDockerImageCommand } from "./commands/docker/removeImage";
+import { LogService } from "../services/logService";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -100,6 +104,8 @@ export class VirtualMachineProvider
     registerRemoveDockerContainerCommand(context, this);
     registerGetContainerLogsCommand(context, this);
     registerEnterContainerCommand(context, this);
+    registerRunContainerCommand(context, this);
+    registerRemoveDockerImageCommand(context, this);
   }
 
   data: VirtualMachineTreeItem[] = [];
@@ -114,11 +120,6 @@ export class VirtualMachineProvider
     this._onDidChangeTreeData.event;
 
   async refresh(element?: VirtualMachineTreeItem): Promise<void> {
-    console.log("refreshing");
-    console.log(this.data);
-    if (element) {
-      console.log(element.name);
-    }
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -295,19 +296,36 @@ export class VirtualMachineProvider
   drawVirtualMachineItems(item: VirtualMachineTreeItem): Promise<VirtualMachineTreeItem[]> {
     return new Promise(async (resolve, reject) => {
       const children: VirtualMachineTreeItem[] = [];
-      const dockerImages: DockerImage[] = [];
+      let dockerContainers: DockerContainer[] | undefined = undefined;
       if (
         (item.status === "running" && (item.item as VirtualMachine).OS.toLowerCase() != "macosx") ||
         (item.item as VirtualMachine).OS.toLowerCase() != "win-11"
       ) {
         await DockerService.getVmContainers(item.id)
           .then(images => {
+            dockerContainers = [];
             images.forEach(image => {
-              dockerImages.push(image);
+              dockerContainers?.push(image);
             });
           })
           .catch(error => {
-            console.log(error);
+            LogService.error(error);
+          });
+      }
+      let dockerImages: DockerImage[] | undefined = undefined;
+      if (
+        (item.status === "running" && (item.item as VirtualMachine).OS.toLowerCase() != "macosx") ||
+        (item.item as VirtualMachine).OS.toLowerCase() != "win-11"
+      ) {
+        await DockerService.getVmDockerImages(item.id)
+          .then(images => {
+            dockerImages = [];
+            images.forEach(image => {
+              dockerImages?.push(image);
+            });
+          })
+          .catch(error => {
+            LogService.error(error);
           });
       }
       ParallelsDesktopService.getVmSnapshots(item.id)
@@ -354,26 +372,64 @@ export class VirtualMachineProvider
                   );
                 });
             }
-            if (dockerImages.length > 0) {
+            if (dockerContainers) {
               const vm = this.config.allMachines.find(f => f.ID === item.id);
               const itemId = `${(item.item as VirtualMachine).ID ?? uuid.v4()}_docker_root`;
               const currentItemInTree = this.data.find(f => f.id === itemId);
+              let currentCollapsibleState = currentItemInTree?.collapsibleState;
+              if (currentCollapsibleState != undefined && currentCollapsibleState === vscode.TreeItemCollapsibleState.None && dockerContainers.length > 0) {
+                currentCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+              }
+              if (currentCollapsibleState != undefined && (currentCollapsibleState === vscode.TreeItemCollapsibleState.Collapsed ||currentCollapsibleState === vscode.TreeItemCollapsibleState.Expanded ) && (dockerContainers.length == 0)) {
+                currentCollapsibleState = vscode.TreeItemCollapsibleState.None;
+              }
               if (vm !== undefined) {
-                vm.dockerImages = dockerImages;
+                vm.dockerContainers = dockerContainers;
                 this.config.save();
                 children.push(
                   new VirtualMachineTreeItem(
                     item.item,
-                    "DockerRoot",
+                    "DockerContainerRoot",
                     undefined,
                     itemId,
                     (item.item as VirtualMachine).ID ?? undefined,
                     "Docker Containers",
                     "Docker Containers",
                     "",
-                    `docker_root`,
-                    currentItemInTree?.collapsibleState ?? vscode.TreeItemCollapsibleState.Collapsed,
+                    `docker.container.root`,
+                    currentCollapsibleState ?? dockerContainers.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
                     "docker"
+                  )
+                );
+              }
+            }
+            if (dockerImages) {
+              const vm = this.config.allMachines.find(f => f.ID === item.id);
+              const itemId = `${(item.item as VirtualMachine).ID ?? uuid.v4()}_docker_image_root`;
+              const currentItemInTree = this.data.find(f => f.id === itemId);
+              let currentCollapsibleState = currentItemInTree?.collapsibleState;
+              if (currentCollapsibleState != undefined && currentCollapsibleState === vscode.TreeItemCollapsibleState.None && dockerImages.length > 0) {
+                currentCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+              }
+              if (currentCollapsibleState != undefined && (currentCollapsibleState === vscode.TreeItemCollapsibleState.Collapsed ||currentCollapsibleState === vscode.TreeItemCollapsibleState.Expanded ) && (dockerImages.length == 0)) {
+                currentCollapsibleState = vscode.TreeItemCollapsibleState.None;
+              }
+              if (vm !== undefined) {
+                vm.dockerImages = dockerImages;
+                this.config.save();
+                children.push(
+                  new VirtualMachineTreeItem(
+                    item.item,
+                    "DockerImageRoot",
+                    undefined,
+                    itemId,
+                    (item.item as VirtualMachine).ID ?? undefined,
+                    "Docker Images",
+                    "Docker Images",
+                    "",
+                    `docker.image.root`,
+                    currentCollapsibleState ?? dockerImages.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                    "docker_image"
                   )
                 );
               }
@@ -551,7 +607,41 @@ export class VirtualMachineProvider
     });
   }
 
-  drawDockerItems(item: VirtualMachineTreeItem): Promise<VirtualMachineTreeItem[]> {
+  drawDockerContainerItems(item: VirtualMachineTreeItem): Promise<VirtualMachineTreeItem[]> {
+    return new Promise((resolve, reject) => {
+      const data: VirtualMachineTreeItem[] = [];
+      const vm = this.config.allMachines.find(m => m.ID === item.vmId);
+      if (vm !== undefined && vm.dockerContainers.length > 0) {
+        vm.dockerContainers.forEach(dockerContainer => {
+          data.push(
+            new VirtualMachineTreeItem(
+              vm,
+              "DockerContainer",
+              undefined,
+              `${vm.ID}${dockerContainer.ID}`,
+              vm.ID,
+              dockerContainer.Names,
+              `${dockerContainer.Names}`,
+              dockerContainer.State,
+              `docker.container.${dockerContainer.State}`,
+              vscode.TreeItemCollapsibleState.None,
+              `${
+                dockerContainer.State === "running"
+                  ? "container_running"
+                  : dockerContainer.State === "paused"
+                  ? "container_paused"
+                  : "container"
+              }`,
+              `${dockerContainer.Status} (${dockerContainer.Image})`
+            )
+          );
+        });
+      }
+      resolve(data);
+    });
+  }
+
+  drawDockerImagesItems(item: VirtualMachineTreeItem): Promise<VirtualMachineTreeItem[]> {
     return new Promise((resolve, reject) => {
       const data: VirtualMachineTreeItem[] = [];
       const vm = this.config.allMachines.find(m => m.ID === item.vmId);
@@ -562,21 +652,14 @@ export class VirtualMachineProvider
               vm,
               "DockerImage",
               undefined,
-              dockerImage.ID,
+              `${vm.ID}${dockerImage.ID}`,
               vm.ID,
-              dockerImage.Names,
-              `${dockerImage.Names}`,
-              dockerImage.State,
-              `docker.container.${dockerImage.State}`,
+              dockerImage.Repository,
+              `${dockerImage.Repository}`,
+              dockerImage.Tag,
+              `docker.image.${dockerImage.Tag}`,
               vscode.TreeItemCollapsibleState.None,
-              `${
-                dockerImage.State === "running"
-                  ? "container_running"
-                  : dockerImage.State === "paused"
-                  ? "container_paused"
-                  : "container"
-              }`,
-              `${dockerImage.Status} (${dockerImage.Image})`
+              "docker_image"
             )
           );
         });
@@ -619,8 +702,18 @@ export class VirtualMachineProvider
             this.data.push(child);
           });
           return resolve(children);
-        } else if (element.type === "DockerRoot") {
-          const children = await this.drawDockerItems(element);
+        } else if (element.type === "DockerContainerRoot") {
+          const children = await this.drawDockerContainerItems(element);
+          children.forEach(child => {
+            const exists = this.data.findIndex(d => d.id === child.id);
+            if (exists !== -1) {
+              this.data.splice(exists, 1);
+            }
+            this.data.push(child);
+          });
+          return resolve(children);
+        } else if (element.type === "DockerImageRoot") {
+          const children = await this.drawDockerImagesItems(element);
           children.forEach(child => {
             const exists = this.data.findIndex(d => d.id === child.id);
             if (exists !== -1) {

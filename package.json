@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -476,6 +476,22 @@
                     "light": "img/light/terminal.svg",
                     "dark": "img/dark/terminal.svg"
                 }
+            },
+            {
+                "command": "parallels-desktop.docker.run-container",
+                "title": "Getting container logs",
+                "icon": {
+                    "light": "img/light/plus.svg",
+                    "dark": "img/dark/plus.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.docker.remove-image",
+                "title": "Removing Image",
+                "icon": {
+                    "light": "img/light/trash.svg",
+                    "dark": "img/dark/trash.svg"
+                }
             }
         ],
         "viewsContainers": {
@@ -678,11 +694,6 @@
                     "group": "inline@19"
                 },
                 {
-                    "command": "parallels-desktop.tree-view.view-vm-details",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\..*/",
-                    "group": "inline@20"
-                },
-                {
                     "command": "parallels-desktop.tree-view.start-vm",
                     "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
                     "group": "inline@0"
@@ -807,7 +818,7 @@
                 {
                     "command": "parallels-desktop.docker.remove-container",
                     "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.(exited|created)/",
-                    "group": "inline@0"
+                    "group": "inline@30"
                 },
                 {
                     "command": "parallels-desktop.docker.start-container",
@@ -836,13 +847,23 @@
                 },
                 {
                     "command": "parallels-desktop.docker.get-container-logs",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\..*/",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.(?!root).*/",
                     "group": "inline@4"
                 },
                 {
                     "command": "parallels-desktop.docker.enter-container",
                     "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.running/",
                     "group": "inline@5"
+                },
+                {
+                    "command": "parallels-desktop.docker.run-container",
+                    "when": "view == parallels-desktop-machines && parallels-desktop:docker-container-items && viewItem =~ /docker\\.container\\.root/",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "parallels-desktop.docker.remove-image",
+                    "when": "view == parallels-desktop-machines && parallels-desktop:docker-container-items && viewItem =~ /docker\\.image\\.(?!root).*/",
+                    "group": "inline@0"
                 }
             ]
         },

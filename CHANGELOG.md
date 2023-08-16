@@ -103,3 +103,13 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * Added extra caching to the profile file
 * Fixed other small issues
 
+## [0.9.0] - 2023-08-16
+
+* Added the ability to create container
+* fixed some issues when creating a container
+* Added the ability to check docker images in a VM
+* Added some missing new icons
+* Fixed the light theme icons and colors
+* Added the new "Add VM" ux design
+* Further stability improvement
+  
