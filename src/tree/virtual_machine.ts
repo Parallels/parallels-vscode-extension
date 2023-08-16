@@ -43,11 +43,11 @@ import {registerResumeDockerContainerCommand} from "./commands/docker/resumeCont
 import {registerRestartDockerContainerCommand} from "./commands/docker/restartContainer";
 import {registerRemoveDockerContainerCommand} from "./commands/docker/removeContainer";
 import {registerGetContainerLogsCommand} from "./commands/docker/getContainerLogs";
-import { registerEnterContainerCommand } from "./commands/docker/enterContainer";
-import { registerRunContainerCommand } from "./commands/docker/runContainer";
-import { DockerImage } from "../models/dockerImage";
-import { registerRemoveDockerImageCommand } from "./commands/docker/removeImage";
-import { LogService } from "../services/logService";
+import {registerEnterContainerCommand} from "./commands/docker/enterContainer";
+import {registerRunContainerCommand} from "./commands/docker/runContainer";
+import {DockerImage} from "../models/dockerImage";
+import {registerRemoveDockerImageCommand} from "./commands/docker/removeImage";
+import {LogService} from "../services/logService";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -377,10 +377,19 @@ export class VirtualMachineProvider
               const itemId = `${(item.item as VirtualMachine).ID ?? uuid.v4()}_docker_root`;
               const currentItemInTree = this.data.find(f => f.id === itemId);
               let currentCollapsibleState = currentItemInTree?.collapsibleState;
-              if (currentCollapsibleState != undefined && currentCollapsibleState === vscode.TreeItemCollapsibleState.None && dockerContainers.length > 0) {
+              if (
+                currentCollapsibleState != undefined &&
+                currentCollapsibleState === vscode.TreeItemCollapsibleState.None &&
+                dockerContainers.length > 0
+              ) {
                 currentCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
               }
-              if (currentCollapsibleState != undefined && (currentCollapsibleState === vscode.TreeItemCollapsibleState.Collapsed ||currentCollapsibleState === vscode.TreeItemCollapsibleState.Expanded ) && (dockerContainers.length == 0)) {
+              if (
+                currentCollapsibleState != undefined &&
+                (currentCollapsibleState === vscode.TreeItemCollapsibleState.Collapsed ||
+                  currentCollapsibleState === vscode.TreeItemCollapsibleState.Expanded) &&
+                dockerContainers.length == 0
+              ) {
                 currentCollapsibleState = vscode.TreeItemCollapsibleState.None;
               }
               if (vm !== undefined) {
@@ -397,7 +406,9 @@ export class VirtualMachineProvider
                     "Docker Containers",
                     "",
                     `docker.container.root`,
-                    currentCollapsibleState ?? dockerContainers.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                    currentCollapsibleState ?? dockerContainers.length > 0
+                      ? vscode.TreeItemCollapsibleState.Collapsed
+                      : vscode.TreeItemCollapsibleState.None,
                     "docker"
                   )
                 );
@@ -408,10 +419,19 @@ export class VirtualMachineProvider
               const itemId = `${(item.item as VirtualMachine).ID ?? uuid.v4()}_docker_image_root`;
               const currentItemInTree = this.data.find(f => f.id === itemId);
               let currentCollapsibleState = currentItemInTree?.collapsibleState;
-              if (currentCollapsibleState != undefined && currentCollapsibleState === vscode.TreeItemCollapsibleState.None && dockerImages.length > 0) {
+              if (
+                currentCollapsibleState != undefined &&
+                currentCollapsibleState === vscode.TreeItemCollapsibleState.None &&
+                dockerImages.length > 0
+              ) {
                 currentCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
               }
-              if (currentCollapsibleState != undefined && (currentCollapsibleState === vscode.TreeItemCollapsibleState.Collapsed ||currentCollapsibleState === vscode.TreeItemCollapsibleState.Expanded ) && (dockerImages.length == 0)) {
+              if (
+                currentCollapsibleState != undefined &&
+                (currentCollapsibleState === vscode.TreeItemCollapsibleState.Collapsed ||
+                  currentCollapsibleState === vscode.TreeItemCollapsibleState.Expanded) &&
+                dockerImages.length == 0
+              ) {
                 currentCollapsibleState = vscode.TreeItemCollapsibleState.None;
               }
               if (vm !== undefined) {
@@ -428,7 +448,9 @@ export class VirtualMachineProvider
                     "Docker Images",
                     "",
                     `docker.image.root`,
-                    currentCollapsibleState ?? dockerImages.length > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                    currentCollapsibleState ?? dockerImages.length > 0
+                      ? vscode.TreeItemCollapsibleState.Collapsed
+                      : vscode.TreeItemCollapsibleState.None,
                     "docker_image"
                   )
                 );

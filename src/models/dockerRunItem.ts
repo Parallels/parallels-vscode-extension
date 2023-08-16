@@ -1,6 +1,6 @@
 export interface DockerRunItem {
-  label:       string;
+  label: string;
   description?: string;
-  details?:     string;
-  command:     string;
+  details?: string;
+  command: string;
 }

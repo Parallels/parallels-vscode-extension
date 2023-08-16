@@ -22,7 +22,7 @@ export function registerGetContainerLogsCommand(context: vscode.ExtensionContext
         );
         const terminal = vscode.window.createTerminal(`Parallels Desktop: ${item.name} Logs`);
         terminal.show();
-        terminal.sendText(`prlctl exec "${vm.ID}" sudo docker logs ${item.id.replace(vm.ID,"")} --follow -t`);
+        terminal.sendText(`prlctl exec "${vm.ID}" sudo docker logs ${item.id.replace(vm.ID, "")} --follow -t`);
       }
     })
   );

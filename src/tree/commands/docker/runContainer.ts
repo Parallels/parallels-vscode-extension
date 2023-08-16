@@ -5,7 +5,7 @@ import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {VirtualMachine} from "../../../models/virtualMachine";
-import { DockerService } from "../../../services/dockerService";
+import {DockerService} from "../../../services/dockerService";
 
 export function registerRunContainerCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
@@ -46,7 +46,8 @@ export function registerRunContainerCommand(context: vscode.ExtensionContext, pr
               const selection = quickPick.activeItems[0];
               let title = selection.label;
               let cmd = "sudo docker run ";
-              if (selection.detail == "custom") {
+              if (selection.description == "Custom docker run command") {
+                title = "Custom docker run command";
                 const label = selection.label.replace("docker run ", "");
                 cmd += label;
               } else {
@@ -60,8 +61,9 @@ export function registerRunContainerCommand(context: vscode.ExtensionContext, pr
               vscode.window.withProgress(
                 {
                   location: vscode.ProgressLocation.Notification,
-                  title: `Creating docker container ${title} on ${(item.item as VirtualMachine)?.Name ?? "Virtual Machine"
-                    }...`
+                  title: `Creating docker container ${title} on ${
+                    (item.item as VirtualMachine)?.Name ?? "Virtual Machine"
+                  }...`
                 },
                 async () => {
                   try {
@@ -76,7 +78,10 @@ export function registerRunContainerCommand(context: vscode.ExtensionContext, pr
                           );
                         } else {
                           vscode.window.showErrorMessage(`Failed to create docker container ${title}`);
-                          LogService.error(`Failed to create docker container ${title}`, "CreateDockerContainerCommand");
+                          LogService.error(
+                            `Failed to create docker container ${title}`,
+                            "CreateDockerContainerCommand"
+                          );
                           LogService.sendTelemetryEvent(
                             TelemetryEventIds.VirtualMachineAction,
                             `Failed to create docker container ${title}`
@@ -97,7 +102,8 @@ export function registerRunContainerCommand(context: vscode.ExtensionContext, pr
                   } catch (error) {
                     vscode.window.showErrorMessage(`Failed to create docker container ${selection.label}`);
                   }
-                });
+                }
+              );
               // resolve(cmd);
             });
             quickPick.show();

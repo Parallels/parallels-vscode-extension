@@ -9,7 +9,7 @@ import {CreateMachineService} from "../../services/createMachineService";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {NewVirtualMachineRequest} from "../../models/NewVirtualMachineRequest";
 import {LogService} from "../../services/logService";
-import { Provider } from "../../ioc/provider";
+import {Provider} from "../../ioc/provider";
 
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
@@ -147,10 +147,16 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
         class="page-body mt-2"
         x-data="{
         isPosting: false,
-        version: '`+ config.parallelsDesktopVersion +`',
+        version: '` +
+    config.parallelsDesktopVersion +
+    `',
         host: {
-          cpu: '`+ cpus +`',
-          memory: '`+ memory +`',
+          cpu: '` +
+    cpus +
+    `',
+          memory: '` +
+    memory +
+    `',
         },
         itemData: {
           os: 'undefined',
@@ -403,7 +409,9 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
             }
           }
         },
-        options: ` + osData +`
+        options: ` +
+    osData +
+    `
       }"
       >
         <template x-if="isPosting">
@@ -705,7 +713,9 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
               <span class="caption-text" x-text="getVersion()"></span>
             </div>
             <div class="logo-side">
-              <img src="`+ imageUri+`/logo_new.png" width="160px" alt="logo" />
+              <img src="` +
+    imageUri +
+    `/logo_new.png" width="160px" alt="logo" />
             </div>
             <div class="link">
               <a class="link-text" href="https://my.parallels.com/login" target="_blank" rel="noopener noreferrer"

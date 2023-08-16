@@ -28,7 +28,11 @@ export function registerRemoveDockerContainerCommand(
               return;
             }
 
-            await DockerService.containerOp(DockerContainerOperation.Remove, currentVm.ID, item.id.replace(currentVm.ID,""))
+            await DockerService.containerOp(
+              DockerContainerOperation.Remove,
+              currentVm.ID,
+              item.id.replace(currentVm.ID, "")
+            )
               .then(result => {
                 if (result) {
                   vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
@@ -59,7 +63,10 @@ export function registerRemoveDockerContainerCommand(
               });
           } catch (error) {
             vscode.window.showErrorMessage(`Failed to remove docker container ${item.name}`);
-            LogService.error(`Failed to remove docker container ${item.name}: ${error}`, "RemoveDockerContainerCommand");
+            LogService.error(
+              `Failed to remove docker container ${item.name}: ${error}`,
+              "RemoveDockerContainerCommand"
+            );
             LogService.sendTelemetryEvent(
               TelemetryEventIds.VirtualMachineAction,
               `Failed to remove docker container ${item.name}`

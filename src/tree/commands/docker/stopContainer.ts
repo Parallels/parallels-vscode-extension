@@ -25,7 +25,11 @@ export function registerStopDockerContainerCommand(context: vscode.ExtensionCont
               return;
             }
 
-            await DockerService.containerOp(DockerContainerOperation.Stop, currentVm.ID, item.id.replace(currentVm.ID,""))
+            await DockerService.containerOp(
+              DockerContainerOperation.Stop,
+              currentVm.ID,
+              item.id.replace(currentVm.ID, "")
+            )
               .then(result => {
                 if (result) {
                   vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);

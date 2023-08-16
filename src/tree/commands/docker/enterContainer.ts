@@ -22,7 +22,7 @@ export function registerEnterContainerCommand(context: vscode.ExtensionContext, 
         );
         const terminal = vscode.window.createTerminal(`Parallels Desktop: ${item.name} Logs`);
         terminal.show();
-        terminal.sendText(`prlctl exec "${vm.ID}" sudo docker exec -i ${item.id.replace(vm.ID,"")} /bin/bash`);
+        terminal.sendText(`prlctl exec "${vm.ID}" sudo docker exec -i ${item.id.replace(vm.ID, "")} /bin/bash`);
       }
     })
   );

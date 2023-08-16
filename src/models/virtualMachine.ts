@@ -17,7 +17,7 @@ import {VirtualMachineTimeSynchronization} from "./VirtualMachineTimeSynchroniza
 import {VirtualMachineTravelMode} from "./VirtualMachineTravelMode";
 import {VirtualMachineUSBAndBluetooth} from "./VirtualMachineUSBAndBluetooth";
 import {DockerContainer} from "./dockerContainer";
-import { DockerImage } from "./dockerImage";
+import {DockerImage} from "./dockerImage";
 
 export interface VirtualMachine {
   ID: string;

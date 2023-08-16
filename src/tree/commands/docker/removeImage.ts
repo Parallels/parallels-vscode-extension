@@ -4,21 +4,16 @@ import {CommandsFlags, FLAG_NO_GROUP, TelemetryEventIds} from "../../../constant
 import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
-import { DockerImageOperation, DockerService} from "../../../services/dockerService";
+import {DockerImageOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/virtualMachine";
 
-export function registerRemoveDockerImageCommand(
-  context: vscode.ExtensionContext,
-  provider: VirtualMachineProvider
-) {
+export function registerRemoveDockerImageCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerRemoveImage, async (item: VirtualMachineTreeItem) => {
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: `Removing docker image ${item.name} on ${
-            (item.item as VirtualMachine)?.Name ?? "Virtual Machine"
-          }...`
+          title: `Removing docker image ${item.name} on ${(item.item as VirtualMachine)?.Name ?? "Virtual Machine"}...`
         },
         async () => {
           try {
@@ -28,7 +23,7 @@ export function registerRemoveDockerImageCommand(
               return;
             }
 
-            await DockerService.imageOp(DockerImageOperation.Remove, currentVm.ID, item.id.replace(currentVm.ID,""))
+            await DockerService.imageOp(DockerImageOperation.Remove, currentVm.ID, item.id.replace(currentVm.ID, ""))
               .then(result => {
                 if (result) {
                   vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
@@ -48,10 +43,7 @@ export function registerRemoveDockerImageCommand(
               })
               .catch(reject => {
                 vscode.window.showErrorMessage(`Failed to remove docker image ${item.name}`);
-                LogService.error(
-                  `Failed to remove docker image ${item.name}: ${reject}`,
-                  "RemoveDockerImageCommand"
-                );
+                LogService.error(`Failed to remove docker image ${item.name}: ${reject}`, "RemoveDockerImageCommand");
                 LogService.sendTelemetryEvent(
                   TelemetryEventIds.VirtualMachineAction,
                   `Failed to remove docker image ${item.name}`
