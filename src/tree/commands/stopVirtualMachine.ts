@@ -9,6 +9,9 @@ import {LogService} from "../../services/logService";
 export function registerStopVirtualMachineCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeStopVm, async item => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,

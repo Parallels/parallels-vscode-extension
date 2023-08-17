@@ -25,6 +25,7 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
       | "DockerImageRoot"
       | "DockerContainer"
       | "DockerImage"
+      | "IpAddress"
       | "Empty",
     public group: string | undefined,
     public id: string,

@@ -10,6 +10,9 @@ import {DockerService} from "../../../services/dockerService";
 export function registerRunContainerCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerRunContainer, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       return new Promise((resolve, reject) => {
         try {
           const config = Provider.getConfiguration();

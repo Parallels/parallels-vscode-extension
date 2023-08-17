@@ -113,3 +113,11 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * Added the new "Add VM" ux design
 * Further stability improvement
   
+## [1.0.0] - 2023-08-17
+
+* Fixed a bug where you could press a button while the action was already underway
+* Added the ability to copy the VM Ip if known to the clipboard
+* Added the new readme
+* Cleaned up the code for release.
+* Added the ability to set the default to run machines in a headless mode
+* Further small fixes

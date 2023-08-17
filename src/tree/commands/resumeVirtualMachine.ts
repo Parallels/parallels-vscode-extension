@@ -13,6 +13,9 @@ export function registerResumeVirtualMachineCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeResumeVm, async item => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,

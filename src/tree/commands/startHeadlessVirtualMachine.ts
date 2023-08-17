@@ -12,6 +12,9 @@ export function registerStartHeadlessVirtualMachineCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeStartHeadlessVm, async item => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,

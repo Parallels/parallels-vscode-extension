@@ -14,6 +14,9 @@ export function registerStartGroupVirtualMachinesCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeStartGroupVms, async item => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           title: `Starting Vms on ${item.name}`,

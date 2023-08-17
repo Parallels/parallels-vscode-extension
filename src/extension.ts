@@ -10,7 +10,9 @@ import {
   CommandsFlags,
   FLAG_AUTO_REFRESH,
   FLAG_AUTO_REFRESH_INTERVAL,
+  FLAG_IS_HEADLESS_DEFAULT,
   FLAG_PARALLELS_EXTENSION_INITIALIZED,
+  FLAG_START_VMS_HEADLESS_DEFAULT,
   TelemetryEventIds
 } from "./constants/flags";
 import {parallelsOutputChannel} from "./helpers/channel";
@@ -51,6 +53,13 @@ export async function activate(context: vscode.ExtensionContext) {
     if (e.affectsConfiguration("parallels-desktop")) {
       // Re-initialize the extension
       setAutoRefresh();
+      const settings = Provider.getSettings();
+      // Setting the headless flag to update the context menu
+      if (settings.get<boolean>(FLAG_START_VMS_HEADLESS_DEFAULT)) {
+        vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, true);
+      } else {
+        vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, false);
+      }
       vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
     }
   });

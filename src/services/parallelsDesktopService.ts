@@ -12,6 +12,7 @@ import {generateMacConfigPvs} from "../helpers/pvsConfig";
 import {LogService} from "./logService";
 import {NewVirtualMachineSpecs} from "../models/NewVirtualMachineSpecs";
 import {ParallelsDesktopServerInfo} from "../models/ParallelsDesktopServerInfo";
+import {VirtualMachineRunningInfo} from "../models/virtualMachineRunningInfo";
 
 export class ParallelsDesktopService {
   static isInstalled(): Promise<boolean> {
@@ -60,13 +61,14 @@ export class ParallelsDesktopService {
         config.addVirtualMachineGroup(new VirtualMachineGroup(FLAG_NO_GROUP));
       }
 
-      cp.exec("prlctl list -a -i --json", (err, stdout, stderr) => {
+      cp.exec("prlctl list -a -i --json", async (err, stdout, stderr) => {
         if (err) {
           return reject(err);
         }
         try {
           // Adding all of the VMs to the default group
           const vms: VirtualMachine[] = JSON.parse(stdout);
+          const vmsDetails = await ParallelsDesktopService.getVmsRunningDetails();
           const noGroup = config.getVirtualMachineGroup(FLAG_NO_GROUP);
           vms.forEach(vm => {
             const dbMachine = config.getVirtualMachine(vm.ID);
@@ -83,10 +85,18 @@ export class ParallelsDesktopService {
 
               vm.group = machineGroup?.uuid;
               vm.hidden = dbMachine.hidden;
+              const vmDetails = vmsDetails.find(vmDetail => vmDetail.uuid === vm.ID);
+              if (vmDetails !== undefined) {
+                vm.configuredIpAddress = vmDetails.ip_configured;
+              }
               machineGroup.addVm(vm);
               LogService.debug(`Found vm ${vm.Name} in group ${vm.group}`, "ParallelsDesktopService");
             } else {
               vm.hidden = false;
+              const vmDetails = vmsDetails.find(vmDetail => vmDetail.uuid === vm.ID);
+              if (vmDetails !== undefined) {
+                vm.configuredIpAddress = vmDetails.ip_configured;
+              }
               noGroup?.addVm(vm);
               LogService.debug(`Found vm ${vm.Name} in group ${noGroup?.uuid}`, "ParallelsDesktopService");
             }
@@ -107,6 +117,36 @@ export class ParallelsDesktopService {
         } catch (e) {
           LogService.error(`Error while parsing vms: ${e}`, "ParallelsDesktopService");
           return reject(e);
+        }
+      });
+    });
+  }
+
+  static async getVmsRunningDetails(): Promise<VirtualMachineRunningInfo[]> {
+    return new Promise(async (resolve, reject) => {
+      LogService.info(`Getting Vms running Info`, "ParallelsDesktopService");
+      const prlctl = cp.spawn("prlctl", ["list", "-a", "-f", "--json"], {shell: true});
+      let stdOut = "";
+      prlctl.stdout.on("data", data => {
+        stdOut += data.toString();
+        LogService.info(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlctl list exited with code ${code}`, "ParallelsDesktopService", true);
+          return reject(`prlctl list exited with code ${code}`);
+        }
+        try {
+          // Adding all of the VMs to the default group
+          const vms: VirtualMachineRunningInfo[] = JSON.parse(stdOut);
+          LogService.info(`Got vms running info`, "ParallelsDesktopService");
+          return resolve(vms);
+        } catch (e) {
+          LogService.error(`Error while parsing vms: ${e}`, "ParallelsDesktopService");
+          return reject(`Error while parsing vms`);
         }
       });
     });
@@ -212,6 +252,45 @@ export class ParallelsDesktopService {
         if (!ok) {
           LogService.error(`Failed to set startup-view to window`, "ParallelsDesktopService");
           return reject("failed to set startup-view to window");
+        }
+
+        LogService.info(`Vm ${vmId} started successfully in headless mode`, "ParallelsDesktopService");
+        return resolve(true);
+      });
+    });
+  }
+
+  static async startWindowVm(vmId: string): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      if (!vmId) {
+        LogService.error("vmId is empty", "ParallelsDesktopService");
+        return reject("vmId is empty");
+      }
+
+      const ok = await this.setVmConfig(vmId, "startup-view", "window");
+      if (!ok) {
+        LogService.error(`Failed to set startup-view to window`, "ParallelsDesktopService");
+        return reject("failed to set startup-view to window");
+      }
+
+      LogService.info(`Starting vm ${vmId}`, "ParallelsDesktopService");
+      const prlctl = cp.spawn("prlctl", ["start", `"${vmId}"`], {shell: true});
+      prlctl.stdout.on("data", data => {
+        LogService.info(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", async code => {
+        if (code !== 0) {
+          LogService.error(`prlctl start exited with code ${code}`, "ParallelsDesktopService", true);
+          return resolve(false);
+        }
+
+        const ok = await this.setVmConfig(vmId, "startup-view", "headless");
+        if (!ok) {
+          LogService.error(`Failed to set startup-view to headless`, "ParallelsDesktopService");
+          return reject("failed to set startup-view to headless");
         }
 
         LogService.info(`Vm ${vmId} started successfully in headless mode`, "ParallelsDesktopService");

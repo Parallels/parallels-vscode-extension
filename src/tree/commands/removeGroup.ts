@@ -8,6 +8,9 @@ import {VirtualMachineTreeItem} from "../virtual_machine_item";
 export function registerRemoveGroupCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRemoveGroup, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       const group = Provider.getConfiguration().getVirtualMachineGroup(item.id);
       if (group !== undefined) {
         const options: string[] = ["Yes", "No"];

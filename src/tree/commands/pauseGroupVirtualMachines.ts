@@ -14,6 +14,9 @@ export function registerPauseGroupVirtualMachinesCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treePauseGroupVms, async item => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           title: `Pausing Vms on ${item.name}`,

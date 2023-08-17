@@ -1,9 +1,10 @@
 import {config} from "process";
 import * as vscode from "vscode";
 import * as uuid from "uuid";
+import * as clipboardy from "clipboardy";
 import {Provider} from "../ioc/provider";
 import {VirtualMachineTreeItem} from "./virtual_machine_item";
-import {FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE, FLAG_NO_GROUP} from "../constants/flags";
+import {CommandsFlags, FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE, FLAG_NO_GROUP} from "../constants/flags";
 import {registerAddGroupCommand} from "./commands/addGroup";
 import {registerRemoveGroupCommand} from "./commands/removeGroup";
 import {registerViewVmDetailsCommand} from "./commands/viewVmDetails";
@@ -48,6 +49,8 @@ import {registerRunContainerCommand} from "./commands/docker/runContainer";
 import {DockerImage} from "../models/dockerImage";
 import {registerRemoveDockerImageCommand} from "./commands/docker/removeImage";
 import {LogService} from "../services/logService";
+import {registerStartWindowVirtualMachineCommand} from "./commands/startWindowVirtualMachine";
+import {registerCopyIpAddressCommand} from "./commands/copyIpAddress";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -72,6 +75,7 @@ export class VirtualMachineProvider
     registerAddVmCommand(context, this);
     registerStartVirtualMachineCommand(context, this);
     registerStartHeadlessVirtualMachineCommand(context, this);
+    registerStartWindowVirtualMachineCommand(context, this);
     registerStopVirtualMachineCommand(context, this);
     registerResumeVirtualMachineCommand(context, this);
     registerPauseVirtualMachineCommand(context, this);
@@ -94,6 +98,8 @@ export class VirtualMachineProvider
     registerToggleRosettaLinuxCommand(context, this);
 
     registerToggleShowHiddenCommand(context, this);
+
+    registerCopyIpAddressCommand(context, this);
 
     // Docker commands
     registerStartDockerContainerCommand(context, this);
@@ -121,6 +127,10 @@ export class VirtualMachineProvider
 
   async refresh(element?: VirtualMachineTreeItem): Promise<void> {
     this._onDidChangeTreeData.fire(undefined);
+  }
+
+  onDidChangeSelection(selection: VirtualMachineTreeItem[]): void {
+    console.log("onDidChangeSelection", selection);
   }
 
   drawRootGroupsItems(): Promise<VirtualMachineTreeItem[]> {
@@ -168,6 +178,10 @@ export class VirtualMachineProvider
             icon = `virtual_machine_paused${vm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           }
           const visibility = vm.hidden ? "hidden" : "visible";
+          const description =
+            vm.configuredIpAddress === undefined || vm.configuredIpAddress === "-"
+              ? vm.State
+              : `${vm.State} (${vm.configuredIpAddress})`;
           if ((!vm.hidden || this.config.showHidden) && !this.checkIfExists(data, vm.ID)) {
             data.push(
               new VirtualMachineTreeItem(
@@ -183,7 +197,8 @@ export class VirtualMachineProvider
                   vm.State
                 }`,
                 vm.OS === "macosx" ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
-                icon
+                icon,
+                description
               )
             );
           }
@@ -296,11 +311,9 @@ export class VirtualMachineProvider
   drawVirtualMachineItems(item: VirtualMachineTreeItem): Promise<VirtualMachineTreeItem[]> {
     return new Promise(async (resolve, reject) => {
       const children: VirtualMachineTreeItem[] = [];
+      const vm = item.item as VirtualMachine;
       let dockerContainers: DockerContainer[] | undefined = undefined;
-      if (
-        (item.status === "running" && (item.item as VirtualMachine).OS.toLowerCase() != "macosx") ||
-        (item.item as VirtualMachine).OS.toLowerCase() != "win-11"
-      ) {
+      if ((item.status === "running" && vm.OS.toLowerCase() != "macosx") || vm.OS.toLowerCase() != "win-11") {
         await DockerService.getVmContainers(item.id)
           .then(images => {
             dockerContainers = [];
@@ -313,10 +326,7 @@ export class VirtualMachineProvider
           });
       }
       let dockerImages: DockerImage[] | undefined = undefined;
-      if (
-        (item.status === "running" && (item.item as VirtualMachine).OS.toLowerCase() != "macosx") ||
-        (item.item as VirtualMachine).OS.toLowerCase() != "win-11"
-      ) {
+      if ((item.status === "running" && vm.OS.toLowerCase() != "macosx") || vm.OS.toLowerCase() != "win-11") {
         await DockerService.getVmDockerImages(item.id)
           .then(images => {
             dockerImages = [];
@@ -328,6 +338,32 @@ export class VirtualMachineProvider
             LogService.error(error);
           });
       }
+
+      if (vm.configuredIpAddress != undefined && vm.configuredIpAddress != "-") {
+        const ipAddressId = `${vm.ID ?? uuid.v4()}_ip_address_${vm.configuredIpAddress}}`;
+        children.push(
+          new VirtualMachineTreeItem(
+            item.item,
+            "IpAddress",
+            undefined,
+            ipAddressId,
+            (item.item as VirtualMachine).ID ?? undefined,
+            `IP: ${vm.configuredIpAddress}`,
+            `IP: ${vm.configuredIpAddress}`,
+            "",
+            `vm.ip`,
+            vscode.TreeItemCollapsibleState.None,
+            "globe",
+            undefined,
+            {
+              command: CommandsFlags.treeCopyIpAddress,
+              title: "Copy to clipboard",
+              arguments: [vm]
+            }
+          )
+        );
+      }
+
       ParallelsDesktopService.getVmSnapshots(item.id)
         .then(
           snapshots => {
@@ -602,6 +638,10 @@ export class VirtualMachineProvider
             icon = `virtual_machine_paused${childVm.Advanced["Rosetta Linux"] !== "on" ? "" : "_rosetta"}`;
           }
           const visibility = childVm.hidden ? "hidden" : "visible";
+          const description =
+            childVm.configuredIpAddress === undefined || childVm.configuredIpAddress === "-"
+              ? childVm.State
+              : `${childVm.State} (${childVm.configuredIpAddress})`;
           if ((!childVm.hidden || this.config.showHidden) && !this.checkIfExists(children, childVm.ID)) {
             children.push(
               new VirtualMachineTreeItem(
@@ -619,7 +659,8 @@ export class VirtualMachineProvider
                 childVm.OS === "macosx"
                   ? vscode.TreeItemCollapsibleState.None
                   : vscode.TreeItemCollapsibleState.Collapsed,
-                icon
+                icon,
+                description
               )
             );
           }

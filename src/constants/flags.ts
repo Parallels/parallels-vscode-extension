@@ -21,6 +21,8 @@ export const FLAG_AUTO_REFRESH = "extension.refresh.auto";
 export const FLAG_AUTO_REFRESH_INTERVAL = "extension.refresh.interval";
 export const FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY = "extension.order-items-alphabetically";
 export const FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE = "extension.show-flat-snapshot-tree";
+export const FLAG_START_VMS_HEADLESS_DEFAULT = "extension.start-machines-headless-by-default";
+export const FLAG_IS_HEADLESS_DEFAULT = "parallels-desktop:headless-by-default";
 export const FLAG_TREE_SHOW_HIDDEN = "tree.show-hidden-items";
 export const FLAG_GIT_PATH = "git.path";
 export const FLAG_GIT_VERSION = "git.version";
@@ -143,12 +145,15 @@ export class CommandsFlags {
   static treeResumeVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.resume-vm`;
   static treeStartVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-vm`;
   static treeStartHeadlessVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-headless-vm`;
+  static treeStartWindowVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-window-vm`;
   static treeStopVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.stop-vm`;
   static treeRemoveVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.remove-vm`;
   static treeEnterVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.enter-vm`;
   static treeRenameVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.rename-vm`;
   static treeEnableRosetta = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.enable-rosetta-linux`;
   static treeDisableRosetta = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.disable-rosetta-linux`;
+
+  static treeCopyIpAddress = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.copy-ip-address`;
 
   static treeTakeVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.take-vm-snapshot`;
   static treeDeleteVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.delete-vm-snapshot`;
