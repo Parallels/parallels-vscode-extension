@@ -13,6 +13,9 @@ export function registerPauseDockerContainerCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerPauseContainer, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,

@@ -8,6 +8,9 @@ import {LogService} from "../../services/logService";
 export function registerTakeSnapshotCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeTakeVmSnapshot, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       const snapshotName = await vscode.window.showInputBox({
         prompt: "Snapshot Name?",
         placeHolder: "Enter the name for your snapshot"

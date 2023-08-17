@@ -10,6 +10,9 @@ import {VirtualMachine} from "../../../models/virtualMachine";
 export function registerStopDockerContainerCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerStopContainer, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,

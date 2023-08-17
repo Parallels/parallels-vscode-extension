@@ -15,6 +15,9 @@ export function registerResumeGroupVirtualMachinesCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeResumeGroupVms, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           title: `Resuming Vms on ${item.name}`,

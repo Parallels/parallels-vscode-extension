@@ -13,6 +13,9 @@ export function registerResumeDockerContainerCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerResumeContainer, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,

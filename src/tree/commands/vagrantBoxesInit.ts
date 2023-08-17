@@ -7,6 +7,9 @@ import {VagrantService} from "../../services/vagrantService";
 export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, provider: VagrantBoxProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderInit, async (item: VagrantBoxTreeItem) => {
+      if (!item) {
+        return;
+      }
       if (item.name !== "") {
         let machineName = item.name;
         const machineNamePrompt = await vscode.window.showInputBox({

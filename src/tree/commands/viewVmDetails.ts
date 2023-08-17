@@ -16,6 +16,9 @@ let lastClickedTime: number | undefined;
 export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeVmInfo, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       if (item.type !== "Group" && item.type !== "Snapshot") {
         const clickedTime = Date.now();
         // if (lastClickedTime && clickedTime - lastClickedTime < 500) {

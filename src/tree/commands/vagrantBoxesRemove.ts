@@ -8,6 +8,9 @@ import {VagrantService} from "../../services/vagrantService";
 export function registerVagrantBoxRemoveCommand(context: vscode.ExtensionContext, provider: VagrantBoxProvider) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderDelete, async (item: VagrantBoxTreeItem) => {
+      if (!item) {
+        return;
+      }
       if (item.name !== "") {
         vscode.window.withProgress(
           {

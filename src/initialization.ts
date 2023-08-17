@@ -8,6 +8,8 @@ import {
   FLAG_DISABLE_SHOW_HIDDEN,
   FLAG_ENABLE_SHOW_HIDDEN,
   FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE,
+  FLAG_IS_HEADLESS_DEFAULT,
+  FLAG_START_VMS_HEADLESS_DEFAULT,
   FLAG_TREE_SHOW_HIDDEN
 } from "./constants/flags";
 import {LogService} from "./services/logService";
@@ -216,6 +218,13 @@ export async function initialize() {
           });
       } else {
         LogService.info(`Telemetry is ${config.isTelemetryEnabled ? "enabled" : "disabled"}`, "CoreService");
+      }
+
+      // Setting the headless flag to update the context menu
+      if (settings.get<boolean>(FLAG_START_VMS_HEADLESS_DEFAULT)) {
+        vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, true);
+      } else {
+        vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, false);
       }
 
       progress.report({message: "Finished"});

@@ -5,6 +5,7 @@ import {OperatingSystemImage} from "./OperatingSystemImage";
 import {OperatingSystem} from "./operatingSystem";
 import {LogService} from "../services/logService";
 import {Provider} from "../ioc/provider";
+import {FLAG_IS_HEADLESS_DEFAULT, FLAG_START_VMS_HEADLESS_DEFAULT} from "../constants/flags";
 
 export class OperatingSystemsData {
   operatingSystems: OperatingSystem[];
@@ -120,15 +121,25 @@ export class OperatingSystemsData {
   }
 
   private addStartHeadlessFlag() {
+    const settings = Provider.getSettings();
+    const isDefaultHeadless = settings.get<boolean>(FLAG_START_VMS_HEADLESS_DEFAULT) ?? false;
     this.operatingSystems.forEach(os => {
       if (os.id === "linux" || os.id === "windows") {
         os.platforms.forEach(platform => {
           platform.images.forEach(image => {
-            image.allowedFlags.push({code: "startHeadless", name: "Start Machine in Headless Mode", enabled: false});
+            image.allowedFlags.push({
+              code: "startHeadless",
+              name: "Start Machine in Headless Mode",
+              enabled: isDefaultHeadless
+            });
           });
           platform.distros.forEach(distro => {
             distro.images.forEach(image => {
-              image.allowedFlags.push({code: "startHeadless", name: "Start Machine in Headless Mode", enabled: false});
+              image.allowedFlags.push({
+                code: "startHeadless",
+                name: "Start Machine in Headless Mode",
+                enabled: isDefaultHeadless
+              });
             });
           });
         });

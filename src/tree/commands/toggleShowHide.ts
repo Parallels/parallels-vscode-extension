@@ -46,7 +46,7 @@ export function registerToggleShowHiddenCommand(context: vscode.ExtensionContext
       if (item) {
         if (item.type === "Group") {
           LogService.debug(`Toggling group item ${item.name} visibility to true`, "TreeViewCommand");
-          Provider.getConfiguration().showVirtualMachineGroup(item.name);
+          Provider.getConfiguration().showVirtualMachineGroup(item.id);
           vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         }
         if (item.type === "VirtualMachine") {
@@ -61,7 +61,7 @@ export function registerToggleShowHiddenCommand(context: vscode.ExtensionContext
       if (item) {
         if (item.type === "Group") {
           LogService.debug(`Toggling group item ${item.name} visibility to false`, "TreeViewCommand");
-          Provider.getConfiguration().hideVirtualMachineGroup(item.name);
+          Provider.getConfiguration().hideVirtualMachineGroup(item.id);
           vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         }
         if (item.type === "VirtualMachine") {

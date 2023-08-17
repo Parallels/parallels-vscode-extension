@@ -13,6 +13,9 @@ export function registerRemoveDockerContainerCommand(
 ) {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerRemoveContainer, async (item: VirtualMachineTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,

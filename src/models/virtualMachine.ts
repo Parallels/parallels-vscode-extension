@@ -26,6 +26,7 @@ export interface VirtualMachine {
   dockerContainers: DockerContainer[];
   dockerImages: DockerImage[];
   Name: string;
+  configuredIpAddress: string;
   Description: string;
   Type: string;
   State: string;
