@@ -121,3 +121,7 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 * Cleaned up the code for release.
 * Added the ability to set the default to run machines in a headless mode
 * Further small fixes
+
+## [1.0.1] - 2023-08-17
+
+* Changed some documentation and package.json description
