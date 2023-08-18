@@ -31,7 +31,7 @@ export class PackerService {
 
       cp.exec("which packer", (err, stdout) => {
         if (err) {
-          LogService.error("Packer is not installed", "PackerService", true, false);
+          LogService.error("Packer is not installed", "PackerService");
           return resolve(false);
         }
         const path = stdout.replace("\n", "").trim();
@@ -56,8 +56,8 @@ export class PackerService {
 
       cp.exec("packer --version", (err, stdout) => {
         if (err) {
-          LogService.error("Packer is not installed", "PackerService", true, false);
-          return reject(err);
+          LogService.error("Packer is not installed", "PackerService");
+          return reject("Packer is not installed");
         }
 
         const versionMatch = stdout.match(/(\d+\.\d+\.\d+)\n/);
@@ -94,7 +94,7 @@ export class PackerService {
             });
             brew.on("close", code => {
               if (code !== 0) {
-                LogService.error(`brew tap exited with code ${code}`, "PackerService", true, false);
+                LogService.error(`brew tap exited with code ${code}`, "PackerService");
                 return resolve(false);
               }
 
@@ -107,7 +107,7 @@ export class PackerService {
               });
               packer.on("close", async code => {
                 if (code !== 0) {
-                  LogService.error(`brew install exited with code ${code}`, "PackerService", true, false);
+                  LogService.error(`brew install exited with code ${code}`, "PackerService");
                   return resolve(false);
                 }
                 const config = Provider.getConfiguration();
@@ -136,6 +136,7 @@ export class PackerService {
 
   static getPlatformAddons(platform: string): Promise<VirtualMachineAddon[]> {
     return new Promise((resolve, reject) => {
+      try {
       if (!platform) {
         LogService.error("Platform is required", "PackerService");
         return reject("Platform is required");
@@ -163,13 +164,17 @@ export class PackerService {
       cmd.on("close", code => {
         if (code !== 0) {
           LogService.error(`Error getting addons for platform ${platform}`, "PackerService", true);
-          return reject(false);
+          return reject(`Error getting addons for platform ${platform}`);
         }
         const output = JSON.parse(stdOut);
         Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, output);
         LogService.info(`Got ${output.length} addons for platform ${platform}`, "PackerService");
         return resolve(output as VirtualMachineAddon[]);
       });
+      } catch (e) {
+        LogService.error(`Error getting addons for platform ${platform}`, "PackerService", true);
+        return reject(`Error getting addons for platform ${platform}`);
+      }
     });
   }
 
@@ -180,16 +185,21 @@ export class PackerService {
     if (!path) {
       return false;
     }
-    let fileContent = "";
-    fileContent = this.generateObjectVar(variables);
-    if (fs.existsSync(path)) {
-      LogService.info(`Removing existing variables override file ${path}`, "PackerService");
-      fs.unlinkSync(path);
-    }
+    try {
+      let fileContent = "";
+      fileContent = this.generateObjectVar(variables);
+      if (fs.existsSync(path)) {
+        LogService.info(`Removing existing variables override file ${path}`, "PackerService");
+        fs.unlinkSync(path);
+      }
 
-    fs.writeFileSync(path, fileContent);
-    LogService.info(`Variables override file ${path} generated`, "PackerService");
-    return true;
+      fs.writeFileSync(path, fileContent);
+      LogService.info(`Variables override file ${path} generated`, "PackerService");
+      return true;
+    } catch (e) {
+      LogService.error(`Error generating variables override file ${path}`, "PackerService", true);
+      return false;
+    }
   }
 
   static generateObjectVar(variable: any, indent = 0): string {
@@ -309,13 +319,13 @@ export class PackerService {
         packer.on("close", code => {
           if (code !== 0) {
             LogService.error(`Packer build exited with code ${code}`, "PackerService");
-            return reject(code);
+            return reject(`Packer build exited with code ${code}, please check logs`);
           }
           LogService.info(`Machine ${machine.name} created on ${machine.outputFolder}`, "PackerService");
           return resolve(true);
         });
       } catch (error) {
-        LogService.error(`Error building machine ${machine.name} on ${machine.outputFolder}`, "PackerService", true);
+        LogService.error(`Error building machine ${machine.name} on ${machine.outputFolder}`, "PackerService");
         reject(error);
       }
     });

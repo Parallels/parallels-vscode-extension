@@ -26,7 +26,7 @@ export class BrewService {
 
       cp.exec("which brew", (err, stdout) => {
         if (err) {
-          LogService.error("Brew is not installed", "BrewService", true, false);
+          LogService.error("Brew is not installed", "BrewService");
           return resolve(false);
         }
         const path = stdout.replace("\n", "").trim();
@@ -89,7 +89,7 @@ export class BrewService {
             });
             brew.on("close", code => {
               if (code !== 0) {
-                LogService.error(`brew tap exited with code ${code}`, "BrewService", true, false);
+                LogService.error(`brew tap exited with code ${code}`, "BrewService");
                 progress.report({message: "Failed to install Brew, see logs for more details"});
                 return resolve(false);
               }

@@ -136,7 +136,7 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl list exited with code ${code}`, "ParallelsDesktopService", true);
+          LogService.error(`prlctl list exited with code ${code}`, "ParallelsDesktopService");
           return reject(`prlctl list exited with code ${code}`);
         }
         try {
@@ -211,7 +211,7 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl start exited with code ${code}`, "ParallelsDesktopService", true);
+          LogService.error(`prlctl start exited with code ${code}`, "ParallelsDesktopService");
           return resolve(false);
         }
 
@@ -244,7 +244,7 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", async code => {
         if (code !== 0) {
-          LogService.error(`prlctl start exited with code ${code}`, "ParallelsDesktopService", true);
+          LogService.error(`prlctl start exited with code ${code}`, "ParallelsDesktopService");
           return resolve(false);
         }
 
@@ -283,8 +283,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", async code => {
         if (code !== 0) {
-          LogService.error(`prlctl start exited with code ${code}`, "ParallelsDesktopService", true);
-          return resolve(false);
+          LogService.error(`prlctl start exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl start exited with code ${code}, please check logs for more details`);
         }
 
         const ok = await this.setVmConfig(vmId, "startup-view", "headless");
@@ -317,8 +317,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl set exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl set exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl set exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Vm ${vmId} flag ${key} set to ${value} successfully`, "ParallelsDesktopService");
@@ -344,8 +344,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl stop exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(`Error stopping Virtual Machine, return code: ${code}`);
+          LogService.error(`prlctl stop exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`Error stopping Virtual Machine, return code: ${code}, please check logs for more details`);
         }
 
         LogService.info(`Vm ${vmId} stopped successfully`, "ParallelsDesktopService");
@@ -371,8 +371,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl resume exited with code ${code}`, "ParallelsDesktopService", true);
-          return resolve(false);
+          LogService.error(`prlctl resume exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl resume exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Vm ${vmId} resumed successfully`, "ParallelsDesktopService");
@@ -398,8 +398,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl pause exited with code ${code}`, "ParallelsDesktopService", true);
-          return resolve(false);
+          LogService.error(`prlctl pause exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl pause exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Vm ${vmId} paused successfully`, "ParallelsDesktopService");
@@ -425,18 +425,18 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", async code => {
         if (code !== 0) {
-          LogService.error(`prlctl delete exited with code ${code}`, "ParallelsDesktopService", true);
+          LogService.error(`prlctl delete exited with code ${code}`, "ParallelsDesktopService");
           await ParallelsDesktopService.unregisterVm(vmId)
             .then(result => {
               if (!result) {
-                return resolve(false);
+                return reject(`prlctl delete exited with code ${code}, please check logs for more details`);
               }
               // Lets try to unregister the machine
               return resolve(true);
             })
             .catch(error => {
-              LogService.error(`prlctl delete exited with code ${code}`, "ParallelsDesktopService", true);
-              return resolve(false);
+              LogService.error(`prlctl delete exited with code ${code}`, "ParallelsDesktopService");
+              return reject(`prlctl delete exited with code ${code}, please check logs for more details`);
             });
         }
 
@@ -464,8 +464,8 @@ export class ParallelsDesktopService {
       prlctl.on("close", code => {
         if (code !== 0) {
           // Lets try to unregister the machine
-          LogService.error(`prlctl unregister exited with code ${code}`, "ParallelsDesktopService", true);
-          return resolve(false);
+          LogService.error(`prlctl unregister exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl unregister exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${vmId} unregistered`, "ParallelsDesktopService");
@@ -491,8 +491,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl suspend exited with code ${code}`, "ParallelsDesktopService", true);
-          return resolve(false);
+          LogService.error(`prlctl suspend exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl suspend exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${vmId} suspended`, "ParallelsDesktopService");
@@ -518,8 +518,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl enter exited with code ${code}`, "ParallelsDesktopService", true);
-          return resolve(false);
+          LogService.error(`prlctl enter exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl enter exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${vmId} entered`, "ParallelsDesktopService");
@@ -548,7 +548,7 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl enter exited with code ${code}`, "ParallelsDesktopService", true);
+          LogService.error(`prlctl enter exited with code ${code}`, "ParallelsDesktopService");
           return reject(`The command could not be executed on the Virtual Machine, err: ${code}`);
         }
 
@@ -582,8 +582,8 @@ export class ParallelsDesktopService {
       prlctl.on("close", code => {
         let status: "running" | "stopped" | "suspended" | "paused" | "snapshooting" | "unknown" = "unknown";
         if (code !== 0) {
-          LogService.error(`prlctl pause exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(status);
+          LogService.error(`prlctl pause exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl pause exited with code ${code}, please check logs for more details`);
         }
         if (stdOut.includes("running")) {
           status = "running";
@@ -632,8 +632,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl snapshot-list exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl snapshot-list exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl snapshot-list exited with code ${code}, please check logs for more details`);
         }
 
         try {
@@ -650,8 +650,8 @@ export class ParallelsDesktopService {
           LogService.info(`Virtual Machine ${vmId} snapshots: ${JSON.stringify(result)}`, "ParallelsDesktopService");
           return resolve(result);
         } catch (e) {
-          LogService.error(`prlctl snapshot-list parsing error: ${e}`, "ParallelsDesktopService", true);
-          return reject(e);
+          LogService.error(`prlctl snapshot-list parsing error: ${e}`, "ParallelsDesktopService");
+          return reject(`prlctl snapshot-list parsing error: ${e}`);
         }
       });
     });
@@ -684,8 +684,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl snapshot exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl snapshot exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl snapshot exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${vmId} snapshot ${name} created`, "ParallelsDesktopService");
@@ -720,8 +720,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl snapshot-delete exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl snapshot-delete exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl snapshot-delete exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${vmId} snapshot ${snapshotId} deleted`, "ParallelsDesktopService");
@@ -753,8 +753,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl snapshot-switch exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl snapshot-switch exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl snapshot-switch exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${vmId} snapshot ${snapshotId} restored`, "ParallelsDesktopService");
@@ -781,8 +781,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl register exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl register exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl register exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${path} registered`, "ParallelsDesktopService");
@@ -813,8 +813,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl set rename exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl set rename exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl set rename exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${machineIdOrName} renamed to ${newMachineName}`, "ParallelsDesktopService");
@@ -848,8 +848,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl capture exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl capture exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl capture exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Virtual Machine ${machineId} screen captured`, "ParallelsDesktopService");
@@ -881,8 +881,8 @@ export class ParallelsDesktopService {
       });
       prlctl.on("close", code => {
         if (code !== 0) {
-          LogService.error(`prlctl create exited with code ${code}`, "ParallelsDesktopService", true);
-          return reject(code);
+          LogService.error(`prlctl create exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl create exited with code ${code}`);
         }
 
         LogService.info(`Virtual Machine ${name} created`, "ParallelsDesktopService");
@@ -925,7 +925,7 @@ export class ParallelsDesktopService {
             }
           } catch (e) {
             LogService.error(`Error creating config.pvs file: ${e}`, "ParallelsDesktopService");
-            return reject(e);
+            return reject(`Error creating config.pvs file: ${e}`);
           }
 
           // registering the vm
@@ -954,8 +954,8 @@ export class ParallelsDesktopService {
             });
             cmd.on("close", code => {
               if (code !== 0) {
-                LogService.error(`prl_macvm_create exited with code ${code}`, "ParallelsDesktopService", true);
-                return reject(code);
+                LogService.error(`prl_macvm_create exited with code ${code}`, "ParallelsDesktopService");
+                return reject(`prl_macvm_create exited with code ${code}, please check logs for more details`);
               }
               try {
                 // creating the custom config.pvs file if it does not exist in the bundle
@@ -966,7 +966,7 @@ export class ParallelsDesktopService {
                 }
               } catch (e) {
                 LogService.error(`Error creating config.pvs file: ${e}`, "ParallelsDesktopService");
-                return reject(e);
+                return reject(`Error creating config.pvs file: ${e}, please check logs for more details`);
               }
 
               // registering the vm
@@ -998,8 +998,8 @@ export class ParallelsDesktopService {
         });
         prlctl.on("close", code => {
           if (code !== 0) {
-            LogService.error(`prlctl create exited with code ${code}`, "ParallelsDesktopService", true);
-            return reject(code);
+            LogService.error(`prlctl create exited with code ${code}`, "ParallelsDesktopService");
+            return reject(`prlctl create exited with code ${code}, please check logs for more details`);
           }
 
           LogService.info(`Mac VM ${name} created successfully`, "ParallelsDesktopService");
@@ -1046,7 +1046,7 @@ export class ParallelsDesktopService {
         this.createVm(originalName, type)
           .then(async value => {
             if (!value) {
-              return reject(false);
+              return reject(value);
             }
             // let oppResult = false;
             // Setting the CPU
@@ -1075,7 +1075,7 @@ export class ParallelsDesktopService {
                     this.setVmConfig(originalName, "device-bootorder", `"cdrom0 hdd0"`)
                       .then(value => {
                         if (!value) {
-                          return reject(false);
+                          return reject(value);
                         }
                         return resolve(true);
                       })

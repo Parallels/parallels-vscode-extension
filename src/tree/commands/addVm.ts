@@ -19,12 +19,6 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
       const svc = new CreateMachineService(context);
       const operatingSystemContent = await svc.get();
 
-      // operatingSystemContent.forEach(os => {
-      //   is
-      //   os.platforms.forEach(platform => {
-
-      // }
-
       let osData = "[";
       operatingSystemContent.forEach(o => {
         osData += o.toString() + ",";
@@ -116,7 +110,11 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
                     LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
                     vscode.window.showErrorMessage(`Error creating VM: ${err}`);
                   }
-                );
+                ).catch(err => {
+                  LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineFailed);
+                  LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
+                  vscode.window.showErrorMessage(`Error creating VM: ${err}`);
+                });
                 return;
               }
             );
