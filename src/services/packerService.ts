@@ -273,7 +273,7 @@ export class PackerService {
           );
           command =
             "PYTHONPATH=/Library/Frameworks/ParallelsVirtualizationSDK.framework/Versions/Current/Libraries/Python/3.7";
-          options = ["packer", "init",  "."];
+          options = ["packer", "init", "."];
         } else {
           LogService.info(
             `Using Parallels Desktop version ${config.packerDesktopMajorVersion} method`,
@@ -302,7 +302,10 @@ export class PackerService {
           return resolve(true);
         });
       } catch (error) {
-        LogService.error(`Error initializing machine ${machine.name} script on ${machine.outputFolder}`, "PackerService");
+        LogService.error(
+          `Error initializing machine ${machine.name} script on ${machine.outputFolder}`,
+          "PackerService"
+        );
         reject(error);
       }
     });
@@ -346,7 +349,10 @@ export class PackerService {
         );
 
         await this.initPackerFolder(machine).catch(error => {
-          LogService.error(`Error initializing machine ${machine.name} script on ${machine.outputFolder}`, "PackerService");
+          LogService.error(
+            `Error initializing machine ${machine.name} script on ${machine.outputFolder}`,
+            "PackerService"
+          );
           reject(error);
         });
 
