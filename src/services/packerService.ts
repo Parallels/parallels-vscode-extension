@@ -137,40 +137,40 @@ export class PackerService {
   static getPlatformAddons(platform: string): Promise<VirtualMachineAddon[]> {
     return new Promise((resolve, reject) => {
       try {
-      if (!platform) {
-        LogService.error("Platform is required", "PackerService");
-        return reject("Platform is required");
-      }
-      if (Provider.getCache().get(`${Constants.CacheFlagPackerAddons}.${platform}`)) {
-        LogService.info(`Getting addons for platform ${platform} from cache`, "PackerService");
-
-        return resolve(Provider.getCache().get(`${Constants.CacheFlagPackerAddons}.${platform}`));
-      }
-
-      LogService.info(`Getting addons for platform ${platform}`, "PackerService");
-      const scriptPath = path.join(getPackerTemplateFolder(), "scripts");
-      let stdOut = "";
-      const cmd = cp.spawn("./list-addons.sh", [platform], {
-        cwd: scriptPath,
-        shell: true
-      });
-      cmd.stdout.on("data", data => {
-        stdOut += data;
-        LogService.debug(data.toString());
-      });
-      cmd.stderr.on("data", data => {
-        LogService.error(data.toString());
-      });
-      cmd.on("close", code => {
-        if (code !== 0) {
-          LogService.error(`Error getting addons for platform ${platform}`, "PackerService", true);
-          return reject(`Error getting addons for platform ${platform}`);
+        if (!platform) {
+          LogService.error("Platform is required", "PackerService");
+          return reject("Platform is required");
         }
-        const output = JSON.parse(stdOut);
-        Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, output);
-        LogService.info(`Got ${output.length} addons for platform ${platform}`, "PackerService");
-        return resolve(output as VirtualMachineAddon[]);
-      });
+        if (Provider.getCache().get(`${Constants.CacheFlagPackerAddons}.${platform}`)) {
+          LogService.info(`Getting addons for platform ${platform} from cache`, "PackerService");
+
+          return resolve(Provider.getCache().get(`${Constants.CacheFlagPackerAddons}.${platform}`));
+        }
+
+        LogService.info(`Getting addons for platform ${platform}`, "PackerService");
+        const scriptPath = path.join(getPackerTemplateFolder(), "scripts");
+        let stdOut = "";
+        const cmd = cp.spawn("./list-addons.sh", [platform], {
+          cwd: scriptPath,
+          shell: true
+        });
+        cmd.stdout.on("data", data => {
+          stdOut += data;
+          LogService.debug(data.toString());
+        });
+        cmd.stderr.on("data", data => {
+          LogService.error(data.toString());
+        });
+        cmd.on("close", code => {
+          if (code !== 0) {
+            LogService.error(`Error getting addons for platform ${platform}`, "PackerService", true);
+            return reject(`Error getting addons for platform ${platform}`);
+          }
+          const output = JSON.parse(stdOut);
+          Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, output);
+          LogService.info(`Got ${output.length} addons for platform ${platform}`, "PackerService");
+          return resolve(output as VirtualMachineAddon[]);
+        });
       } catch (e) {
         LogService.error(`Error getting addons for platform ${platform}`, "PackerService", true);
         return reject(`Error getting addons for platform ${platform}`);

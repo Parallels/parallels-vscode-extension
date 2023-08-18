@@ -90,31 +90,34 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
               },
               async progress => {
                 panel.dispose();
-                await svc.createVm(request).then(
-                  value => {
-                    if (value) {
-                      ParallelsDesktopService.getVms().then(() => {
-                        LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineCompleted);
-                        LogService.info(`VM ${request.name} created`, "AddVmCommand");
-                        provider.refresh();
-                        vscode.window.showInformationMessage(`VM ${request.name} created successfully`);
-                        return;
-                      });
-                    } else {
-                      LogService.info(`VM ${request.name} not created`, "AddVmCommand");
-                      vscode.window.showErrorMessage(`VM ${request.name} not created`);
+                await svc
+                  .createVm(request)
+                  .then(
+                    value => {
+                      if (value) {
+                        ParallelsDesktopService.getVms().then(() => {
+                          LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineCompleted);
+                          LogService.info(`VM ${request.name} created`, "AddVmCommand");
+                          provider.refresh();
+                          vscode.window.showInformationMessage(`VM ${request.name} created successfully`);
+                          return;
+                        });
+                      } else {
+                        LogService.info(`VM ${request.name} not created`, "AddVmCommand");
+                        vscode.window.showErrorMessage(`VM ${request.name} not created`);
+                      }
+                    },
+                    err => {
+                      LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineFailed);
+                      LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
+                      vscode.window.showErrorMessage(`Error creating VM: ${err}`);
                     }
-                  },
-                  err => {
+                  )
+                  .catch(err => {
                     LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineFailed);
                     LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
                     vscode.window.showErrorMessage(`Error creating VM: ${err}`);
-                  }
-                ).catch(err => {
-                  LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineFailed);
-                  LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
-                  vscode.window.showErrorMessage(`Error creating VM: ${err}`);
-                });
+                  });
                 return;
               }
             );
