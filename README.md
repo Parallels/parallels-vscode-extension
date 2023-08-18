@@ -1,50 +1,43 @@
-# Parallels Desktop for VS Code
+# Visual Studio Code extension for Parallels Desktop
 
 [![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml) [![](https://dcbadge.vercel.app/api/server/etqdafGvjK?style=flat&theme=default)](https://discord.gg/etqdafGvjK)
 
+This extension allows you to manage a wide range of operations for your Parallels Desktop virtual machines, creating, grouping, operating their snapshots and containers. It is integrated with HashiCorp Vagrant and Packer to automate your workflows.
 
-This extension allows you to manage a wide range of operations for your Virtual appliances
-
-> **Attention** This extension will only work on Apple Mac
+> **Attention** This extension will only work on Apple Mac and requires Parallels Desktop Pro or Business Edition.
 
 ![extension](docs/extension.png)
 
 ## Features
 
-### Manage Groups
+### Grouping Virtual Machines
 
-Groups will allow a better management of your virtual machines, you can create groups, rename them, start/stop all machines in a group and create group snapshots. This will allow you to have a better overview of your virtual machines and their state.  
+Groups allow a better management of your virtual machines list, you can create groups, rename them, start/stop all machines in a group and create group snapshots. 
 
 Main features:
 
-* Create groups for easier management of your virtual machines
+* Create groups of your virtual machines
 * Create group snapshots
-* Start/stop group virtual machines
-* Visual Cue for machine state in groups
+* Start, stop, pause, suspend all virtual machines in the group 
+* Visual Cue for machines state in groups
 
 ![grouping](docs/feature_groups.gif)
 
-### Manage Virtual Machines Lifecycle
+### Managing Virtual Machine Lifecycle
 
-Know instantly what is the state of your virtual machines, start, stop, pause, suspend and take snapshots of your virtual machines. This will allow you to have a better overview of your virtual machines and their state.
+Know instantly what is the state of your virtual machines, start, stop, pause, and suspend.
 
 Main features:
 
-* Start, stop, pause, suspend Machines
+* Start, stop, pause, suspend your virtual machines
 * Visual Cue for machine state
 * Show IP Address of the machine if it is available
 
 ![machine_state](docs/feature_vm_lifecycle.gif)
 
-### Rename Virtual Machines and Groups
+### Managing Virtual Machine Snapshots
 
-Easily rename your virtual machines and groups, this will allow you to have a better overview of your virtual machines and their state.
-
-![machine_state](docs/feature_renaming.gif)
-
-### Manage Virtual Machine Snapshots
-
-Snapshots are a great way to save the state of your virtual machine, you can create snapshots, restore to a snapshot and delete snapshots. This will allow you to have a better overview of your virtual machines and their state.
+Create, restore and delete virtual machine snapshots in a compact design.
 
 Main features:
 
@@ -57,19 +50,20 @@ Main features:
 
 ### Creating Virtual Machines
 
-Quickly create a new virtual machine, you can choose from a wide range of appliances and customize the virtual machine to your needs. This will allow you to have a better control on the Vms you need.
+Quickly create a new virtual machine. You can choose from a wide range of operating systems that you can install and customize the virtual machine to your needs.
 
-* Adding new custom Virtual Machines
-* Use "Addons" to get pre installed applications
-* Wide range of appliances and growing
-* Open source for community expansion
-* Use any Iso/IPSW file to create a new Virtual Machine
+Main features:
+
+* Adding new custom virtual machines
+* Select from the list of installation images, open sourced for future expansion by Parallels and community
+* Use you own ISO and IPSW files to create a new virtual machine
+* Use "Addons" to preinstalled applications into your new virtual machines
 
 ![create_vm](docs/feature_create_vms.gif)
 
-### Manage Docker Containers inside Virtual Machines
+### Managing Docker Containers inside Virtual Machines
 
-You can use this extension to manage and create Docker containers inside your virtual machines, this will allow you to quickly create and manage containers without the need to open a window (Machine needs to be running).
+Manage and create Docker containers inside your virtual machines, without the need to open another window.
 
 Main features:
 
@@ -80,29 +74,31 @@ Main features:
 * List all Docker images
 * Remove Docker images
 
+Note: a virtual machine should be in the running state for this functionality to work.
+
 ![docker_container](docs/feature_docker_management.gif)
 
-### Manage visibilities of Virtual Machines or Groups
+### Hiding Virtual Machines or Groups
 
-We know sometimes we can just have a lot of virtual machines and we don't want to see them all, so we added the ability to hide/show virtual machines or groups, this will improve decluttering your virtual machines list. You can quickly see everything with a click of a button.
+Hide/show virtual machines or groups. Sometimes we don't want to manage and see certain virtual machines in the Visual Studio Code. You can quickly show all hidden items with a click of a button.
 
 ![visibility](docs/feature_manage_visibility.gif)
 
 ### Vagrant Boxes Management
 
-We added a simple way to manage your Vagrant Boxes, you can quickly see all the boxes you have installed, delete them or init a new one.
+Manage your Vagrant boxes, see all the boxes you have installed, delete them or init a new one.
 
 Main features:
 
-* List all available Vagrant Boxes
-* Init Vagrant Box
-* Delete Vagrant Box
+* List all available Vagrant boxes
+* Init Vagrant box
+* Delete Vagrant box
 
 ![vagrant_boxes](docs/feature_vagrant.png)
 
 ## Requirements
 
-You will need to be on Apple Mac and own a license of Parallels Desktop Pro or Business Edition, find more information [here](https://www.parallels.com/uk/products/desktop/pro/)
+You will need to be on Apple Mac and own a license of Parallels Desktop Pro or Business Edition, find more information [here](https://www.parallels.com/products/desktop/pro/)
 
 ## Extension Settings
 
@@ -126,9 +122,11 @@ This extension contributes the following settings:
 
 > Tip: The extension will use default values that will work on most cases and it will try to install all of the dependencies
 
-## Issues
+## Support and Community
 
-This extension is still in development, so please refer to our [issue tracker](https://github.com/Parallels/parallels-vscode-extension/issues) for known issues, and please contribute with additional information if you encounter an issue yourself.
+This extension is in active development, so please refer to our [issue tracker](https://github.com/Parallels/parallels-vscode-extension/issues) for known issues, and please contribute with additional information if you encounter an issue yourself.
+
+We welcome you to the channel on [Discord server](https://discord.gg/gwBFTJcV) to discuss improvements you like to see or simply hangout with other developers using Parallels.
 
 ## Contribute
 
@@ -140,3 +138,10 @@ If you're interested in contributing, or want to explore the source code of this
 * [Npm Commands](CONTRIBUTING.md#npm-commands)
 * [Build](CONTRIBUTING.md#build)
 * [Run Tests](CONTRIBUTING.md#run-tests)
+
+## Trademarks Notice
+
+Parallels and the Parallels logo are trademarks or registered trademarks of Parallels International GmbH in Canada, the U.S., and/or elsewhere.
+Apple, Mac, and macOS are trademarks of Apple Inc.
+Microsoft and Windows are registered trademarks of Microsoft Corporation.
+All other company, product and service names, logos, brands and any registered or unregistered trademarks mentioned are used for identification purposes only and remain the exclusive property of their respective owners. Use of any brands, names, logos or any other information, imagery or materials pertaining to a third party does not imply endorsement. We disclaim any proprietary interest in such third-party information, imagery, materials, marks and names of others.
