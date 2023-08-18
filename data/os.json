@@ -72,7 +72,7 @@
                         "images": [
                             {
                                 "id": "ubuntu-server-22.04",
-                                "name": "Ubuntu Server 22.04 LTS",
+                                "name": "Ubuntu Server 22.04.3 LTS",
                                 "distro": "ubuntu",
                                 "type": "packer",
                                 "packerFolder": "ubuntu",
