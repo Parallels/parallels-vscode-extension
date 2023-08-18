@@ -251,6 +251,66 @@ export class PackerService {
     return "";
   }
 
+  initPackerFolder(machine: PackerVirtualMachineConfig): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const config = await Provider.getConfiguration();
+        if (!machine) {
+          LogService.error("A machine configuration is required", "PackerService");
+          return reject("A machine configuration is required");
+        }
+        if (!fs.existsSync(machine.packerScriptFolder)) {
+          LogService.error(`Path ${machine.packerScriptFolder} does not exist`, "PackerService");
+          return reject(`Path ${machine.packerScriptFolder} does not exist`);
+        }
+
+        let options: string[];
+        let command: string;
+        if (config.packerDesktopMajorVersion <= 18) {
+          LogService.info(
+            `Using Parallels Desktop version ${config.packerDesktopMajorVersion} method`,
+            "PackerService"
+          );
+          command =
+            "PYTHONPATH=/Library/Frameworks/ParallelsVirtualizationSDK.framework/Versions/Current/Libraries/Python/3.7";
+          options = ["packer", "init", "."];
+        } else {
+          LogService.info(
+            `Using Parallels Desktop version ${config.packerDesktopMajorVersion} method`,
+            "PackerService"
+          );
+          command = "packer";
+          options = ["init", "."];
+        }
+
+        const packer = cp.spawn(command, options, {
+          cwd: machine.packerScriptFolder,
+          shell: true
+        });
+        packer.stdout.on("data", data => {
+          LogService.info(data.toString(), "PackerService");
+        });
+        packer.stderr.on("data", data => {
+          LogService.error(data.toString(), "PackerService");
+        });
+        packer.on("close", code => {
+          if (code !== 0) {
+            LogService.error(`Packer init exited with code ${code}`, "PackerService");
+            return reject(`Packer init exited with code ${code}, please check logs`);
+          }
+          LogService.info(`Machine ${machine.name} script initialized on ${machine.outputFolder}`, "PackerService");
+          return resolve(true);
+        });
+      } catch (error) {
+        LogService.error(
+          `Error initializing machine ${machine.name} script on ${machine.outputFolder}`,
+          "PackerService"
+        );
+        reject(error);
+      }
+    });
+  }
+
   buildVm(machine: PackerVirtualMachineConfig): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -282,6 +342,19 @@ export class PackerService {
           LogService.error(`Error generating variables override file`, "PackerService");
           return reject(`Error generating variables override file`);
         }
+
+        LogService.info(
+          `Initializing Virtual Machine ${machine.name} on ${machine.outputFolder} using packer`,
+          "PackerService"
+        );
+
+        await this.initPackerFolder(machine).catch(error => {
+          LogService.error(
+            `Error initializing machine ${machine.name} script on ${machine.outputFolder}`,
+            "PackerService"
+          );
+          reject(error);
+        });
 
         LogService.info(
           `Creating Virtual Machine ${machine.name} on ${machine.outputFolder} using packer`,
