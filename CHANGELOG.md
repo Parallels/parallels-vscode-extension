@@ -2,6 +2,10 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.2] - 2023-08-18
+
+* Fixed an issue where creating machines would fail if the folder had not been initialized
+
 ## [1.0.1] - 2023-08-17
 
 * Changed some documentation and package.json description
