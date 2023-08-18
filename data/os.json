@@ -72,7 +72,7 @@
                         "images": [
                             {
                                 "id": "ubuntu-server-22.04",
-                                "name": "Ubuntu Server 22.04 LTS",
+                                "name": "Ubuntu Server 22.04.3 LTS",
                                 "distro": "ubuntu",
                                 "type": "packer",
                                 "packerFolder": "ubuntu",
@@ -81,8 +81,8 @@
                                 "allowUserOverride": false,
                                 "allowAddons": true,
                                 "variables": {
-                                    "iso_url": "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.2-live-server-arm64.iso",
-                                    "iso_checksum": "sha256:12eed04214d8492d22686b72610711882ddf6222b4dc029c24515a85c4874e95"
+                                    "iso_url": "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.3-live-server-arm64.iso",
+                                    "iso_checksum": "sha256:5702372d25111e24d59596de62ae24daef873018cbf63c9dd9ff12292a57aca9"
                                 },
                                 "addons": [],
                                 "defaults": {
