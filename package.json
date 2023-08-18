@@ -2,13 +2,13 @@
     "name": "parallels-desktop",
     "displayName": "Parallels Desktop",
     "publisher": "ParallelsDesktop",
-    "description": "Manage Parallels Desktop virtual appliances",
+    "description": "Manage Parallels Desktop virtual machines, their snapshots and containers",
     "repository": {
         "type": "git",
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "engines": {
         "vscode": "^1.77.0"
     },

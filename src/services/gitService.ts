@@ -26,7 +26,7 @@ export class GitService {
 
       cp.exec("which git", (err, stdout) => {
         if (err) {
-          LogService.error("Git is not installed", "GitService", true, false);
+          LogService.error("Git is not installed", "GitService");
           return resolve(false);
         }
         const path = stdout.replace("\n", "").trim();
@@ -89,7 +89,7 @@ export class GitService {
             });
             brew.on("close", code => {
               if (code !== 0) {
-                LogService.error(`brew install git exited with code ${code}`, "GitService", true, false);
+                LogService.error(`brew install git exited with code ${code}`, "GitService");
                 return resolve(false);
               }
               return resolve(true);
@@ -129,8 +129,8 @@ export class GitService {
         git.on("close", code => {
           const config = Provider.getConfiguration();
           if (code !== 0) {
-            LogService.error(`git pull exited with code ${code}`, "GitService", true, false);
-            return reject(code);
+            LogService.error(`git pull exited with code ${code}`, "GitService");
+            return reject(`git pull exited with code ${code}, please check logs for more details`);
           }
           LogService.info("Packer templates updated", "GitService");
           config.packerTemplatesCloned = true;
@@ -154,8 +154,8 @@ export class GitService {
         git.on("close", code => {
           const config = Provider.getConfiguration();
           if (code !== 0) {
-            LogService.error(`git clone exited with code ${code}`, "GitService", true, false);
-            return reject(code);
+            LogService.error(`git clone exited with code ${code}`, "GitService");
+            return reject(`git clone exited with code ${code}`);
           }
           LogService.info("Packer templates cloned", "GitService");
           config.packerTemplatesCloned = true;

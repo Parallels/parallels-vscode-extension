@@ -28,7 +28,7 @@ export class VagrantService {
 
       cp.exec("which vagrant", (err, stdout) => {
         if (err) {
-          LogService.error("Vagrant is not installed", "VagrantService", true, false);
+          LogService.error("Vagrant is not installed", "VagrantService");
           return resolve(false);
         }
         const path = stdout.replace("\n", "").trim();
@@ -53,7 +53,7 @@ export class VagrantService {
 
       cp.exec("vagrant --version", (err, stdout) => {
         if (err) {
-          LogService.error("Vagrant is not installed", "VagrantService", true, false);
+          LogService.error("Vagrant is not installed", "VagrantService");
           return reject(err);
         }
 
@@ -91,7 +91,7 @@ export class VagrantService {
             });
             brew.on("close", code => {
               if (code !== 0) {
-                LogService.error(`brew tap exited with code ${code}`, "VagrantService", true, false);
+                LogService.error(`brew tap exited with code ${code}`, "VagrantService");
                 progress.report({message: "Failed to install Vagrant, see logs for more details"});
                 return resolve(false);
               }
@@ -152,8 +152,8 @@ export class VagrantService {
       });
       vagrant.on("close", code => {
         if (code !== 0) {
-          LogService.error(`vagrant box list exited with code ${code}`, "VagrantService", true, false);
-          return reject(code);
+          LogService.error(`Vagrant box list exited with code ${code}`, "VagrantService");
+          return reject(`Vagrant box list exited with code ${code}, please check logs for more details`);
         }
 
         const boxes = stdOut.split("\n").map(box => {
@@ -196,8 +196,8 @@ export class VagrantService {
       });
       vagrantUp.on("close", code => {
         if (code !== 0) {
-          LogService.error(`vagrant up exited with code ${code}`, "VagrantService", true, false);
-          return reject(code);
+          LogService.error(`Vagrant up exited with code ${code}`, "VagrantService");
+          return reject(`Vagrant up exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Vagrant ${boxName} was initialized successfully`, "VagrantService");
@@ -209,7 +209,7 @@ export class VagrantService {
   static async remove(boxName: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (boxName === "") {
-        LogService.error("Vagrant box name is empty", "VagrantService", true, false);
+        LogService.error("Vagrant box name is empty", "VagrantService");
         return resolve(true);
       }
 
@@ -223,8 +223,8 @@ export class VagrantService {
       });
       vagrant.on("close", code => {
         if (code !== 0) {
-          LogService.error(`vagrant box remove exited with code ${code}`, "VagrantService", true, false);
-          return reject(code);
+          LogService.error(`Vagrant box remove exited with code ${code}`, "VagrantService");
+          return reject(`Vagrant box remove exited with code ${code}, please check logs for more details`);
         }
 
         LogService.info(`Vagrant ${boxName} was removed successfully`, "VagrantService");
@@ -235,11 +235,11 @@ export class VagrantService {
 
   static async add(name: string, boxPath: string): Promise<boolean> {
     if (name === "") {
-      LogService.error("Vagrant box name is empty", "VagrantService", true, false);
+      LogService.error("Vagrant box name is empty", "VagrantService");
       return false;
     }
     if (boxPath === "") {
-      LogService.error("Vagrant box path is empty", "VagrantService", true, false);
+      LogService.error("Vagrant box path is empty", "VagrantService");
       return false;
     }
 
@@ -254,7 +254,7 @@ export class VagrantService {
       });
       vagrant.on("close", code => {
         if (code !== 0) {
-          LogService.error(`vagrant box add exited with code ${code}`, "VagrantService", true, false);
+          LogService.error(`vagrant box add exited with code ${code}`, "VagrantService");
           return reject(code);
         }
 
