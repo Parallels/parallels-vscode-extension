@@ -7622,6 +7622,16 @@ hr {
   color: #302e2e;
 }
 
+.input-label-link {
+  color: #2984d4 !important;
+}
+
+.input-label-mandatory {
+  font-size: 16px;
+  color: #c34900 !important;
+}
+
+
 :is(.dark .input-label) {
   color: #d6d6d6;
 }

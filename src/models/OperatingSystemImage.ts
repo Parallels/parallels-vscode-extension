@@ -3,15 +3,45 @@ import {OperatingSystemDefaults} from "./OperatingSystemDefaults";
 import {OperatingSystemImageAddons} from "./OperatingSystemImageAddons";
 import {OperatingSystemImageFlag} from "./OperatingSystemImageFlag";
 
+export class IsoHelp {
+  prefixText: string | undefined;
+  urlText: string | undefined;
+  url: string | undefined;
+  suffixText: string | undefined;
+
+  constructor(prefixText?: string, urlText?: string, url?: string, suffixText?: string) {
+    this.prefixText = prefixText;
+    this.urlText = urlText;
+    this.url = url;
+    this.suffixText = suffixText;
+  }
+
+  toString() {
+    return `{
+      prefixText: ${this.prefixText !== undefined ? `'${this.prefixText}'` : undefined},
+      urlText: ${this.urlText !== undefined ? `'${this.urlText}'` : undefined},
+      url: ${this.url !== undefined ? `'${this.url}'` : undefined},
+      suffixText: ${this.suffixText !== undefined ? `'${this.suffixText}'` : undefined}
+    }`;
+  }
+
+  static fromJson(json: string): IsoHelp {
+    const obj = JSON.parse(json);
+    return new IsoHelp(obj.prefixText, obj.urlText, obj.url, obj.suffixText);
+  }
+}
+
 export class OperatingSystemImage {
   id: string;
   name: string;
   type: "packer" | "iso" | "vagrant" | "internal" | "macos";
   distro: string;
   requireIsoDownload: boolean;
+  description: string | undefined;
   variables: any;
   addons: OperatingSystemImageAddons[];
   isoUrl: string;
+  isoHelp: IsoHelp | undefined;
   isoChecksum: string;
   packerFolder: string;
   allowMachineSpecs: boolean;
@@ -26,10 +56,12 @@ export class OperatingSystemImage {
     distro = "",
     type: "packer" | "iso" | "vagrant" | "internal" | "macos" = "internal",
     requireIsoDownload = false,
+    description: string | undefined = undefined,
     variables: any,
     addons: OperatingSystemImageAddons[] = [],
     isoUrl = "",
     isoChecksum = "",
+    isoHelp: IsoHelp | undefined = undefined,
     packerFolder = "",
     allowMachineSpecs = false,
     allowUserOverride = false,
@@ -42,9 +74,11 @@ export class OperatingSystemImage {
     this.type = type;
     this.distro = distro;
     this.requireIsoDownload = requireIsoDownload;
+    this.description = description;
     this.variables = variables;
     this.addons = addons;
     this.isoUrl = isoUrl;
+    this.isoHelp = isoHelp;
     this.isoChecksum = isoChecksum;
     this.packerFolder = packerFolder;
     this.allowMachineSpecs = allowMachineSpecs;
@@ -61,12 +95,14 @@ export class OperatingSystemImage {
       distro: '${this.distro}',
       type: '${this.type}',
       requireIsoDownload: ${this.requireIsoDownload},
+      description: ${this.description !== undefined ? `'${this.description}'` : undefined},
       isoUrl: '${this.isoUrl}',
+      ${this.isoHelp ? `\nisoHelp: ${this.isoHelp.toString()},` : ""}
       isoChecksum: '${this.isoChecksum}',
       allowMachineSpecs: ${this.allowMachineSpecs},
       allowUserOverride: ${this.allowUserOverride},
       allowAddons: ${this.allowAddons},
-      allowedFlags: ${JSON.stringify(this.allowedFlags).replace(/"/g, "'")},
+      allowedFlags: ${JSON.stringify(this.allowedFlags, null, 2).replace(/"/g, "'")},
       addons: ${JSON.stringify(this.addons).replace(/"/g, "'")}
       ${this.defaults ? `,\ndefaults: ${this.defaults.toString()}` : ""}
     }`;
@@ -88,16 +124,20 @@ export class OperatingSystemImage {
     }
     const defaults = obj.defaults ? OperatingSystemDefaults.fromJson(JSON.stringify(obj.defaults)) : undefined;
 
+    const isoHelp: IsoHelp | undefined = obj.isoHelp ? IsoHelp.fromJson(JSON.stringify(obj.isoHelp)) : undefined;
+
     return new OperatingSystemImage(
       obj.id,
       obj.name,
       obj.distro,
       obj.type,
       obj.requireIsoDownload,
+      obj.description,
       obj.variables,
       addons,
       obj.isoUrl,
       obj.isoChecksum,
+      isoHelp,
       obj.packerFolder,
       obj.allowMachineSpecs,
       obj.allowUserOverride,

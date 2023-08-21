@@ -10,6 +10,7 @@ import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {NewVirtualMachineRequest} from "../../models/NewVirtualMachineRequest";
 import {LogService} from "../../services/logService";
 import {Provider} from "../../ioc/provider";
+import {config} from "process";
 
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
@@ -52,6 +53,16 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
             vscode.window.showInformationMessage(message.text);
             panel.webview.postMessage({command: "updateFlag", text: cmd.value});
             return;
+          }
+          case "vmNameChange": {
+            const config = Provider.getConfiguration();
+            const exists = config.allMachines.find(m => m.Name === message.text);
+            if (exists) {
+              panel.webview.postMessage({command: "vmNameExists", text: "true"});
+            } else {
+              panel.webview.postMessage({command: "vmNameExists", text: "false"});
+            }
+            break;
           }
           case "createVm": {
             const cmd = JSON.parse(message.text);
@@ -139,7 +150,25 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
   const cpus = config.hardwareInfo?.SPHardwareDataType[0].number_processors ?? "2";
   const memory = config.hardwareInfo?.SPHardwareDataType[0].physical_memory ?? "2048";
 
-  const script = `<script></script>`;
+  const script = `<script>
+  window.addEventListener('message', event => {
+    const message = event.data;
+    const isValidVmNameInput = document.getElementById('isValidVmName')
+    switch (message.command) {
+        case 'vmNameExists':
+          if (message.text === 'true') {
+            console.log('true');
+            isValidVmNameInput.value = 'false';
+            isValidVmNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+          } else {
+            console.log('false');
+            isValidVmNameInput.value = 'true';
+            isValidVmNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          break;
+    }
+});
+  </script>`;
   const html =
     `
     <div class="content">
@@ -165,12 +194,15 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           distro: 'undefined',
           image: 'undefined',
           name: 'undefined',
+          description: undefined,
           isoUrl: 'undefined',
+          isoHelp: undefined,
           isoChecksum: 'undefined',
           requireIsoDownload: false,
           allowMachineSpecs: false,
           allowUserOverride: false,
           allowAddons: false,
+          isValidVmName: 'true',
           allowedFlags: [],
           specs: {
             cpu: 2,
@@ -188,7 +220,8 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
               cpu: 2,
               memory: 2048,
               diskSize: 65536,
-            }
+            },
+            user: undefined,
           },
           addons: []
         },
@@ -206,15 +239,15 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           return this.options.find(o => o.id === this.itemData.os)?.platforms ?? []
         },
         getAllOsPlatformsDistros() {
-          if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
+          if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined') return []
           return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros ?? []
         },
         getAllOsPlatformsDistrosImages() {
           if(this.itemData.os === 'linux') {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
+            if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined' &amp;&amp; this.itemData.distro === 'undefined') return []
             return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images ?? []  
           } else {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
+            if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined') return []
             return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images ?? []  
           }
         },
@@ -231,10 +264,10 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
         getImage() {
           if (this.itemData.os === 'undefined' || this.itemData.image === 'undefined') return undefined
           if(this.itemData.os === 'linux') {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
+            if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined' &amp;&amp; this.itemData.distro === 'undefined') return []
             return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images.find(i => i.id === this.itemData.image) ?? undefined
           } else {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
+            if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined') return []
             return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images.find(i => i.id === this.itemData.image) ?? undefined
           }
         },
@@ -246,11 +279,24 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           this.itemData.allowMachineSpecs = false;
           this.itemData.allowUserOverride = false;
           this.itemData.allowAddons = false;
-          if (this.itemData.os !== 'undefined' && !this.showPlatform()) { 
+          if (this.itemData.os !== 'undefined' &amp;&amp; !this.showPlatform()) { 
             this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
-          } if (this.itemData.os !== 'undefined' && this.showPlatform()) {
+          } if (this.itemData.os !== 'undefined' &amp;&amp; this.showPlatform()) {
             this.itemData.platform = 'undefined';
           }
+          this.itemData.defaults = {
+            specs: {
+              cpu: 2,
+              memory: 2048,
+              diskSize: 65536,
+            },
+            user: undefined,
+          };
+          this.itemData.addons = [];
+          this.itemData.isoUrl = '';
+          this.itemData.isoChecksum = '';
+          this.itemData.isoHelp = undefined;
+          this.itemData.description = undefined;
         },
         onPlatformDropdownChange() {
           this.itemData.distro = 'undefined'; 
@@ -259,6 +305,19 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           this.itemData.allowMachineSpecs = false;
           this.itemData.allowUserOverride = false;
           this.itemData.allowAddons = false;
+          this.itemData.defaults = {
+            specs: {
+              cpu: 2,
+              memory: 2048,
+              diskSize: 65536,
+            },
+            user: undefined,
+          };
+          this.itemData.addons = [];
+          this.itemData.isoUrl = '';
+          this.itemData.isoChecksum = '';
+          this.itemData.isoHelp = undefined;
+          this.itemData.description = undefined;
         },
         onDistroDropdownChange() {
           this.itemData.image = 'undefined'; 
@@ -266,6 +325,19 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           this.itemData.allowMachineSpecs = false;
           this.itemData.allowUserOverride = false;
           this.itemData.allowAddons = false;
+          this.itemData.defaults = {
+            specs: {
+              cpu: 2,
+              memory: 2048,
+              diskSize: 65536,
+            },
+            user: undefined,
+          };
+          this.itemData.addons = [];
+          this.itemData.isoUrl = '';
+          this.itemData.isoChecksum = '';
+          this.itemData.isoHelp = undefined;
+          this.itemData.description = undefined;
         },
         onImageDropdownChange() {
           let img = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image);
@@ -276,30 +348,41 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           this.itemData.allowAddons = img.allowAddons ?? false;
           this.itemData.isoUrl = img.isoUrl ?? '';
           this.itemData.isoChecksum = img.isoChecksum ?? '';
+          if(img.isoHelp) {
+            this.itemData.isoHelp = img.isoHelp;
+          }
           if(img.defaults?.specs) {
             this.itemData.specs.cpu = img.defaults.specs.cpus ?? this.itemData.defaults.specs.cpus;
             this.itemData.specs.memory = img.defaults.specs.memory ?? this.itemData.defaults.specs.memory;
             this.itemData.specs.diskSize = img.defaults.specs.diskSize ?? this.itemData.defaults.specs.diskSize;
           }
+          if(img.defaults?.user) {
+            this.itemData.defaults.user = {};
+            this.itemData.defaults.user.username = img.defaults.user.username ?? this.itemData.defaults.user.username;
+            this.itemData.defaults.user.password = img.defaults.user.password ?? this.itemData.defaults.user.password;
+          }
+          this.itemData.addons = img.addons ?? [];
+          this.itemData.description = img.description ?? undefined;
+          this.checkVmName(this.itemData.name);
         },
         showPlatform() {
           if (this.itemData.os === 'undefined') return true
-          return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
+          return this.itemData.os !== 'undefined' &amp;&amp; (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
         },
         getImageType() {
           return this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.type ?? ''
         },
         showPlatformDropdown() {
-          return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
+          return this.itemData.os !== 'undefined' &amp;&amp; (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
         },
         showDistroDropdown() {
-          return  this.itemData.os === 'linux' && this.itemData.platform !== 'undefined';
+          return  this.itemData.os === 'linux' &amp;&amp; this.itemData.platform !== 'undefined';
         },
         showImageDropdown() {
           if (this.itemData.os === 'linux') {
-            return this.itemData.os === 'linux' && this.itemData.platform !== 'undefined' && this.itemData.distro !== 'undefined'
+            return this.itemData.os === 'linux' &amp;&amp; this.itemData.platform !== 'undefined' &amp;&amp; this.itemData.distro !== 'undefined'
           } else {
-            return  this.itemData.os !== 'undefined' && this.itemData.platform !== 'undefined';
+            return  this.itemData.os !== 'undefined' &amp;&amp; this.itemData.platform !== 'undefined';
           }
         },
         showMachineSpecs() {
@@ -348,6 +431,16 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           }
         },
         addImageFlags(id, state) {
+          if (id === 'generateVagrantBox') {
+            if(state) {
+              this.itemData.defaults.user.username = 'vagrant';
+              this.itemData.defaults.user.password = 'vagrant';
+            } else {
+              const img = this.getImage();
+              this.itemData.defaults.user.username = img.defaults?.user?.username ?? 'parallels1';
+              this.itemData.defaults.user.password = img.defaults?.user?.password ?? 'parallels1';
+            }
+          }
           if (this.itemData.allowedFlags.length === 0) {
             this.itemData.allowedFlags.push({code: id, enabled: state});
             return;
@@ -368,12 +461,31 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
             }
           }
         },
+        validatePostButton() {
+          if(!this.itemData) return false
+          if(this.itemData.requireIsoDownload) {
+            return this.itemData.image !== 'undefined' &&
+            this.itemData.isoUrl !== '' &&
+            this.itemData.isoChecksum !== '' &&
+            this.itemData.isValidVmName === 'true'
+          }
+          return this.itemData.image !== 'undefined' && this.itemData.isValidVmName === 'true'
+        },
         onPost() {
           this.isPosting = true;
           vscode.postMessage({
             command: 'createVm',
             text: JSON.stringify(this.itemData, null, 2)
           });
+        },
+        checkVmName(name) {
+          vscode.postMessage({
+            command: 'vmNameChange',
+            text: name
+          });
+        },
+        onVmNameChange(event) {
+          this.checkVmName(event.target.value);
         },
         getButtonText() {
           if (this.isPosting) {
@@ -415,11 +527,11 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
     `
       }"
       >
-        <template x-if="isPosting">
-          <div class="flex justify-center items-center h-full w-full absolute top-0 left-0 loading">
-            <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue"></div>
-          </div>
-        </template>
+      <template x-if="isPosting">
+      <div class="flex justify-center items-center h-full w-full absolute top-0 left-0 loading">
+        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue"></div>
+      </div>
+      </template>
         <div class="flex flex-row panel-body">
           <div class="main-panel">
             <div class="text-panel title-text gap-x-6 py-0">Create New Virtual Machine</div>
@@ -429,7 +541,10 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                   <h2 class="title-text mb-2">Operating System</h2>
                   <div class="mb-3" x-show="!showPlatform()">
                     <template x-if="!showPlatform()">
-                      <span class="caption-text" x-text="'Compatible with ' +getDefaultPlatform() + (getImageType() !== '' ? ', Image format is '+ getImageType() :'') "></span>
+                      <span
+                        class="caption-text"
+                        x-text="'Compatible with ' +getDefaultPlatform() + (getImageType() !== '' ? ', Image format is '+ getImageType() :'') "
+                      ></span>
                     </template>
                   </div>
                 </div>
@@ -487,7 +602,11 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                       </select>
                     </div>
                   </div>
-                  <div class="sm:flex sm:flex-col sm:items-end" :class="showDistroDropdown() ? 'w-2/4': 'w-3/4'" x-show="showImageDropdown()">
+                  <div
+                    class="sm:flex sm:flex-col sm:items-end"
+                    :class="showDistroDropdown() ? 'w-2/4': 'w-3/4'"
+                    x-show="showImageDropdown()"
+                  >
                     <div class="relative inline-block text-left">
                       <select
                         name="image"
@@ -505,6 +624,13 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                     </div>
                   </div>
                 </div>
+                <div
+                  class="flex sm:flex-row sm:items-end flex-row"
+                >
+                  <div class="pr-2 mb-2">
+                      <span class="input-label" x-text="itemData.description"></span>
+                  </div>
+                </div>
                 <div class="flex flex-row gap-x-1 py-1 mt-2" x-show="itemData.image !== 'undefined'">
                   <div class="sm:flex sm:flex-col sm:items-end w-full">
                     <div class="mb-2 w-full">
@@ -518,8 +644,13 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                         class="input block w-full p-2.5"
                         placeholder="1"
                         required="true"
+                        x-on:input.change="onVmNameChange($event)"
                       />
                     </div>
+                    <div class="mb-2 w-full" x-show="itemData.image !== 'undefined' && itemData.isValidVmName === 'false'">
+                      <input x-on:input.change="console.log($event)" id="isValidVmName" type="hidden" x-model="itemData.isValidVmName" name="isValidVmName" :value="itemData.isValidVmName" />
+                      <span class="input-label-mandatory">This Virtual Machine name already exists</span>
+                      </div>
                   </div>
                 </div>
               </li>
@@ -530,7 +661,9 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                   x-show="itemData.image !== 'undefined' && itemData.requireIsoDownload === true"
                 >
                   <div class="pr-2 mb-2 w-3/5">
-                    <label for="isoUrl" class="block mb-1 input-label">Iso Url/File</label>
+                    <label for="isoUrl" class="block mb-1 input-label">
+                      Iso Url/File <span class="input-label-mandatory">*</span>
+                    </label>
                     <input
                       id="isoUrl"
                       type="text"
@@ -541,9 +674,14 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                       placeholder="Select a ISO file or an Url"
                       required=""
                     />
+                    <div class="mt-2" x-show="itemData.isoHelp !== undefined && itemData.requireIsoDownload === true">
+                      <span class="input-label" x-show="itemData.isoHelp !== undefined && itemData.isoHelp.prefixText" x-text="itemData.isoHelp?.prefixText ?? ''"></span>
+                      <a x-show="itemData.isoHelp !== undefined && itemData.isoHelp.urlText" :href="itemData.isoHelp?.url ?? ''" class="input-label input-label-link " x-text="itemData.isoHelp?.urlText ?? ''"></a>
+                      <span class="input-label" x-show="itemData.isoHelp !== undefined && itemData.isoHelp.suffixText" x-text="itemData.isoHelp?.suffixText ?? ''"></span>
+                    </div>
                   </div>
                   <div class="mb-2 w-2/5">
-                    <label for="isoChecksum" class="block mb-1 input-label">Iso Checksum</label>
+                    <label for="isoChecksum" class="block mb-1 input-label">Iso Checksum <span class="input-label-mandatory">*</span></label>
                     <input
                       id="isoChecksum"
                       type="text"
@@ -688,8 +826,50 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                   </template>
                 </div>
               </li>
+              <li class="flex flex-col w-full sub-panel sub-panel-color mb-3" x-show="itemData.defaults.user !== undefined" >
+                <div class="w-full flex flex-col gap-x-4 mb-4">
+                  <h2 class="normal-text">Default user</h2>
+                </div>
+                <div class="w-full mb-2">
+                  <span class="input-label">
+                    This will be the default user/password that will be used to login to the machine.
+                  </span>
+                </div>
+                <div class="flex gap-x-6">
+                  <div
+                  class="flex sm:flex-row sm:items-end flex-row w-full"
+                >
+                  <div class="pr-2 mb-2 w-2/4">
+                    <label for="isoUrl" class="block mb-1 input-label">
+                      Username
+                    </label>
+                    <input
+                      id="defaultUser"
+                      type="text"
+                      disabled
+                      name="isoUrl"
+                      :value="itemData.defaults?.user?.username ?? 'parallels-eee'"
+                      class="input block w-full p-2.5"
+                      placeholder="parallels"
+                    />
+                  </div>
+                  <div class="mb-2 w-2/4">
+                    <label for="isoChecksum" class="block mb-1 input-label">Password</label>
+                    <input
+                      id="defaultPassword"
+                      type="text"
+                      disabled
+                      name="isoChecksum"
+                      :value="itemData.defaults?.user?.password ?? 'parallels-eee'"
+                      class="input block w-full p-2.5"
+                      placeholder="parallels"
+                    />
+                  </div>
+                </div>
+                </div>
+              </li>
             </ul>
-            <ul role="list" class="mb-4 mt-4" x-show="itemData.image !== 'undefined'">
+            <ul role="list" class="mb-4 mt-4" x-show="validatePostButton()">
               <li class="flex flex-col gap-x-6 py-1 w-full items-end" x-show="itemData.image !== 'undefined'">
                 <div class="flex items-end p-2">
                   <button

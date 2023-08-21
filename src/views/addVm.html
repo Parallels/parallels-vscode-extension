@@ -8,6 +8,7 @@
       const vscode = acquireVsCodeApi();
     </script>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
   </head>
   <body class="vscode-dark background-color">
     <div class="content">
@@ -15,727 +16,974 @@
         id="data"
         class="page-body mt-2"
         x-data="{
-        isPosting: false,
-        version: 'Version 19.0.0 (54343)',
-        host: {
-          cpu: '12',
-          memory: '32 GB',
-        },
-        itemData: {
-          os: 'undefined',
-          platform: 'undefined',
-          distro: 'undefined',
-          image: 'undefined',
-          name: 'undefined',
-          isoUrl: 'undefined',
-          isoChecksum: 'undefined',
-          requireIsoDownload: false,
-          allowMachineSpecs: false,
-          allowUserOverride: false,
-          allowAddons: false,
-          allowedFlags: [],
-          specs: {
-            cpu: 2,
-            memory: 2048,
-            disk: 65536,
-            username: 'parallels',
-            password: 'parallels',
+          isPosting: false,
+          version: '19.0.0-54569',
+          host: {
+            cpu: 'proc 12:8:4',
+            memory: '32 GB',
           },
-          options: {
-            startHeadless: false,
-            generateVagrantBox: false,
-          },
-          defaults: {
+          itemData: {
+            os: 'undefined',
+            platform: 'undefined',
+            distro: 'undefined',
+            image: 'undefined',
+            name: 'undefined',
+            isoUrl: 'undefined',
+            isoHelp: undefined,
+            description: undefined,
+            isoChecksum: 'undefined',
+            requireIsoDownload: false,
+            allowMachineSpecs: false,
+            allowUserOverride: false,
+            allowAddons: false,
+            allowedFlags: [],
             specs: {
               cpu: 2,
               memory: 2048,
-              diskSize: 65536,
+              disk: 65536,
+              username: 'parallels',
+              password: 'parallels',
+            },
+            options: {
+              startHeadless: false,
+              generateVagrantBox: false,
+            },
+            defaults: {
+              specs: {
+                cpu: 2,
+                memory: 2048,
+                diskSize: 65536,
+              },
+              user: undefined,
+            },
+            addons: []
+          },
+          getAllOs() {
+            return this.options
+          },
+          getVersion() {
+            return this.version
+          },
+          getHostSpecs() {
+            return 'Host - ' + this.host.cpu + ' CPU, ' + this.host.memory + ' RAM'
+          },
+          getAllOsPlatforms() {
+            if (this.itemData.os === 'undefined') return []
+            return this.options.find(o => o.id === this.itemData.os)?.platforms ?? []
+          },
+          getAllOsPlatformsDistros() {
+            if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined') return []
+            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros ?? []
+          },
+          getAllOsPlatformsDistrosImages() {
+            if(this.itemData.os === 'linux') {
+              if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined' &amp;&amp; this.itemData.distro === 'undefined') return []
+              return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images ?? []  
+            } else {
+              if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined') return []
+              return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images ?? []  
             }
           },
-          addons: []
-        },
-        getAllOs() {
-          return this.options
-        },
-        getVersion() {
-          return this.version
-        },
-        getHostSpecs() {
-          return 'Host - ' + this.host.cpu + ' CPU, ' + this.host.memory + ' RAM'
-        },
-        getAllOsPlatforms() {
-          if (this.itemData.os === 'undefined') return []
-          return this.options.find(o => o.id === this.itemData.os)?.platforms ?? []
-        },
-        getAllOsPlatformsDistros() {
-          if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
-          return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros ?? []
-        },
-        getAllOsPlatformsDistrosImages() {
-          if(this.itemData.os === 'linux') {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
-            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images ?? []  
-          } else {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
-            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images ?? []  
-          }
-        },
-        getAllOsPlatformsDistrosImageAddons() {
-          const img = this.getImage();
-          if (img === undefined) return []
-          return img.addons ?? []
-        },
-        getImageFlags() {
-          const img = this.getImage();
-          if (img === undefined) return []
-          return img.allowedFlags ?? []
-        },
-        getImage() {
-          if (this.itemData.os === 'undefined' || this.itemData.image === 'undefined') return undefined
-          if(this.itemData.os === 'linux') {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined' && this.itemData.distro === 'undefined') return []
-            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images.find(i => i.id === this.itemData.image) ?? undefined
-          } else {
-            if (this.itemData.os === 'undefined' && this.itemData.platform ==='undefined') return []
-            return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images.find(i => i.id === this.itemData.image) ?? undefined
-          }
-        },
-        onOsChange() {
-          this.itemData.platform = 'undefined'; 
-          this.itemData.distro = 'undefined'; 
-          this.itemData.image = 'undefined'; 
-          this.itemData.requireIsoDownload = false;
-          this.itemData.allowMachineSpecs = false;
-          this.itemData.allowUserOverride = false;
-          this.itemData.allowAddons = false;
-          if (this.itemData.os !== 'undefined' && !this.showPlatform()) { 
-            this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
-          } if (this.itemData.os !== 'undefined' && this.showPlatform()) {
-            this.itemData.platform = 'undefined';
-          }
-        },
-        onPlatformDropdownChange() {
-          this.itemData.distro = 'undefined'; 
-          this.itemData.image = 'undefined';
-          this.itemData.requireIsoDownload = false;
-          this.itemData.allowMachineSpecs = false;
-          this.itemData.allowUserOverride = false;
-          this.itemData.allowAddons = false;
-        },
-        onDistroDropdownChange() {
-          this.itemData.image = 'undefined'; 
-          this.itemData.requireIsoDownload = false;
-          this.itemData.allowMachineSpecs = false;
-          this.itemData.allowUserOverride = false;
-          this.itemData.allowAddons = false;
-        },
-        onImageDropdownChange() {
-          let img = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image);
-          this.itemData.name = img?.name ?? ''
-          this.itemData.requireIsoDownload = img.requireIsoDownload ?? false;
-          this.itemData.allowMachineSpecs = img.allowMachineSpecs ?? false;
-          this.itemData.allowUserOverride = img.allowUserOverride ?? false;
-          this.itemData.allowAddons = img.allowAddons ?? false;
-          this.itemData.isoUrl = img.isoUrl ?? '';
-          this.itemData.isoChecksum = img.isoChecksum ?? '';
-          if(img.defaults?.specs) {
-            this.itemData.specs.cpu = img.defaults.specs.cpus ?? this.itemData.defaults.specs.cpus;
-            this.itemData.specs.memory = img.defaults.specs.memory ?? this.itemData.defaults.specs.memory;
-            this.itemData.specs.diskSize = img.defaults.specs.diskSize ?? this.itemData.defaults.specs.diskSize;
-          }
-        },
-        showPlatform() {
-          if (this.itemData.os === 'undefined') return true
-          return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
-        },
-        getImageType() {
-          return this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.type ?? ''
-        },
-        showPlatformDropdown() {
-          return this.itemData.os !== 'undefined' && (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
-        },
-        showDistroDropdown() {
-          return  this.itemData.os === 'linux' && this.itemData.platform !== 'undefined';
-        },
-        showImageDropdown() {
-          if (this.itemData.os === 'linux') {
-            return this.itemData.os === 'linux' && this.itemData.platform !== 'undefined' && this.itemData.distro !== 'undefined'
-          } else {
-            return  this.itemData.os !== 'undefined' && this.itemData.platform !== 'undefined';
-          }
-        },
-        showMachineSpecs() {
-          if(this.itemData.allowMachineSpecs === 'undefined') return this.itemData.image !== 'undefined'
-          return this.itemData.allowMachineSpecs
-        },
-        showMachineOptions() {
-          const flags = this.getImageFlags();
-          if (flags === undefined) return false
-          return flags.length > 0
-        },
-        showMachineAddons() {
-          const img = this.getImage();
-          if (img === undefined) return false
-          if (img.allowAddons === false) return false
-          if (img.type === 'internal' || img.type === 'iso' ) return false
-          return img.addons.length > 0
-        },
-        showSaveButton() {
-          const img = this.getImage();
-          return !img === undefined;
-        },
-        getDefaultPlatform() {
-          if (this.itemData.os === 'undefined') return 'undefined'
-          return (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
-        },
-        addImageAddon(id, state) {
-          if (this.itemData.addons.length === 0) {
-            this.itemData.addons.push({id: id, deploy: state});
-            return;
-          }
-    
-          for (let i = 0; i < this.itemData.addons.length; i++) {
-            let found = false
-            if (this.itemData.addons[i].id === id) {
-              if (!state){
-                this.itemData.addons.splice(i, 1);
-              }
-              found = true;
-              return;
+          getAllOsPlatformsDistrosImageAddons() {
+            const img = this.getImage();
+            if (img === undefined) return []
+            return img.addons ?? []
+          },
+          getImageFlags() {
+            const img = this.getImage();
+            if (img === undefined) return []
+            return img.allowedFlags ?? []
+          },
+          getImage() {
+            if (this.itemData.os === 'undefined' || this.itemData.image === 'undefined') return undefined
+            if(this.itemData.os === 'linux') {
+              if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined' &amp;&amp; this.itemData.distro === 'undefined') return []
+              return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.distros.find(d => d.id === this.itemData.distro)?.images.find(i => i.id === this.itemData.image) ?? undefined
+            } else {
+              if (this.itemData.os === 'undefined' &amp;&amp; this.itemData.platform ==='undefined') return []
+              return this.options.find(o => o.id === this.itemData.os)?.platforms.find(p => p.id === this.itemData.platform)?.images.find(i => i.id === this.itemData.image) ?? undefined
             }
-            
-            if (!found) {
+          },
+          onOsChange() {
+            this.itemData.platform = 'undefined'; 
+            this.itemData.distro = 'undefined'; 
+            this.itemData.image = 'undefined'; 
+            this.itemData.requireIsoDownload = false;
+            this.itemData.allowMachineSpecs = false;
+            this.itemData.allowUserOverride = false;
+            this.itemData.allowAddons = false;
+            if (this.itemData.os !== 'undefined' &amp;&amp; !this.showPlatform()) { 
+              this.itemData.platform = (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
+            } if (this.itemData.os !== 'undefined' &amp;&amp; this.showPlatform()) {
+              this.itemData.platform = 'undefined';
+            }
+            this.itemData.defaults = {
+              specs: {
+                cpu: 2,
+                memory: 2048,
+                diskSize: 65536,
+              },
+              user: undefined,
+            };
+            this.itemData.addons = [];
+            this.itemData.isoUrl = '';
+            this.itemData.isoChecksum = '';
+            this.itemData.isoHelp = undefined;
+            this.itemData.description = undefined;
+          },
+          onPlatformDropdownChange() {
+            this.itemData.distro = 'undefined'; 
+            this.itemData.image = 'undefined';
+            this.itemData.requireIsoDownload = false;
+            this.itemData.allowMachineSpecs = false;
+            this.itemData.allowUserOverride = false;
+            this.itemData.allowAddons = false;
+            this.itemData.defaults = {
+              specs: {
+                cpu: 2,
+                memory: 2048,
+                diskSize: 65536,
+              },
+              user: undefined,
+            };
+            this.itemData.addons = [];
+            this.itemData.isoUrl = '';
+            this.itemData.isoChecksum = '';
+            this.itemData.isoHelp = undefined;
+            this.itemData.description = undefined;
+          },
+          onDistroDropdownChange() {
+            this.itemData.image = 'undefined'; 
+            this.itemData.requireIsoDownload = false;
+            this.itemData.allowMachineSpecs = false;
+            this.itemData.allowUserOverride = false;
+            this.itemData.allowAddons = false;
+            this.itemData.defaults = {
+              specs: {
+                cpu: 2,
+                memory: 2048,
+                diskSize: 65536,
+              },
+              user: undefined,
+            };
+            this.itemData.addons = [];
+            this.itemData.isoUrl = '';
+            this.itemData.isoChecksum = '';
+            this.itemData.isoHelp = undefined;
+            this.itemData.description = undefined;
+          },
+          onImageDropdownChange() {
+            let img = this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image);
+            this.itemData.name = img?.name ?? ''
+            this.itemData.requireIsoDownload = img.requireIsoDownload ?? false;
+            this.itemData.allowMachineSpecs = img.allowMachineSpecs ?? false;
+            this.itemData.allowUserOverride = img.allowUserOverride ?? false;
+            this.itemData.allowAddons = img.allowAddons ?? false;
+            this.itemData.isoUrl = img.isoUrl ?? '';
+            this.itemData.isoChecksum = img.isoChecksum ?? '';
+            if(img.isoHelp) {
+              this.itemData.isoHelp = img.isoHelp;
+            }
+            if(img.defaults?.specs) {
+              this.itemData.specs.cpu = img.defaults.specs.cpus ?? this.itemData.defaults.specs.cpus;
+              this.itemData.specs.memory = img.defaults.specs.memory ?? this.itemData.defaults.specs.memory;
+              this.itemData.specs.diskSize = img.defaults.specs.diskSize ?? this.itemData.defaults.specs.diskSize;
+            }
+            if(img.defaults?.user) {
+              this.itemData.defaults.user = {};
+              this.itemData.defaults.user.username = img.defaults.user.username ?? this.itemData.defaults.user.username;
+              this.itemData.defaults.user.password = img.defaults.user.password ?? this.itemData.defaults.user.password;
+            }
+            this.itemData.addons = img.addons ?? [];
+            this.itemData.description = img.description ?? undefined;
+          },
+          showPlatform() {
+            if (this.itemData.os === 'undefined') return true
+            return this.itemData.os !== 'undefined' &amp;&amp; (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
+          },
+          getImageType() {
+            return this.getAllOsPlatformsDistrosImages()?.find(i => i.id === this.itemData.image)?.type ?? ''
+          },
+          showPlatformDropdown() {
+            return this.itemData.os !== 'undefined' &amp;&amp; (this.options.find(o => o.id === this.itemData.os)?.platforms ?? []).length > 1
+          },
+          showDistroDropdown() {
+            return  this.itemData.os === 'linux' &amp;&amp; this.itemData.platform !== 'undefined';
+          },
+          showImageDropdown() {
+            if (this.itemData.os === 'linux') {
+              return this.itemData.os === 'linux' &amp;&amp; this.itemData.platform !== 'undefined' &amp;&amp; this.itemData.distro !== 'undefined'
+            } else {
+              return  this.itemData.os !== 'undefined' &amp;&amp; this.itemData.platform !== 'undefined';
+            }
+          },
+          showMachineSpecs() {
+            if(this.itemData.allowMachineSpecs === 'undefined') return this.itemData.image !== 'undefined'
+            return this.itemData.allowMachineSpecs
+          },
+          showMachineOptions() {
+            const flags = this.getImageFlags();
+            if (flags === undefined) return false
+            return flags.length > 0
+          },
+          showMachineAddons() {
+            const img = this.getImage();
+            if (img === undefined) return false
+            if (img.allowAddons === false) return false
+            if (img.type === 'internal' || img.type === 'iso' ) return false
+            return img.addons.length > 0
+          },
+          showSaveButton() {
+            const img = this.getImage();
+            return !img === undefined;
+          },
+          getDefaultPlatform() {
+            if (this.itemData.os === 'undefined') return 'undefined'
+            return (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
+          },
+          addImageAddon(id, state) {
+            if (this.itemData.addons.length === 0) {
               this.itemData.addons.push({id: id, deploy: state});
-            }
-          }
-        },
-        addImageFlags(id, state) {
-          if (this.itemData.allowedFlags.length === 0) {
-            this.itemData.allowedFlags.push({code: id, enabled: state});
-            return;
-          }
-    
-          for (let i = 0; i < this.itemData.allowedFlags.length; i++) {
-            let found = false
-            if (this.itemData.allowedFlags[i].code === id) {
-              if (!state){
-                this.itemData.allowedFlags.splice(i, 1);
-              }
-              found = true;
               return;
             }
-            
-            if (!found) {
+      
+            for (let i = 0; i < this.itemData.addons.length; i++) {
+              let found = false
+              if (this.itemData.addons[i].id === id) {
+                if (!state){
+                  this.itemData.addons.splice(i, 1);
+                }
+                found = true;
+                return;
+              }
+              
+              if (!found) {
+                this.itemData.addons.push({id: id, deploy: state});
+              }
+            }
+          },
+          addImageFlags(id, state) {
+            if (id === 'generateVagrantBox') {
+              if(state) {
+                this.itemData.defaults.user.username = 'vagrant';
+                this.itemData.defaults.user.password = 'vagrant';
+              } else {
+                const img = this.getImage();
+                this.itemData.defaults.user.username = img.defaults?.user?.username ?? 'parallels1';
+                this.itemData.defaults.user.password = img.defaults?.user?.password ?? 'parallels1';
+              }
+            }
+            if (this.itemData.allowedFlags.length === 0) {
               this.itemData.allowedFlags.push({code: id, enabled: state});
+              return;
             }
-          }
-        },
-        onPost() {
-          this.isPosting = true;
-          vscode.postMessage({
-            command: 'createVm',
-            text: JSON.stringify(this.itemData, null, 2)
-          });
-        },
-        getButtonText() {
-          if (this.isPosting) {
-            if (this.getImageType() === 'iso') {
-              return 'Creating...'
-            } else if (this.getImageType() === 'macos') {
-              return 'Creating...'
-            } else if (this.getImageType() === 'internal') {
-              return 'Attaching...'
-            } else if (this.getImageType() === 'packer') {
-              if (this.itemData.options.generateVagrantBox) {
-                return 'Generating Vagrant Box...'
+      
+            for (let i = 0; i < this.itemData.allowedFlags.length; i++) {
+              let found = false
+              if (this.itemData.allowedFlags[i].code === id) {
+                if (!state){
+                  this.itemData.allowedFlags.splice(i, 1);
+                }
+                found = true;
+                return;
+              }
+              
+              if (!found) {
+                this.itemData.allowedFlags.push({code: id, enabled: state});
+              }
+            }
+          },
+          validatePostButton() {
+            if(!this.itemData) return false
+            if(this.itemData.requireIsoDownload) {
+              return this.itemData.image !== 'undefined' &&
+              this.itemData.isoUrl !== '' &&
+              this.itemData.isoChecksum !== ''
+            }
+            return this.itemData.image !== 'undefined'
+          },
+          onPost() {
+            this.isPosting = true;
+            vscode.postMessage({
+              command: 'createVm',
+              text: JSON.stringify(this.itemData, null, 2)
+            });
+          },
+          getButtonText() {
+            if (this.isPosting) {
+              if (this.getImageType() === 'iso') {
+                return 'Creating...'
+              } else if (this.getImageType() === 'macos') {
+                return 'Creating...'
+              } else if (this.getImageType() === 'internal') {
+                return 'Attaching...'
+              } else if (this.getImageType() === 'packer') {
+                if (this.itemData.options.generateVagrantBox) {
+                  return 'Generating Vagrant Box...'
+                } else {
+                  return 'Generating VM...'
+                }
               } else {
-                return 'Generating VM...'
+                return 'Creating...'
               }
             } else {
-              return 'Creating...'
-            }
-          } else {
-            if (this.getImageType() === 'iso') {
-              return 'Create VM'
-            } else if (this.getImageType() === 'macos') {
-              return 'Create VM'
-            } else if (this.getImageType() === 'internal') {
-              return 'Attach Appliance...'
-            } else if (this.getImageType() === 'packer') {
-              if (this.itemData.options.generateVagrantBox) {
-                return 'Generate Vagrant Box'
+              if (this.getImageType() === 'iso') {
+                return 'Create VM'
+              } else if (this.getImageType() === 'macos') {
+                return 'Create VM'
+              } else if (this.getImageType() === 'internal') {
+                return 'Attach Appliance...'
+              } else if (this.getImageType() === 'packer') {
+                if (this.itemData.options.generateVagrantBox) {
+                  return 'Generate Vagrant Box'
+                } else {
+                  return 'Generate VM'
+                }
               } else {
-                return 'Generate VM'
+                return 'Create'
               }
-            } else {
-              return 'Create'
             }
+          },
+          options: [{
+            id: 'windows',
+            name: 'Windows',
+            platforms: [
+              {
+            id: 'arm64',
+            name: 'ARM64',
+            distros: [
+              
+            ],
+            images: [
+              {
+            id: 'windows_11',
+            name: 'Windows 11 ARM',
+            description: 'This will install Windows 11 ARM64 on a Parallels VM using automated Packer scripts.',
+            distro: 'windows',
+            type: 'packer',
+            requireIsoDownload: true,
+            isoUrl: '',
+            
+      isoHelp: {
+            prefixText: 'Please follow the instructions on the ',
+            urlText: 'packer-examples repo',
+            url: 'https://github.com/Parallels/packer-examples/blob/main/windows/README.md#windows-11-on-arm-iso',
+            suffixText: ' to download the Windows 11 ARM64 ISO'
+          },
+            isoChecksum: '',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'startHeadless',
+          'name': 'Start Machine in Headless Mode',
+          'enabled': true
+        },
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
+        }
+      ],
+            addons: [{'id':'docker-desktop','name':'Docker Desktop','deploy':false},{'id':'dotnet-framework-6-sdk','name':'Dotnet Framework 6 SDK','deploy':false},{'id':'dotnet-framework-7-sdk','name':'Dotnet Framework 7 SDK','deploy':false},{'id':'flutter','name':'Flutter','deploy':false},{'id':'golang','name':'Go','deploy':false},{'id':'vcredist','name':'Visual Studio Redistributables','deploy':false},{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'podman','name':'Podman','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 2,
+            memory: 4096,
+            diskSize: '65536'
+          },
+            user: {
+            username: 'vagrant--t',
+            password: 'vagrant--t',
+            encryptedPassword: 'undefined'
           }
-        },
-        options: [{
-          id: 'windows',
-          name: 'Windows',
-          platforms: [
-            {
-          id: 'arm64',
-          name: 'ARM64',
-          distros: [
+          }
+          }
+            ]
+          }
+            ]
+          },{
+            id: 'linux',
+            name: 'Linux',
+            platforms: [
+              {
+            id: 'arm64',
+            name: 'ARM64',
+            distros: [
+              {
+            id: 'generic-linux',
+            name: 'Generic Linux',
+            images: [
+              {
+            id: 'generic-iso',
+            name: 'Generic Iso',
+            distro: 'linux',
+            type: 'iso',
+            requireIsoDownload: true,
+            isoUrl: '',
             
-          ],
-          images: [
-            {
-          id: 'windows_11',
-          name: 'Windows 11 ARM',
-          distro: 'windows',
-          type: 'packer',
-          requireIsoDownload: true,
-          isoUrl: '',
-          isoChecksum: '',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: true,
-          allowedFlags: [{'code':'startHeadless','name':'Start Machine in Headless Mode','enabled':false},{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false},{'code':'option1','name':'Option 1','enabled':false},{'code':'option2','name':'Option 2','enabled':false},{'code':'option3','name':'Option 3','enabled':false},,{'code':'option4','name':'Option 4','enabled':false}],
-          addons: [{'id':'docker-desktop','name':'Docker Desktop','deploy':false},{'id':'dotnet-framework-6-sdk','name':'Dotnet Framework 6 SDK','deploy':false},{'id':'dotnet-framework-7-sdk','name':'Dotnet Framework 7 SDK','deploy':false},{'id':'flutter','name':'Flutter','deploy':false},{'id':'golang','name':'Go','deploy':false},{'id':'vcredist','name':'Visual Studio Redistributables','deploy':false},{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'podman','name':'Podman','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 2,
-          memory: 4096,
-          diskSize: '65536'
+            isoChecksum: '',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: false,
+            allowedFlags: [
+        {
+          'code': 'startHeadless',
+          'name': 'Start Machine in Headless Mode',
+          'enabled': true
         },
-          user: undefined
+        {
+          'code': 'enableRosetta',
+          'name': 'Use Rosetta to run x86 binaries',
+          'enabled': false
         }
-        }
-          ]
-        }
-          ]
-        },{
-          id: 'linux',
-          name: 'Linux',
-          platforms: [
-            {
-          id: 'arm64',
-          name: 'ARM64',
-          distros: [
-            {
-          id: 'generic-linux',
-          name: 'Generic Linux',
-          images: [
-            {
-          id: 'generic-iso',
-          name: 'Generic Iso',
-          distro: 'linux',
-          type: 'iso',
-          requireIsoDownload: true,
-          isoUrl: '',
-          isoChecksum: '',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: false,
-          allowedFlags: [{'code':'startHeadless','name':'Start Machine in Headless Mode','enabled':false},{'code':'enableRosetta','name':'Use Rosetta to run x86 binaries','enabled':false}],
-          addons: []
-          ,
-    defaults: {
-          specs: {
-          cpus: 2,
-          memory: 2048,
-          diskSize: '65536'
-        },
-          user: undefined
-        }
-        }
-          ]
-        },
-    {
-          id: 'ubuntu',
-          name: 'Ubuntu',
-          images: [
-            {
-          id: 'ubuntu-server-22.04',
-          name: 'Ubuntu Server 22.04 LTS',
-          distro: 'ubuntu',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: '',
-          isoChecksum: '',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: true,
-          allowedFlags: [{'code':'startHeadless','name':'Start Machine in Headless Mode','enabled':false},{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false},{'code':'enableRosetta','name':'Use Rosetta to run x86 binaries','enabled':false}],
-          addons: [{'id':'desktop','name':'Ubuntu Desktop','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 4096,
-          diskSize: '65536'
-        },
-          user: undefined
-        }
-        },
-    {
-          id: 'ubuntu-server-23.04',
-          name: 'Ubuntu Server 23.04',
-          distro: 'ubuntu',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: '',
-          isoChecksum: '',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: true,
-          allowedFlags: [{'code':'startHeadless','name':'Start Machine in Headless Mode','enabled':false},{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false},{'code':'enableRosetta','name':'Use Rosetta to run x86 binaries','enabled':false}],
-          addons: [{'id':'desktop','name':'Ubuntu Desktop','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 4096,
-          diskSize: '65536'
-        },
-          user: undefined
-        }
-        }
-          ]
-        },
-    {
-          id: 'photon',
-          name: 'Photon OS',
-          images: [
-            {
-          id: 'photon-5.0',
-          name: 'Photon OS 5.0 GA',
-          distro: 'linux',
-          type: 'iso',
-          requireIsoDownload: false,
-          isoUrl: 'https://packages.vmware.com/photon/5.0/GA/iso/photon-5.0-dde71ec57.aarch64.iso',
-          isoChecksum: 'sha256:06f4b20d3097fcebc3ea067e41e4fb64ffe41828bdb9fa96cebc7a49f290c0d9',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: false,
-          allowedFlags: [{'code':'startHeadless','name':'Start Machine in Headless Mode','enabled':false},{'code':'enableRosetta','name':'Use Rosetta to run x86 binaries','enabled':false}],
-          addons: []
-          ,
-    defaults: {
-          specs: {
-          cpus: 2,
-          memory: 2048,
-          diskSize: '65536'
-        },
-          user: undefined
-        }
-        }
-          ]
-        },
-    {
-          id: 'redhat',
-          name: 'Redhat',
-          images: [
-            {
-          id: 'redhat-9.2',
-          name: 'Redhat 9.2',
-          distro: 'rhel',
-          type: 'iso',
-          requireIsoDownload: true,
-          isoUrl: '',
-          isoChecksum: 'sha256:c0d6dc21f157c2c8a4a0ebba0f5e2899f6cbb986d5f0bdd3cef1909b55fe25a8',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: false,
-          allowedFlags: [{'code':'startHeadless','name':'Start Machine in Headless Mode','enabled':false},{'code':'enableRosetta','name':'Use Rosetta to run x86 binaries','enabled':false}],
-          addons: []
-          ,
-    defaults: {
-          specs: {
-          cpus: 2,
-          memory: 2048,
-          diskSize: '65536'
-        },
-          user: undefined
-        }
-        }
-          ]
-        },
-    {
-          id: 'parrot-security',
-          name: 'ParrotOS',
-          images: [
-            {
-          id: 'parrot-os-5.3',
-          name: 'Parrot OS 5.3 Architect',
-          distro: 'linux',
-          type: 'iso',
-          requireIsoDownload: false,
-          isoUrl: 'https://deb.parrot.sh/parrot/iso/5.3/Parrot-architect-5.3_arm64.iso',
-          isoChecksum: 'sha256:fdf76024b94e0b15294b8ee404b9d2e85a60207d3a484c86a5d8bb7161fcc1d8',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: false,
-          allowedFlags: [{'code':'startHeadless','name':'Start Machine in Headless Mode','enabled':false},{'code':'enableRosetta','name':'Use Rosetta to run x86 binaries','enabled':false}],
-          addons: []
-          ,
-    defaults: {
-          specs: {
-          cpus: 2,
-          memory: 2048,
-          diskSize: '65536'
-        },
-          user: undefined
-        }
-        }
-          ]
-        }
-          ],
-          images: [
+      ],
+            addons: []
+            ,
+      defaults: {
+            specs: {
+            cpus: 2,
+            memory: 2048,
+            diskSize: '65536'
+          },
+            user: undefined
+          }
+          }
+            ]
+          },
+      {
+            id: 'ubuntu',
+            name: 'Ubuntu',
+            images: [
+              {
+            id: 'ubuntu-server-22.04',
+            name: 'Ubuntu Server 22.04.3 LTS',
+            distro: 'ubuntu',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: '',
             
-          ]
+            isoChecksum: '',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'startHeadless',
+          'name': 'Start Machine in Headless Mode',
+          'enabled': true
+        },
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
+        },
+        {
+          'code': 'enableRosetta',
+          'name': 'Use Rosetta to run x86 binaries',
+          'enabled': false
         }
-          ]
-        },{
-          id: 'macos',
-          name: 'macOS',
-          platforms: [
-            {
-          id: 'arm64',
-          name: 'ARM64',
-          distros: [
+      ],
+            addons: [{'id':'desktop','name':'Ubuntu Desktop','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 4096,
+            diskSize: '65536'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'ubuntu-server-23.04',
+            name: 'Ubuntu Server 23.04',
+            distro: 'ubuntu',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: '',
             
-          ],
-          images: [
-            {
-          id: 'macos13_22G74',
-          name: 'macOS 13.5',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw',
-          isoChecksum: 'sha256:a42a5ba126a4a35bae9f3dcd64565abc2232e9f3954c658cf5cab5bd92f9d191',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
+            isoChecksum: '',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'startHeadless',
+          'name': 'Start Machine in Headless Mode',
+          'enabled': true
         },
-          user: undefined
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
+        },
+        {
+          'code': 'enableRosetta',
+          'name': 'Use Rosetta to run x86 binaries',
+          'enabled': false
         }
+      ],
+            addons: [{'id':'desktop','name':'Ubuntu Desktop','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 4096,
+            diskSize: '65536'
+          },
+            user: undefined
+          }
+          }
+            ]
+          },
+      {
+            id: 'photon',
+            name: 'Photon OS',
+            images: [
+              {
+            id: 'photon-5.0',
+            name: 'Photon OS 5.0 GA',
+            distro: 'linux',
+            type: 'iso',
+            requireIsoDownload: false,
+            isoUrl: 'https://packages.vmware.com/photon/5.0/GA/iso/photon-5.0-dde71ec57.aarch64.iso',
+            
+            isoChecksum: 'sha256:06f4b20d3097fcebc3ea067e41e4fb64ffe41828bdb9fa96cebc7a49f290c0d9',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: false,
+            allowedFlags: [
+        {
+          'code': 'startHeadless',
+          'name': 'Start Machine in Headless Mode',
+          'enabled': true
         },
-    {
-          id: 'macos13_22G74_ipsw',
-          name: 'macOS 13.5 (Manual Setup)',
-          distro: '',
-          type: 'macos',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw',
-          isoChecksum: 'sha256:a42a5ba126a4a35bae9f3dcd64565abc2232e9f3954c658cf5cab5bd92f9d191',
-          allowMachineSpecs: true,
-          allowUserOverride: false,
-          allowAddons: false,
-          allowedFlags: [],
-          addons: []
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
-        },
-          user: undefined
+        {
+          'code': 'enableRosetta',
+          'name': 'Use Rosetta to run x86 binaries',
+          'enabled': false
         }
+      ],
+            addons: []
+            ,
+      defaults: {
+            specs: {
+            cpus: 2,
+            memory: 2048,
+            diskSize: '65536'
+          },
+            user: undefined
+          }
+          }
+            ]
+          },
+      {
+            id: 'redhat',
+            name: 'Redhat',
+            images: [
+              {
+            id: 'redhat-9.2',
+            name: 'Redhat 9.2',
+            distro: 'rhel',
+            type: 'iso',
+            requireIsoDownload: true,
+            isoUrl: '',
+            
+            isoChecksum: 'sha256:c0d6dc21f157c2c8a4a0ebba0f5e2899f6cbb986d5f0bdd3cef1909b55fe25a8',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: false,
+            allowedFlags: [
+        {
+          'code': 'startHeadless',
+          'name': 'Start Machine in Headless Mode',
+          'enabled': true
         },
-    {
-          id: 'macos13_22F82',
-          name: 'macOS 13.4.1',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023SpringFCS/fullrestores/042-01877/2F49A9FE-7033-41D0-9D0C-64EFCE6B4C22/UniversalMac_13.4.1_22F82_Restore.ipsw',
-          isoChecksum: 'sha256:5ac144d1661614806d765bc0466d719152e2594c2db3888f1ac02276f5638e98',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
-        },
-          user: undefined
+        {
+          'code': 'enableRosetta',
+          'name': 'Use Rosetta to run x86 binaries',
+          'enabled': false
         }
+      ],
+            addons: []
+            ,
+      defaults: {
+            specs: {
+            cpus: 2,
+            memory: 2048,
+            diskSize: '65536'
+          },
+            user: undefined
+          }
+          }
+            ]
+          },
+      {
+            id: 'parrot-security',
+            name: 'ParrotOS',
+            images: [
+              {
+            id: 'parrot-os-5.3',
+            name: 'Parrot OS 5.3 Architect',
+            distro: 'linux',
+            type: 'iso',
+            requireIsoDownload: false,
+            isoUrl: 'https://deb.parrot.sh/parrot/iso/5.3/Parrot-architect-5.3_arm64.iso',
+            
+            isoChecksum: 'sha256:fdf76024b94e0b15294b8ee404b9d2e85a60207d3a484c86a5d8bb7161fcc1d8',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: false,
+            allowedFlags: [
+        {
+          'code': 'startHeadless',
+          'name': 'Start Machine in Headless Mode',
+          'enabled': true
         },
-    {
-          id: 'macos13_22F66',
-          name: 'macOS 13.4',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023SpringFCS/fullrestores/032-84884/F97A22EE-9B5E-4FD5-94C1-B39DCEE8D80F/UniversalMac_13.4_22F66_Restore.ipsw',
-          isoChecksum: 'sha256:472192932e4152d20d0504641df4c8574929903f2f3244f45b46af7d5b2e4606',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
-        },
-          user: undefined
+        {
+          'code': 'enableRosetta',
+          'name': 'Use Rosetta to run x86 binaries',
+          'enabled': false
         }
-        },
-    {
-          id: 'macos13_22E261',
-          name: 'macOS 13.3.1',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-66602/418BC37A-FCD9-400A-B4FA-022A19576CD4/UniversalMac_13.3.1_22E261_Restore.ipsw',
-          isoChecksum: 'sha256:6e9d9b30528ec951d8a377173b355932647194c326347efc5e54ade1fe71cbc8',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
-        },
-          user: undefined
+      ],
+            addons: []
+            ,
+      defaults: {
+            specs: {
+            cpus: 2,
+            memory: 2048,
+            diskSize: '65536'
+          },
+            user: undefined
+          }
+          }
+            ]
+          }
+            ],
+            images: [
+              
+            ]
+          }
+            ]
+          },{
+            id: 'macos',
+            name: 'macOS',
+            platforms: [
+              {
+            id: 'arm64',
+            name: 'ARM64',
+            distros: [
+              
+            ],
+            images: [
+              {
+            id: 'macos13_22G74',
+            name: 'macOS 13.5',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw',
+            
+            isoChecksum: 'sha256:a42a5ba126a4a35bae9f3dcd64565abc2232e9f3954c658cf5cab5bd92f9d191',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
         }
-        },
-    {
-          id: 'macos13_22E252',
-          name: 'macOS 13.3',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023WinterSeed/fullrestores/002-75537/8250FA0E-0962-46D6-8A90-57A390B9FFD7/UniversalMac_13.3_22E252_Restore.ipsw',
-          isoChecksum: 'sha256:91fe1d55843925f242b4a94ce1069073f9a22f22a40eb77a5618b877e0ec9f24',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
-        },
-          user: undefined
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'macos13_22G74_ipsw',
+            name: 'macOS 13.5 (Manual Setup)',
+            distro: '',
+            type: 'macos',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw',
+            
+            isoChecksum: 'sha256:a42a5ba126a4a35bae9f3dcd64565abc2232e9f3954c658cf5cab5bd92f9d191',
+            allowMachineSpecs: true,
+            allowUserOverride: false,
+            allowAddons: false,
+            allowedFlags: [],
+            addons: []
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'macos13_22F82',
+            name: 'macOS 13.4.1',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023SpringFCS/fullrestores/042-01877/2F49A9FE-7033-41D0-9D0C-64EFCE6B4C22/UniversalMac_13.4.1_22F82_Restore.ipsw',
+            
+            isoChecksum: 'sha256:5ac144d1661614806d765bc0466d719152e2594c2db3888f1ac02276f5638e98',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
         }
-        },
-    {
-          id: 'macos13_22D68',
-          name: 'macOS 13.2.1',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-48346/EFF99C1E-C408-4E7A-A448-12E1468AF06C/UniversalMac_13.2.1_22D68_Restore.ipsw',
-          isoChecksum: 'sha256:6e9d9b30528ec951d8a377173b355932647194c326347efc5e54ade1fe71cbc8',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          
-        },
-    {
-          id: 'macos13_22D68',
-          name: 'macOS 13.2',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-35688/0350BB21-2B4B-4850-BF77-70B830283B28/UniversalMac_13.2_22D49_Restore.ipsw',
-          isoChecksum: 'sha256:ba80732efcc0fc9ac84c57f504ced09dbc431c49e2b633b9abd4730e55ac66a5',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          
-        },
-    {
-          id: 'macos13_22C65',
-          name: 'macOS 13.1',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-48346/EFF99C1E-C408-4E7A-A448-12E1468AF06C/UniversalMac_13.2.1_22D68_Restore.ipsw',
-          isoChecksum: 'sha256:98dd167fb42b345efbadc62c8bf74faa98ec3d7e6079085dc92ef98c7797b14b',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          
-        },
-    {
-          id: 'macos13_22C65',
-          name: 'macOS 13.0.1',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-93802/A7270B0F-05F8-43D1-A9AD-40EF5699E82C/UniversalMac_13.0.1_22A400_Restore.ipsw',
-          isoChecksum: 'sha256:58dc6614947cdcc971cc7d1ae882b3daee5c34b8c721d51139a0cff46d3b543f',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
-        },
-          user: undefined
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'macos13_22F66',
+            name: 'macOS 13.4',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023SpringFCS/fullrestores/032-84884/F97A22EE-9B5E-4FD5-94C1-B39DCEE8D80F/UniversalMac_13.4_22F66_Restore.ipsw',
+            
+            isoChecksum: 'sha256:472192932e4152d20d0504641df4c8574929903f2f3244f45b46af7d5b2e4606',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
         }
-        },
-    {
-          id: 'macos13_22A380',
-          name: 'macOS 13.0',
-          distro: '',
-          type: 'packer',
-          requireIsoDownload: false,
-          isoUrl: 'https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-92188/2C38BCD1-2BFF-4A10-B358-94E8E28BE805/UniversalMac_13.0_22A380_Restore.ipsw',
-          isoChecksum: 'sha256:537008900fe34eeb703d928ce613708bfbd6bf445289948058fc617be4f2d090',
-          allowMachineSpecs: true,
-          allowUserOverride: true,
-          allowAddons: true,
-          allowedFlags: [{'code':'generateVagrantBox','name':'Generate Vagrant Box','enabled':false}],
-          addons: [{'id':'vscode','name':'Visual Studio Code','deploy':false}]
-          ,
-    defaults: {
-          specs: {
-          cpus: 4,
-          memory: 8196,
-          diskSize: 'undefined'
-        },
-          user: undefined
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'macos13_22E261',
+            name: 'macOS 13.3.1',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-66602/418BC37A-FCD9-400A-B4FA-022A19576CD4/UniversalMac_13.3.1_22E261_Restore.ipsw',
+            
+            isoChecksum: 'sha256:6e9d9b30528ec951d8a377173b355932647194c326347efc5e54ade1fe71cbc8',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
         }
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'macos13_22E252',
+            name: 'macOS 13.3',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023WinterSeed/fullrestores/002-75537/8250FA0E-0962-46D6-8A90-57A390B9FFD7/UniversalMac_13.3_22E252_Restore.ipsw',
+            
+            isoChecksum: 'sha256:91fe1d55843925f242b4a94ce1069073f9a22f22a40eb77a5618b877e0ec9f24',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
         }
-          ]
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'macos13_22D68',
+            name: 'macOS 13.2.1',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-48346/EFF99C1E-C408-4E7A-A448-12E1468AF06C/UniversalMac_13.2.1_22D68_Restore.ipsw',
+            
+            isoChecksum: 'sha256:6e9d9b30528ec951d8a377173b355932647194c326347efc5e54ade1fe71cbc8',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
         }
-          ]
-        },],
-      }"
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            
+          },
+      {
+            id: 'macos13_22D68',
+            name: 'macOS 13.2',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-35688/0350BB21-2B4B-4850-BF77-70B830283B28/UniversalMac_13.2_22D49_Restore.ipsw',
+            
+            isoChecksum: 'sha256:ba80732efcc0fc9ac84c57f504ced09dbc431c49e2b633b9abd4730e55ac66a5',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
+        }
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            
+          },
+      {
+            id: 'macos13_22C65',
+            name: 'macOS 13.1',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-48346/EFF99C1E-C408-4E7A-A448-12E1468AF06C/UniversalMac_13.2.1_22D68_Restore.ipsw',
+            
+            isoChecksum: 'sha256:98dd167fb42b345efbadc62c8bf74faa98ec3d7e6079085dc92ef98c7797b14b',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
+        }
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            
+          },
+      {
+            id: 'macos13_22C65',
+            name: 'macOS 13.0.1',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-93802/A7270B0F-05F8-43D1-A9AD-40EF5699E82C/UniversalMac_13.0.1_22A400_Restore.ipsw',
+            
+            isoChecksum: 'sha256:58dc6614947cdcc971cc7d1ae882b3daee5c34b8c721d51139a0cff46d3b543f',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
+        }
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          },
+      {
+            id: 'macos13_22A380',
+            name: 'macOS 13.0',
+            distro: '',
+            type: 'packer',
+            requireIsoDownload: false,
+            isoUrl: 'https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-92188/2C38BCD1-2BFF-4A10-B358-94E8E28BE805/UniversalMac_13.0_22A380_Restore.ipsw',
+            
+            isoChecksum: 'sha256:537008900fe34eeb703d928ce613708bfbd6bf445289948058fc617be4f2d090',
+            allowMachineSpecs: true,
+            allowUserOverride: true,
+            allowAddons: true,
+            allowedFlags: [
+        {
+          'code': 'generateVagrantBox',
+          'name': 'Generate Vagrant Box',
+          'enabled': false
+        }
+      ],
+            addons: [{'id':'git','name':'Git','deploy':false},{'id':'vscode','name':'Visual Studio Code','deploy':false},{'id':'docker','name':'Docker','deploy':false}]
+            ,
+      defaults: {
+            specs: {
+            cpus: 4,
+            memory: 8196,
+            diskSize: 'undefined'
+          },
+            user: undefined
+          }
+          }
+            ]
+          }
+            ]
+          },]
+        }"
       >
         <template x-if="isPosting">
           <div class="flex justify-center items-center h-full w-full absolute top-0 left-0 loading">
@@ -751,7 +999,10 @@
                   <h2 class="title-text mb-2">Operating System</h2>
                   <div class="mb-3" x-show="!showPlatform()">
                     <template x-if="!showPlatform()">
-                      <span class="caption-text" x-text="'Compatible with ' +getDefaultPlatform() + (getImageType() !== '' ? ', Image format is '+ getImageType() :'') "></span>
+                      <span
+                        class="caption-text"
+                        x-text="'Compatible with ' +getDefaultPlatform() + (getImageType() !== '' ? ', Image format is '+ getImageType() :'') "
+                      ></span>
                     </template>
                   </div>
                 </div>
@@ -809,7 +1060,11 @@
                       </select>
                     </div>
                   </div>
-                  <div class="sm:flex sm:flex-col sm:items-end" :class="showDistroDropdown() ? 'w-2/4': 'w-3/4'" x-show="showImageDropdown()">
+                  <div
+                    class="sm:flex sm:flex-col sm:items-end"
+                    :class="showDistroDropdown() ? 'w-2/4': 'w-3/4'"
+                    x-show="showImageDropdown()"
+                  >
                     <div class="relative inline-block text-left">
                       <select
                         name="image"
@@ -827,6 +1082,13 @@
                     </div>
                   </div>
                 </div>
+                  <div
+                    class="flex sm:flex-row sm:items-end flex-row"
+                  >
+                    <div class="pr-2 mb-2">
+                        <span class="input-label" x-text="itemData.description"></span>
+                    </div>
+                  </div>
                 <div class="flex flex-row gap-x-1 py-1 mt-2" x-show="itemData.image !== 'undefined'">
                   <div class="sm:flex sm:flex-col sm:items-end w-full">
                     <div class="mb-2 w-full">
@@ -852,8 +1114,11 @@
                   x-show="itemData.image !== 'undefined' && itemData.requireIsoDownload === true"
                 >
                   <div class="pr-2 mb-2 w-3/5">
-                    <label for="isoUrl" class="block mb-1 input-label">Iso Url/File</label>
+                    <label for="isoUrl" class="block mb-1 input-label">
+                      Iso Url/File <span class="input-label-mandatory">*</span>
+                    </label>
                     <input
+                      data-tooltip-target="tooltip-default"
                       id="isoUrl"
                       type="text"
                       x-model="itemData.isoUrl"
@@ -863,9 +1128,14 @@
                       placeholder="Select a ISO file or an Url"
                       required=""
                     />
+                    <div class="mt-2" x-show="itemData.isoHelp !== undefined && itemData.requireIsoDownload === true">
+                      <span class="input-label" x-show="itemData.isoHelp !== undefined && itemData.isoHelp.prefixText" x-text="itemData.isoHelp?.prefixText ?? ''"></span>
+                      <a x-show="itemData.isoHelp !== undefined && itemData.isoHelp.urlText" :href="itemData.isoHelp?.url ?? ''" class="input-label input-label-link " x-text="itemData.isoHelp?.urlText ?? ''"></a>
+                      <span class="input-label" x-show="itemData.isoHelp !== undefined && itemData.isoHelp.suffixText" x-text="itemData.isoHelp?.suffixText ?? ''"></span>
+                    </div>
                   </div>
                   <div class="mb-2 w-2/5">
-                    <label for="isoChecksum" class="block mb-1 input-label">Iso Checksum</label>
+                    <label for="isoChecksum" class="block mb-1 input-label">Iso Checksum <span class="input-label-mandatory">*</span></label>
                     <input
                       id="isoChecksum"
                       type="text"
@@ -1010,8 +1280,50 @@
                   </template>
                 </div>
               </li>
+              <li class="flex flex-col w-full sub-panel sub-panel-color mb-3" x-show="itemData.defaults.user !== undefined" >
+                <div class="w-full flex flex-col gap-x-4 mb-4">
+                  <h2 class="normal-text">Default user</h2>
+                </div>
+                <div class="w-full mb-2">
+                  <span class="input-label">
+                    This will be the default user/password that will be used to login to the machine.
+                  </span>
+                </div>
+                <div class="flex gap-x-6">
+                  <div
+                  class="flex sm:flex-row sm:items-end flex-row w-full"
+                >
+                  <div class="pr-2 mb-2 w-2/4">
+                    <label for="isoUrl" class="block mb-1 input-label">
+                      Username
+                    </label>
+                    <input
+                      id="defaultUser"
+                      type="text"
+                      disabled
+                      name="isoUrl"
+                      :value="itemData.defaults?.user?.username ?? 'parallels-eee'"
+                      class="input block w-full p-2.5"
+                      placeholder="parallels"
+                    />
+                  </div>
+                  <div class="mb-2 w-2/5">
+                    <label for="isoChecksum" class="block mb-1 input-label">Password</label>
+                    <input
+                      id="defaultPassword"
+                      type="text"
+                      disabled
+                      name="isoChecksum"
+                      :value="itemData.defaults?.user?.password ?? 'parallels-eee'"
+                      class="input block w-full p-2.5"
+                      placeholder="parallels"
+                    />
+                  </div>
+                </div>
+                </div>
+              </li>
             </ul>
-            <ul role="list" class="mb-4 mt-4" x-show="itemData.image !== 'undefined'">
+            <ul role="list" class="mb-4 mt-4" x-show="validatePostButton()">
               <li class="flex flex-col gap-x-6 py-1 w-full items-end" x-show="itemData.image !== 'undefined'">
                 <div class="flex items-end p-2">
                   <button

@@ -14,17 +14,28 @@
                         "packerFolder": "windows",
                         "name": "Windows 11 ARM",
                         "distro": "windows",
+                        "description": "This will install Windows 11 ARM64 on a Parallels VM using automated Packer scripts.",
                         "requireIsoDownload": true,
                         "allowMachineSpecs": true,
                         "allowUserOverride": false,
                         "allowAddons": true,
                         "isoUrl": "",
+                        "isoHelp": {
+                            "prefixText": "Please follow the instructions on the ",
+                            "urlText": "packer-examples repo",
+                            "url":"https://github.com/Parallels/packer-examples/blob/main/windows/README.md#windows-11-on-arm-iso",
+                            "suffixText": " to download the Windows 11 ARM64 ISO"
+                        },
                         "isoChecksum": "",
                         "defaults": {
                             "specs": {
                                 "cpus": 2,
                                 "memory": 4096,
                                 "diskSize": 65536
+                            },
+                            "user": {
+                                "username": "vagrant",
+                                "password": "vagrant"
                             }
                         },
                         "variables": {},
@@ -50,6 +61,7 @@
                                 "id": "generic-iso",
                                 "name": "Generic Iso",
                                 "distro": "linux",
+                                "description": "You can use this to install any compatible Linux distro using the arm64 ISO.",
                                 "type": "iso",
                                 "requireIsoDownload": true,
                                 "allowMachineSpecs": true,
@@ -74,6 +86,7 @@
                                 "id": "ubuntu-server-22.04",
                                 "name": "Ubuntu Server 22.04.3 LTS",
                                 "distro": "ubuntu",
+                                "description": "This will create a Ubuntu Server 22.04.3 LTS VM using automated Packer scripts.",
                                 "type": "packer",
                                 "packerFolder": "ubuntu",
                                 "requireIsoDownload": false,
@@ -90,6 +103,10 @@
                                         "cpus": 4,
                                         "memory": 4096,
                                         "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
                                     }
                                 }
                             },
@@ -97,6 +114,7 @@
                                 "id": "ubuntu-server-23.04",
                                 "name": "Ubuntu Server 23.04",
                                 "distro": "ubuntu",
+                                "description": "This will create a Ubuntu Server 23.04 VM using automated Packer scripts.",
                                 "type": "packer",
                                 "packerFolder": "ubuntu",
                                 "requireIsoDownload": false,
@@ -113,6 +131,10 @@
                                         "cpus": 4,
                                         "memory": 4096,
                                         "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
                                     }
                                 }
                             }
@@ -126,6 +148,7 @@
                                 "id": "photon-5.0",
                                 "name": "Photon OS 5.0 GA",
                                 "distro": "linux",
+                                "description": "This will create a Photon OS 5.0 GA VM, this will need user input to complete the installation.",
                                 "type": "iso",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
@@ -152,6 +175,7 @@
                                 "id": "redhat-9.2",
                                 "name": "Redhat 9.2",
                                 "distro": "rhel",
+                                "description": "This will create a Redhat 9.2 VM, you will need to source the ISO and will need user input to complete the installation.",
                                 "type": "iso",
                                 "requireIsoDownload": true,
                                 "allowMachineSpecs": true,
@@ -177,6 +201,7 @@
                                 "id": "parrot-os-5.3",
                                 "name": "Parrot OS 5.3 Architect",
                                 "distro": "linux",
+                                "description": "This will create a Parrot OS 5.3 Architect VM, this will need user input to complete the installation.",
                                 "type": "iso",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
@@ -214,6 +239,7 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.5",
+                        "description": "This will create a macOS 13.5 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -225,6 +251,10 @@
                             "specs": {
                                 "cpus": 4,
                                 "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
                             }
                         }
                     },
@@ -233,6 +263,7 @@
                         "type": "macos",
                         "packerFolder": "macos",
                         "name": "macOS 13.5 (Manual Setup)",
+                        "description": "This will create a macOS 13.5 VM using a downloaded IPSW file, this will need user input to complete the installation.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": false,
@@ -252,6 +283,7 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.4.1",
+                        "description": "This will create a macOS 13.4.1 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -263,6 +295,10 @@
                             "specs": {
                                 "cpus": 4,
                                 "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
                             }
                         }
                     },
@@ -271,6 +307,7 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.4",
+                        "description": "This will create a macOS 13.4 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -282,6 +319,10 @@
                             "specs": {
                                 "cpus": 4,
                                 "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
                             }
                         }
                     },
@@ -290,6 +331,7 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.3.1",
+                        "description": "This will create a macOS 13.3.1 VM using automated Packer scripts.",
                         "require_iso_download": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -301,6 +343,10 @@
                             "specs": {
                                 "cpus": 4,
                                 "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
                             }
                         }
                     },
@@ -309,6 +355,7 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.3",
+                        "description": "This will create a macOS 13.3 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -320,6 +367,10 @@
                             "specs": {
                                 "cpus": 4,
                                 "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
                             }
                         }
                     },
@@ -328,32 +379,55 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.2.1",
+                        "description": "This will create a macOS 13.2.1 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
                         "allowAddons": true,
                         "isoUrl": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-48346/EFF99C1E-C408-4E7A-A448-12E1468AF06C/UniversalMac_13.2.1_22D68_Restore.ipsw",
                         "isoChecksum": "sha256:6e9d9b30528ec951d8a377173b355932647194c326347efc5e54ade1fe71cbc8",
-                        "addons": []
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
                     },
                     {
                         "id": "macos13_22D68",
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.2",
+                        "description": "This will create a macOS 13.2 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
                         "allowAddons": true,
                         "isoUrl": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-35688/0350BB21-2B4B-4850-BF77-70B830283B28/UniversalMac_13.2_22D49_Restore.ipsw",
                         "isoChecksum": "sha256:ba80732efcc0fc9ac84c57f504ced09dbc431c49e2b633b9abd4730e55ac66a5",
-                        "addons": []
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
                     },
                     {
                         "id": "macos13_22C65",
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.1",
+                        "description": "This will create a macOS 13.1 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -362,6 +436,16 @@
                         "isoChecksum": "sha256:98dd167fb42b345efbadc62c8bf74faa98ec3d7e6079085dc92ef98c7797b14b",
                         "addons": [],
                         "variables": {
+                        },
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
                         }
                     },
                     {
@@ -369,6 +453,7 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.0.1",
+                        "description": "This will create a macOS 13.0.1 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -380,6 +465,10 @@
                             "specs": {
                                 "cpus": 4,
                                 "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
                             }
                         }
                     },
@@ -388,6 +477,7 @@
                         "type": "packer",
                         "packerFolder": "macos",
                         "name": "macOS 13.0",
+                        "description": "This will create a macOS 13.0 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
                         "allowMachineSpecs": true,
                         "allowUserOverride": true,
@@ -399,6 +489,10 @@
                             "specs": {
                                 "cpus": 4,
                                 "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
                             }
                         }
                     }

@@ -2,6 +2,13 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.4]
+
+* Fixed an issue where the extension could have multiple refresh cycles running at the same time
+* Added better descriptions to the Add VMs screen
+* Added the default User/Password that will be used if packer image is selected
+* Added some validations to the create button simplifying the user experience
+
 ## [1.0.3]
 
 * Updated the Ubuntu 22.04 to release 3

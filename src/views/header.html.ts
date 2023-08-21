@@ -29,7 +29,9 @@ export function generateHtml(
       <script>
         const vscode = acquireVsCodeApi();
       </script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
       <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
     </head>`;
   const htmlBody = `<body ${isDarkModeEnabled ? 'class="background-color"' : 'class="background-color"'}>
       ${body}
