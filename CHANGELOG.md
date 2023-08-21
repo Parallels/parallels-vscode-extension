@@ -2,6 +2,11 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.6] - 2023-08-21
+
+* fixed an issue where the addons would not render correctly
+* further fixes to the autorefresh of the VMs
+
 ## [1.0.5] - 2023-08-21
 
 * Added a error message if the VM packer output folder already existed
