@@ -457,9 +457,11 @@ export class CreateMachineService {
           LogService.error(`Machine ${request.name} already exists`, "CreateMachineService");
           const files = fs.readdirSync(outputFolder);
           if (files.length > 0) {
-            return reject(`Machine ${request.name} packer output folder ${outputFolder} already exists and contains files, please remove it and try again`);
+            return reject(
+              `Machine ${request.name} packer output folder ${outputFolder} already exists and contains files, please remove it and try again`
+            );
           } else {
-            fs.rmdirSync(outputFolder, { recursive: true });
+            fs.rmdirSync(outputFolder, {recursive: true});
           }
         }
 
