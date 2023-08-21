@@ -94,6 +94,7 @@ function setAutoRefresh() {
     }
 
     LogService.info("Auto refresh interval is " + interval + "ms", "CoreService");
+    clearInterval(autoRefreshInterval);
     autoRefreshInterval = setInterval(() => {
       LogService.info("Refreshing the virtual machine tree view", "CoreService");
       vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
@@ -114,5 +115,5 @@ export function deactivate() {
   console.log("Deactivating Parallels Desktop Extension");
   const config = Provider.getConfiguration();
   config.save();
-  //TODO: remove all the commands
+  clearInterval(autoRefreshInterval);
 }
