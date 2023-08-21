@@ -361,7 +361,6 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
             this.itemData.defaults.user.username = img.defaults.user.username ?? this.itemData.defaults.user.username;
             this.itemData.defaults.user.password = img.defaults.user.password ?? this.itemData.defaults.user.password;
           }
-          this.itemData.addons = img.addons ?? [];
           this.itemData.description = img.description ?? undefined;
           this.checkVmName(this.itemData.name);
         },
@@ -410,13 +409,15 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           return (this.options.find(o => o.id === this.itemData.os)?.platforms ?? [])[0].id
         },
         addImageAddon(id, state) {
+          console.log('addImageAddon', id, state)
           if (this.itemData.addons.length === 0) {
+            console.log('addImageAddon', id, state, 'pushing first')
             this.itemData.addons.push({id: id, deploy: state});
             return;
           }
     
+          let found = false
           for (let i = 0; i < this.itemData.addons.length; i++) {
-            let found = false
             if (this.itemData.addons[i].id === id) {
               if (!state){
                 this.itemData.addons.splice(i, 1);
@@ -424,10 +425,9 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
               found = true;
               return;
             }
-            
-            if (!found) {
-              this.itemData.addons.push({id: id, deploy: state});
-            }
+          }
+          if (!found) {
+            this.itemData.addons.push({id: id, deploy: state});
           }
         },
         addImageFlags(id, state) {
@@ -446,8 +446,8 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
             return;
           }
     
+          let found = false
           for (let i = 0; i < this.itemData.allowedFlags.length; i++) {
-            let found = false
             if (this.itemData.allowedFlags[i].code === id) {
               if (!state){
                 this.itemData.allowedFlags.splice(i, 1);
@@ -455,11 +455,12 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
               found = true;
               return;
             }
-            
-            if (!found) {
-              this.itemData.allowedFlags.push({code: id, enabled: state});
-            }
           }
+                      
+          if (!found) {
+            this.itemData.allowedFlags.push({code: id, enabled: state});
+          }
+
         },
         validatePostButton() {
           if(!this.itemData) return false

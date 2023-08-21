@@ -79,6 +79,7 @@ export async function activate(context: vscode.ExtensionContext) {
 function setAutoRefresh() {
   const settings = Provider.getSettings();
   const autoRefresh = settings.get<boolean>(FLAG_AUTO_REFRESH);
+  clearInterval(autoRefreshInterval);
   if (autoRefresh) {
     LogService.info("Auto refresh is enabled", "CoreService");
     let interval = settings.get<number>(FLAG_AUTO_REFRESH_INTERVAL);
