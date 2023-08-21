@@ -10,7 +10,7 @@ import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {NewVirtualMachineRequest} from "../../models/NewVirtualMachineRequest";
 import {LogService} from "../../services/logService";
 import {Provider} from "../../ioc/provider";
-import { config } from "process";
+import {config} from "process";
 
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
@@ -58,9 +58,9 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
             const config = Provider.getConfiguration();
             const exists = config.allMachines.find(m => m.Name === message.text);
             if (exists) {
-              panel.webview.postMessage({ command: "vmNameExists", text: "true" });
+              panel.webview.postMessage({command: "vmNameExists", text: "true"});
             } else {
-              panel.webview.postMessage({ command: "vmNameExists", text: "false" });
+              panel.webview.postMessage({command: "vmNameExists", text: "false"});
             }
             break;
           }

@@ -97,7 +97,7 @@ export class OperatingSystemImage {
       requireIsoDownload: ${this.requireIsoDownload},
       description: ${this.description !== undefined ? `'${this.description}'` : undefined},
       isoUrl: '${this.isoUrl}',
-      ${this.isoHelp ?  `\nisoHelp: ${this.isoHelp.toString()},`: ""}
+      ${this.isoHelp ? `\nisoHelp: ${this.isoHelp.toString()},` : ""}
       isoChecksum: '${this.isoChecksum}',
       allowMachineSpecs: ${this.allowMachineSpecs},
       allowUserOverride: ${this.allowUserOverride},
@@ -124,7 +124,7 @@ export class OperatingSystemImage {
     }
     const defaults = obj.defaults ? OperatingSystemDefaults.fromJson(JSON.stringify(obj.defaults)) : undefined;
 
-    const  isoHelp: IsoHelp | undefined  = obj.isoHelp ? IsoHelp.fromJson(JSON.stringify(obj.isoHelp)) : undefined;
+    const isoHelp: IsoHelp | undefined = obj.isoHelp ? IsoHelp.fromJson(JSON.stringify(obj.isoHelp)) : undefined;
 
     return new OperatingSystemImage(
       obj.id,
