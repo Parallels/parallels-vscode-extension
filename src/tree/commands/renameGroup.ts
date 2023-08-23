@@ -34,7 +34,8 @@ export function registerRenameGroupCommand(context: vscode.ExtensionContext, pro
         const config = Provider.getConfiguration();
         const groupName = await vscode.window.showInputBox({
           prompt: `New Name for group ${itemName}?`,
-          placeHolder: `Enter the new name for the group ${itemName}`
+          placeHolder: `Enter the new name for the group ${itemName}`,
+          value: itemName
         });
         if (groupName) {
           config.renameVirtualMachineGroup(itemId, groupName);
