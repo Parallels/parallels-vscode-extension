@@ -314,7 +314,7 @@ export class VirtualMachineProvider
       const vm = item.item as VirtualMachine;
       let dockerContainers: DockerContainer[] | undefined = undefined;
       let dockerImages: DockerImage[] | undefined = undefined;
-      if ((item.status === "running" && vm.OS.toLowerCase() !== "macosx") && vm.OS.toLowerCase() !== "win-11") {
+      if (item.status === "running" && vm.OS.toLowerCase() !== "macosx" && vm.OS.toLowerCase() !== "win-11") {
         let dockerExitedCode = 0;
         await DockerService.getVmContainers(item.id)
           .then(images => {
