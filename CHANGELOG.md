@@ -2,6 +2,12 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.7] - 2023-08-23
+
+* Improved the speed of the tree refresh when expanding a VM item
+* Added small improvements in the way we rename the VMs and Groups adding the current name as the default
+* Fixed small typos here and there
+
 ## [1.0.6] - 2023-08-21
 
 * fixed an issue where the addons would not render correctly

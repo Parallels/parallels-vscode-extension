@@ -16,10 +16,10 @@ export function registerRenameVmCommand(context: vscode.ExtensionContext, provid
       const config = Provider.getConfiguration();
       const newVmName = await vscode.window.showInputBox({
         prompt: `New Name for VM ${item.name}?`,
-        placeHolder: `Enter the new name for the VM ${item.name}`
+        placeHolder: `Enter the new name for the VM ${item.name}`,
+        value: item.name
       });
       if (newVmName) {
-        const oldName = item.name;
         config.renameVirtualMachine(item.id, newVmName);
         await ParallelsDesktopService.renameVm(item.id, newVmName)
           .then(result => {

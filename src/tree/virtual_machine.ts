@@ -313,7 +313,9 @@ export class VirtualMachineProvider
       const children: VirtualMachineTreeItem[] = [];
       const vm = item.item as VirtualMachine;
       let dockerContainers: DockerContainer[] | undefined = undefined;
-      if ((item.status === "running" && vm.OS.toLowerCase() != "macosx") || vm.OS.toLowerCase() != "win-11") {
+      let dockerImages: DockerImage[] | undefined = undefined;
+      if ((item.status === "running" && vm.OS.toLowerCase() !== "macosx") && vm.OS.toLowerCase() !== "win-11") {
+        let dockerExitedCode = 0;
         await DockerService.getVmContainers(item.id)
           .then(images => {
             dockerContainers = [];
@@ -322,21 +324,24 @@ export class VirtualMachineProvider
             });
           })
           .catch(error => {
+            dockerExitedCode = 1;
             LogService.error(error);
           });
-      }
-      let dockerImages: DockerImage[] | undefined = undefined;
-      if ((item.status === "running" && vm.OS.toLowerCase() != "macosx") || vm.OS.toLowerCase() != "win-11") {
-        await DockerService.getVmDockerImages(item.id)
-          .then(images => {
-            dockerImages = [];
-            images.forEach(image => {
-              dockerImages?.push(image);
-            });
-          })
-          .catch(error => {
-            LogService.error(error);
-          });
+
+        if (dockerExitedCode === 0) {
+          if ((item.status === "running" && vm.OS.toLowerCase() != "macosx") || vm.OS.toLowerCase() != "win-11") {
+            await DockerService.getVmDockerImages(item.id)
+              .then(images => {
+                dockerImages = [];
+                images.forEach(image => {
+                  dockerImages?.push(image);
+                });
+              })
+              .catch(error => {
+                LogService.error(error);
+              });
+          }
+        }
       }
 
       if (vm.configuredIpAddress != undefined && vm.configuredIpAddress != "-") {
