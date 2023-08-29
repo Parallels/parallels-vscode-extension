@@ -30,7 +30,7 @@ export function registerTakeGroupSnapshotCommand(context: vscode.ExtensionContex
           async () => {
             const group = item.item as VirtualMachineGroup;
             const promises = [];
-            for (const vm of group.machines) {
+            for (const vm of group.getAllVms()) {
               promises.push(takeSnapshot(provider, vm, snapshotName, snapshotDescription));
             }
 

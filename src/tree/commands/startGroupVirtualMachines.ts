@@ -26,7 +26,7 @@ export function registerStartGroupVirtualMachinesCommand(
           const group = item.item as VirtualMachineGroup;
           const promises = [];
 
-          for (const vm of group.machines) {
+          for (const vm of group.getAllVms()) {
             if (vm.State === "stopped") {
               promises.push(startVm(provider, vm));
             }
@@ -35,14 +35,15 @@ export function registerStartGroupVirtualMachinesCommand(
             }
           }
 
-          await Promise.all(promises).then(
-            () => {
+          await Promise.all(promises)
+            .then(() => {
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-            },
-            () => {
-              vscode.window.showErrorMessage(`Failed to suspend one or more VMs for ${group.name}`);
-            }
-          );
+            })
+            .catch(() => {
+              vscode.window.showErrorMessage(`Failed to start one or more VMs for ${group.name}`);
+              vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+              return;
+            });
         }
       );
     })
@@ -62,7 +63,7 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
       foundError = true;
       return reject(reject);
     });
-    if (!ok && !foundError) {
+    if (!ok || foundError) {
       vscode.window.showErrorMessage(`Failed to start virtual machine ${item.Name}`);
       return reject(`Failed to start virtual machine ${item.Name}`);
     }
