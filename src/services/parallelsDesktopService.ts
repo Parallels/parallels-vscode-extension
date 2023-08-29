@@ -129,7 +129,7 @@ export class ParallelsDesktopService {
       let stdOut = "";
       prlctl.stdout.on("data", data => {
         stdOut += data.toString();
-        LogService.info(data.toString(), "ParallelsDesktopService");
+        LogService.debug(data.toString(), "ParallelsDesktopService");
       });
       prlctl.stderr.on("data", data => {
         LogService.error(data.toString(), "ParallelsDesktopService");

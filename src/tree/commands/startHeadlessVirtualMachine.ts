@@ -32,8 +32,8 @@ export function registerStartHeadlessVirtualMachineCommand(
             foundError = true;
             return;
           });
-          if (!ok && !foundError) {
-            vscode.window.showErrorMessage(`Failed to start virtual machine ${item.name}`);
+          if (!ok || foundError) {
+            vscode.window.showErrorMessage(`Failed to start headless virtual machine ${item.name}`);
             return;
           }
 

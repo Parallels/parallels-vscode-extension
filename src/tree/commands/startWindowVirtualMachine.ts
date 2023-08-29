@@ -32,8 +32,8 @@ export function registerStartWindowVirtualMachineCommand(
             foundError = true;
             return;
           });
-          if (!ok && !foundError) {
-            vscode.window.showErrorMessage(`Failed to start virtual machine ${item.name}`);
+          if (!ok || foundError) {
+            vscode.window.showErrorMessage(`Failed to start window virtual machine ${item.name}`);
             return;
           }
 

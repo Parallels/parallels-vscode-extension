@@ -32,7 +32,7 @@ export function registerSuspendVirtualMachineCommand(
             foundError = true;
             return;
           });
-          if (!ok && !foundError) {
+          if (!ok || foundError) {
             vscode.window.showErrorMessage(`Failed to suspend virtual machine ${item.name}`);
             return;
           }

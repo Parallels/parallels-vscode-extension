@@ -27,10 +27,11 @@ export function registerStopVirtualMachineCommand(context: vscode.ExtensionConte
           const ok = await ParallelsDesktopService.stopVm(item.id).catch(reject => {
             vscode.window.showErrorMessage(`${reject}`);
             foundError = true;
-            return;
           });
-          if (!ok && !foundError) {
+
+          if (!ok || foundError) {
             vscode.window.showErrorMessage(`Failed to stop virtual machine ${item.name}`);
+            vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             return;
           }
 

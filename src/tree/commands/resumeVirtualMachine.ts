@@ -33,7 +33,7 @@ export function registerResumeVirtualMachineCommand(
             foundError = true;
             return;
           });
-          if (!ok && !foundError) {
+          if (!ok || foundError) {
             vscode.window.showErrorMessage(`Failed to resume virtual machine ${item.name}`);
             return;
           }

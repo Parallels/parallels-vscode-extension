@@ -2,6 +2,11 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.8] - 2023-08-29
+
+* Fixed some issues where some commands would not complete and the tree would be stuck
+* Fixed other minor issues
+
 ## [1.0.7] - 2023-08-23
 
 * Improved the speed of the tree refresh when expanding a VM item

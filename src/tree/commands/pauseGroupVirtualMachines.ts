@@ -26,20 +26,19 @@ export function registerPauseGroupVirtualMachinesCommand(
           const group = item.item as VirtualMachineGroup;
           const promises = [];
 
-          for (const vm of group.machines) {
+          for (const vm of group.getAllVms()) {
             if (vm.State === "running") {
               promises.push(pauseVm(provider, vm));
             }
           }
 
-          await Promise.all(promises).then(
-            () => {
+          await Promise.all(promises)
+            .then(() => {
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-            },
-            () => {
+            })
+            .catch(reason => {
               vscode.window.showErrorMessage(`Failed to suspend one or more VMs for ${group.name}`);
-            }
-          );
+            });
         }
       );
     })
@@ -59,7 +58,7 @@ async function pauseVm(provider: VirtualMachineProvider, item: VirtualMachine): 
       foundError = true;
       return reject(reject);
     });
-    if (!ok && !foundError) {
+    if (!ok || foundError) {
       vscode.window.showErrorMessage(`Failed to pause virtual machine ${item.Name}`);
       return reject(`Failed to pause virtual machine ${item.Name}`);
     }

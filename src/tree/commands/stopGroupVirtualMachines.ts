@@ -27,20 +27,21 @@ export function registerStopGroupVirtualMachinesCommand(
           const group = item.item as VirtualMachineGroup;
           const promises = [];
 
-          for (const vm of group.machines) {
+          for (const vm of group.getAllVms()) {
             if (vm.State === "running") {
               promises.push(stopVm(provider, vm));
             }
           }
 
-          await Promise.all(promises).then(
-            () => {
+          await Promise.all(promises)
+            .then(() => {
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-            },
-            () => {
-              vscode.window.showErrorMessage(`Failed to suspend one or more VMs for ${group.name}`);
-            }
-          );
+            })
+            .catch(() => {
+              vscode.window.showErrorMessage(`Failed to stop one or more VMs for ${group.name}`);
+              vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+              return;
+            });
         }
       );
     })
@@ -60,7 +61,7 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
       foundError = true;
       return reject(reject);
     });
-    if (!ok && !foundError) {
+    if (!ok || foundError) {
       vscode.window.showErrorMessage(`Failed to stop virtual machine ${item.Name}`);
       return reject(`Failed to stop virtual machine ${item.Name}`);
     }

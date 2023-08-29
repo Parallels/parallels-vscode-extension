@@ -41,7 +41,7 @@ export function registerStartVirtualMachineCommand(context: vscode.ExtensionCont
             return;
           });
 
-          if (!ok && !foundError) {
+          if (!ok || foundError) {
             vscode.window.showErrorMessage(`Failed to start virtual machine ${item.name}`);
             return;
           }

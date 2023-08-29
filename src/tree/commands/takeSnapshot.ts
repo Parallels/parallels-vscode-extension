@@ -51,7 +51,7 @@ export function registerTakeSnapshotCommand(context: vscode.ExtensionContext, pr
               `Virtual machine ${item.name} failed to take the snapshot`
             );
             vscode.window.showErrorMessage(
-              `Virtual machine ${item.name} failed to take the snapshoot, please check the logs`
+              `Virtual machine ${item.name} failed to take the snapshot, please check the logs`
             );
             break;
           }

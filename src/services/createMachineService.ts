@@ -575,7 +575,15 @@ export class CreateMachineService {
                               request.name,
                               `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Parallels/packer-examples/main/scripts/ubuntu/base/rosetta_x86_sources.sh)"`
                             );
-                            await ParallelsDesktopService.stopVm(request.name);
+                            await ParallelsDesktopService.stopVm(request.name)
+                              .then(value => {
+                                if (!value) {
+                                  return reject("Error stopping VM");
+                                }
+                              })
+                              .catch(reason => {
+                                return reject(reason);
+                              });
                           }
                         }
                       });
