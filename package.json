@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -69,6 +69,12 @@
                     "type": "string",
                     "default": "",
                     "description": "Path to vagrant executable"
+                },
+                "parallels-desktop.hashicorp.vagrant.parallels.plugin": {
+                    "type": "boolean",
+                    "default": false,
+                    "readOnly": true,
+                    "description": "Is Parallels plugin installed for Vagrant"
                 },
                 "parallels-desktop.hashicorp.packer.path": {
                     "type": "string",

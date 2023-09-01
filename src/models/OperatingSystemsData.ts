@@ -100,7 +100,7 @@ export class OperatingSystemsData {
 
   private addGenerateVagrantBoxFlag() {
     const config = Provider.getConfiguration();
-    if (config.tools.vagrant.isInstalled) {
+    if (config.tools.vagrant.isInstalled && config.tools.vagrant.isReady) {
       this.operatingSystems.forEach(os => {
         os.platforms.forEach(platform => {
           platform.images.forEach(image => {

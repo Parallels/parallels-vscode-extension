@@ -59,27 +59,32 @@ export class ConfigurationService {
       brew: {
         name: "brew",
         version: "",
-        isInstalled: false
+        isInstalled: false,
+        isReady: false
       },
       git: {
         name: "git",
         version: "",
-        isInstalled: false
+        isInstalled: false,
+        isReady: false
       },
       packer: {
         name: "packer",
         version: "",
-        isInstalled: false
+        isInstalled: false,
+        isReady: false
       },
       vagrant: {
         name: "vagrant",
         version: "",
-        isInstalled: false
+        isInstalled: false,
+        isReady: false
       },
       parallelsDesktop: {
         name: "prlctl",
         version: "",
-        isInstalled: false
+        isInstalled: false,
+        isReady: false
       }
     };
     this.lastSynced = undefined;
@@ -544,6 +549,7 @@ export class ConfigurationService {
         LogService.info("Parallels Desktop is not installed", "ConfigService");
         return resolve(false);
       }
+      this.tools.parallelsDesktop.isReady = true;
 
       ParallelsDesktopService.getServerInfo()
         .then(async info => {
@@ -581,6 +587,8 @@ export class ConfigurationService {
         LogService.info("Brew is not installed", "ConfigService");
         return resolve(false);
       }
+
+      this.tools.brew.isReady = true;
 
       BrewService.version()
         .then(version => {
@@ -631,6 +639,8 @@ export class ConfigurationService {
         return resolve(false);
       }
 
+      this.tools.packer.isReady = true;
+
       PackerService.version()
         .then(version => {
           this.tools.packer.version = version;
@@ -658,6 +668,24 @@ export class ConfigurationService {
         return resolve(false);
       }
 
+      VagrantService.isPluginInstalled().then(installed => {
+        if (installed) {
+          this.tools.vagrant.isReady = true;
+        } else {
+          VagrantService.installParallelsPlugin().then((successfullyInstalled) => {
+            if (successfullyInstalled) {
+              this.tools.vagrant.isReady = true;
+            } else {
+              this.tools.vagrant.isReady = false;
+            }
+          }).catch(error => {
+            this.tools.vagrant.isReady = false;
+          });
+        }
+      }).catch(error => {
+        this.tools.vagrant.isReady = false;
+      });
+
       VagrantService.version()
         .then(async version => {
           this.tools.vagrant.version = version;
@@ -668,6 +696,7 @@ export class ConfigurationService {
             vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT_BOXES, false);
           }
           vscode.commands.executeCommand("setContext", FLAG_VAGRANT_EXISTS, true);
+          
           return resolve(true);
         })
         .catch(reason => {

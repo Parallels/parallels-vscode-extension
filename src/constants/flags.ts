@@ -2,6 +2,7 @@ export const FLAG_NO_GROUP = "no_group";
 export const FLAG_CONFIGURATION = "parallels.configuration";
 export const FLAG_VAGRANT_VERSION = "hashicorp.vagrant.version";
 export const FLAG_VAGRANT_PATH = "hashicorp.vagrant.path";
+export const FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS = "hashicorp.vagrant.parallels.plugin";
 export const FLAG_VAGRANT_BOXES_PATH = "hashicorp.vagrant.boxes.path";
 export const FLAG_PACKER_VERSION = "hashicorp.packer.version";
 export const FLAG_PACKER_PATH = "hashicorp.packer.path";

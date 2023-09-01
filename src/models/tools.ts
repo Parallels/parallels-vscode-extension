@@ -2,6 +2,7 @@ export interface Tool {
   name: string;
   version: string;
   isInstalled: boolean;
+  isReady: boolean;
 }
 
 export interface Tools {

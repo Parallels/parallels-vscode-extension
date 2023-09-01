@@ -37,7 +37,7 @@ export class LogService {
   }
 
   static sendTelemetryEvent(event: TelemetryEventIds, additionalInfo?: string) {
-    if (Provider.getConfiguration().isTelemetryEnabled) {
+    if (Provider.getConfiguration().isTelemetryEnabled && !Provider.getConfiguration().isDebugEnabled) {
       const now = new Date();
       const formattedDate = now.toISOString().replace("T", " ").replace("Z", "").substr(0, 23);
       const config = Provider.getConfiguration();
@@ -85,6 +85,46 @@ export class LogService {
           LogService.error(`Error sending telemetry event ${event} to ${requestUrl}: ${error}`, "TelemetryService");
         });
     }
+  }
+
+  static sendHeartbeat() {
+    const now = new Date();
+    const formattedDate = now.toISOString().replace("T", " ").replace("Z", "").substr(0, 23);
+    const config = Provider.getConfiguration();
+    const request: TelemetryRequest = {
+      api: 2,
+      hwid: "00000000000000000000000000000000",
+      version: config.parallelsDesktopVersion,
+      arch: "",
+      hw_model: "",
+      events: [
+        {
+          event_id: TelemetryEventIds.ExtensionStarted,
+          occured_at: formattedDate,
+          version: "",
+          os_locale: "",
+          os_version: ""
+        }
+      ]
+    };
+
+    LogService.debug(JSON.stringify(request, null, 2), "TelemetryService");
+
+    const requestUrl = `https://reportus.parallels.com/pdfm/${
+      Provider.getConfiguration().packerDesktopMajorVersion
+    }/events`;
+    axios
+      .post(requestUrl, request, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(response => {
+        LogService.debug(`Telemetry heartbeat sent successfully to ${requestUrl}`, "TelemetryService");
+      })
+      .catch(error => {
+        LogService.error(`Error sending telemetry heartbeat to ${requestUrl}: ${error}`, "TelemetryService");
+      });
   }
 
   static log(level: LogLevel, message: string, service?: string, focusOnOutput = false, showOnUi = false) {

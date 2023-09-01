@@ -437,8 +437,8 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
               this.itemData.defaults.user.password = 'vagrant';
             } else {
               const img = this.getImage();
-              this.itemData.defaults.user.username = img.defaults?.user?.username ?? 'parallels1';
-              this.itemData.defaults.user.password = img.defaults?.user?.password ?? 'parallels1';
+              this.itemData.defaults.user.username = img.defaults?.user?.username ?? 'parallels';
+              this.itemData.defaults.user.password = img.defaults?.user?.password ?? 'parallels';
             }
           }
           if (this.itemData.allowedFlags.length === 0) {

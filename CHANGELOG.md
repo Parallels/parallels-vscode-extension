@@ -2,6 +2,12 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.9] - 2023-09-01
+
+* Added an automatic installation for the Vagrant Parallels Desktop plugin
+* Added Kali Linux to the list of VMs Distros you can create
+* Improved the Bug Report template and the new feature request template
+
 ## [1.0.8] - 2023-08-29
 
 * Fixed some issues where some commands would not complete and the tree would be stuck
