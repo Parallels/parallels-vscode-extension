@@ -668,23 +668,27 @@ export class ConfigurationService {
         return resolve(false);
       }
 
-      VagrantService.isPluginInstalled().then(installed => {
-        if (installed) {
-          this.tools.vagrant.isReady = true;
-        } else {
-          VagrantService.installParallelsPlugin().then((successfullyInstalled) => {
-            if (successfullyInstalled) {
-              this.tools.vagrant.isReady = true;
-            } else {
-              this.tools.vagrant.isReady = false;
-            }
-          }).catch(error => {
-            this.tools.vagrant.isReady = false;
-          });
-        }
-      }).catch(error => {
-        this.tools.vagrant.isReady = false;
-      });
+      VagrantService.isPluginInstalled()
+        .then(installed => {
+          if (installed) {
+            this.tools.vagrant.isReady = true;
+          } else {
+            VagrantService.installParallelsPlugin()
+              .then(successfullyInstalled => {
+                if (successfullyInstalled) {
+                  this.tools.vagrant.isReady = true;
+                } else {
+                  this.tools.vagrant.isReady = false;
+                }
+              })
+              .catch(error => {
+                this.tools.vagrant.isReady = false;
+              });
+          }
+        })
+        .catch(error => {
+          this.tools.vagrant.isReady = false;
+        });
 
       VagrantService.version()
         .then(async version => {
@@ -696,7 +700,7 @@ export class ConfigurationService {
             vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT_BOXES, false);
           }
           vscode.commands.executeCommand("setContext", FLAG_VAGRANT_EXISTS, true);
-          
+
           return resolve(true);
         })
         .catch(reason => {
