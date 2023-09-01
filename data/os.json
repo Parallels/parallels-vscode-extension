@@ -141,6 +141,183 @@
                         ]
                     },
                     {
+                        "id": "kali",
+                        "name": "Kali Linux",
+                        "images": [
+                            {
+                                "id": "kali-linux-2023.3-gnome",
+                                "name": "Kali Linux 2023.3 (Gnome)",
+                                "distro": "kali",
+                                "description": "This will create a Kali Linux 2023.3 with the Gnome UI VM using automated Packer scripts.",
+                                "type": "packer",
+                                "packerFolder": "kali",
+                                "requireIsoDownload": false,
+                                "allowMachineSpecs": true,
+                                "allowUserOverride": false,
+                                "allowAddons": true,
+                                "variables": {
+                                    "iso_url": "https://cdimage.kali.org/kali-2023.3/kali-linux-2023.3-installer-arm64.iso",
+                                    "iso_checksum": "sha256:41e3997b31639ec45363181d4fff68a2b6a1a07ed2e3458f1bcd11f3f2d9db9c",
+                                    "desktop": "gnome"
+                                },
+                                "addons": [],
+                                "defaults": {
+                                    "specs": {
+                                        "cpus": 4,
+                                        "memory": 4096,
+                                        "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
+                                    }
+                                }
+                            },
+                            {
+                                "id": "kali-linux-2023.3-xfce",
+                                "name": "Kali Linux 2023.3 (xfce)",
+                                "distro": "kali",
+                                "description": "This will create a Kali Linux 2023.3 with the XFCE UI VM using automated Packer scripts.",
+                                "type": "packer",
+                                "packerFolder": "kali",
+                                "requireIsoDownload": false,
+                                "allowMachineSpecs": true,
+                                "allowUserOverride": false,
+                                "allowAddons": true,
+                                "variables": {
+                                    "iso_url": "https://cdimage.kali.org/kali-2023.3/kali-linux-2023.3-installer-arm64.iso",
+                                    "iso_checksum": "sha256:41e3997b31639ec45363181d4fff68a2b6a1a07ed2e3458f1bcd11f3f2d9db9c"
+                                },
+                                "addons": [],
+                                "defaults": {
+                                    "specs": {
+                                        "cpus": 4,
+                                        "memory": 4096,
+                                        "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
+                                    }
+                                }
+                            },
+                            {
+                                "id": "kali-linux-2023.2-gnome",
+                                "name": "Kali Linux 2023.2 (Gnome)",
+                                "distro": "kali",
+                                "description": "This will create a Kali Linux 2023.2 with the Gnome UI VM using automated Packer scripts.",
+                                "type": "packer",
+                                "packerFolder": "kali",
+                                "requireIsoDownload": false,
+                                "allowMachineSpecs": true,
+                                "allowUserOverride": false,
+                                "allowAddons": true,
+                                "variables": {
+                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.2/kali-linux-2023.2-installer-arm64.iso",
+                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.2/SHA256SUMS",
+                                    "desktop": "gnome"
+                                },
+                                "addons": [],
+                                "defaults": {
+                                    "specs": {
+                                        "cpus": 4,
+                                        "memory": 4096,
+                                        "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
+                                    }
+                                }
+                            },
+                            {
+                                "id": "kali-linux-2023.2-xfce",
+                                "name": "Kali Linux 2023.2 (xfce)",
+                                "distro": "kali",
+                                "description": "This will create a Kali Linux 2023.2 with the XFCE UI VM using automated Packer scripts.",
+                                "type": "packer",
+                                "packerFolder": "kali",
+                                "requireIsoDownload": false,
+                                "allowMachineSpecs": true,
+                                "allowUserOverride": false,
+                                "allowAddons": true,
+                                "variables": {
+                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.2/kali-linux-2023.2-installer-arm64.iso",
+                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.2/SHA256SUMS"
+                                },
+                                "addons": [],
+                                "defaults": {
+                                    "specs": {
+                                        "cpus": 4,
+                                        "memory": 4096,
+                                        "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
+                                    }
+                                }
+                            },
+                            {
+                                "id": "kali-linux-2023.1-gnome",
+                                "name": "Kali Linux 2023.1 (Gnome)",
+                                "distro": "kali",
+                                "description": "This will create a Kali Linux 2023.1 with the Gnome UI VM using automated Packer scripts.",
+                                "type": "packer",
+                                "packerFolder": "kali",
+                                "requireIsoDownload": false,
+                                "allowMachineSpecs": true,
+                                "allowUserOverride": false,
+                                "allowAddons": true,
+                                "variables": {
+                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.1/kali-linux-2023.1-installer-arm64.iso",
+                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.1/SHA256SUMS",
+                                    "desktop": "gnome"
+                                },
+                                "addons": [],
+                                "defaults": {
+                                    "specs": {
+                                        "cpus": 4,
+                                        "memory": 4096,
+                                        "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
+                                    }
+                                }
+                            },
+                            {
+                                "id": "kali-linux-2023.1-xfce",
+                                "name": "Kali Linux 2023.1 (xfce)",
+                                "distro": "kali",
+                                "description": "This will create a Kali Linux 2023.1 with the XFCE UI VM using automated Packer scripts.",
+                                "type": "packer",
+                                "packerFolder": "kali",
+                                "requireIsoDownload": false,
+                                "allowMachineSpecs": true,
+                                "allowUserOverride": false,
+                                "allowAddons": true,
+                                "variables": {
+                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.1/kali-linux-2023.1-installer-arm64.iso",
+                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.1/SHA256SUMS"
+                                },
+                                "addons": [],
+                                "defaults": {
+                                    "specs": {
+                                        "cpus": 4,
+                                        "memory": 4096,
+                                        "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
                         "id": "photon",
                         "name": "Photon OS",
                         "images": [

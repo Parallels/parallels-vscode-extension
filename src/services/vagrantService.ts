@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
-import {FLAG_VAGRANT_PATH, FLAG_VAGRANT_VERSION} from "../constants/flags";
+import {FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, FLAG_VAGRANT_PATH, FLAG_VAGRANT_VERSION} from "../constants/flags";
 import {Provider} from "../ioc/provider";
 import {getVagrantBoxFolder} from "../helpers/helpers";
 import {LogService} from "./logService";
@@ -39,6 +39,48 @@ export class VagrantService {
         }
         Provider.getCache().set(FLAG_VAGRANT_PATH, path);
         return resolve(true);
+      });
+    });
+  }
+
+  static isPluginInstalled(): Promise<boolean> {
+    return new Promise(resolve => {
+      const settings = Provider.getSettings();
+      const cache = Provider.getCache();
+      if (cache.get(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS)) {
+        const isInstalled = cache.get(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS) === "true";
+        LogService.info(
+          `Vagrant Plugin ${isInstalled ? "is installed" : "is not installed"} from cache`,
+          "VagrantService"
+        );
+        return resolve(isInstalled);
+      }
+
+      if (settings.get<string>(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS)) {
+        const isInstalled = cache.get(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS) === "true";
+        LogService.info(
+          `Vagrant Plugin ${isInstalled ? "is installed" : "is not installed"} from settings`,
+          "VagrantService"
+        );
+        return resolve(isInstalled);
+      }
+
+      cp.exec("vagrant plugin list", (err, stdout) => {
+        if (err) {
+          LogService.error("Vagrant parallels plugin is not installed", "VagrantService");
+          return resolve(false);
+        }
+        if (stdout.includes("vagrant-parallels")) {
+          LogService.info(`Vagrant parallels plugin was found`, "VagrantService");
+          settings.update(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, true, true);
+          Provider.getCache().set(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, "true");
+          return resolve(true);
+        } else {
+          LogService.info(`Vagrant parallels plugin was not found`, "VagrantService");
+          settings.update(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, false, true);
+          Provider.getCache().set(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, "false");
+          return resolve(false);
+        }
       });
     });
   }
@@ -136,6 +178,30 @@ export class VagrantService {
         }
       );
       return resolve(true);
+    });
+  }
+
+  static async installParallelsPlugin(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      LogService.info("Installing Vagrant Parallels Plugin...", "VagrantService");
+      let stdOut = "";
+      const vagrant = cp.spawn("vagrant", ["plugin", "install", "vagrant-parallels"]);
+      vagrant.stdout.on("data", data => {
+        stdOut += data;
+        LogService.debug(data.toString(), "VagrantService");
+      });
+      vagrant.stderr.on("data", data => {
+        LogService.error(data.toString(), "VagrantService");
+      });
+      vagrant.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`Vagrant plugin install exited with code ${code}`, "VagrantService");
+          return reject(`Vagrant plugin install exited with code ${code}, please check logs for more details`);
+        }
+
+        LogService.info(`Successfully installed vagrant parallels plugin `, "VagrantService");
+        return resolve(true);
+      });
     });
   }
 
