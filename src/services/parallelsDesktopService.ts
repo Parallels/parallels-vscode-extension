@@ -544,7 +544,7 @@ export class ParallelsDesktopService {
         command = command.replace(/"/g, '\\"');
         commandArgs = [`"${command}"`];
       }
-      
+
       const prlctl = cp.spawn("prlctl", ["exec", `"${vmId}"`, ...commandArgs], {shell: true});
       prlctl.stdout.on("data", data => {
         stdOut += data.toString();
