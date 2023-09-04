@@ -2,6 +2,11 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.10] - 2023-09-04
+
+* Fixed an issue where if a log message was in a bad state it would hang the tree refresh
+* Fixed an issue where we could not list the docker containers even if the machine had docker installed
+
 ## [1.0.9] - 2023-09-01
 
 * Added an automatic installation for the Vagrant Parallels Desktop plugin

@@ -127,9 +127,20 @@ export class LogService {
       });
   }
 
-  static log(level: LogLevel, message: string, service?: string, focusOnOutput = false, showOnUi = false) {
-    if (message === undefined) {
+  static log(level: LogLevel, messageValue: any, service?: string, focusOnOutput = false, showOnUi = false) {
+    let message = "";
+    if (messageValue === undefined || messageValue === null || messageValue === "") {
       return;
+    }
+
+    if (typeof messageValue !== "string") {
+      if (messageValue instanceof Error) {
+        message = messageValue.message;
+      } else {
+        return;
+      }
+    } else {
+      message = messageValue;
     }
 
     message = message.replace(/\n$/, "");
