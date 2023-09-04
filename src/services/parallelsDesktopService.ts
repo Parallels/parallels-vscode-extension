@@ -528,7 +528,7 @@ export class ParallelsDesktopService {
     });
   }
 
-  static async executeOnVm(vmId: string, command: string): Promise<string> {
+  static async executeOnVm(vmId: string, command: string, split = false): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!vmId) {
         LogService.error(`vmId is empty`, "ParallelsDesktopService");
@@ -537,7 +537,14 @@ export class ParallelsDesktopService {
       let stdOut = "";
 
       LogService.info(`Executing ${command} on Virtual Machine ${vmId}`, "ParallelsDesktopService");
-      const commandArgs = command.split(" ");
+      let commandArgs: string[] = [];
+      if (split) {
+        commandArgs = command.split(" ");
+      } else {
+        command = command.replace(/"/g, '\\"');
+        commandArgs = [`"${command}"`];
+      }
+      
       const prlctl = cp.spawn("prlctl", ["exec", `"${vmId}"`, ...commandArgs], {shell: true});
       prlctl.stdout.on("data", data => {
         stdOut += data.toString();

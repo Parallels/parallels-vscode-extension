@@ -24,7 +24,7 @@ export class DockerService {
     return new Promise(async (resolve, reject) => {
       try {
         LogService.info(`Getting Docker docker from VM ${vmId}`, "DockerService");
-        ParallelsDesktopService.executeOnVm(vmId, "sudo docker ps -a --no-trunc --format json")
+        ParallelsDesktopService.executeOnVm(vmId, "sudo docker ps -a --no-trunc --format '{{ json . }}'")
           .then((imagesOut: string) => {
             const containerLines = imagesOut.split("\n");
             const containers: DockerContainer[] = [];
@@ -70,16 +70,16 @@ export class DockerService {
     return new Promise(async (resolve, reject) => {
       try {
         LogService.info(`Getting Docker images from VM ${vmId}`, "DockerService");
-        ParallelsDesktopService.executeOnVm(vmId, "sudo docker image ls -a --format json")
+        ParallelsDesktopService.executeOnVm(vmId, "sudo docker image ls -a --format '{{ json . }}'")
           .then((imagesOut: string) => {
-            const containerLines = imagesOut.split("\n");
-            const containers: DockerImage[] = [];
-            containerLines.forEach((line: string) => {
+            const imageLines = imagesOut.split("\n");
+            const images: DockerImage[] = [];
+            imageLines.forEach((line: string) => {
               if (line === "") {
                 return;
               }
               const container = JSON.parse(line.replace(/\\\\/g, "\\"));
-              containers.push({
+              images.push({
                 Containers: container.Container,
                 CreatedAt: container.CreatedAt,
                 CreatedSince: container.CreatedSince,
@@ -93,8 +93,8 @@ export class DockerService {
                 VirtualSize: container.VirtualSize
               });
             });
-            LogService.info(`Got ${containers.length} Docker images from VM ${vmId}`, "DockerService");
-            return resolve(containers);
+            LogService.info(`Got ${images.length} Docker images from VM ${vmId}`, "DockerService");
+            return resolve(images);
           })
           .catch((error: any) => {
             LogService.error(
