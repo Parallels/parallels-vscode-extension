@@ -1,7 +1,7 @@
-import {stringify} from "querystring";
 import {OperatingSystemDefaults} from "./OperatingSystemDefaults";
 import {OperatingSystemImageAddons} from "./OperatingSystemImageAddons";
 import {OperatingSystemImageFlag} from "./OperatingSystemImageFlag";
+import {OperatingSystemRequiredVariable} from "./OperatingSystemRequiredVariable";
 
 export class IsoHelp {
   prefixText: string | undefined;
@@ -39,6 +39,7 @@ export class OperatingSystemImage {
   requireIsoDownload: boolean;
   description: string | undefined;
   variables: any;
+  requiredVariables: OperatingSystemRequiredVariable[];
   addons: OperatingSystemImageAddons[];
   isoUrl: string;
   isoHelp: IsoHelp | undefined;
@@ -58,6 +59,7 @@ export class OperatingSystemImage {
     requireIsoDownload = false,
     description: string | undefined = undefined,
     variables: any,
+    requiredVariables: OperatingSystemRequiredVariable[] = [],
     addons: OperatingSystemImageAddons[] = [],
     isoUrl = "",
     isoChecksum = "",
@@ -76,6 +78,7 @@ export class OperatingSystemImage {
     this.requireIsoDownload = requireIsoDownload;
     this.description = description;
     this.variables = variables;
+    this.requiredVariables = requiredVariables;
     this.addons = addons;
     this.isoUrl = isoUrl;
     this.isoHelp = isoHelp;
@@ -99,11 +102,13 @@ export class OperatingSystemImage {
       isoUrl: '${this.isoUrl}',
       ${this.isoHelp ? `\nisoHelp: ${this.isoHelp.toString()},` : ""}
       isoChecksum: '${this.isoChecksum}',
+      requiredVariables: ${JSON.stringify(this.requiredVariables, null, 2).replace(/"/g, "'")},
       allowMachineSpecs: ${this.allowMachineSpecs},
       allowUserOverride: ${this.allowUserOverride},
       allowAddons: ${this.allowAddons},
       allowedFlags: ${JSON.stringify(this.allowedFlags, null, 2).replace(/"/g, "'")},
-      addons: ${JSON.stringify(this.addons).replace(/"/g, "'")}
+      addons: ${JSON.stringify(this.addons).replace(/"/g, "'")},
+      requiredVariables: ${JSON.stringify(this.requiredVariables).replace(/"/g, "'")}
       ${this.defaults ? `,\ndefaults: ${this.defaults.toString()}` : ""}
     }`;
   }
@@ -113,6 +118,10 @@ export class OperatingSystemImage {
     const addons: OperatingSystemImageAddons[] = [];
     for (const addon of obj.addons ?? []) {
       addons.push(OperatingSystemImageAddons.fromJson(JSON.stringify(addon)));
+    }
+    const requiredVariables: OperatingSystemRequiredVariable[] = [];
+    for (const requiredVariable of obj.requiredVariables ?? []) {
+      requiredVariables.push(OperatingSystemRequiredVariable.fromJson(JSON.stringify(requiredVariable)));
     }
     const bootCommand: string[] = [];
     for (const command of obj.bootCommand ?? []) {
@@ -134,6 +143,7 @@ export class OperatingSystemImage {
       obj.requireIsoDownload,
       obj.description,
       obj.variables,
+      requiredVariables,
       addons,
       obj.isoUrl,
       obj.isoChecksum,

@@ -2,6 +2,12 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.11] - 2023-09-14
+
+* Added Redhat and Parrot OS to the automated images
+* Added the ability to create a Vagrant box from Vagrant Cloud
+* Fixed an issue in if a Packer script didn't had a addons folder it would not open the page
+
 ## [1.0.10] - 2023-09-04
 
 * Fixed an issue where if a log message was in a bad state it would hang the tree refresh

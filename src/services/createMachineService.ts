@@ -508,6 +508,11 @@ export class CreateMachineService {
           machineConfig.variables["create_vagrant_box"] = machineConfig.generateVagrantBox;
           machineConfig.variables["output_vagrant_directory"] = getVagrantBoxFolder();
         }
+        if (request.requiredVariables.length > 0) {
+          request.requiredVariables.forEach(variable => {
+            machineConfig.variables[variable.key] = variable.value;
+          });
+        }
         if (machineConfig.addons && machineConfig.addons.length > 0) {
           machineConfig.variables["addons"] = machineConfig.addons;
         }

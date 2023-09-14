@@ -179,7 +179,7 @@
                                 "distro": "kali",
                                 "description": "This will create a Kali Linux 2023.3 with the XFCE UI VM using automated Packer scripts.",
                                 "type": "packer",
-                                "packerFolder": "kali",
+                                "packerFolder": "kali-linux",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
                                 "allowUserOverride": false,
@@ -207,7 +207,7 @@
                                 "distro": "kali",
                                 "description": "This will create a Kali Linux 2023.2 with the Gnome UI VM using automated Packer scripts.",
                                 "type": "packer",
-                                "packerFolder": "kali",
+                                "packerFolder": "kali-linux",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
                                 "allowUserOverride": false,
@@ -236,7 +236,7 @@
                                 "distro": "kali",
                                 "description": "This will create a Kali Linux 2023.2 with the XFCE UI VM using automated Packer scripts.",
                                 "type": "packer",
-                                "packerFolder": "kali",
+                                "packerFolder": "kali-linux",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
                                 "allowUserOverride": false,
@@ -264,7 +264,7 @@
                                 "distro": "kali",
                                 "description": "This will create a Kali Linux 2023.1 with the Gnome UI VM using automated Packer scripts.",
                                 "type": "packer",
-                                "packerFolder": "kali",
+                                "packerFolder": "kali-linux",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
                                 "allowUserOverride": false,
@@ -293,7 +293,7 @@
                                 "distro": "kali",
                                 "description": "This will create a Kali Linux 2023.1 with the XFCE UI VM using automated Packer scripts.",
                                 "type": "packer",
-                                "packerFolder": "kali",
+                                "packerFolder": "kali-linux",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
                                 "allowUserOverride": false,
@@ -353,13 +353,32 @@
                                 "name": "Redhat 9.2",
                                 "distro": "rhel",
                                 "description": "This will create a Redhat 9.2 VM, you will need to source the ISO and will need user input to complete the installation.",
-                                "type": "iso",
+                                "type": "packer",
+                                "packerFolder": "redhat",
                                 "requireIsoDownload": true,
                                 "allowMachineSpecs": true,
                                 "allowUserOverride": false,
-                                "allowAddons": false,
+                                "allowAddons": true,
                                 "isoChecksum": "sha256:c0d6dc21f157c2c8a4a0ebba0f5e2899f6cbb986d5f0bdd3cef1909b55fe25a8",
+                                "isoHelp": {
+                                    "prefixText": "Please download the RedHat DVD iso from ",
+                                    "urlText": "Redhat Downloads",
+                                    "url":"https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux",
+                                    "suffixText": " for arm64, please make sure you download the correct version"
+                                },
                                 "addons": [],
+                                "requiredVariables": [
+                                    {
+                                        "id": "redhat_username",
+                                        "text": "Redhat Username",
+                                        "hint": "Please enter your Redhat username"
+                                    },
+                                    {
+                                        "id": "redhat_password",
+                                        "text": "Redhat Password",
+                                        "hint": "Please enter your Redhat password"
+                                    }
+                                ],
                                 "defaults": {
                                     "specs": {
                                         "cpus": 2,
@@ -378,20 +397,27 @@
                                 "id": "parrot-os-5.3",
                                 "name": "Parrot OS 5.3 Architect",
                                 "distro": "linux",
-                                "description": "This will create a Parrot OS 5.3 Architect VM, this will need user input to complete the installation.",
-                                "type": "iso",
+                                "description": "This will create a ParrotOS 5.3 Architect VM using automated Packer scripts.",
+                                "type": "packer",
+                                "packerFolder": "parrot-linux",
                                 "requireIsoDownload": false,
                                 "allowMachineSpecs": true,
                                 "allowUserOverride": false,
-                                "allowAddons": false,
-                                "isoUrl": "https://deb.parrot.sh/parrot/iso/5.3/Parrot-architect-5.3_arm64.iso",
-                                "isoChecksum": "sha256:fdf76024b94e0b15294b8ee404b9d2e85a60207d3a484c86a5d8bb7161fcc1d8",
+                                "allowAddons": true,
+                                "variables": {
+                                    "isoUrl": "https://deb.parrot.sh/parrot/iso/5.3/Parrot-architect-5.3_arm64.iso",
+                                    "isoChecksum": "sha256:fdf76024b94e0b15294b8ee404b9d2e85a60207d3a484c86a5d8bb7161fcc1d8"
+                                    },
                                 "addons": [],
                                 "defaults": {
                                     "specs": {
-                                        "cpus": 2,
-                                        "memory": 2048,
+                                        "cpus": 4,
+                                        "memory": 4096,
                                         "diskSize": 65536
+                                    },
+                                    "user": {
+                                        "username": "parallels",
+                                        "password": "parallels"
                                     }
                                 }
                             }

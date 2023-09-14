@@ -166,6 +166,10 @@ export class PackerService {
             LogService.error(`Error getting addons for platform ${platform}`, "PackerService", true);
             return reject(`Error getting addons for platform ${platform}`);
           }
+          if (!stdOut) {
+            LogService.error(`No addons found for platform ${platform}`, "PackerService", true);
+            return resolve([]);
+          }
           const output = JSON.parse(stdOut);
           Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, output);
           LogService.info(`Got ${output.length} addons for platform ${platform}`, "PackerService");

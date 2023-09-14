@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -516,6 +516,14 @@
             {
                 "command": "parallels-desktop.tree-view.copy-ip-address",
                 "title": "Copy Ip Address"
+            },
+            {
+                "command": "parallels-desktop.vagrant.search-and-download",
+                "title": "Parallels Desktop: Search and Download Vagrant Box",
+                "icon": {
+                    "light": "img/light/plus.svg",
+                    "dark": "img/dark/plus.svg"
+                }
             }
         ],
         "viewsContainers": {
@@ -697,6 +705,10 @@
                 {
                     "command": "parallels-desktop.tree-view.copy-ip-address",
                     "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.vagrant.search-and-download",
+                    "when": "parallels-desktop:vagrant == true"
                 }
             ],
             "view/title": [
@@ -733,6 +745,11 @@
                     "command": "parallels-desktop.vagrant.box.provider.refresh",
                     "when": "view == parallels-desktop-vagrant && parallels-desktop:initialized",
                     "group": "navigation@1"
+                },
+                {
+                    "command": "parallels-desktop.vagrant.search-and-download",
+                    "when": "view == parallels-desktop-vagrant && parallels-desktop:vagrant == true",
+                    "group": "navigation@2"
                 }
             ],
             "view/item/context": [
