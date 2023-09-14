@@ -8,7 +8,7 @@ import {registerVagrantBoxInitCommand} from "./commands/vagrantBoxesInit";
 import {registerVagrantBoxRemoveCommand} from "./commands/vagrantBoxesRemove";
 import {parallelsOutputChannel} from "../helpers/channel";
 import {LogService} from "../services/logService";
-import { registerVagrantSearchAndDownloadCommand } from "./commands/vagrant/searchAndDownloadBoxes";
+import {registerVagrantSearchAndDownloadCommand} from "./commands/vagrant/searchAndDownloadBoxes";
 
 export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTreeItem> {
   data: VagrantBoxTreeItem[] = [];

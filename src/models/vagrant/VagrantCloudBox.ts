@@ -1,5 +1,4 @@
-import { VagrantCloudBoxCurrentVersion } from "./VagrantCloudBoxCurrentVersion";
-
+import {VagrantCloudBoxCurrentVersion} from "./VagrantCloudBoxCurrentVersion";
 
 export class VagrantCloudBox {
   tag: string;

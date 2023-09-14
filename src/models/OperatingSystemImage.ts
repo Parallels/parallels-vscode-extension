@@ -1,7 +1,7 @@
 import {OperatingSystemDefaults} from "./OperatingSystemDefaults";
 import {OperatingSystemImageAddons} from "./OperatingSystemImageAddons";
 import {OperatingSystemImageFlag} from "./OperatingSystemImageFlag";
-import { OperatingSystemRequiredVariable } from "./OperatingSystemRequiredVariable";
+import {OperatingSystemRequiredVariable} from "./OperatingSystemRequiredVariable";
 
 export class IsoHelp {
   prefixText: string | undefined;

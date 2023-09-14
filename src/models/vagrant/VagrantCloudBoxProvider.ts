@@ -1,4 +1,3 @@
-
 export class VagrantCloudBoxProvider {
   name: string;
   hosted: boolean;
@@ -9,7 +8,6 @@ export class VagrantCloudBoxProvider {
   download_url: string;
   checksum: null | string;
   checksum_type: null | string;
-
 
   constructor(
     name: string,

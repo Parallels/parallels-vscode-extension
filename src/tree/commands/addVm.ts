@@ -1,4 +1,4 @@
-import { NewVirtualMachineRequiredVariables } from './../../models/NewVirtualMachineRequiredVariables';
+import {NewVirtualMachineRequiredVariables} from "./../../models/NewVirtualMachineRequiredVariables";
 import * as vscode from "vscode";
 import * as path from "path";
 
@@ -78,7 +78,7 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
               image: cmd.image,
               isoChecksum: cmd.isoChecksum,
               isoUrl: cmd.isoUrl,
-              requiredVariables:  [],
+              requiredVariables: [],
               specs: {
                 cpus: cmd.specs?.cpu ?? "2",
                 memory: cmd.specs?.memory ?? "2048",
@@ -99,7 +99,7 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
               cmd.requiredVariables.forEach((v: any) => {
                 const variable: NewVirtualMachineRequiredVariables = {
                   key: v.id,
-                  value: v.value,
+                  value: v.value
                 };
                 request.requiredVariables.push(variable);
               });
