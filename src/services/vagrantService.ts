@@ -5,6 +5,9 @@ import {FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, FLAG_VAGRANT_PATH, FLAG_VAGRANT_VE
 import {Provider} from "../ioc/provider";
 import {getVagrantBoxFolder} from "../helpers/helpers";
 import {LogService} from "./logService";
+import { VagrantCloudBoxes } from "../models/vagrant/VagrantCloudBoxes";
+import axios from "axios";
+import { VagrantCloudBox } from "../models/vagrant/VagrantCloudBox";
 
 export class VagrantService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -361,5 +364,26 @@ end
     fs.writeFileSync(vagrantFile, vagrantFileTemplate);
 
     return true;
+  }
+
+  static async searchBoxFromCloud(query: string): Promise<VagrantCloudBoxes> {
+    return new Promise(async (resolve, reject) => {
+      const response = await axios.get(`https://app.vagrantup.com/api/v1/search?q=${query}&provider=parallels&sort=created`);
+      if (response.status !== 200) {
+        return reject(response.statusText);
+      }
+
+      const boxes: VagrantCloudBox[] = [];
+      if (!response.data.boxes) return resolve({ boxes: [] });
+      
+      for (let i = 0; i < response.data.boxes.length; i++) {
+        const box = VagrantCloudBox.fromJson(response.data.boxes[i]);
+        boxes.push(box);
+      }
+
+      return resolve({
+        boxes: boxes
+      });
+    });
   }
 }

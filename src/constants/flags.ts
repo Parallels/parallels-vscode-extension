@@ -191,4 +191,6 @@ export class CommandsFlags {
   static dockerEnterContainer = `${COMMAND_PREFIX}.docker.enter-container`;
   static dockerRunContainer = `${COMMAND_PREFIX}.docker.run-container`;
   static dockerRemoveImage = `${COMMAND_PREFIX}.docker.remove-image`;
+
+  static vagrantSearchAndDownload = `${COMMAND_PREFIX}.vagrant.search-and-download`;
 }

@@ -1,4 +1,5 @@
 import {NewVirtualMachineFlags} from "./NewVirtualMachineFlags";
+import { NewVirtualMachineRequiredVariables } from "./NewVirtualMachineRequiredVariables";
 import {NewVirtualMachineSpecs} from "./NewVirtualMachineSpecs";
 
 export interface NewVirtualMachineRequest {
@@ -12,4 +13,5 @@ export interface NewVirtualMachineRequest {
   isoUrl?: string;
   isoChecksum?: string;
   addons: string[];
+  requiredVariables: NewVirtualMachineRequiredVariables[];
 }

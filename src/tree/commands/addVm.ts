@@ -1,3 +1,4 @@
+import { NewVirtualMachineRequiredVariables } from './../../models/NewVirtualMachineRequiredVariables';
 import * as vscode from "vscode";
 import * as path from "path";
 
@@ -10,7 +11,6 @@ import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {NewVirtualMachineRequest} from "../../models/NewVirtualMachineRequest";
 import {LogService} from "../../services/logService";
 import {Provider} from "../../ioc/provider";
-import {config} from "process";
 
 export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
   context.subscriptions.push(
@@ -78,6 +78,7 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
               image: cmd.image,
               isoChecksum: cmd.isoChecksum,
               isoUrl: cmd.isoUrl,
+              requiredVariables:  [],
               specs: {
                 cpus: cmd.specs?.cpu ?? "2",
                 memory: cmd.specs?.memory ?? "2048",
@@ -94,6 +95,15 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
                 request.addons.push(a.id);
               }
             });
+            if (cmd.requiredVariables && cmd.requiredVariables.length > 0) {
+              cmd.requiredVariables.forEach((v: any) => {
+                const variable: NewVirtualMachineRequiredVariables = {
+                  key: v.id,
+                  value: v.value,
+                };
+                request.requiredVariables.push(variable);
+              });
+            }
             vscode.window.withProgress(
               {
                 location: vscode.ProgressLocation.Notification,
@@ -203,6 +213,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           allowUserOverride: false,
           allowAddons: false,
           isValidVmName: 'true',
+          requiredVariables: [],
           allowedFlags: [],
           specs: {
             cpu: 2,
@@ -294,6 +305,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           };
           this.itemData.addons = [];
           this.itemData.isoUrl = '';
+          this.itemData.requiredVariables = [];
           this.itemData.isoChecksum = '';
           this.itemData.isoHelp = undefined;
           this.itemData.description = undefined;
@@ -301,6 +313,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
         onPlatformDropdownChange() {
           this.itemData.distro = 'undefined'; 
           this.itemData.image = 'undefined';
+          this.itemData.requiredVariables = [];
           this.itemData.requireIsoDownload = false;
           this.itemData.allowMachineSpecs = false;
           this.itemData.allowUserOverride = false;
@@ -325,6 +338,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           this.itemData.allowMachineSpecs = false;
           this.itemData.allowUserOverride = false;
           this.itemData.allowAddons = false;
+          this.itemData.requiredVariables = [];
           this.itemData.defaults = {
             specs: {
               cpu: 2,
@@ -360,6 +374,9 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
             this.itemData.defaults.user = {};
             this.itemData.defaults.user.username = img.defaults.user.username ?? this.itemData.defaults.user.username;
             this.itemData.defaults.user.password = img.defaults.user.password ?? this.itemData.defaults.user.password;
+          }
+          if(img.requiredVariables) {
+            this.itemData.requiredVariables = img.requiredVariables;
           }
           this.itemData.description = img.description ?? undefined;
           this.checkVmName(this.itemData.name);
@@ -399,6 +416,10 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
           if (img.allowAddons === false) return false
           if (img.type === 'internal' || img.type === 'iso' ) return false
           return img.addons.length > 0
+        },
+        showRequiredVariables() {
+          const img = this.getImage();
+          return img.requiredVariables.length > 0
         },
         showSaveButton() {
           const img = this.getImage();
@@ -463,14 +484,31 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
 
         },
         validatePostButton() {
-          if(!this.itemData) return false
-          if(this.itemData.requireIsoDownload) {
-            return this.itemData.image !== 'undefined' &&
-            this.itemData.isoUrl !== '' &&
-            this.itemData.isoChecksum !== '' &&
-            this.itemData.isValidVmName === 'true'
+          let result = true;
+          if(!this.itemData) {
+            result = false
           }
-          return this.itemData.image !== 'undefined' && this.itemData.isValidVmName === 'true'
+          if(result && this.itemData.isValidVmName !== 'true') {
+            result = false
+          }
+          if(result && this.itemData.image === 'undefined') {
+            result = false
+          }
+          if(result && this.itemData.requireIsoDownload) {
+            if(this.itemData.isoUrl === '' ||
+              this.itemData.isoChecksum === '') {
+              result = false;
+            }
+          }
+          if(result && this.itemData.requiredVariables.length > 0) {
+            for (let i = 0; i < this.itemData.requiredVariables.length; i++) {
+              if (this.itemData.requiredVariables[i].value === undefined || this.itemData.requiredVariables[i].value === '') {
+                result = false;
+                break;
+              }
+            }
+          }
+          return result;
         },
         onPost() {
           this.isPosting = true;
@@ -696,6 +734,30 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                   </div>
                 </div>
               </li>
+              <li class="flex flex-col gap-x-6 py-0">
+                <div
+                  class="flex sm:flex-row sm:items-end flex-row"
+                  x-show="itemData.image !== 'undefined' && showRequiredVariables() === true"
+                >
+                <template x-for="(requiredVariable, index) in itemData.requiredVariables" :key="requiredVariable">
+                  <div class="pr-2 mb-2 w-3/5">
+                    <label :for="'reqVar__' + requiredVariable.id" class="block mb-1 input-label">
+                    <span x-text="requiredVariable.text"></span>
+                    <span class="input-label-mandatory">*</span>
+                    </label>
+                    <input
+                      :id="'reqVar__' + requiredVariable.id"
+                      type="text"
+                      x-model="itemData.requiredVariables[index].value"
+                      :name="'reqVar__' + requiredVariable.id"
+                      class="input block w-full p-2.5"
+                      :placeholder="requiredVariable.hint ?? requiredVariable.text"
+                      required=""
+                    />
+                  </div>
+                  </template>
+                </div>
+              </li>
             </ul>
             <ul role="list" class="panel panel-color" x-show="showMachineSpecs()">
               <li class="flex flex-col gap-x-6 py-1" x-show="showMachineSpecs()">
@@ -855,12 +917,12 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
                     />
                   </div>
                   <div class="mb-2 w-2/4">
-                    <label for="isoChecksum" class="block mb-1 input-label">Password</label>
+                    <label for="defaultPassword" class="block mb-1 input-label">Password</label>
                     <input
                       id="defaultPassword"
                       type="text"
                       disabled
-                      name="isoChecksum"
+                      name="defaultPassword"
                       :value="itemData.defaults?.user?.password ?? 'parallels-eee'"
                       class="input block w-full p-2.5"
                       placeholder="parallels"
