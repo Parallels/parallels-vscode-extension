@@ -72,11 +72,12 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   vscode.commands.executeCommand("setContext", FLAG_PARALLELS_EXTENSION_INITIALIZED, true);
+      // Send telemetry event
+      LogService.sendHeartbeat();
   if (config.isTelemetryEnabled) {
-    LogService.sendTelemetryEvent(TelemetryEventIds.ExtensionStarted);
+    LogService.info("Telemetry is enabled", "CoreService");
   } else {
-    // This is disabled for now, setting just a log entry
-    LogService.sendHeartbeat();
+
     LogService.info("Telemetry is disabled", "CoreService");
   }
   console.log("Parallels Desktop Extension is now active!");

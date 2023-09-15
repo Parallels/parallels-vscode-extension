@@ -42,6 +42,7 @@ export class ConfigurationService {
   packerTemplatesCloned = false;
   dockerRunItems: DockerRunItem[] = [];
   lastSynced: number | undefined;
+  lastHeartbeat: number | undefined;
 
   constructor(private context: vscode.ExtensionContext) {
     this.virtualMachinesGroups = [];
@@ -88,6 +89,7 @@ export class ConfigurationService {
       }
     };
     this.lastSynced = undefined;
+    this.lastHeartbeat = undefined;
     this.isInitialized = false;
     this.backup();
   }
@@ -126,6 +128,9 @@ export class ConfigurationService {
       }
       if (json.lastSynced !== undefined) {
         configuration.lastSynced = json.lastSynced;
+      }
+      if (json.lastHeartbeat !== undefined) {
+        configuration.lastHeartbeat = json.lastHeartbeat;
       }
 
       return configuration;
@@ -204,7 +209,8 @@ export class ConfigurationService {
       parallelsDesktopServerInfo: this.parallelsDesktopServerInfo,
       locale: this.locale,
       tools: this.tools,
-      lastSynced: this.lastSynced
+      lastSynced: this.lastSynced,
+      lastHeartbeat: this.lastHeartbeat
     };
 
     return JSON.stringify(config, null, 2);

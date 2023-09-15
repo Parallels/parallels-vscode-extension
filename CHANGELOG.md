@@ -2,6 +2,11 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.0.12] - 2023-10-15
+
+* Added MacOS Monterey to the list of VMs Distros you can create
+* Added MacOS Sonoma RC to the list of VMs Distros you can create
+
 ## [1.0.11] - 2023-09-14
 
 * Added Redhat and Parrot OS to the automated images
