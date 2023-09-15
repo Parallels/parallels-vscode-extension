@@ -90,9 +90,7 @@ export class LogService {
   static isSameDay(date: Date): boolean {
     const now = new Date();
     return (
-      date.getFullYear() === now.getFullYear() &&
-      date.getMonth() === now.getMonth() &&
-      date.getDate() === now.getDate()
+      date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()
     );
   }
 
@@ -101,7 +99,7 @@ export class LogService {
     let sendHeartbeat = false;
     const lastHeartbeat = config.lastHeartbeat ?? "";
     if (config.lastHeartbeat) {
-      if(!this.isSameDay(new Date(lastHeartbeat))) {
+      if (!this.isSameDay(new Date(lastHeartbeat))) {
         sendHeartbeat = true;
       }
     } else {
@@ -136,8 +134,9 @@ export class LogService {
 
         LogService.debug(JSON.stringify(request, null, 2), "TelemetryService");
 
-        const requestUrl = `https://reportus.parallels.com/pdfm/${Provider.getConfiguration().packerDesktopMajorVersion
-          }/events`;
+        const requestUrl = `https://reportus.parallels.com/pdfm/${
+          Provider.getConfiguration().packerDesktopMajorVersion
+        }/events`;
         axios
           .post(requestUrl, request, {
             headers: {
