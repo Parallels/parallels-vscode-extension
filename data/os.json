@@ -438,6 +438,97 @@
                 "distros": [],
                 "images": [
                     {
+                        "id": "macos14_223A339",
+                        "type": "macos",
+                        "name": "macOS 14 RC (Manual Setup)",
+                        "description": "This will create a macOS 14 RC VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": false,
+                        "allowAddons": false,
+                        "isoUrl": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/002-81996/596571C1-9856-4BB3-B5BF-B5A48F4B406E/UniversalMac_14.0_23A339_Restore.ipsw",
+                        "isoChecksum": "sha256:a42a5ba126a4a35bae9f3dcd64565abc2232e9f3954c658cf5cab5bd92f9d191",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos13_22G91",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS 13.5.2",
+                        "description": "This will create a macOS 13.5 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw",
+                        "isoChecksum": "sha256:6891aee0ab0b96695ef16fa53f06bdeda4106f68de516671984eb46ad2e0e3b8",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos13_22G91_ipsw",
+                        "type": "macos",
+                        "packerFolder": "macos",
+                        "name": "macOS 13.5.2 (Manual Setup)",
+                        "description": "This will create a macOS 13.5 VM using a downloaded IPSW file, this will need user input to complete the installation.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": false,
+                        "allowAddons": false,
+                        "isoUrl": "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw",
+                        "isoChecksum": "sha256:6891aee0ab0b96695ef16fa53f06bdeda4106f68de516671984eb46ad2e0e3b8",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos13_22G90",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS 13.5.1",
+                        "description": "This will create a macOS 13.5 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/042-25658/2D6BE8DB-5549-4F85-8C54-39FC23BABC68/UniversalMac_13.5.1_22G90_Restore.ipsw",
+                        "isoChecksum": "sha256:b16966311b54aa5249cd2ee909e9854e0923c3f850e29b050614537d7abe657e",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
                         "id": "macos13_22G74",
                         "type": "packer",
                         "packerFolder": "macos",
@@ -458,26 +549,6 @@
                             "user": {
                                 "username": "parallels",
                                 "password": "parallels"
-                            }
-                        }
-                    },
-                    {
-                        "id": "macos13_22G74_ipsw",
-                        "type": "macos",
-                        "packerFolder": "macos",
-                        "name": "macOS 13.5 (Manual Setup)",
-                        "description": "This will create a macOS 13.5 VM using a downloaded IPSW file, this will need user input to complete the installation.",
-                        "requireIsoDownload": false,
-                        "allowMachineSpecs": true,
-                        "allowUserOverride": false,
-                        "allowAddons": false,
-                        "isoUrl": "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw",
-                        "isoChecksum": "sha256:a42a5ba126a4a35bae9f3dcd64565abc2232e9f3954c658cf5cab5bd92f9d191",
-                        "addons": [],
-                        "defaults": {
-                            "specs": {
-                                "cpus": 4,
-                                "memory": 8196
                             }
                         }
                     },
@@ -687,6 +758,78 @@
                         "allowAddons": true,
                         "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-92188/2C38BCD1-2BFF-4A10-B358-94E8E28BE805/UniversalMac_13.0_22A380_Restore.ipsw",
                         "isoChecksum": "sha256:537008900fe34eeb703d928ce613708bfbd6bf445289948058fc617be4f2d090",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos12_21G115",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS 12.6",
+                        "description": "This will create a macOS 12.6 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-40537/0EC7C669-13E9-49FB-BD64-9EECC1D174B2/UniversalMac_12.6_21G115_Restore.ipsw",
+                        "isoChecksum": "sha256:5113f8d3c77fd725ea6357ced5764bc57183d2d388492c58c46ff2729d0658e5",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos12_21G83",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS 12.5.1",
+                        "description": "This will create a macOS 12.5.1 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2022SummerFCS/fullrestores/012-51674/A7019DDB-3355-470F-A355-4162A187AB6C/UniversalMac_12.5.1_21G83_Restore.ipsw",
+                        "isoChecksum": "sha256:97a5c61e21e9ddf25158ec9dca67b482205f9dd311d274a1a59915b4bb042c83",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos12_21G72",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS 12.5",
+                        "description": "This will create a macOS 12.5 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2022SummerFCS/fullrestores/012-42731/BD9917E0-262C-41C5-A69F-AC316A534A39/UniversalMac_12.5_21G72_Restore.ipsw",
+                        "isoChecksum": "sha256:49eb74f3313b0b0c22d4c055f56722143fdae1e5ccb1dcbf779a1a4c4dcbc42b",
                         "addons": [],
                         "defaults": {
                             "specs": {
