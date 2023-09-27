@@ -1,11 +1,29 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
-import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VagrantBoxProvider} from "../../vagrant_boxes";
 import {VagrantService} from "../../../services/vagrantService";
+ 
+function getVagrantBoxes(context: vscode.ExtensionContext, query: string, order: string): Promise<any> {
+  return new Promise(async (resolve, reject) => {
+    const response = await VagrantService.searchBoxFromCloud(query, order);
 
+    const result = response.boxes.map(box => {
+      return {
+        label: box.tag,
+        description: box.current_version.version,
+        detail: box.short_description,
+        iconPath: {
+          dark: vscode.Uri.file(context.asAbsolutePath("img/dark/vagrant_boxes.svg")),
+          light: vscode.Uri.file(context.asAbsolutePath("img/light/vagrant_boxes.svg"))
+        },
+      };
+    });
+
+    resolve( result);
+  });
+}
 export function registerVagrantSearchAndDownloadCommand(
   context: vscode.ExtensionContext,
   provider: VagrantBoxProvider
@@ -25,14 +43,36 @@ export function registerVagrantSearchAndDownloadCommand(
                 const quickPick = vscode.window.createQuickPick();
                 quickPick.title = "Select a Vagrant Box";
                 quickPick.show();
-                const response = await VagrantService.searchBoxFromCloud(query);
-                quickPick.items = response.boxes.map(box => {
-                  return {
-                    label: box.tag,
-                    description: box.current_version.version,
-                    detail: box.short_description
-                  };
+                let order = "created";
+                quickPick.onDidTriggerButton(async (btn: vscode.QuickInputButton) => {
+                  quickPick.items = [];
+                  if (btn.tooltip === "Sort by Date Created") {
+                    order = "created";
+                  }
+                  if (btn.tooltip === "Sort by Downloads") {
+                    order = "downloads";
+                  }
+                  quickPick.items = await getVagrantBoxes(context, query, order);
                 });
+                
+                quickPick.buttons = [
+                  {
+                    iconPath: {
+                      dark: vscode.Uri.file(context.asAbsolutePath("img/dark/vagrant_boxes.svg")),
+                      light: vscode.Uri.file(context.asAbsolutePath("img/light/vagrant_boxes.svg"))
+                    },
+                    tooltip: "Sort by Date Created",
+                  },
+                  {
+                    iconPath: {
+                      dark: vscode.Uri.file(context.asAbsolutePath("img/dark/vagrant_boxes.svg")),
+                      light: vscode.Uri.file(context.asAbsolutePath("img/light/vagrant_boxes.svg"))
+                    },
+                    tooltip: "Sort by Downloads",
+                  }
+                ];
+                quickPick.items = await getVagrantBoxes(context, query, order);
+
                 quickPick.onDidChangeSelection(async selection => {
                   console.log(JSON.stringify(selection));
                   quickPick.hide();

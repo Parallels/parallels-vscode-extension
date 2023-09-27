@@ -366,10 +366,10 @@ end
     return true;
   }
 
-  static async searchBoxFromCloud(query: string): Promise<VagrantCloudBoxes> {
+  static async searchBoxFromCloud(query: string, sort = "created"): Promise<VagrantCloudBoxes> {
     return new Promise(async (resolve, reject) => {
       const response = await axios.get(
-        `https://app.vagrantup.com/api/v1/search?q=${query}&provider=parallels&sort=created`
+        `https://app.vagrantup.com/api/v1/search?q=${query}&provider=parallels&sort=${sort}`
       );
       if (response.status !== 200) {
         return reject(response.statusText);
