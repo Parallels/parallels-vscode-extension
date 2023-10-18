@@ -440,6 +440,7 @@
                     {
                         "id": "macos14_23A344",
                         "type": "packer",
+                        "packerFolder": "macos",
                         "name": "macOS Sonoma 14.0",
                         "description": "This will create a macOS Sonoma 14 VM using automated Packer scripts.",
                         "requireIsoDownload": false,
