@@ -6,11 +6,9 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachineCommand} from "../BaseCommand";
 
-export function registerStartDockerContainerCommand(
-  context: vscode.ExtensionContext,
-  provider: VirtualMachineProvider
-) {
+const registerStartDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerStartContainer, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -76,4 +74,8 @@ export function registerStartDockerContainerCommand(
       );
     })
   );
-}
+};
+
+export const StartContainerCommand: VirtualMachineCommand = {
+  register: registerStartDockerContainerCommand
+};

@@ -8,11 +8,12 @@ import {VirtualMachine} from "../../models/virtualMachine";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerResumeGroupVirtualMachinesCommand(
+const registerResumeGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
   provider: VirtualMachineProvider
-) {
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeResumeGroupVms, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -46,7 +47,7 @@ export function registerResumeGroupVirtualMachinesCommand(
       );
     })
   );
-}
+};
 
 function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise<void> {
   return new Promise(async (resolve, reject) => {
@@ -92,3 +93,7 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
     return resolve();
   });
 }
+
+export const ResumeGroupVirtualMachinesCommand: VirtualMachineCommand = {
+  register: registerResumeGroupVirtualMachinesCommand
+};

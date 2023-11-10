@@ -12,8 +12,9 @@ import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerToggleRosettaLinuxCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerToggleRosettaLinuxCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeEnableRosetta, async (item: VirtualMachineTreeItem) => {
       if (!item || item.status !== "stopped") {
@@ -62,4 +63,8 @@ export function registerToggleRosettaLinuxCommand(context: vscode.ExtensionConte
         });
     })
   );
-}
+};
+
+export const ToggleRosettaLinuxCommand: VirtualMachineCommand = {
+  register: registerToggleRosettaLinuxCommand
+};

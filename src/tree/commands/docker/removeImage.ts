@@ -6,8 +6,9 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {DockerImageOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachineCommand} from "../BaseCommand";
 
-export function registerRemoveDockerImageCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerRemoveDockerImageCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerRemoveImage, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -64,4 +65,8 @@ export function registerRemoveDockerImageCommand(context: vscode.ExtensionContex
       );
     })
   );
-}
+};
+
+export const RemoveImageCommand: VirtualMachineCommand = {
+  register: registerRemoveDockerImageCommand
+};

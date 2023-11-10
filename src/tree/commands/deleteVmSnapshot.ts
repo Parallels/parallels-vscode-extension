@@ -6,8 +6,9 @@ import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachine} from "../../models/virtualMachine";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerDeleteVmSnapshotCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerDeleteVmSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeDeleteVmSnapshot, async (item: VirtualMachineTreeItem) => {
       const config = Provider.getConfiguration();
@@ -58,4 +59,8 @@ export function registerDeleteVmSnapshotCommand(context: vscode.ExtensionContext
       }
     })
   );
-}
+};
+
+export const DeleteVmSnapshotCommand: VirtualMachineCommand = {
+  register: registerDeleteVmSnapshotCommand
+};

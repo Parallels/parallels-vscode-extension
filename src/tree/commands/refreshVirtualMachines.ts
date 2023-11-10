@@ -5,11 +5,9 @@ import {CommandsFlags} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerRefreshVirtualMachineCommand(
-  context: vscode.ExtensionContext,
-  provider: VirtualMachineProvider
-) {
+const registerRefreshVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRefreshVms, async () => {
       vscode.window.withProgress(
@@ -36,4 +34,8 @@ export function registerRefreshVirtualMachineCommand(
       );
     })
   );
-}
+};
+
+export const RefreshVirtualMachineCommand: VirtualMachineCommand = {
+  register: registerRefreshVirtualMachineCommand
+};

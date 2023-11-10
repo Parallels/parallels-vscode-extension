@@ -3,12 +3,9 @@ import * as uuid from "uuid";
 import {VagrantBoxTreeItem} from "./vagrant_box_item";
 import {VagrantService} from "../services/vagrantService";
 import {FLAG_NO_GROUP} from "../constants/flags";
-import {registerVagrantBoxRefreshCommand} from "./commands/vagrantBoxesRefresh";
-import {registerVagrantBoxInitCommand} from "./commands/vagrantBoxesInit";
-import {registerVagrantBoxRemoveCommand} from "./commands/vagrantBoxesRemove";
 import {parallelsOutputChannel} from "../helpers/channel";
 import {LogService} from "../services/logService";
-import {registerVagrantSearchAndDownloadCommand} from "./commands/vagrant/searchAndDownloadBoxes";
+import {AllVagrantCommands} from "./commands/AllCommands";
 
 export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTreeItem> {
   data: VagrantBoxTreeItem[] = [];
@@ -21,10 +18,7 @@ export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTre
     });
     context.subscriptions.push(view);
 
-    registerVagrantBoxRefreshCommand(context, this);
-    registerVagrantBoxInitCommand(context, this);
-    registerVagrantBoxRemoveCommand(context, this);
-    registerVagrantSearchAndDownloadCommand(context, this);
+    AllVagrantCommands.forEach(c => c.register(context, this));
   }
 
   getTreeItem(element: VagrantBoxTreeItem): vscode.TreeItem {

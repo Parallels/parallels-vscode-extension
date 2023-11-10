@@ -4,8 +4,9 @@ import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
 import {VirtualMachineProvider} from "../virtual_machine";
 import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerAddGroupCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerAddGroupCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeAddGroup, async () => {
       const config = Provider.getConfiguration();
@@ -29,4 +30,8 @@ export function registerAddGroupCommand(context: vscode.ExtensionContext, provid
       }
     })
   );
-}
+};
+
+export const AddGroupCommand: VirtualMachineCommand = {
+  register: registerAddGroupCommand
+};

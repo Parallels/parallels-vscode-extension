@@ -7,8 +7,9 @@ import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachine} from "../../models/virtualMachine";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerStartVirtualMachineCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeStartVm, async (item: VirtualMachineTreeItem) => {
       vscode.window.withProgress(
@@ -78,4 +79,8 @@ export function registerStartVirtualMachineCommand(context: vscode.ExtensionCont
       );
     })
   );
-}
+};
+
+export const StartVirtualMachineCommand: VirtualMachineCommand = {
+  register: registerStartVirtualMachineCommand
+};

@@ -4,8 +4,9 @@ import {CommandsFlags, FLAG_NO_GROUP, TelemetryEventIds} from "../../constants/f
 import {VirtualMachineProvider} from "../virtual_machine";
 import {LogService} from "../../services/logService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerRemoveGroupCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerRemoveGroupCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRemoveGroup, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -30,4 +31,8 @@ export function registerRemoveGroupCommand(context: vscode.ExtensionContext, pro
       }
     })
   );
-}
+};
+
+export const RemoveGroupCommand: VirtualMachineCommand = {
+  register: registerRemoveGroupCommand
+};

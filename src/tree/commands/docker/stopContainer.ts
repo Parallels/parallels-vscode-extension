@@ -6,8 +6,9 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachineCommand} from "../BaseCommand";
 
-export function registerStopDockerContainerCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerStopDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerStopContainer, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -73,4 +74,8 @@ export function registerStopDockerContainerCommand(context: vscode.ExtensionCont
       );
     })
   );
-}
+};
+
+export const StopContainerCommand: VirtualMachineCommand = {
+  register: registerStopDockerContainerCommand
+};

@@ -8,11 +8,12 @@ import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
 import {VirtualMachine} from "../../models/virtualMachine";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerStopGroupVirtualMachinesCommand(
+const registerStopGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
   provider: VirtualMachineProvider
-) {
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeStopGroupVms, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -46,7 +47,7 @@ export function registerStopGroupVirtualMachinesCommand(
       );
     })
   );
-}
+};
 
 function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise<void> {
   return new Promise(async (resolve, reject) => {
@@ -91,3 +92,7 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
     return resolve();
   });
 }
+
+export const StopGroupVirtualMachineCommand: VirtualMachineCommand = {
+  register: registerStopGroupVirtualMachinesCommand
+};

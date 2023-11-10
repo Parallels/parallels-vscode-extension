@@ -4,8 +4,9 @@ import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerDeleteVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerDeleteVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRemoveVm, async (item: VirtualMachineTreeItem) => {
       const options: string[] = ["Yes", "No"];
@@ -45,4 +46,8 @@ export function registerDeleteVmCommand(context: vscode.ExtensionContext, provid
       }
     })
   );
-}
+};
+
+export const DeleteVMCommand: VirtualMachineCommand = {
+  register: registerDeleteVmCommand
+};

@@ -5,8 +5,9 @@ import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerStopVirtualMachineCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerStopVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeStopVm, async item => {
       if (!item) {
@@ -67,4 +68,8 @@ export function registerStopVirtualMachineCommand(context: vscode.ExtensionConte
       );
     })
   );
-}
+};
+
+export const StopVirtualMachineCommand: VirtualMachineCommand = {
+  register: registerStopVirtualMachineCommand
+};

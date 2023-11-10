@@ -5,8 +5,9 @@ import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachineCommand} from "../BaseCommand";
 
-export function registerEnterContainerCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerEnterContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerEnterContainer, async (item: VirtualMachineTreeItem) => {
       if (item) {
@@ -26,4 +27,8 @@ export function registerEnterContainerCommand(context: vscode.ExtensionContext, 
       }
     })
   );
-}
+};
+
+export const EnterContainerCommand: VirtualMachineCommand = {
+  register: registerEnterContainerCommand
+};

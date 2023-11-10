@@ -4,8 +4,9 @@ import {CommandsFlags} from "../../constants/flags";
 import {VagrantBoxProvider} from "../vagrant_boxes";
 import {VagrantBoxTreeItem} from "../vagrant_box_item";
 import {VagrantService} from "../../services/vagrantService";
+import {VagrantCommand} from "./BaseCommand";
 
-export function registerVagrantBoxRemoveCommand(context: vscode.ExtensionContext, provider: VagrantBoxProvider) {
+const registerVagrantBoxRemoveCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderDelete, async (item: VagrantBoxTreeItem) => {
       if (!item) {
@@ -42,4 +43,8 @@ export function registerVagrantBoxRemoveCommand(context: vscode.ExtensionContext
       }
     })
   );
-}
+};
+
+export const VagrantBoxesRemoveCommand: VagrantCommand = {
+  register: registerVagrantBoxRemoveCommand
+};

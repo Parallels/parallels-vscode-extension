@@ -11,8 +11,9 @@ import {
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerToggleShowHiddenCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerToggleShowHiddenCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.coreEnableShowHiddenItems, async (item: VirtualMachineTreeItem) => {
       LogService.debug(`Toggling show hidden to true`, "TreeViewCommand");
@@ -73,4 +74,8 @@ export function registerToggleShowHiddenCommand(context: vscode.ExtensionContext
       }
     })
   );
-}
+};
+
+export const ToggleShowHideCommand: VirtualMachineCommand = {
+  register: registerToggleShowHiddenCommand
+};

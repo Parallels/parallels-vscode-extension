@@ -5,11 +5,9 @@ import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VagrantBoxProvider} from "../../vagrant_boxes";
 import {VagrantService} from "../../../services/vagrantService";
+import {VagrantCommand} from "../BaseCommand";
 
-export function registerVagrantSearchAndDownloadCommand(
-  context: vscode.ExtensionContext,
-  provider: VagrantBoxProvider
-) {
+const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantSearchAndDownload, async () => {
       return new Promise((resolve, reject) => {
@@ -109,4 +107,8 @@ export function registerVagrantSearchAndDownloadCommand(
       });
     })
   );
-}
+};
+
+export const SearchAndDownloadBoxesCommand: VagrantCommand = {
+  register: registerVagrantSearchAndDownloadCommand
+};

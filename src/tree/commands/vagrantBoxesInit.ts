@@ -3,8 +3,9 @@ import {CommandsFlags} from "../../constants/flags";
 import {VagrantBoxProvider} from "../vagrant_boxes";
 import {VagrantBoxTreeItem} from "../vagrant_box_item";
 import {VagrantService} from "../../services/vagrantService";
+import {VagrantCommand} from "./BaseCommand";
 
-export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, provider: VagrantBoxProvider) {
+const registerVagrantBoxInitCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderInit, async (item: VagrantBoxTreeItem) => {
       if (!item) {
@@ -61,4 +62,8 @@ export function registerVagrantBoxInitCommand(context: vscode.ExtensionContext, 
       }
     })
   );
-}
+};
+
+export const VagrantBoxesInitCommand: VagrantCommand = {
+  register: registerVagrantBoxInitCommand
+};
