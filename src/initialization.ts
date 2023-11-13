@@ -145,8 +145,8 @@ export async function initialize() {
             ...options
           )
           .then(selection => {
-            if (selection === "Open Vagrant Website") {
-              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://www.vagrantup.com/"));
+            if (selection === "Open Git Website") {
+              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://git-scm.com/"));
               return;
             }
             if (selection === "Install Git") {
