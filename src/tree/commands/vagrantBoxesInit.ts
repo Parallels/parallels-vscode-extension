@@ -4,6 +4,7 @@ import {VagrantBoxProvider} from "../vagrant_boxes";
 import {VagrantBoxTreeItem} from "../vagrant_box_item";
 import {VagrantService} from "../../services/vagrantService";
 import {VagrantCommand} from "./BaseCommand";
+import {ANSWER_NO, ANSWER_YES, YesNoQuestion} from "../../helpers/ConfirmDialog";
 
 const registerVagrantBoxInitCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
@@ -22,12 +23,10 @@ const registerVagrantBoxInitCommand = (context: vscode.ExtensionContext, provide
           machineName = machineNamePrompt;
         }
 
-        const isWindowsMachine = await vscode.window.showQuickPick(["Yes", "No"], {
-          placeHolder: "Is this a Windows machine?"
-        });
+        let isWindowsMachine = await YesNoQuestion("Is this a Windows machine?");
 
         if (!isWindowsMachine) {
-          isWindowsMachine === "No";
+          isWindowsMachine = ANSWER_NO;
         }
 
         if (machineName && isWindowsMachine) {
@@ -37,7 +36,7 @@ const registerVagrantBoxInitCommand = (context: vscode.ExtensionContext, provide
               title: `Initializing Vagrant box ${item.name}`
             },
             async progress => {
-              await VagrantService.init(item.name, machineName, isWindowsMachine === "Yes" ? true : false, context)
+              await VagrantService.init(item.name, machineName, isWindowsMachine === ANSWER_YES ? true : false, context)
                 .then(
                   value => {
                     if (!value) {

@@ -5,6 +5,7 @@ import {VirtualMachineProvider} from "../virtual_machine";
 import {LogService} from "../../services/logService";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachineCommand} from "./BaseCommand";
+import {ANSWER_YES, YesNoQuestion} from "../../helpers/ConfirmDialog";
 
 const registerRemoveGroupCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -14,11 +15,8 @@ const registerRemoveGroupCommand = (context: vscode.ExtensionContext, provider: 
       }
       const group = Provider.getConfiguration().getVirtualMachineGroup(item.id);
       if (group !== undefined) {
-        const options: string[] = ["Yes", "No"];
-        const confirmation = await vscode.window.showQuickPick(options, {
-          placeHolder: `Are you sure you want to remove group ${item.name}?`
-        });
-        if (confirmation === "Yes") {
+        const confirmation = await YesNoQuestion(`Are you sure you want to remove group ${item.name}?`);
+        if (confirmation === ANSWER_YES) {
           const noGroup = Provider.getConfiguration().getVirtualMachineGroup(FLAG_NO_GROUP);
           group.machines.forEach(vm => {
             noGroup?.addVm(vm);

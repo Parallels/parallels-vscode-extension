@@ -21,11 +21,7 @@ const registerAddVmCommand = (context: vscode.ExtensionContext, provider: Virtua
       const svc = new CreateMachineService(context);
       const operatingSystemContent = await svc.get();
 
-      let osData = "[";
-      operatingSystemContent.forEach(o => {
-        osData += o.toString() + ",";
-      });
-      osData += "]";
+      const osData = `[${operatingSystemContent.map(os => os.toString()).join(",")}]`;
 
       LogService.info("Creating webview", "AddVmCommand");
       const panel = vscode.window.createWebviewPanel(
