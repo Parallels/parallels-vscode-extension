@@ -7,11 +7,12 @@ import {Provider} from "../../ioc/provider";
 import {VirtualMachine} from "../../models/virtualMachine";
 import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerPauseGroupVirtualMachinesCommand(
+const registerPauseGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
   provider: VirtualMachineProvider
-) {
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treePauseGroupVms, async item => {
       if (!item) {
@@ -43,7 +44,7 @@ export function registerPauseGroupVirtualMachinesCommand(
       );
     })
   );
-}
+};
 
 async function pauseVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise<void> {
   return new Promise(async (resolve, reject) => {
@@ -88,3 +89,7 @@ async function pauseVm(provider: VirtualMachineProvider, item: VirtualMachine): 
     return resolve();
   });
 }
+
+export const PauseGroupVirtualMachinesCommand: VirtualMachineCommand = {
+  register: registerPauseGroupVirtualMachinesCommand
+};

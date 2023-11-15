@@ -5,52 +5,15 @@ import * as clipboardy from "clipboardy";
 import {Provider} from "../ioc/provider";
 import {VirtualMachineTreeItem} from "./virtual_machine_item";
 import {CommandsFlags, FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE, FLAG_NO_GROUP} from "../constants/flags";
-import {registerAddGroupCommand} from "./commands/addGroup";
-import {registerRemoveGroupCommand} from "./commands/removeGroup";
-import {registerViewVmDetailsCommand} from "./commands/viewVmDetails";
-import {registerStartVirtualMachineCommand} from "./commands/startVirtualMachine";
-import {registerStopVirtualMachineCommand} from "./commands/stopVirtualMachine";
-import {registerResumeVirtualMachineCommand} from "./commands/resumeVirtualMachine";
-import {registerPauseVirtualMachineCommand} from "./commands/pauseVirtualMachine";
-import {registerRefreshVirtualMachineCommand} from "./commands/refreshVirtualMachines";
-import {registerStartHeadlessVirtualMachineCommand} from "./commands/startHeadlessVirtualMachine";
 import {VirtualMachine} from "../models/virtualMachine";
 import {ParallelsDesktopService} from "../services/parallelsDesktopService";
-import {registerTakeSnapshotCommand} from "./commands/takeSnapshot";
 import {parallelsOutputChannel} from "../helpers/channel";
-import {registerDeleteVmSnapshotCommand} from "./commands/deleteVmSnapshot";
-import {registerRestoreVmSnapshotCommand} from "./commands/restoreVmSnapshot";
-import {registerStopGroupVirtualMachinesCommand} from "./commands/stopGroupVirtualMachines";
-import {registerStartGroupVirtualMachinesCommand} from "./commands/startGroupVirtualMachines";
-import {registerSuspendVirtualMachineCommand} from "./commands/suspendVirtualMachine";
-import {registerPauseGroupVirtualMachinesCommand} from "./commands/pauseGroupVirtualMachines";
-import {registerResumeGroupVirtualMachinesCommand} from "./commands/resumeGroupVirtualMachines";
-import {registerSuspendGroupVirtualMachinesCommand} from "./commands/suspendGroupVirtualMachines";
-import {registerTakeGroupSnapshotCommand} from "./commands/takeGroupSnapshot";
-import {registerAddVmCommand} from "./commands/addVm";
-import {registerToggleShowHiddenCommand} from "./commands/toggleShowHide";
-import {registerRenameGroupCommand} from "./commands/renameGroup";
 import {MachineSnapshot} from "../models/virtualMachineSnapshot";
-import {registerDeleteVmCommand} from "./commands/deleteVm";
-import {registerEnterVmCommand} from "./commands/enterVm";
-import {registerRenameVmCommand} from "./commands/renameMachine";
-import {registerToggleRosettaLinuxCommand} from "./commands/toggleRosettaLinux";
 import {DockerContainer} from "../models/dockerContainer";
 import {DockerService} from "../services/dockerService";
-import {registerStartDockerContainerCommand} from "./commands/docker/startContainer";
-import {registerStopDockerContainerCommand} from "./commands/docker/stopContainer";
-import {registerPauseDockerContainerCommand} from "./commands/docker/pauseContainer";
-import {registerResumeDockerContainerCommand} from "./commands/docker/resumeContainer";
-import {registerRestartDockerContainerCommand} from "./commands/docker/restartContainer";
-import {registerRemoveDockerContainerCommand} from "./commands/docker/removeContainer";
-import {registerGetContainerLogsCommand} from "./commands/docker/getContainerLogs";
-import {registerEnterContainerCommand} from "./commands/docker/enterContainer";
-import {registerRunContainerCommand} from "./commands/docker/runContainer";
 import {DockerImage} from "../models/dockerImage";
-import {registerRemoveDockerImageCommand} from "./commands/docker/removeImage";
 import {LogService} from "../services/logService";
-import {registerStartWindowVirtualMachineCommand} from "./commands/startWindowVirtualMachine";
-import {registerCopyIpAddressCommand} from "./commands/copyIpAddress";
+import {AllVirtualMachineCommands} from "./commands/AllCommands";
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
@@ -68,50 +31,7 @@ export class VirtualMachineProvider
       dragAndDropController: this
     });
     context.subscriptions.push(view);
-
-    registerAddGroupCommand(context, this);
-    registerViewVmDetailsCommand(context, this);
-    registerRemoveGroupCommand(context, this);
-    registerAddVmCommand(context, this);
-    registerStartVirtualMachineCommand(context, this);
-    registerStartHeadlessVirtualMachineCommand(context, this);
-    registerStartWindowVirtualMachineCommand(context, this);
-    registerStopVirtualMachineCommand(context, this);
-    registerResumeVirtualMachineCommand(context, this);
-    registerPauseVirtualMachineCommand(context, this);
-    registerSuspendVirtualMachineCommand(context, this);
-    registerDeleteVmCommand(context, this);
-    registerEnterVmCommand(context, this);
-    registerRenameVmCommand(context, this);
-    registerRefreshVirtualMachineCommand(context, this);
-    registerTakeSnapshotCommand(context, this);
-    registerDeleteVmSnapshotCommand(context, this);
-    registerRestoreVmSnapshotCommand(context, this);
-    registerStopGroupVirtualMachinesCommand(context, this);
-    registerStartGroupVirtualMachinesCommand(context, this);
-    registerPauseGroupVirtualMachinesCommand(context, this);
-    registerResumeGroupVirtualMachinesCommand(context, this);
-    registerRenameGroupCommand(context, this);
-    registerSuspendGroupVirtualMachinesCommand(context, this);
-    registerTakeGroupSnapshotCommand(context, this);
-
-    registerToggleRosettaLinuxCommand(context, this);
-
-    registerToggleShowHiddenCommand(context, this);
-
-    registerCopyIpAddressCommand(context, this);
-
-    // Docker commands
-    registerStartDockerContainerCommand(context, this);
-    registerStopDockerContainerCommand(context, this);
-    registerPauseDockerContainerCommand(context, this);
-    registerResumeDockerContainerCommand(context, this);
-    registerRestartDockerContainerCommand(context, this);
-    registerRemoveDockerContainerCommand(context, this);
-    registerGetContainerLogsCommand(context, this);
-    registerEnterContainerCommand(context, this);
-    registerRunContainerCommand(context, this);
-    registerRemoveDockerImageCommand(context, this);
+    AllVirtualMachineCommands.forEach(oc => oc.register(context, this));
   }
 
   data: VirtualMachineTreeItem[] = [];

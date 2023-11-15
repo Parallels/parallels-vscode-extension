@@ -6,8 +6,9 @@ import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {VirtualMachineGroup} from "../../models/virtualMachineGroup";
 import {VirtualMachine} from "../../models/virtualMachine";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerTakeGroupSnapshotCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerTakeGroupSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeTakeGroupSnapshot, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -61,7 +62,7 @@ export function registerTakeGroupSnapshotCommand(context: vscode.ExtensionContex
       }
     })
   );
-}
+};
 
 function takeSnapshot(
   provider: VirtualMachineProvider,
@@ -103,3 +104,7 @@ function takeSnapshot(
     return resolve();
   });
 }
+
+export const TakeGroupSnapshotCommand: VirtualMachineCommand = {
+  register: registerTakeGroupSnapshotCommand
+};

@@ -14,6 +14,7 @@ import {
 } from "./constants/flags";
 import {LogService} from "./services/logService";
 import {GitService} from "./services/gitService";
+import {ANSWER_YES, YesNoErrorMessage} from "./helpers/ConfirmDialog";
 
 export async function initialize() {
   await vscode.window.withProgress(
@@ -144,8 +145,8 @@ export async function initialize() {
             ...options
           )
           .then(selection => {
-            if (selection === "Open Vagrant Website") {
-              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://www.vagrantup.com/"));
+            if (selection === "Open Git Website") {
+              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://git-scm.com/"));
               return;
             }
             if (selection === "Install Git") {
@@ -199,23 +200,19 @@ export async function initialize() {
       config.showFlatSnapshotsList = settings.get<boolean>(FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE) ?? false;
 
       if (config.isTelemetryEnabled === undefined) {
-        const options = ["Yes", "No"];
-        vscode.window
-          .showErrorMessage(
-            "Help us improve the Parallels Desktop extension by allowing anonymous usage data to be sent to Parallels.\nFind more on https://www.alludo.com/legal/privacy",
-            ...options
-          )
-          .then(selection => {
-            if (selection === "Yes") {
-              config.featureFlags.enableTelemetry = true;
-              config.save();
-              LogService.info("Telemetry is enabled");
-            } else {
-              config.featureFlags.enableTelemetry = false;
-              config.save();
-              LogService.info("Telemetry is disabled");
-            }
-          });
+        YesNoErrorMessage(
+          "Help us improve the Parallels Desktop extension by allowing anonymous usage data to be sent to Parallels.\nFind more on https://www.alludo.com/legal/privacy"
+        ).then(selection => {
+          if (selection === ANSWER_YES) {
+            config.featureFlags.enableTelemetry = true;
+            config.save();
+            LogService.info("Telemetry is enabled");
+          } else {
+            config.featureFlags.enableTelemetry = false;
+            config.save();
+            LogService.info("Telemetry is disabled");
+          }
+        });
       } else {
         LogService.info(`Telemetry is ${config.isTelemetryEnabled ? "enabled" : "disabled"}`, "CoreService");
       }

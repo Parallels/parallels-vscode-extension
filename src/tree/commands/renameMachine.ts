@@ -6,8 +6,9 @@ import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {LogService} from "../../services/logService";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerRenameVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerRenameVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRenameVm, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -52,4 +53,8 @@ export function registerRenameVmCommand(context: vscode.ExtensionContext, provid
       }
     })
   );
-}
+};
+
+export const RenameMachineCommand: VirtualMachineCommand = {
+  register: registerRenameVmCommand
+};

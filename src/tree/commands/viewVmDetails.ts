@@ -10,10 +10,11 @@ import {generateHtml} from "../../views/header.html";
 import {getScreenCaptureFolder, isDarkTheme} from "../../helpers/helpers";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
 let lastClickedTime: number | undefined;
 
-export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerViewVmDetailsCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeVmInfo, async (item: VirtualMachineTreeItem) => {
       if (!item) {
@@ -84,7 +85,7 @@ export function registerViewVmDetailsCommand(context: vscode.ExtensionContext, p
       }
     })
   );
-}
+};
 
 function getMachineSnapshot(machineId: string, context: vscode.ExtensionContext): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -632,3 +633,7 @@ function getWebviewContent(
 
   return generateHtml(context, panel, html, [script]);
 }
+
+export const ViewVmDetailsCommand: VirtualMachineCommand = {
+  register: registerViewVmDetailsCommand
+};

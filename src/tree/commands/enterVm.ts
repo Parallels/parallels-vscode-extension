@@ -4,8 +4,9 @@ import {VirtualMachineProvider} from "../virtual_machine";
 import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {VirtualMachineTreeItem} from "../virtual_machine_item";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerEnterVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerEnterVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeEnterVm, async (item: VirtualMachineTreeItem) => {
       if (item && item.status === "running") {
@@ -16,4 +17,8 @@ export function registerEnterVmCommand(context: vscode.ExtensionContext, provide
       }
     })
   );
-}
+};
+
+export const EnterVmCommand: VirtualMachineCommand = {
+  register: registerEnterVmCommand
+};

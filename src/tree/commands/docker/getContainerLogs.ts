@@ -5,8 +5,9 @@ import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachineCommand} from "../BaseCommand";
 
-export function registerGetContainerLogsCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerGetContainerLogsCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerGetContainerLogs, async (item: VirtualMachineTreeItem) => {
       if (item) {
@@ -26,4 +27,8 @@ export function registerGetContainerLogsCommand(context: vscode.ExtensionContext
       }
     })
   );
-}
+};
+
+export const GetContainerLogsCommand: VirtualMachineCommand = {
+  register: registerGetContainerLogsCommand
+};

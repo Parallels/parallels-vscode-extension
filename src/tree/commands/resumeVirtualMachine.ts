@@ -6,11 +6,9 @@ import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {parallelsOutputChannel} from "../../helpers/channel";
 import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerResumeVirtualMachineCommand(
-  context: vscode.ExtensionContext,
-  provider: VirtualMachineProvider
-) {
+const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeResumeVm, async item => {
       if (!item) {
@@ -70,4 +68,8 @@ export function registerResumeVirtualMachineCommand(
       );
     })
   );
-}
+};
+
+export const ResumeVirtualMachineCommand: VirtualMachineCommand = {
+  register: registerResumeVirtualMachineCommand
+};

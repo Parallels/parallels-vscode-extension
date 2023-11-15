@@ -11,8 +11,9 @@ import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {NewVirtualMachineRequest} from "../../models/NewVirtualMachineRequest";
 import {LogService} from "../../services/logService";
 import {Provider} from "../../ioc/provider";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerAddVmCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerAddVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeAddVm, async (item: VirtualMachineTreeItem) => {
       LogService.info("Add VM command called", "AddVmCommand");
@@ -20,11 +21,7 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
       const svc = new CreateMachineService(context);
       const operatingSystemContent = await svc.get();
 
-      let osData = "[";
-      operatingSystemContent.forEach(o => {
-        osData += o.toString() + ",";
-      });
-      osData += "]";
+      const osData = `[${operatingSystemContent.map(os => os.toString()).join(",")}]`;
 
       LogService.info("Creating webview", "AddVmCommand");
       const panel = vscode.window.createWebviewPanel(
@@ -151,9 +148,13 @@ export function registerAddVmCommand(context: vscode.ExtensionContext, provider:
       // }
     })
   );
-}
+};
 
-function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.WebviewPanel, osData: string) {
+export const AddVmCommand: VirtualMachineCommand = {
+  register: registerAddVmCommand
+};
+
+const getWebviewContent = (context: vscode.ExtensionContext, panel: vscode.WebviewPanel, osData: string) => {
   const cssUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media", "vscode.css")));
   const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media")));
   const config = Provider.getConfiguration();
@@ -179,24 +180,17 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
     }
 });
   </script>`;
-  const html =
-    `
+  const html = `
     <div class="content">
       <div
         id="data"
         class="page-body mt-2"
         x-data="{
         isPosting: false,
-        version: '` +
-    config.parallelsDesktopVersion +
-    `',
+        version: '${config.parallelsDesktopVersion}',
         host: {
-          cpu: '` +
-    cpus +
-    `',
-          memory: '` +
-    memory +
-    `',
+          cpu: '${cpus}',
+          memory: '${memory}',
         },
         itemData: {
           os: 'undefined',
@@ -561,10 +555,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
             }
           }
         },
-        options: ` +
-    osData +
-    `
-      }"
+        options: ${osData}}"
       >
       <template x-if="isPosting">
       <div class="flex justify-center items-center h-full w-full absolute top-0 left-0 loading">
@@ -957,9 +948,7 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
               <span class="caption-text" x-text="getVersion()"></span>
             </div>
             <div class="logo-side">
-              <img src="` +
-    imageUri +
-    `/logo_new.png" width="160px" alt="logo" />
+              <img src="${imageUri}/logo_new.png" width="160px" alt="logo" />
             </div>
             <div class="link">
               <a class="link-text" href="https://my.parallels.com/login" target="_blank" rel="noopener noreferrer"
@@ -989,4 +978,4 @@ function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.Webvi
 `;
 
   return generateHtml(context, panel, html, [script]);
-}
+};

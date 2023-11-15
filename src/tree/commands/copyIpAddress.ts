@@ -3,8 +3,9 @@ import * as clipboardy from "clipboardy";
 import {CommandsFlags} from "../../constants/flags";
 import {VirtualMachine} from "../../models/virtualMachine";
 import {VirtualMachineProvider} from "../virtual_machine";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerCopyIpAddressCommand(context: vscode.ExtensionContext, provider: VirtualMachineProvider) {
+const registerCopyIpAddressCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeCopyIpAddress, async (item: VirtualMachine) => {
       if (!item) {
@@ -17,4 +18,8 @@ export function registerCopyIpAddressCommand(context: vscode.ExtensionContext, p
       }
     })
   );
-}
+};
+
+export const CopyIpAddressCommand: VirtualMachineCommand = {
+  register: registerCopyIpAddressCommand
+};

@@ -5,11 +5,12 @@ import {CommandsFlags, TelemetryEventIds} from "../../constants/flags";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {Provider} from "../../ioc/provider";
 import {LogService} from "../../services/logService";
+import {VirtualMachineCommand} from "./BaseCommand";
 
-export function registerStartWindowVirtualMachineCommand(
+const registerStartWindowVirtualMachineCommand = (
   context: vscode.ExtensionContext,
   provider: VirtualMachineProvider
-) {
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeStartWindowVm, async item => {
       if (!item) {
@@ -70,4 +71,8 @@ export function registerStartWindowVirtualMachineCommand(
       );
     })
   );
-}
+};
+
+export const StartWindowVirtualMachineCommand: VirtualMachineCommand = {
+  register: registerStartWindowVirtualMachineCommand
+};
