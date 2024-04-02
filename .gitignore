@@ -19,3 +19,4 @@ tsconfig.lsif.json
 *.pvm
 *.macvm
 *.ipsw
+/remote-desktop-client-src/
