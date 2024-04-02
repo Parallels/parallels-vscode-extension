@@ -19,4 +19,6 @@ tsconfig.lsif.json
 *.pvm
 *.macvm
 *.ipsw
+**/*/.env
+node_modules/
 /remote-desktop-client-src/
