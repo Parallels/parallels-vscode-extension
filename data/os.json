@@ -86,7 +86,7 @@
                                 "id": "ubuntu-server-22.04",
                                 "name": "Ubuntu Server 22.04.3 LTS",
                                 "distro": "ubuntu",
-                                "description": "This will create a Ubuntu Server 22.04.3 LTS VM using automated Packer scripts.",
+                                "description": "This will create a Ubuntu Server 22.04.4 LTS VM using automated Packer scripts.",
                                 "type": "packer",
                                 "packerFolder": "ubuntu",
                                 "requireIsoDownload": false,
@@ -94,8 +94,8 @@
                                 "allowUserOverride": false,
                                 "allowAddons": true,
                                 "variables": {
-                                    "iso_url": "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.3-live-server-arm64.iso",
-                                    "iso_checksum": "sha256:5702372d25111e24d59596de62ae24daef873018cbf63c9dd9ff12292a57aca9"
+                                    "iso_url": "https://cdimage.ubuntu.com/releases/22.04.4/release/ubuntu-22.04.4-live-server-arm64.iso",
+                                    "iso_checksum": "sha256:74b8a9f71288ae0ac79075c2793a0284ef9b9729a3dcf41b693d95d724622b65"
                                 },
                                 "addons": [],
                                 "defaults": {
@@ -111,10 +111,10 @@
                                 }
                             },
                             {
-                                "id": "ubuntu-server-23.04",
-                                "name": "Ubuntu Server 23.04",
+                                "id": "ubuntu-server-23.10",
+                                "name": "Ubuntu Server 23.10",
                                 "distro": "ubuntu",
-                                "description": "This will create a Ubuntu Server 23.04 VM using automated Packer scripts.",
+                                "description": "This will create a Ubuntu Server 23.10 VM using automated Packer scripts.",
                                 "type": "packer",
                                 "packerFolder": "ubuntu",
                                 "requireIsoDownload": false,
@@ -122,8 +122,8 @@
                                 "allowUserOverride": false,
                                 "allowAddons": true,
                                 "variables": {
-                                    "iso_url": "https://cdimage.ubuntu.com/releases/23.04/release/ubuntu-23.04-live-server-arm64.iso",
-                                    "iso_checksum": "sha256:ad306616e37132ee00cc651ac0233b0e24b0b6e5e93b4a8ad36aa30c95b74e8c"
+                                    "iso_url": "https://cdimage.ubuntu.com/releases/23.10/release/ubuntu-23.10-live-server-arm64.iso",
+                                    "iso_checksum": "sha256:5ea4c792a0cc5462a975d2f253182e9678cc70172ebd444d730f2c4fd7678e43"
                                 },
                                 "addons": [],
                                 "defaults": {
@@ -145,10 +145,10 @@
                         "name": "Kali Linux",
                         "images": [
                             {
-                                "id": "kali-linux-2023.3-gnome",
-                                "name": "Kali Linux 2023.3 (Gnome)",
+                                "id": "kali-linux-2023.4-gnome",
+                                "name": "Kali Linux 2023.4 (Gnome)",
                                 "distro": "kali",
-                                "description": "This will create a Kali Linux 2023.3 with the Gnome UI VM using automated Packer scripts.",
+                                "description": "This will create a Kali Linux 2023.4 with the Gnome UI VM using automated Packer scripts.",
                                 "type": "packer",
                                 "packerFolder": "kali",
                                 "requireIsoDownload": false,
@@ -156,8 +156,8 @@
                                 "allowUserOverride": false,
                                 "allowAddons": true,
                                 "variables": {
-                                    "iso_url": "https://cdimage.kali.org/kali-2023.3/kali-linux-2023.3-installer-arm64.iso",
-                                    "iso_checksum": "sha256:41e3997b31639ec45363181d4fff68a2b6a1a07ed2e3458f1bcd11f3f2d9db9c",
+                                    "iso_url": "https://cdimage.kali.org/kali-2023.4/kali-linux-2023.4-installer-arm64.iso",
+                                    "iso_checksum": "sha256:5cfca5f2c5136d743da4e9235fbfaad515d112115da486db2033d8d1d4c5ee67",
                                     "desktop": "gnome"
                                 },
                                 "addons": [],
@@ -185,122 +185,8 @@
                                 "allowUserOverride": false,
                                 "allowAddons": true,
                                 "variables": {
-                                    "iso_url": "https://cdimage.kali.org/kali-2023.3/kali-linux-2023.3-installer-arm64.iso",
-                                    "iso_checksum": "sha256:41e3997b31639ec45363181d4fff68a2b6a1a07ed2e3458f1bcd11f3f2d9db9c"
-                                },
-                                "addons": [],
-                                "defaults": {
-                                    "specs": {
-                                        "cpus": 4,
-                                        "memory": 4096,
-                                        "diskSize": 65536
-                                    },
-                                    "user": {
-                                        "username": "parallels",
-                                        "password": "parallels"
-                                    }
-                                }
-                            },
-                            {
-                                "id": "kali-linux-2023.2-gnome",
-                                "name": "Kali Linux 2023.2 (Gnome)",
-                                "distro": "kali",
-                                "description": "This will create a Kali Linux 2023.2 with the Gnome UI VM using automated Packer scripts.",
-                                "type": "packer",
-                                "packerFolder": "kali-linux",
-                                "requireIsoDownload": false,
-                                "allowMachineSpecs": true,
-                                "allowUserOverride": false,
-                                "allowAddons": true,
-                                "variables": {
-                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.2/kali-linux-2023.2-installer-arm64.iso",
-                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.2/SHA256SUMS",
-                                    "desktop": "gnome"
-                                },
-                                "addons": [],
-                                "defaults": {
-                                    "specs": {
-                                        "cpus": 4,
-                                        "memory": 4096,
-                                        "diskSize": 65536
-                                    },
-                                    "user": {
-                                        "username": "parallels",
-                                        "password": "parallels"
-                                    }
-                                }
-                            },
-                            {
-                                "id": "kali-linux-2023.2-xfce",
-                                "name": "Kali Linux 2023.2 (xfce)",
-                                "distro": "kali",
-                                "description": "This will create a Kali Linux 2023.2 with the XFCE UI VM using automated Packer scripts.",
-                                "type": "packer",
-                                "packerFolder": "kali-linux",
-                                "requireIsoDownload": false,
-                                "allowMachineSpecs": true,
-                                "allowUserOverride": false,
-                                "allowAddons": true,
-                                "variables": {
-                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.2/kali-linux-2023.2-installer-arm64.iso",
-                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.2/SHA256SUMS"
-                                },
-                                "addons": [],
-                                "defaults": {
-                                    "specs": {
-                                        "cpus": 4,
-                                        "memory": 4096,
-                                        "diskSize": 65536
-                                    },
-                                    "user": {
-                                        "username": "parallels",
-                                        "password": "parallels"
-                                    }
-                                }
-                            },
-                            {
-                                "id": "kali-linux-2023.1-gnome",
-                                "name": "Kali Linux 2023.1 (Gnome)",
-                                "distro": "kali",
-                                "description": "This will create a Kali Linux 2023.1 with the Gnome UI VM using automated Packer scripts.",
-                                "type": "packer",
-                                "packerFolder": "kali-linux",
-                                "requireIsoDownload": false,
-                                "allowMachineSpecs": true,
-                                "allowUserOverride": false,
-                                "allowAddons": true,
-                                "variables": {
-                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.1/kali-linux-2023.1-installer-arm64.iso",
-                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.1/SHA256SUMS",
-                                    "desktop": "gnome"
-                                },
-                                "addons": [],
-                                "defaults": {
-                                    "specs": {
-                                        "cpus": 4,
-                                        "memory": 4096,
-                                        "diskSize": 65536
-                                    },
-                                    "user": {
-                                        "username": "parallels",
-                                        "password": "parallels"
-                                    }
-                                }
-                            },
-                            {
-                                "id": "kali-linux-2023.1-xfce",
-                                "name": "Kali Linux 2023.1 (xfce)",
-                                "distro": "kali",
-                                "description": "This will create a Kali Linux 2023.1 with the XFCE UI VM using automated Packer scripts.",
-                                "type": "packer",
-                                "packerFolder": "kali-linux",
-                                "requireIsoDownload": false,
-                                "allowMachineSpecs": true,
-                                "allowUserOverride": false,
-                                "allowAddons": true,
-                                "variables": {
-                                    "iso_url": "https://old.kali.org/kali-images/kali-2023.1/kali-linux-2023.1-installer-arm64.iso",
-                                    "iso_checksum": "file:https://old.kali.org/kali-images/kali-2023.1/SHA256SUMS"
+                                    "iso_url": "https://cdimage.kali.org/kali-2023.4/kali-linux-2023.4-installer-arm64.iso",
+                                    "iso_checksum": "sha256:5cfca5f2c5136d743da4e9235fbfaad515d112115da486db2033d8d1d4c5ee67"
                                 },
                                 "addons": [],
                                 "defaults": {

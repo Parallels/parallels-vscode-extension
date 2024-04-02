@@ -21,3 +21,4 @@ tsconfig.lsif.json
 *.ipsw
 **/*/.env
 node_modules/
+/remote-desktop-client-src/
