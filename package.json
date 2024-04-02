@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -161,7 +161,7 @@
                 "command": "parallels-desktop.tree-view.stop-vm",
                 "title": "Stop VM",
                 "category": "Parallels",
-                "icon":  {
+                "icon": {
                     "light": "img/light/stop.svg",
                     "dark": "img/dark/stop.svg"
                 }
@@ -170,7 +170,7 @@
                 "command": "parallels-desktop.tree-view.resume-vm",
                 "title": "Parallels: Resume VM",
                 "shortTitle": "Resume VM",
-                "icon":  {
+                "icon": {
                     "light": "img/light/resume.svg",
                     "dark": "img/dark/resume.svg"
                 }
@@ -243,7 +243,6 @@
                     "dark": "img/dark/edit.svg"
                 }
             },
-
             {
                 "command": "parallels-desktop.tree-view.add-group",
                 "title": "Add Group",
@@ -301,7 +300,7 @@
                 "command": "parallels-desktop.tree-view.remove-group",
                 "title": "Delete Group",
                 "shortTitle": "Delete Group",
-                "icon":  {
+                "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
                 }
@@ -372,7 +371,7 @@
             {
                 "command": "parallels-desktop.vagrant.box.provider.refresh",
                 "title": "Vagrant: Refresh",
-                "icon":  {
+                "icon": {
                     "light": "img/light/refresh.svg",
                     "dark": "img/dark/refresh.svg"
                 }
@@ -388,7 +387,7 @@
             {
                 "command": "parallels-desktop.vagrant.box.provider.delete",
                 "title": "Vagrant: Delete",
-                "icon":  {
+                "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
                 }
@@ -605,7 +604,6 @@
                     "command": "parallels-desktop.tree-view.remove-group",
                     "when": "false"
                 },
-
                 {
                     "command": "parallels-desktop.tree-view.start-group-vms",
                     "when": "false"
