@@ -6,7 +6,7 @@ import path = require("path");
 import axios from "axios";
 import {Provider} from "../ioc/provider";
 import {Constants} from "../constants/flags";
-import {HardwareInfo} from "../models/HardwareInfo";
+import {HardwareInfo} from "../models/parallels/HardwareInfo";
 import {LogService} from "./logService";
 
 export class HelperService {
@@ -93,7 +93,7 @@ export class HelperService {
       const cacheSvc = Provider.getCache();
       if (cacheSvc.has(Constants.CacheFlagHardwareInfo)) {
         LogService.info(`Getting Hardware info from cache`, "CoreService");
-        return resolve(cacheSvc.get(Constants.CacheFlagParallelsServerInfo));
+        return resolve(cacheSvc.get(Constants.CacheFlagHardwareInfo));
       }
 
       let stdout = "";
@@ -117,7 +117,43 @@ export class HelperService {
           LogService.info(`Hardware Info was collected successfully...`, "CoreService");
           return resolve(result);
         } catch (e) {
-          LogService.error(`error parsing JSON, err:${e}`, "ParallelsDesktopService");
+          LogService.error(`error parsing JSON, err:${e}`, "CoreService");
+          return reject(e);
+        }
+      });
+    });
+  }
+
+  static async getArchitecture(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const cacheSvc = Provider.getCache();
+      if (cacheSvc.has(Constants.CacheFlagArchitecture)) {
+        LogService.info(`Getting architecture from cache`, "CoreService");
+        return resolve(cacheSvc.get(Constants.CacheFlagArchitecture));
+      }
+
+      let stdout = "";
+      LogService.info(`Getting Architecture`, "CoreService");
+      const options = ["-m"];
+      const cmd = cp.spawn("uname", options, {shell: true});
+      cmd.stdout.on("data", data => {
+        stdout += data.toString();
+        LogService.debug(data, "CoreService");
+      });
+      cmd.stderr.on("data", data => {
+        LogService.error(data, "CoreService");
+      });
+      cmd.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`uname exited with code ${code}`, "CoreService", true);
+          return reject(code);
+        }
+        try {
+          const result = stdout.replace(/[\n\r]/g, "").replace(/[\n]/g, "").trim();
+          LogService.info(`Architecture collected successfully...`, "CoreService");
+          return resolve(result);
+        } catch (e) {
+          LogService.error(`error collecting architecture, err:${e}`, "CoreService");
           return reject(e);
         }
       });

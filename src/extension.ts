@@ -10,18 +10,25 @@ import {
   CommandsFlags,
   FLAG_AUTO_REFRESH,
   FLAG_AUTO_REFRESH_INTERVAL,
+  FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED,
   FLAG_IS_HEADLESS_DEFAULT,
+  FLAG_OS,
   FLAG_PARALLELS_EXTENSION_INITIALIZED,
   FLAG_START_VMS_HEADLESS_DEFAULT,
   TelemetryEventIds
 } from "./constants/flags";
 import {parallelsOutputChannel} from "./helpers/channel";
 import {LogService} from "./services/logService";
+import { DevOpsCatalogProvider } from "./tree/devops_catalog/devops_catalog";
+import { DevOpsRemoteHostsTreeProvider } from "./tree/devops_remote/remote_hosts_tree_provider";
+import { DevOpsService } from "./services/devopsService";
 
 let autoRefreshInterval: NodeJS.Timeout | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
+  const os = Provider.getOs();
+  vscode.commands.executeCommand("setContext", FLAG_OS, os);
 
   // Registering our URI
   const myScheme = "parallels";
@@ -37,8 +44,20 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(myScheme, myProvider));
 
   // Registering the  Virtual Machine Provider
-  const virtualMachineProvider = new VirtualMachineProvider(context);
+  if (os.toLowerCase() === 'darwin') {
+    const virtualMachineProvider = new VirtualMachineProvider(context);
+  }
 
+  // Initializing the DevOps Catalog Provider
+  const devopsCatalogProvider = new DevOpsCatalogProvider(context);
+  vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+  DevOpsService.startCatalogViewAutoRefresh();
+  
+  // Initializing the DevOps Remote Provider
+  const devopsRemoteProvider = new DevOpsRemoteHostsTreeProvider(context);
+  vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+  DevOpsService.startRemoteHostsViewAutoRefresh();
+  
   // Initializing the extension
   await initialize();
 
@@ -46,6 +65,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (config.tools.vagrant?.isInstalled) {
     const vagrantBoxProvider = new VagrantBoxProvider(context);
   }
+
 
   setAutoRefresh();
 
@@ -72,6 +92,8 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   vscode.commands.executeCommand("setContext", FLAG_PARALLELS_EXTENSION_INITIALIZED, true);
+  vscode.commands.executeCommand("setContext", FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED, true);
+  vscode.commands.executeCommand("setContext", FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED, true);
   // Send telemetry event
   LogService.sendHeartbeat();
   if (config.isTelemetryEnabled) {
@@ -120,7 +142,7 @@ function setAutoRefresh() {
 // This method is called when your extension is deactivated
 export function deactivate() {
   console.log("Deactivating Parallels Desktop Extension");
-  const config = Provider.getConfiguration();
-  config.save();
+  // const config = Provider.getConfiguration();
+  // config.save();
   clearInterval(autoRefreshInterval);
 }

@@ -1,33 +1,33 @@
-import {BaseCommand, VagrantCommand, VirtualMachineCommand} from "./BaseCommand";
-import {AddGroupCommand} from "./AddGroup";
-import {AddVmCommand} from "./AddVm";
-import {CopyIpAddressCommand} from "./copyIpAddress";
-import {DeleteVMCommand} from "./deleteVm";
-import {DeleteVmSnapshotCommand} from "./deleteVmSnapshot";
-import {EnterVmCommand} from "./enterVm";
-import {PauseGroupVirtualMachinesCommand} from "./pauseGroupVirtualMachines";
-import {PauseVirtualMachineCommand} from "./pauseVirtualMachine";
-import {RemoveGroupCommand} from "./removeGroup";
-import {RenameGroupCommand} from "./renameGroup";
-import {RenameMachineCommand} from "./renameMachine";
-import {RestoreVmSnapshotCommand} from "./restoreVmSnapshot";
-import {ResumeGroupVirtualMachinesCommand} from "./resumeGroupVirtualMachines";
-import {StartGroupVirtualMachinesCommand} from "./startGroupVirtualMachines";
-import {StartHeadlessVirtualMachineCommand} from "./startHeadlessVirtualMachine";
-import {StartVirtualMachineCommand} from "./startVirtualMachine";
-import {StartWindowVirtualMachineCommand} from "./startWindowVirtualMachine";
-import {StopGroupVirtualMachineCommand} from "./stopGroupVirtualMachines";
-import {StopVirtualMachineCommand} from "./stopVirtualMachine";
-import {SuspendGroupVirtualMachinesCommand} from "./suspendGroupVirtualMachines";
-import {SuspendVirtualMachineCommand} from "./suspendVirtualMachine";
-import {TakeGroupSnapshotCommand} from "./takeGroupSnapshot";
-import {TakeSnapshotCommand} from "./takeSnapshot";
-import {ToggleRosettaLinuxCommand} from "./toggleRosettaLinux";
-import {ToggleShowHideCommand} from "./toggleShowHide";
-import {VagrantBoxesInitCommand} from "./vagrantBoxesInit";
-import {VagrantBoxRefreshCommand} from "./vagrantBoxesRefresh";
-import {VagrantBoxesRemoveCommand} from "./vagrantBoxesRemove";
-import {ViewVmDetailsCommand} from "./viewVmDetails";
+import {BaseCommand, DevOpsCatalogCommand, DevOpsRemoteHostsCommand, VagrantCommand, VirtualMachineCommand} from "./BaseCommand";
+import {AddGroupCommand} from "./virtualMachines/AddGroup";
+import {AddVmCommand} from "./virtualMachines/AddVm";
+import {CopyIpAddressCommand} from "./virtualMachines/copyIpAddress";
+import {DeleteVMCommand} from "./virtualMachines/deleteVm";
+import {DeleteVmSnapshotCommand} from "./virtualMachines/deleteVmSnapshot";
+import {EnterVmCommand} from "./virtualMachines/enterVm";
+import {PauseGroupVirtualMachinesCommand} from "./virtualMachines/pauseGroupVirtualMachines";
+import {PauseVirtualMachineCommand} from "./virtualMachines/pauseVirtualMachine";
+import {RemoveGroupCommand} from "./virtualMachines/removeGroup";
+import {RenameGroupCommand} from "./virtualMachines/renameGroup";
+import {RenameMachineCommand} from "./virtualMachines/renameMachine";
+import {RestoreVmSnapshotCommand} from "./virtualMachines/restoreVmSnapshot";
+import {ResumeGroupVirtualMachinesCommand} from "./virtualMachines/resumeGroupVirtualMachines";
+import {StartGroupVirtualMachinesCommand} from "./virtualMachines/startGroupVirtualMachines";
+import {StartHeadlessVirtualMachineCommand} from "./virtualMachines/startHeadlessVirtualMachine";
+import {StartVirtualMachineCommand} from "./virtualMachines/startVirtualMachine";
+import {StartWindowVirtualMachineCommand} from "./virtualMachines/startWindowVirtualMachine";
+import {StopGroupVirtualMachineCommand} from "./virtualMachines/stopGroupVirtualMachines";
+import {StopVirtualMachineCommand} from "./virtualMachines/stopVirtualMachine";
+import {SuspendGroupVirtualMachinesCommand} from "./virtualMachines/suspendGroupVirtualMachines";
+import {SuspendVirtualMachineCommand} from "./virtualMachines/suspendVirtualMachine";
+import {TakeGroupSnapshotCommand} from "./virtualMachines/takeGroupSnapshot";
+import {TakeSnapshotCommand} from "./virtualMachines/takeSnapshot";
+import {ToggleRosettaLinuxCommand} from "./virtualMachines/toggleRosettaLinux";
+import {ToggleShowHideCommand} from "./virtualMachines/toggleShowHide";
+import {VagrantBoxesInitCommand} from "./vagrant/vagrantBoxesInit";
+import {VagrantBoxRefreshCommand} from "./vagrant/vagrantBoxesRefresh";
+import {VagrantBoxesRemoveCommand} from "./vagrant/vagrantBoxesRemove";
+import {ViewVmDetailsCommand} from "./virtualMachines/viewVmDetails";
 import {SearchAndDownloadBoxesCommand} from "./vagrant/searchAndDownloadBoxes";
 import {EnterContainerCommand} from "./docker/enterContainer";
 import {GetContainerLogsCommand} from "./docker/getContainerLogs";
@@ -39,8 +39,30 @@ import {ResumeContainerCommand} from "./docker/resumeContainer";
 import {RunContainerCommand} from "./docker/runContainer";
 import {StartContainerCommand} from "./docker/startContainer";
 import {StopContainerCommand} from "./docker/stopContainer";
-import {ResumeVirtualMachineCommand} from "./resumeVirtualMachine";
-import {RefreshVirtualMachineCommand} from "./refreshVirtualMachines";
+import {ResumeVirtualMachineCommand} from "./virtualMachines/resumeVirtualMachine";
+import {RefreshVirtualMachineCommand} from "./virtualMachines/refreshVirtualMachines";
+import { DevOpsAddCatalogProviderCommand } from "./devopsCatalogProvider/addCatalogProvider";
+import { DevOpsRefreshCatalogProviderCommand } from "./devopsCatalogProvider/refreshCatalogProvider";
+import { DevOpsAddRemoteProviderCommand } from "./devopsRemoteHostProvider/addRemoteProvider";
+import { DevOpsInstallFromRemoteCommand } from "./devopsRemoteHostProvider/installFromRemoteProvider";
+import { DevOpsInstallFromCatalogCommand } from "./devopsCatalogProvider/installFromCatalogProvider";
+import { DevOpsRefreshRemoteHostsProviderCommand } from "./devopsRemoteHostProvider/refreshRemoteHostsProvider";
+import { DevOpsEnableRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/enableRemoteProviderOrchestratorHost";
+import { DevOpsDisableRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/disableRemoteProviderOrchestratorHost";
+import { DevOpsRemoveCatalogProviderCommand } from "./devopsCatalogProvider/removeCatalogProvider";
+import { DevOpsRemoveRemoteProviderCommand } from "./devopsRemoteHostProvider/removeRemoteProvider";
+import { DevOpsPullCatalogProviderManifestCommand } from "./devopsCatalogProvider/pullCatalogProviderManifest";
+import { DevOpsStartVirtualMachineCommand } from "./devopsRemoteHostProvider/startVirtualMachine";
+import { DevOpsStopVirtualMachineCommand } from "./devopsRemoteHostProvider/stopVirtualMachine";
+import { DevOpsSuspendVirtualMachineCommand } from "./devopsRemoteHostProvider/suspendVirtualMachine";
+import { DevOpsPauseVirtualMachineCommand } from "./devopsRemoteHostProvider/pauseVirtualMachine";
+import { DevOpsCloneVirtualMachineCommand } from "./devopsRemoteHostProvider/cloneVirtualMachine";
+import { DevOpsRemoveVirtualMachineCommand } from "./devopsRemoteHostProvider/removeVirtualMachine";
+import { DevOpsResumeVirtualMachineCommand } from "./devopsRemoteHostProvider/resumeVirtualMachine";
+import { DevOpsPushVmToCatalogProviderManifestCommand } from "./devopsCatalogProvider/pushVmToCatalogProvider";
+import { DevOpsRemoveCatalogProviderManifestCommand } from "./devopsCatalogProvider/removeCatalogProviderManifest";
+import { DevOpsAddRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/addRemoteProviderOrchestratorHost";
+import { DevOpsRemoveRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/removeRemoteProviderOrchestratorHost";
 
 export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   AddVmCommand,
@@ -90,4 +112,32 @@ export const AllVagrantCommands: VagrantCommand[] = [
   VagrantBoxRefreshCommand,
   VagrantBoxesRemoveCommand,
   SearchAndDownloadBoxesCommand
+];
+
+export const AllDevOpsCatalogCommands: DevOpsCatalogCommand[] = [
+  DevOpsInstallFromCatalogCommand,
+  DevOpsAddCatalogProviderCommand,
+  DevOpsRemoveCatalogProviderCommand,
+  DevOpsRemoveCatalogProviderManifestCommand,
+  DevOpsPullCatalogProviderManifestCommand,
+  DevOpsPushVmToCatalogProviderManifestCommand,
+  DevOpsRefreshCatalogProviderCommand
+];
+
+export const AllDevOpsRemoteCommands: DevOpsRemoteHostsCommand[] = [
+  DevOpsInstallFromRemoteCommand,
+  DevOpsAddRemoteProviderCommand,
+  DevOpsRemoveRemoteProviderCommand,
+  DevOpsRefreshRemoteHostsProviderCommand,
+  DevOpsAddRemoteProviderOrchestratorHostCommand,
+  DevOpsRemoveRemoteProviderOrchestratorHostCommand,
+  DevOpsEnableRemoteProviderOrchestratorHostCommand,
+  DevOpsDisableRemoteProviderOrchestratorHostCommand,
+  DevOpsStartVirtualMachineCommand,
+  DevOpsStopVirtualMachineCommand,
+  DevOpsSuspendVirtualMachineCommand,
+  DevOpsPauseVirtualMachineCommand,
+  DevOpsResumeVirtualMachineCommand,
+  DevOpsCloneVirtualMachineCommand,
+  DevOpsRemoveVirtualMachineCommand,
 ];

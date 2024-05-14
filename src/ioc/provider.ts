@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import {ConfigurationService} from "../services/configurationService";
 import {LocalStorageService} from "../services/localStorage";
 import {CacheService} from "../services/memoryCache";
-import {FLAG_CONFIGURATION} from "../constants/flags";
+import {FLAG_CONFIGURATION, FLAG_CONFIGURATION_INITIALIZED} from "../constants/flags";
 import {getUserProfileFolder} from "../helpers/helpers";
 import * as path from "path";
 import * as fs from "fs";
@@ -10,6 +10,7 @@ import * as fs from "fs";
 export let localStorage: LocalStorageService;
 export let cache: CacheService;
 export let config: ConfigurationService;
+export let configurationInitialized = false;
 
 export class Provider {
   constructor(private context: vscode.ExtensionContext) {
@@ -28,6 +29,10 @@ export class Provider {
 
   static getConfiguration(): ConfigurationService {
     return config;
+  }
+
+  static getOs(): string {
+    return process.platform;
   }
 
   static getSettings(): vscode.WorkspaceConfiguration {
@@ -49,5 +54,7 @@ export class Provider {
     } else {
       config = new ConfigurationService(this.context);
     }
+
+    configurationInitialized = true;
   }
 }

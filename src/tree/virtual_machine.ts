@@ -5,13 +5,13 @@ import * as clipboardy from "clipboardy";
 import {Provider} from "../ioc/provider";
 import {VirtualMachineTreeItem} from "./virtual_machine_item";
 import {CommandsFlags, FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE, FLAG_NO_GROUP} from "../constants/flags";
-import {VirtualMachine} from "../models/virtualMachine";
+import {VirtualMachine} from "../models/parallels/virtualMachine";
 import {ParallelsDesktopService} from "../services/parallelsDesktopService";
 import {parallelsOutputChannel} from "../helpers/channel";
-import {MachineSnapshot} from "../models/virtualMachineSnapshot";
-import {DockerContainer} from "../models/dockerContainer";
+import {MachineSnapshot} from "../models/parallels/virtualMachineSnapshot";
+import {DockerContainer} from "../models/docker/dockerContainer";
 import {DockerService} from "../services/dockerService";
-import {DockerImage} from "../models/dockerImage";
+import {DockerImage} from "../models/docker/dockerImage";
 import {LogService} from "../services/logService";
 import {AllVirtualMachineCommands} from "./commands/AllCommands";
 

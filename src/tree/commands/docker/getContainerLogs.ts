@@ -4,7 +4,7 @@ import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
-import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
 
 const registerGetContainerLogsCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {

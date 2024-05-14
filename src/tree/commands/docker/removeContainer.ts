@@ -5,7 +5,7 @@ import {VirtualMachineProvider} from "../../virtual_machine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../virtual_machine_item";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
-import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
 
 const registerRemoveDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
