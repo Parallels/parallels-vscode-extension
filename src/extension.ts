@@ -1,11 +1,11 @@
-import {config} from "process";
+import { config } from "process";
 import * as vscode from "vscode";
-import {VirtualMachineProvider} from "./tree/virtual_machine";
-import {Provider} from "./ioc/provider";
-import {ParallelsDesktopService} from "./services/parallelsDesktopService";
-import {initialize} from "./initialization";
-import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
-import {VagrantBoxProvider} from "./tree/vagrant_boxes";
+import { VirtualMachineProvider } from "./tree/virtual_machine";
+import { Provider } from "./ioc/provider";
+import { ParallelsDesktopService } from "./services/parallelsDesktopService";
+import { initialize } from "./initialization";
+import { registerClearDownloadCacheCommand } from "./commands/clearDownloads";
+import { VagrantBoxProvider } from "./tree/vagrant_boxes";
 import {
   CommandsFlags,
   FLAG_AUTO_REFRESH,
@@ -17,8 +17,8 @@ import {
   FLAG_START_VMS_HEADLESS_DEFAULT,
   TelemetryEventIds
 } from "./constants/flags";
-import {parallelsOutputChannel} from "./helpers/channel";
-import {LogService} from "./services/logService";
+import { parallelsOutputChannel } from "./helpers/channel";
+import { LogService } from "./services/logService";
 import { DevOpsCatalogProvider } from "./tree/devops_catalog/devops_catalog";
 import { DevOpsRemoteHostsTreeProvider } from "./tree/devops_remote/remote_hosts_tree_provider";
 import { DevOpsService } from "./services/devopsService";
@@ -52,40 +52,44 @@ export async function activate(context: vscode.ExtensionContext) {
   const devopsCatalogProvider = new DevOpsCatalogProvider(context);
   vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
   DevOpsService.startCatalogViewAutoRefresh();
-  
+
   // Initializing the DevOps Remote Provider
   const devopsRemoteProvider = new DevOpsRemoteHostsTreeProvider(context);
   vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
   DevOpsService.startRemoteHostsViewAutoRefresh();
-  
-  // Initializing the extension
-  await initialize();
 
-  const config = Provider.getConfiguration();
-  if (config.tools.vagrant?.isInstalled) {
-    const vagrantBoxProvider = new VagrantBoxProvider(context);
+  if (os === 'darwin') {
+    // Initializing the extension
+    await initialize();
   }
 
-
-  setAutoRefresh();
-
-  vscode.workspace.onDidChangeConfiguration(e => {
-    if (e.affectsConfiguration("parallels-desktop")) {
-      // Re-initialize the extension
-      setAutoRefresh();
-      const settings = Provider.getSettings();
-      // Setting the headless flag to update the context menu
-      if (settings.get<boolean>(FLAG_START_VMS_HEADLESS_DEFAULT)) {
-        vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, true);
-      } else {
-        vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, false);
-      }
-      vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+  const config = Provider.getConfiguration();
+  if (os === 'darwin') {
+    if (config.tools.vagrant?.isInstalled) {
+      const vagrantBoxProvider = new VagrantBoxProvider(context);
     }
-  });
 
-  // Registering global commands
-  registerClearDownloadCacheCommand(context);
+    setAutoRefresh();
+
+    vscode.workspace.onDidChangeConfiguration(e => {
+      if (e.affectsConfiguration("parallels-desktop")) {
+        // Re-initialize the extension
+        setAutoRefresh();
+        const settings = Provider.getSettings();
+        // Setting the headless flag to update the context menu
+        if (settings.get<boolean>(FLAG_START_VMS_HEADLESS_DEFAULT)) {
+          vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, true);
+        } else {
+          vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, false);
+        }
+        vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+      }
+    });
+
+
+    // Registering global commands
+    registerClearDownloadCacheCommand(context);
+  }
 
   if (config.isDebugEnabled) {
     LogService.info("Debug mode is enabled", "CoreService");

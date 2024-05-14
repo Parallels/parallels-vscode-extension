@@ -1292,7 +1292,7 @@
                     "visibility": "collapsed"
                 },
                 {
-                    "when": "parallels-desktop:vagrant == true",
+                    "when": "parallels-desktop:vagrant == true && parallels-desktop:os === darwin",
                     "id": "parallels-desktop-vagrant",
                     "name": "Vagrant Boxes",
                     "icon": "media/parallels_logo.svg",
