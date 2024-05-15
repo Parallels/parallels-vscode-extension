@@ -1,6 +1,6 @@
 # Visual Studio Code extension for Parallels Desktop
 
-[![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml) [![](https://dcbadge.vercel.app/api/server/5V5mnNGKQX?style=flat&theme=default)](https://discord.gg/5V5mnNGKQX)
+[![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml) [![](https://dcbadge.vercel.app/api/server/n5XVf3Wr6G?style=flat&theme=default)](https://discord.gg/n5XVf3Wr6G)
 
 This extension allows you to manage a wide range of operations for your Parallels Desktop virtual machines, creating, grouping, operating their snapshots and containers. It is integrated with HashiCorp Vagrant and Packer to automate your workflows.
 
