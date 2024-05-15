@@ -126,7 +126,7 @@ This extension contributes the following settings:
 
 This extension is in active development, so please refer to our [issue tracker](https://github.com/Parallels/parallels-vscode-extension/issues) for known issues, and please contribute with additional information if you encounter an issue yourself.
 
-We welcome you to the channel on [Discord server](https://discord.gg/gwBFTJcV) to discuss improvements you like to see or simply hangout with other developers using Parallels.
+We welcome you to the channel on [Discord server](https://discord.gg/5V5mnNGKQX) to discuss improvements you like to see or simply hangout with other developers using Parallels.
 
 ## Contribute
 
