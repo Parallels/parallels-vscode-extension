@@ -1,22 +1,24 @@
 import * as vscode from "vscode";
-import { Provider } from "../../../ioc/provider";
-import { CommandsFlags, TelemetryEventIds } from "../../../constants/flags";
-import { LogService } from "../../../services/logService";
-import { DevOpsRemoteHostsCommand } from "../BaseCommand";
-import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsCatalogHostProvider } from '../../../models/devops/catalogHostProvider';
-import { randomUUID } from 'crypto';
-import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
-import { DevOpsRemoteHostProvider } from "../../../models/devops/remoteHostProvider";
-import { cleanString } from "../../../helpers/strings";
+import {Provider} from "../../../ioc/provider";
+import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
+import {LogService} from "../../../services/logService";
+import {DevOpsRemoteHostsCommand} from "../BaseCommand";
+import {DevOpsService} from "../../../services/devopsService";
+import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
+import {randomUUID} from "crypto";
+import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
+import {cleanString} from "../../../helpers/strings";
 
-const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
+const registerDevOpsAddRemoteProviderCommand = (
+  context: vscode.ExtensionContext,
+  provider: DevOpsRemoteHostsProvider
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddRemoteProvider, async (item: any) => {
       const currentItems: vscode.QuickPickItem[] = [
         {
           label: "Orchestrator"
-
         },
         {
           label: "Remote Host"
@@ -64,11 +66,11 @@ const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext
         password: "",
         state: "unknown",
         virtualMachines: []
-      }
-      
-      let hostname: URL
+      };
+
+      let hostname: URL;
       try {
-        hostname = new URL(host)
+        hostname = new URL(host);
       } catch (error) {
         vscode.window.showErrorMessage("Invalid Catalog Provider Host");
         return;
@@ -98,7 +100,7 @@ const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext
           prompt: `${typeName} Password?`,
           placeHolder: `Enter the ${typeName} Password`,
           password: true,
-          ignoreFocusOut: true,
+          ignoreFocusOut: true
         });
         if (!password) {
           if (retry < 3) {
@@ -112,7 +114,7 @@ const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext
         remoteHostProvider.username = username;
         remoteHostProvider.password = password;
 
-        const auth = await DevOpsService.authorize(remoteHostProvider).catch((error) => {
+        const auth = await DevOpsService.authorize(remoteHostProvider).catch(error => {
           foundError = true;
         });
         if (auth && auth.token && !foundError) {

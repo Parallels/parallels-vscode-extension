@@ -1,12 +1,15 @@
 import * as vscode from "vscode";
-import { Provider } from "../../../ioc/provider";
-import { CommandsFlags } from "../../../constants/flags";
-import { DevOpsCatalogCommand } from "../BaseCommand";
-import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsCatalogProvider } from "../../devopsCatalogProvider/devopsCatalogProvider";
-import { DevOpsRolesAndClaims } from "../../../models/devops/rolesAndClaims";
+import {Provider} from "../../../ioc/provider";
+import {CommandsFlags} from "../../../constants/flags";
+import {DevOpsCatalogCommand} from "../BaseCommand";
+import {DevOpsService} from "../../../services/devopsService";
+import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
+import {DevOpsRolesAndClaims} from "../../../models/devops/rolesAndClaims";
 
-const registerDevOpsAddTagsToCatalogProviderManifestVersionCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
+const registerDevOpsAddTagsToCatalogProviderManifestVersionCommand = (
+  context: vscode.ExtensionContext,
+  provider: DevOpsCatalogProvider
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddTagToCatalogProviderManifestVersion, async (item: any) => {
       if (!item) {
@@ -27,38 +30,54 @@ const registerDevOpsAddTagsToCatalogProviderManifestVersionCommand = (context: v
         return;
       }
       const versionId = item.id.split("%%")[3];
-      const manifestItem = manifest.items.find((m) => m.id === versionId);
+      const manifestItem = manifest.items.find(m => m.id === versionId);
       if (!manifestItem) {
         vscode.window.showErrorMessage(`Manifest ${item.name} not found`);
         return;
       }
 
       const tagsInput = await vscode.window.showInputBox({
-        placeHolder: 'Enter Tags separated by comma',
+        placeHolder: "Enter Tags separated by comma",
         ignoreFocusOut: true,
-        value: 'latest'
+        value: "latest"
       });
 
-      const tags = tagsInput?.split(',').map(t => t.trim()) ?? [];
+      const tags = tagsInput?.split(",").map(t => t.trim()) ?? [];
 
-      DevOpsService.testHost(provider).then(async () => {
-        let foundError = false;
-        await DevOpsService.addCatalogManifestTags(provider, manifest.name, manifestItem.version, manifestItem.architecture, tags).catch(() => {
-          vscode.window.showErrorMessage(`Failed to add tags ${tags.join(",")} to the catalog manifest ${manifestItem.catalog_id} version ${manifestItem.version} for ${manifestItem.architecture}`);
-          foundError = true;
-          return;
+      DevOpsService.testHost(provider)
+        .then(async () => {
+          let foundError = false;
+          await DevOpsService.addCatalogManifestTags(
+            provider,
+            manifest.name,
+            manifestItem.version,
+            manifestItem.architecture,
+            tags
+          ).catch(() => {
+            vscode.window.showErrorMessage(
+              `Failed to add tags ${tags.join(",")} to the catalog manifest ${manifestItem.catalog_id} version ${
+                manifestItem.version
+              } for ${manifestItem.architecture}`
+            );
+            foundError = true;
+            return;
+          });
+
+          if (foundError) {
+            return;
+          }
+
+          vscode.window.showInformationMessage(
+            `Tags ${tags.join(",")} was added successfully to the catalog manifest ${manifestItem.catalog_id} version ${
+              manifestItem.version
+            } for ${manifestItem.architecture}`
+          );
+          await DevOpsService.refreshCatalogProviders(true);
+          vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
         })
-
-        if (foundError) {
-          return;
-        }
-
-        vscode.window.showInformationMessage(`Tags ${tags.join(",")} was added successfully to the catalog manifest ${manifestItem.catalog_id} version ${manifestItem.version} for ${manifestItem.architecture}`);
-        await DevOpsService.refreshCatalogProviders(true);
-        vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
-      }).catch((error) => {
-        vscode.window.showErrorMessage(`Failed to connect to Remote Host ${provider.name}, err:\n ${error}`);
-      })
+        .catch(error => {
+          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${provider.name}, err:\n ${error}`);
+        });
     })
   );
 };

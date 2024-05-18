@@ -1,11 +1,11 @@
-import { config } from "process";
+import {config} from "process";
 import * as vscode from "vscode";
-import { VirtualMachineProvider } from "./tree/virtualMachinesProvider/virtualMachineProvider";
-import { Provider } from "./ioc/provider";
-import { ParallelsDesktopService } from "./services/parallelsDesktopService";
-import { initialize } from "./initialization";
-import { registerClearDownloadCacheCommand } from "./commands/clearDownloads";
-import { VagrantBoxProvider } from "./tree/vagrantBoxProvider/vagrantBoxProvider";
+import {VirtualMachineProvider} from "./tree/virtualMachinesProvider/virtualMachineProvider";
+import {Provider} from "./ioc/provider";
+import {ParallelsDesktopService} from "./services/parallelsDesktopService";
+import {initialize} from "./initialization";
+import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
+import {VagrantBoxProvider} from "./tree/vagrantBoxProvider/vagrantBoxProvider";
 import {
   CommandsFlags,
   FLAG_AUTO_REFRESH,
@@ -17,12 +17,12 @@ import {
   FLAG_START_VMS_HEADLESS_DEFAULT,
   TelemetryEventIds
 } from "./constants/flags";
-import { parallelsOutputChannel } from "./helpers/channel";
-import { LogService } from "./services/logService";
-import { DevOpsCatalogProvider } from "./tree/devopsCatalogProvider/devopsCatalogProvider";
-import { DevOpsRemoteHostsProvider } from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
-import { DevOpsService } from "./services/devopsService";
-import { AllDevopsRemoteProviderManagementCommands } from "./tree/commands/AllCommands";
+import {parallelsOutputChannel} from "./helpers/channel";
+import {LogService} from "./services/logService";
+import {DevOpsCatalogProvider} from "./tree/devopsCatalogProvider/devopsCatalogProvider";
+import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {DevOpsService} from "./services/devopsService";
+import {AllDevopsRemoteProviderManagementCommands} from "./tree/commands/AllCommands";
 
 let autoRefreshInterval: NodeJS.Timeout | undefined;
 
@@ -45,7 +45,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(myScheme, myProvider));
 
   // Registering the  Virtual Machine Provider
-  if (os.toLowerCase() === 'darwin') {
+  if (os.toLowerCase() === "darwin") {
     const virtualMachineProvider = new VirtualMachineProvider(context);
   }
 
@@ -61,13 +61,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
   AllDevopsRemoteProviderManagementCommands.forEach(c => c.register(context, devopsRemoteProvider));
 
-  if (os === 'darwin') {
+  if (os === "darwin") {
     // Initializing the extension
     await initialize();
   }
 
   const config = Provider.getConfiguration();
-  if (os === 'darwin') {
+  if (os === "darwin") {
     if (config.tools.vagrant?.isInstalled) {
       const vagrantBoxProvider = new VagrantBoxProvider(context);
     }
@@ -88,7 +88,6 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
       }
     });
-
 
     // Registering global commands
     registerClearDownloadCacheCommand(context);

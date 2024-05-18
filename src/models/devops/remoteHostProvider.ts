@@ -1,12 +1,12 @@
-import { VirtualMachine } from "../parallels/virtualMachine";
-import { HostHardwareInfo } from "./hardwareInfo";
-import { DevOpsRemoteHost } from "./remoteHost";
-import { DevOpsRemoteHostResource } from "./remoteHostResource";
-import { DevOpsRolesAndClaims } from "./rolesAndClaims";
-import { DevOpsUser } from "./users";
+import {VirtualMachine} from "../parallels/virtualMachine";
+import {HostHardwareInfo} from "./hardwareInfo";
+import {DevOpsRemoteHost} from "./remoteHost";
+import {DevOpsRemoteHostResource} from "./remoteHostResource";
+import {DevOpsRolesAndClaims} from "./rolesAndClaims";
+import {DevOpsUser} from "./users";
 
 export interface DevOpsRemoteHostProvider {
-  class: "DevOpsRemoteHostProvider"
+  class: "DevOpsRemoteHostProvider";
   authToken?: string;
   user?: DevOpsUser;
   ID: string;
@@ -17,7 +17,7 @@ export interface DevOpsRemoteHostProvider {
   rawHost: string;
   username: string;
   password: string;
-  type: "remote_host" | "orchestrator"
+  type: "remote_host" | "orchestrator";
   state: "active" | "inactive" | "disabled" | "unknown";
   createdAt?: string;
   updatedAt?: string;

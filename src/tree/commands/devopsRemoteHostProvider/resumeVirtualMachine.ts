@@ -4,11 +4,14 @@ import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {DevOpsRemoteHostsCommand} from "../BaseCommand";
-import { DevOpsTreeItem } from "../../treeItems/devOpsTreeItem";
-import { DevOpsRemoteHostsProvider } from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
-import { DevOpsService } from "../../../services/devopsService";
+import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
+import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {DevOpsService} from "../../../services/devopsService";
 
-const registerDevOpResumeVirtualMachineCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
+const registerDevOpResumeVirtualMachineCommand = (
+  context: vscode.ExtensionContext,
+  provider: DevOpsRemoteHostsProvider
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsResumeRemoteProviderHostVm, async (item: DevOpsTreeItem) => {
       vscode.window.withProgress(

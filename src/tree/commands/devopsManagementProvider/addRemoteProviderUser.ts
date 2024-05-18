@@ -1,16 +1,19 @@
 import * as vscode from "vscode";
-import { Provider } from "../../../ioc/provider";
-import { CommandsFlags } from "../../../constants/flags";
-import { DevOpsRemoteProviderManagementCommand } from "../BaseCommand";
-import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
-import { DevOpsCatalogProvider } from "../../devopsCatalogProvider/devopsCatalogProvider";
-import { ANSWER_YES, YesNoQuestion } from "../../../helpers/ConfirmDialog";
-import { DevOpsCreateUserRequest } from "../../../models/devops/users";
-import { DevOpsRemoteHostProvider } from "../../../models/devops/remoteHostProvider";
-import { DevOpsCatalogHostProvider } from "../../../models/devops/catalogHostProvider";
+import {Provider} from "../../../ioc/provider";
+import {CommandsFlags} from "../../../constants/flags";
+import {DevOpsRemoteProviderManagementCommand} from "../BaseCommand";
+import {DevOpsService} from "../../../services/devopsService";
+import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
+import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import {DevOpsCreateUserRequest} from "../../../models/devops/users";
+import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
+import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
 
-const registerDevOpsManagementProviderAddUserCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider) => {
+const registerDevOpsManagementProviderAddUserCommand = (
+  context: vscode.ExtensionContext,
+  provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoteProviderManagementAddUser, async (item: any) => {
       if (!item) {
@@ -19,10 +22,10 @@ const registerDevOpsManagementProviderAddUserCommand = (context: vscode.Extensio
       const providerId = item.id.split("%%")[0];
       const config = Provider.getConfiguration();
       let provider: DevOpsRemoteHostProvider | DevOpsCatalogHostProvider | undefined = undefined;
-      if (item.className === 'DevOpsRemoteHostProvider') {
+      if (item.className === "DevOpsRemoteHostProvider") {
         provider = config.findRemoteHostProviderById(providerId);
       }
-      if (item.className === 'DevOpsCatalogHostProvider') {
+      if (item.className === "DevOpsCatalogHostProvider") {
         provider = config.findCatalogProviderByIOrName(providerId);
       }
       if (!provider) {
@@ -33,7 +36,7 @@ const registerDevOpsManagementProviderAddUserCommand = (context: vscode.Extensio
       const name = await vscode.window.showInputBox({
         prompt: `User Name?`,
         placeHolder: `Enter the user name, example John Doe`,
-        ignoreFocusOut: true,
+        ignoreFocusOut: true
       });
       if (!name) {
         vscode.window.showErrorMessage(`User Name is required`);
@@ -64,7 +67,7 @@ const registerDevOpsManagementProviderAddUserCommand = (context: vscode.Extensio
         prompt: `User Password?`,
         placeHolder: `Enter the User Password, it needs to be at least 12 characters long with numbers and special characters`,
         password: true,
-        ignoreFocusOut: true,
+        ignoreFocusOut: true
       });
       if (!password) {
         vscode.window.showErrorMessage(`User Password is required`);
@@ -75,16 +78,16 @@ const registerDevOpsManagementProviderAddUserCommand = (context: vscode.Extensio
         return;
       }
       if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/)) {
-        vscode.window.showErrorMessage(`User Password needs to have at least one uppercase, one lowercase, one number and one special character`);
+        vscode.window.showErrorMessage(
+          `User Password needs to have at least one uppercase, one lowercase, one number and one special character`
+        );
         return;
       }
 
-      let isSuperUser = false
+      let isSuperUser = false;
       if (provider.user?.isSuperUser) {
-        const confirmation = await YesNoQuestion(
-          `Do you want the user ${name} to be a super user?`
-        );
-  
+        const confirmation = await YesNoQuestion(`Do you want the user ${name} to be a super user?`);
+
         if (confirmation === ANSWER_YES) {
           isSuperUser = true;
         }
@@ -96,33 +99,38 @@ const registerDevOpsManagementProviderAddUserCommand = (context: vscode.Extensio
         password: password,
         email: email,
         is_super_user: isSuperUser
-      }
+      };
 
-      DevOpsService.testHost(provider).then(async () => {
-        let foundError = false;
-        await DevOpsService.createRemoteHostUsers(provider, request).catch(() => {
-          vscode.window.showErrorMessage(`Failed to create user ${name} on the Orchestrator ${provider?.name ?? 'Unknown'}`);
-          foundError = true;
-          return;
+      DevOpsService.testHost(provider)
+        .then(async () => {
+          let foundError = false;
+          await DevOpsService.createRemoteHostUsers(provider, request).catch(() => {
+            vscode.window.showErrorMessage(
+              `Failed to create user ${name} on the Orchestrator ${provider?.name ?? "Unknown"}`
+            );
+            foundError = true;
+            return;
+          });
+
+          if (foundError) {
+            return;
+          }
+
+          vscode.window.showInformationMessage(
+            `User ${name} was created successfully on the Orchestrator ${provider?.name ?? "Unknown"}`
+          );
+          if (item.className === "DevOpsRemoteHostProvider") {
+            await DevOpsService.refreshRemoteHostProviders(true);
+            vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+          }
+          if (item.className === "DevOpsCatalogHostProvider") {
+            await DevOpsService.refreshCatalogProviders(true);
+            vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+          }
         })
-
-        if (foundError) {
-          return;
-        }
-
-        vscode.window.showInformationMessage(`User ${name} was created successfully on the Orchestrator ${provider?.name ?? 'Unknown'}`);
-        if (item.className === 'DevOpsRemoteHostProvider') {
-          await DevOpsService.refreshRemoteHostProviders(true);
-          vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-        }
-        if (item.className === 'DevOpsCatalogHostProvider') {
-          await DevOpsService.refreshCatalogProviders(true);
-          vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
-        }
-
-      }).catch((error) => {
-        vscode.window.showErrorMessage(`Failed to connect to Remote Host ${name}, err:\n ${error}`);
-      })
+        .catch(error => {
+          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${name}, err:\n ${error}`);
+        });
     })
   );
 };

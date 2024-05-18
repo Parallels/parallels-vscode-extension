@@ -1,13 +1,21 @@
 import * as vscode from "vscode";
-import { FLAG_DEVOPS_CATALOG_HAS_ITEMS } from "../../constants/flags";
-import { LogService } from "../../services/logService";
+import {FLAG_DEVOPS_CATALOG_HAS_ITEMS} from "../../constants/flags";
+import {LogService} from "../../services/logService";
 
-import { DevOpsTreeItem } from "../treeItems/devOpsTreeItem";
-import { AllDevOpsCatalogCommands, AllDevopsRemoteProviderManagementCommands } from "../commands/AllCommands";
-import { DevOpsService } from "../../services/devopsService";
-import { Provider } from "../../ioc/provider";
-import { drawManagementItems, drawManagementUserItems, drawManagementUserSubItems, drawManagementUserItemClaims, drawManagementUserItemRoles, drawManagementClaims, drawManagementRoles } from "../devopsRemoteHostManagement/devopsManagementProvider";
-import { cleanString } from "../../helpers/strings";
+import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
+import {AllDevOpsCatalogCommands, AllDevopsRemoteProviderManagementCommands} from "../commands/AllCommands";
+import {DevOpsService} from "../../services/devopsService";
+import {Provider} from "../../ioc/provider";
+import {
+  drawManagementItems,
+  drawManagementUserItems,
+  drawManagementUserSubItems,
+  drawManagementUserItemClaims,
+  drawManagementUserItemRoles,
+  drawManagementClaims,
+  drawManagementRoles
+} from "../devopsRemoteHostManagement/devopsManagementProvider";
+import {cleanString} from "../../helpers/strings";
 
 export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
@@ -35,8 +43,9 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
     return element;
   }
 
-  private _onDidChangeTreeData: vscode.EventEmitter<DevOpsTreeItem | undefined | null | void> =
-    new vscode.EventEmitter<DevOpsTreeItem | undefined | null | void>();
+  private _onDidChangeTreeData: vscode.EventEmitter<DevOpsTreeItem | undefined | null | void> = new vscode.EventEmitter<
+    DevOpsTreeItem | undefined | null | void
+  >();
 
   readonly onDidChangeTreeData: vscode.Event<DevOpsTreeItem | undefined | null | void> =
     this._onDidChangeTreeData.event;
@@ -52,8 +61,8 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         const config = Provider.getConfiguration();
         const providers = config.allCatalogProviders;
         for (const provider of providers) {
-          const id = `${cleanString(provider.name).toLowerCase()}%%${provider.ID}`
-          let icon = "catalog_provider"
+          const id = `${cleanString(provider.name).toLowerCase()}%%${provider.ID}`;
+          let icon = "catalog_provider";
           switch (provider.state) {
             case "active":
               icon = `${icon}_active`;
@@ -72,7 +81,9 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
               provider.rawHost,
               "DevOpsCatalogHostProvider",
               "devops.catalog.provider",
-              provider.manifests.length === 0 ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
+              provider.manifests.length === 0
+                ? vscode.TreeItemCollapsibleState.None
+                : vscode.TreeItemCollapsibleState.Collapsed,
               icon,
               provider
             )
@@ -121,25 +132,25 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             break;
 
           case "management":
-            this.data = await drawManagementItems(element, this.data, "DevOpsCatalogHostProvider")
+            this.data = await drawManagementItems(element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.users":
-            this.data = await drawManagementUserItems(element, this.data, "DevOpsCatalogHostProvider")
+            this.data = await drawManagementUserItems(element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user":
-            this.data = await drawManagementUserSubItems(element, this.data, "DevOpsCatalogHostProvider")
+            this.data = await drawManagementUserSubItems(element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user.claims":
-            this.data = await drawManagementUserItemClaims(element, this.data,"DevOpsCatalogHostProvider")
+            this.data = await drawManagementUserItemClaims(element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user.roles":
-            this.data = await drawManagementUserItemRoles(element, this.data,"DevOpsCatalogHostProvider")
+            this.data = await drawManagementUserItemRoles(element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.claims":
-            this.data = await drawManagementClaims(element, this.data,"DevOpsCatalogHostProvider")
+            this.data = await drawManagementClaims(element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.roles":
-            this.data = await drawManagementRoles(element, this.data,"DevOpsCatalogHostProvider")
+            this.data = await drawManagementRoles(element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           default:
             return resolve(this.data);
@@ -209,7 +220,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
               versions = `${manifest.items.length.toString()} versions`;
               hasVersions = true;
             }
-            let icon = "catalog_manifest"
+            let icon = "catalog_manifest";
             const hasTainted = manifest.items.some(i => i.tainted);
             const hasRevoked = manifest.items.some(i => i.revoked);
             if (hasTainted || hasRevoked) {
@@ -248,7 +259,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         const manifest = config.findCatalogProviderManifest(elementId, manifestId);
         if (manifest) {
           for (const version of manifest.items.sort((a, b) => a.name.localeCompare(b.name))) {
-            let icon = "catalog_version"
+            let icon = "catalog_version";
             if (version.tainted) {
               icon = `${icon}_tainted`;
             }
@@ -264,10 +275,14 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             }
             let tooltip = version.version;
             if (version.tainted) {
-                tooltip = `${tooltip} - Tainted by ${version.tainted_by} on ${new Date(version.tainted_at ??"").toLocaleDateString()}`;
+              tooltip = `${tooltip} - Tainted by ${version.tainted_by} on ${new Date(
+                version.tainted_at ?? ""
+              ).toLocaleDateString()}`;
             }
             if (version.revoked) {
-              tooltip = `${tooltip} - Revoked by ${version.revoked_by} on ${new Date(version.revoked_at ??"").toLocaleDateString()}`;
+              tooltip = `${tooltip} - Revoked by ${version.revoked_by} on ${new Date(
+                version.revoked_at ?? ""
+              ).toLocaleDateString()}`;
             }
             let description = version.architecture ?? "";
             const downloadCount = version.download_count ?? 0;
@@ -390,7 +405,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 "DevOpsCatalogHostProvider",
                 "provider.catalog.manifests.manifest.architecture.role",
                 vscode.TreeItemCollapsibleState.None,
-                "remote_hosts_management_roles",
+                "remote_hosts_management_roles"
               )
             );
           }
@@ -428,7 +443,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 "DevOpsCatalogHostProvider",
                 "provider.catalog.manifests.manifest.architecture.claim",
                 vscode.TreeItemCollapsibleState.None,
-                "remote_hosts_management_claims",
+                "remote_hosts_management_claims"
               )
             );
           }
@@ -466,7 +481,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 "DevOpsCatalogHostProvider",
                 "provider.catalog.manifests.manifest.architecture.tag",
                 vscode.TreeItemCollapsibleState.None,
-                "tags",
+                "tags"
               )
             );
           }

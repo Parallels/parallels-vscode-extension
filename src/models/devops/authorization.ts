@@ -1,11 +1,11 @@
 export interface AuthorizationRequest {
-  email:    string;
+  email: string;
   password: string;
 }
 
 export interface AuthorizationResponse {
-  email:      string;
-  token:      string;
+  email: string;
+  token: string;
   expires_at: number;
 }
 

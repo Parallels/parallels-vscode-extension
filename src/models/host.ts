@@ -9,7 +9,7 @@ export function parseHost(host: string): Host {
     hostname: "",
     schema: "",
     port: ""
-  }
+  };
 
   if (host.includes("://")) {
     const [schema, hostname] = host.split("://");
@@ -36,7 +36,7 @@ export function parseHost(host: string): Host {
 }
 
 function getHost(host: Host): string {
-  let result = ""
+  let result = "";
   if (host.schema) {
     result += `${host.schema}://`;
   }

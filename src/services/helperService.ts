@@ -149,7 +149,10 @@ export class HelperService {
           return reject(code);
         }
         try {
-          const result = stdout.replace(/[\n\r]/g, "").replace(/[\n]/g, "").trim();
+          const result = stdout
+            .replace(/[\n\r]/g, "")
+            .replace(/[\n]/g, "")
+            .trim();
           LogService.info(`Architecture collected successfully...`, "CoreService");
           return resolve(result);
         } catch (e) {

@@ -1,11 +1,19 @@
 import * as vscode from "vscode";
-import { FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS } from "../../constants/flags";
-import { AllDevOpsRemoteCommands } from "../commands/AllCommands";
-import { DevOpsService } from "../../services/devopsService";
-import { Provider } from "../../ioc/provider";
-import { DevOpsTreeItem } from "../treeItems/devOpsTreeItem";
-import { drawManagementItems, drawManagementUserItems, drawManagementUserSubItems, drawManagementUserItemClaims, drawManagementUserItemRoles, drawManagementClaims, drawManagementRoles } from "../devopsRemoteHostManagement/devopsManagementProvider";
-import { cleanString } from "../../helpers/strings";
+import {FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS} from "../../constants/flags";
+import {AllDevOpsRemoteCommands} from "../commands/AllCommands";
+import {DevOpsService} from "../../services/devopsService";
+import {Provider} from "../../ioc/provider";
+import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
+import {
+  drawManagementItems,
+  drawManagementUserItems,
+  drawManagementUserSubItems,
+  drawManagementUserItemClaims,
+  drawManagementUserItemRoles,
+  drawManagementClaims,
+  drawManagementRoles
+} from "../devopsRemoteHostManagement/devopsManagementProvider";
+import {cleanString} from "../../helpers/strings";
 
 export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
@@ -32,8 +40,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
     return element;
   }
 
-  private _onDidChangeTreeData: vscode.EventEmitter<DevOpsTreeItem | undefined | null | void> =
-    new vscode.EventEmitter<DevOpsTreeItem | undefined | null | void>();
+  private _onDidChangeTreeData: vscode.EventEmitter<DevOpsTreeItem | undefined | null | void> = new vscode.EventEmitter<
+    DevOpsTreeItem | undefined | null | void
+  >();
 
   readonly onDidChangeTreeData: vscode.Event<DevOpsTreeItem | undefined | null | void> =
     this._onDidChangeTreeData.event;
@@ -49,8 +58,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const config = Provider.getConfiguration();
         const providers = config.allRemoteHostProviders;
         for (const provider of providers) {
-          const id = `${cleanString(provider.name).toLowerCase()}%%${provider.ID}`
-          let icon = provider.type === "orchestrator" ? "remote_hosts_provider_orchestrator" : "remote_hosts_provider_host"
+          const id = `${cleanString(provider.name).toLowerCase()}%%${provider.ID}`;
+          let icon =
+            provider.type === "orchestrator" ? "remote_hosts_provider_orchestrator" : "remote_hosts_provider_host";
           switch (provider.state) {
             case "active":
               icon = `${icon}_active`;
@@ -59,7 +69,10 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               icon = `${icon}_inactive`;
               break;
           }
-          let collapsible = provider.virtualMachines.length === 0 ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed
+          let collapsible =
+            provider.virtualMachines.length === 0
+              ? vscode.TreeItemCollapsibleState.None
+              : vscode.TreeItemCollapsibleState.Collapsed;
           if (provider.type === "orchestrator") {
             collapsible = vscode.TreeItemCollapsibleState.Collapsed;
           }
@@ -77,7 +90,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               "DevOpsRemoteHostProvider",
               `devops.remote.provider.${provider.state}`,
               collapsible,
-              icon,
+              icon
             )
           );
         }
@@ -133,26 +146,26 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             });
             break;
           case "management":
-            this.data = await drawManagementItems(element, this.data, "DevOpsRemoteHostProvider")
-              return resolve(this.data);
+            this.data = await drawManagementItems(element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
           case "management.users":
-            this.data = await drawManagementUserItems(element, this.data, "DevOpsRemoteHostProvider")
-              return resolve(this.data);
+            this.data = await drawManagementUserItems(element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
           case "management.user":
-            this.data = await drawManagementUserSubItems(element, this.data, "DevOpsRemoteHostProvider")
-              return resolve(this.data);
+            this.data = await drawManagementUserSubItems(element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
           case "management.user.claims":
-            this.data = await drawManagementUserItemClaims(element, this.data, "DevOpsRemoteHostProvider")
-              return resolve(this.data);
+            this.data = await drawManagementUserItemClaims(element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
           case "management.user.roles":
-            this.data = await drawManagementUserItemRoles(element, this.data, "DevOpsRemoteHostProvider")
-              return resolve(this.data);
+            this.data = await drawManagementUserItemRoles(element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
           case "management.claims":
-            this.data = await drawManagementClaims(element, this.data, "DevOpsRemoteHostProvider")
-              return resolve(this.data);
+            this.data = await drawManagementClaims(element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
           case "management.roles":
-            this.data = await drawManagementRoles(element, this.data, "DevOpsRemoteHostProvider")
-              return resolve(this.data);
+            this.data = await drawManagementRoles(element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
           default:
             return resolve(this.data);
         }
@@ -223,7 +236,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             "",
             "DevOpsRemoteHostProvider",
             "devops.remote.orchestrator.virtual_machines",
-            virtualMachinesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            virtualMachinesLength > 0
+              ? vscode.TreeItemCollapsibleState.Collapsed
+              : vscode.TreeItemCollapsibleState.None,
             "group"
           )
         );
@@ -242,7 +257,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const provider = config.findRemoteHostProviderById(elementId);
         if (provider) {
           for (const resource of provider.resources ?? []) {
-            const id = `${element.id}%%${resource.cpu_type}`
+            const id = `${element.id}%%${resource.cpu_type}`;
             this.data.push(
               new DevOpsTreeItem(
                 id,
@@ -357,7 +372,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             }
 
             let cpuTotal = 0;
-            let memoryTotal = 0
+            let memoryTotal = 0;
             if (element.type === "provider.remote_host.orchestrator.resources.architecture.total") {
               cpuTotal = resource["total"].logical_cpu_count ?? 0;
               memoryTotal = resource["total"].memory_size ?? 0;
@@ -416,7 +431,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const provider = config.findRemoteHostProviderById(elementId);
         if (provider) {
           for (const host of provider.hosts?.sort((a, b) => a.description.localeCompare(b.description)) ?? []) {
-            let icon = "remote_hosts_provider_orchestrator_host"
+            let icon = "remote_hosts_provider_orchestrator_host";
             switch (host.state) {
               case "healthy":
                 icon = `${icon}_active`;
@@ -428,8 +443,8 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             if (!host.enabled) {
               icon = `remote_hosts_provider_orchestrator_host_disabled`;
             }
-            const id = `${provider.ID}%%hosts%%${host.id}`
-            const context = `devops.remote.orchestrator.host_${host.state}_${host.enabled ? "enabled" : "disabled"}`
+            const id = `${provider.ID}%%hosts%%${host.id}`;
+            const context = `devops.remote.orchestrator.host_${host.state}_${host.enabled ? "enabled" : "disabled"}`;
             this.data.push(
               new DevOpsTreeItem(
                 id,
@@ -461,13 +476,15 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const provider = config.findRemoteHostProviderById(elementId);
         if (provider) {
           for (const virtualMachine of provider.virtualMachines.sort((a, b) => a.Name.localeCompare(b.Name))) {
-            let icon = "virtual_machine"
+            let icon = "virtual_machine";
             if (virtualMachine.State === "running") {
               icon = `virtual_machine_running`;
             } else if (virtualMachine.State === "paused" || virtualMachine.State === "suspended") {
               icon = `virtual_machine_paused`;
             }
-            const id = `${elementId}%%${virtualMachine.host_id ? virtualMachine.host_id: "local" }%%virtual_machines%%${virtualMachine.ID}`
+            const id = `${elementId}%%${virtualMachine.host_id ? virtualMachine.host_id : "local"}%%virtual_machines%%${
+              virtualMachine.ID
+            }`;
             this.data.push(
               new DevOpsTreeItem(
                 id,
@@ -478,7 +495,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
                 virtualMachine.State,
                 "DevOpsRemoteHostProvider",
                 `devops.remote.orchestrator.virtual_machine.${virtualMachine.State}`,
-                provider.type === "orchestrator" ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                provider.type === "orchestrator"
+                  ? vscode.TreeItemCollapsibleState.Collapsed
+                  : vscode.TreeItemCollapsibleState.None,
                 icon
               )
             );
@@ -540,7 +559,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             "",
             "DevOpsRemoteHostProvider",
             "devops.remote.orchestrator.virtual_machines",
-            virtualMachinesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            virtualMachinesLength > 0
+              ? vscode.TreeItemCollapsibleState.Collapsed
+              : vscode.TreeItemCollapsibleState.None,
             "group"
           )
         );
@@ -566,7 +587,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               continue;
             }
 
-            let icon = "remote_hosts_provider_orchestrator_host"
+            let icon = "remote_hosts_provider_orchestrator_host";
             switch (virtualMachine.host_state) {
               case "healthy":
                 icon = `${icon}_active`;
@@ -606,13 +627,13 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const provider = config.findRemoteHostProviderById(elementId);
         if (provider) {
           for (const virtualMachine of provider.virtualMachines.sort((a, b) => a.Name.localeCompare(b.Name))) {
-            let icon = "virtual_machine"
+            let icon = "virtual_machine";
             if (virtualMachine.State === "running") {
               icon = `virtual_machine_running`;
             } else if (virtualMachine.State === "paused" || virtualMachine.State === "suspended") {
               icon = `virtual_machine_paused`;
             }
-            const id = `${elementId}%%local%%${virtualMachine.ID}`
+            const id = `${elementId}%%local%%${virtualMachine.ID}`;
             this.data.push(
               new DevOpsTreeItem(
                 id,

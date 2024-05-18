@@ -1,17 +1,16 @@
-import { CatalogManifest, CatalogManifestItem } from '../../models/devops/catalogManifest';
+import {CatalogManifest, CatalogManifestItem} from "../../models/devops/catalogManifest";
 import path = require("path");
 import * as vscode from "vscode";
-import { DevOpsCatalogProvider } from "../devopsCatalogProvider/devopsCatalogProvider";
-import { DevOpsCatalogHostProvider } from "../../models/devops/catalogHostProvider";
+import {DevOpsCatalogProvider} from "../devopsCatalogProvider/devopsCatalogProvider";
+import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
 
 export class DevOpsTreeItem extends vscode.TreeItem {
-
   constructor(
     public id: string,
     public parentId: string,
     public name: string,
     public type:
-      "empty"
+      | "empty"
       | "provider.catalog"
       | "provider.catalog.manifests"
       | "provider.catalog.manifests.manifest"

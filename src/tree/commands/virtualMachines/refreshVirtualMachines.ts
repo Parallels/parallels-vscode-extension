@@ -1,4 +1,4 @@
-import { config } from 'process';
+import {config} from "process";
 import * as vscode from "vscode";
 
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";

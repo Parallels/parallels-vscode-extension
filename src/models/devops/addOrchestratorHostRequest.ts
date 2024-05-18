@@ -1,7 +1,7 @@
 export interface AddOrchestratorHostRequest {
-  host:           string;
-  description?:    string;
-  tags?:           string[];
+  host: string;
+  description?: string;
+  tags?: string[];
   authentication: AddOrchestratorHostRequestAuthentication;
 }
 

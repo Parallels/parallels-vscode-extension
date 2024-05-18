@@ -1,17 +1,20 @@
 import * as vscode from "vscode";
-import { Provider } from "../../../ioc/provider";
-import { CommandsFlags, TelemetryEventIds } from "../../../constants/flags";
-import { LogService } from "../../../services/logService";
-import { DevOpsRemoteHostsCommand } from "../BaseCommand";
-import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsCatalogHostProvider } from '../../../models/devops/catalogHostProvider';
-import { randomUUID } from 'crypto';
-import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
-import { DevOpsRemoteHostProvider } from "../../../models/devops/remoteHostProvider";
-import { cleanString } from "../../../helpers/strings";
-import { AddOrchestratorHostRequest } from "../../../models/devops/addOrchestratorHostRequest";
+import {Provider} from "../../../ioc/provider";
+import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
+import {LogService} from "../../../services/logService";
+import {DevOpsRemoteHostsCommand} from "../BaseCommand";
+import {DevOpsService} from "../../../services/devopsService";
+import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
+import {randomUUID} from "crypto";
+import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
+import {cleanString} from "../../../helpers/strings";
+import {AddOrchestratorHostRequest} from "../../../models/devops/addOrchestratorHostRequest";
 
-const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
+const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
+  context: vscode.ExtensionContext,
+  provider: DevOpsRemoteHostsProvider
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddRemoteProviderOrchestratorHost, async (item: any) => {
       if (!item) {
@@ -40,14 +43,14 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (context: vscode.
         ignoreFocusOut: true
       });
 
-      let tags: string[] = []
+      let tags: string[] = [];
       const tagsString = await vscode.window.showInputBox({
         prompt: `Add tags to the Remote Host?`,
         placeHolder: `Add tags separated by comma, example: tag1,tag2`,
         ignoreFocusOut: true
       });
       if (tagsString) {
-        tags =tagsString.split(",");
+        tags = tagsString.split(",");
       }
 
       const username = await vscode.window.showInputBox({
@@ -64,7 +67,7 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (context: vscode.
         prompt: `Remote Host Password?`,
         placeHolder: `Enter the Remote Host Password`,
         password: true,
-        ignoreFocusOut: true,
+        ignoreFocusOut: true
       });
       if (!password) {
         vscode.window.showErrorMessage(`Remote Host Password is required`);
@@ -79,42 +82,46 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (context: vscode.
           username: username,
           password: password
         }
-      }
+      };
       const remoteHostProvider: DevOpsRemoteHostProvider = {
         class: "DevOpsRemoteHostProvider",
         ID: cleanString("tester"),
         type: "remote_host",
         rawHost: host ?? "",
-        name:  "tester",
+        name: "tester",
         username: username ?? "",
         password: password ?? "",
         state: "unknown",
         virtualMachines: []
-      }
+      };
 
-      const hostname = new URL(host)
+      const hostname = new URL(host);
       remoteHostProvider.host = hostname.hostname;
       remoteHostProvider.port = parseInt(hostname.port);
       remoteHostProvider.scheme = hostname.protocol.replace(":", "");
 
-      DevOpsService.testHost(remoteHostProvider).then(async () => {
-        let foundError = false;
-        await DevOpsService.addRemoteHostOrchestratorHost(provider, request).catch(() => {
-          vscode.window.showErrorMessage(`Failed to add ${host} to the Orchestrator ${provider.name}`);
-          foundError = true;
-          return;
+      DevOpsService.testHost(remoteHostProvider)
+        .then(async () => {
+          let foundError = false;
+          await DevOpsService.addRemoteHostOrchestratorHost(provider, request).catch(() => {
+            vscode.window.showErrorMessage(`Failed to add ${host} to the Orchestrator ${provider.name}`);
+            foundError = true;
+            return;
+          });
+
+          if (foundError) {
+            return;
+          }
+
+          vscode.window.showInformationMessage(
+            `Remote Host was added successfully to the Orchestrator ${provider.name}`
+          );
+          await DevOpsService.refreshRemoteHostProviders(true);
+          vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
         })
-
-        if (foundError) {
-          return;
-        }
-
-        vscode.window.showInformationMessage(`Remote Host was added successfully to the Orchestrator ${provider.name}`);
-        await DevOpsService.refreshRemoteHostProviders(true);
-        vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-      }).catch((error) => {
-        vscode.window.showErrorMessage(`Failed to connect to Remote Host ${host}, err:\n ${error}`);
-      })
+        .catch(error => {
+          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${host}, err:\n ${error}`);
+        });
     })
   );
 };

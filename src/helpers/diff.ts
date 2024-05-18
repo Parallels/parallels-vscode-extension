@@ -4,7 +4,7 @@ export function diff(obja: any, objb: any): boolean {
   if (jsonObjA === jsonObjB) {
     return false;
   }
-  return true
+  return true;
 }
 
 export function diffArray(obja: any, objb: any, field: string): boolean {
@@ -23,5 +23,5 @@ export function diffArray(obja: any, objb: any, field: string): boolean {
   if (jsonObjA === jsonObjB) {
     return false;
   }
-  return true
+  return true;
 }

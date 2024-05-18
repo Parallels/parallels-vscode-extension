@@ -13,7 +13,7 @@ import {LogService} from "./logService";
 import {NewVirtualMachineSpecs} from "../models/parallels/NewVirtualMachineSpecs";
 import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
 import {VirtualMachineRunningInfo} from "../models/parallels/virtualMachineRunningInfo";
-import { buffer } from "stream/consumers";
+import {buffer} from "stream/consumers";
 
 export class ParallelsDesktopService {
   static isInstalled(): Promise<boolean> {
@@ -149,7 +149,7 @@ export class ParallelsDesktopService {
             LogService.error(`VM not found`, "ParallelsDesktopService");
             return reject(`VM not found`);
           }
-        
+
           LogService.info(`Got vm info`, "ParallelsDesktopService");
           return resolve(vm[0]);
         } catch (e) {

@@ -3,16 +3,19 @@ import {Provider} from "../../../ioc/provider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {DevOpsCatalogCommand, DevOpsRemoteHostsCommand} from "../BaseCommand";
-import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
+import {DevOpsService} from "../../../services/devopsService";
+import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 
-const registerDevOpsInstallFromRemoteCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
+const registerDevOpsInstallFromRemoteCommand = (
+  context: vscode.ExtensionContext,
+  provider: DevOpsRemoteHostsProvider
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsInstallFromRemoteProvider, async (item: any) => {
       DevOpsService.install().then(() => {
         const config = Provider.getConfiguration();
         config.initDevOpsService();
-      })
+      });
     })
   );
 };

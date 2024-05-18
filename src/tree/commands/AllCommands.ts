@@ -1,4 +1,11 @@
-import {BaseCommand, DevOpsCatalogCommand, DevOpsRemoteHostsCommand, DevOpsRemoteProviderManagementCommand, VagrantCommand, VirtualMachineCommand} from "./BaseCommand";
+import {
+  BaseCommand,
+  DevOpsCatalogCommand,
+  DevOpsRemoteHostsCommand,
+  DevOpsRemoteProviderManagementCommand,
+  VagrantCommand,
+  VirtualMachineCommand
+} from "./BaseCommand";
 import {AddGroupCommand} from "./virtualMachines/AddGroup";
 import {AddVmCommand} from "./virtualMachines/AddVm";
 import {CopyIpAddressCommand} from "./virtualMachines/copyIpAddress";
@@ -41,51 +48,51 @@ import {StartContainerCommand} from "./docker/startContainer";
 import {StopContainerCommand} from "./docker/stopContainer";
 import {ResumeVirtualMachineCommand} from "./virtualMachines/resumeVirtualMachine";
 import {RefreshVirtualMachineCommand} from "./virtualMachines/refreshVirtualMachines";
-import { DevOpsAddCatalogProviderCommand } from "./devopsCatalogProvider/addCatalogProvider";
-import { DevOpsRefreshCatalogProviderCommand } from "./devopsCatalogProvider/refreshCatalogProvider";
-import { DevOpsAddRemoteProviderCommand } from "./devopsRemoteHostProvider/addRemoteProvider";
-import { DevOpsInstallFromRemoteCommand } from "./devopsRemoteHostProvider/installFromRemoteProvider";
-import { DevOpsInstallFromCatalogCommand } from "./devopsCatalogProvider/installFromCatalogProvider";
-import { DevOpsRefreshRemoteHostsProviderCommand } from "./devopsRemoteHostProvider/refreshRemoteHostsProvider";
-import { DevOpsEnableRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/enableRemoteProviderOrchestratorHost";
-import { DevOpsDisableRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/disableRemoteProviderOrchestratorHost";
-import { DevOpsRemoveCatalogProviderCommand } from "./devopsCatalogProvider/removeCatalogProvider";
-import { DevOpsRemoveRemoteProviderCommand } from "./devopsRemoteHostProvider/removeRemoteProvider";
-import { DevOpsPullCatalogProviderManifestCommand } from "./devopsCatalogProvider/pullCatalogProviderManifest";
-import { DevOpsStartVirtualMachineCommand } from "./devopsRemoteHostProvider/startVirtualMachine";
-import { DevOpsStopVirtualMachineCommand } from "./devopsRemoteHostProvider/stopVirtualMachine";
-import { DevOpsSuspendVirtualMachineCommand } from "./devopsRemoteHostProvider/suspendVirtualMachine";
-import { DevOpsPauseVirtualMachineCommand } from "./devopsRemoteHostProvider/pauseVirtualMachine";
-import { DevOpsCloneVirtualMachineCommand } from "./devopsRemoteHostProvider/cloneVirtualMachine";
-import { DevOpsRemoveVirtualMachineCommand } from "./devopsRemoteHostProvider/removeVirtualMachine";
-import { DevOpsResumeVirtualMachineCommand } from "./devopsRemoteHostProvider/resumeVirtualMachine";
-import { DevOpsPushVmToCatalogProviderManifestCommand } from "./devopsCatalogProvider/pushVmToCatalogProvider";
-import { DevOpsRemoveCatalogProviderManifestCommand } from "./devopsCatalogProvider/removeCatalogProviderManifest";
-import { DevOpsAddRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/addRemoteProviderOrchestratorHost";
-import { DevOpsRemoveRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/removeRemoteProviderOrchestratorHost";
-import { DevOpsForceRefreshRemoteHostsProviderCommand } from "./devopsRemoteHostProvider/forceRefreshRemoteHostsProvider";
-import { DevOpsManagementProviderAddUserCommand } from "./devopsManagementProvider/addRemoteProviderUser";
-import { DevOpsManagementProviderRemoveUserCommand } from "./devopsManagementProvider/removeRemoteProviderUser";
-import { DevOpsManagementProviderAddUserClaimCommand } from "./devopsManagementProvider/addRemoteProviderUserClaim";
-import { DevOpsManagementProviderRemoveUserClaimCommand } from "./devopsManagementProvider/removeRemoteProviderUserClaim";
-import { DevOpsManagementProviderAddUserRoleCommand } from "./devopsManagementProvider/addRemoteProviderUserRoles";
-import { DevOpsManagementProviderRemoveUserRoleCommand } from "./devopsManagementProvider/removeRemoteProviderUserRoles";
-import { DevOpsManagementProviderAddClaimCommand } from "./devopsManagementProvider/addRemoteProviderClaim";
-import { DevOpsManagementProviderRemoveClaimCommand } from "./devopsManagementProvider/removeRemoteProviderClaim";
-import { DevOpsManagementProviderRemoveRoleCommand } from "./devopsManagementProvider/removeRemoteProviderRole";
-import { DevOpsManagementProviderAddRoleCommand } from "./devopsManagementProvider/addRemoteProviderRole";
-import { DevOpsTaintCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/taintCatalogProviderManifestVersion";
-import { DevOpsUnTaintCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/untaintCatalogProviderManifestVersion";
-import { DevOpsRevokeCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/revokeCatalogProviderManifestVersion";
-import { DevOpsAddRoleToCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/addCatalogProviderManifestVersionRoles";
-import { DevOpsRemoveRoleFromCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/removeCatalogProviderManifestVersionRoles";
-import { DevOpsAddClaimsToCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/addCatalogProviderManifestVersionClaims";
-import { DevOpsAddTagsToCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/addCatalogProviderManifestVersionTags";
-import { DevOpsRemoveClaimFromCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/removeCatalogProviderManifestVersionClaims";
-import { DevOpsRemoveTagFromCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/removeCatalogProviderManifestVersionTags";
-import { DevOpsManagementProviderRenameProviderCommand } from "./devopsManagementProvider/renameRemoteProvider";
-import { DevOpsManagementProviderUpdateUserCommand } from "./devopsManagementProvider/updateRemoteProviderUser";
-import { DevOpsPullCatalogManifestMachineOnHostCommand } from "./devopsRemoteHostProvider/pullCatalogManifestMachineOnHost";
+import {DevOpsAddCatalogProviderCommand} from "./devopsCatalogProvider/addCatalogProvider";
+import {DevOpsRefreshCatalogProviderCommand} from "./devopsCatalogProvider/refreshCatalogProvider";
+import {DevOpsAddRemoteProviderCommand} from "./devopsRemoteHostProvider/addRemoteProvider";
+import {DevOpsInstallFromRemoteCommand} from "./devopsRemoteHostProvider/installFromRemoteProvider";
+import {DevOpsInstallFromCatalogCommand} from "./devopsCatalogProvider/installFromCatalogProvider";
+import {DevOpsRefreshRemoteHostsProviderCommand} from "./devopsRemoteHostProvider/refreshRemoteHostsProvider";
+import {DevOpsEnableRemoteProviderOrchestratorHostCommand} from "./devopsRemoteHostProvider/enableRemoteProviderOrchestratorHost";
+import {DevOpsDisableRemoteProviderOrchestratorHostCommand} from "./devopsRemoteHostProvider/disableRemoteProviderOrchestratorHost";
+import {DevOpsRemoveCatalogProviderCommand} from "./devopsCatalogProvider/removeCatalogProvider";
+import {DevOpsRemoveRemoteProviderCommand} from "./devopsRemoteHostProvider/removeRemoteProvider";
+import {DevOpsPullCatalogProviderManifestCommand} from "./devopsCatalogProvider/pullCatalogProviderManifest";
+import {DevOpsStartVirtualMachineCommand} from "./devopsRemoteHostProvider/startVirtualMachine";
+import {DevOpsStopVirtualMachineCommand} from "./devopsRemoteHostProvider/stopVirtualMachine";
+import {DevOpsSuspendVirtualMachineCommand} from "./devopsRemoteHostProvider/suspendVirtualMachine";
+import {DevOpsPauseVirtualMachineCommand} from "./devopsRemoteHostProvider/pauseVirtualMachine";
+import {DevOpsCloneVirtualMachineCommand} from "./devopsRemoteHostProvider/cloneVirtualMachine";
+import {DevOpsRemoveVirtualMachineCommand} from "./devopsRemoteHostProvider/removeVirtualMachine";
+import {DevOpsResumeVirtualMachineCommand} from "./devopsRemoteHostProvider/resumeVirtualMachine";
+import {DevOpsPushVmToCatalogProviderManifestCommand} from "./devopsCatalogProvider/pushVmToCatalogProvider";
+import {DevOpsRemoveCatalogProviderManifestCommand} from "./devopsCatalogProvider/removeCatalogProviderManifest";
+import {DevOpsAddRemoteProviderOrchestratorHostCommand} from "./devopsRemoteHostProvider/addRemoteProviderOrchestratorHost";
+import {DevOpsRemoveRemoteProviderOrchestratorHostCommand} from "./devopsRemoteHostProvider/removeRemoteProviderOrchestratorHost";
+import {DevOpsForceRefreshRemoteHostsProviderCommand} from "./devopsRemoteHostProvider/forceRefreshRemoteHostsProvider";
+import {DevOpsManagementProviderAddUserCommand} from "./devopsManagementProvider/addRemoteProviderUser";
+import {DevOpsManagementProviderRemoveUserCommand} from "./devopsManagementProvider/removeRemoteProviderUser";
+import {DevOpsManagementProviderAddUserClaimCommand} from "./devopsManagementProvider/addRemoteProviderUserClaim";
+import {DevOpsManagementProviderRemoveUserClaimCommand} from "./devopsManagementProvider/removeRemoteProviderUserClaim";
+import {DevOpsManagementProviderAddUserRoleCommand} from "./devopsManagementProvider/addRemoteProviderUserRoles";
+import {DevOpsManagementProviderRemoveUserRoleCommand} from "./devopsManagementProvider/removeRemoteProviderUserRoles";
+import {DevOpsManagementProviderAddClaimCommand} from "./devopsManagementProvider/addRemoteProviderClaim";
+import {DevOpsManagementProviderRemoveClaimCommand} from "./devopsManagementProvider/removeRemoteProviderClaim";
+import {DevOpsManagementProviderRemoveRoleCommand} from "./devopsManagementProvider/removeRemoteProviderRole";
+import {DevOpsManagementProviderAddRoleCommand} from "./devopsManagementProvider/addRemoteProviderRole";
+import {DevOpsTaintCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/taintCatalogProviderManifestVersion";
+import {DevOpsUnTaintCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/untaintCatalogProviderManifestVersion";
+import {DevOpsRevokeCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/revokeCatalogProviderManifestVersion";
+import {DevOpsAddRoleToCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/addCatalogProviderManifestVersionRoles";
+import {DevOpsRemoveRoleFromCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/removeCatalogProviderManifestVersionRoles";
+import {DevOpsAddClaimsToCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/addCatalogProviderManifestVersionClaims";
+import {DevOpsAddTagsToCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/addCatalogProviderManifestVersionTags";
+import {DevOpsRemoveClaimFromCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/removeCatalogProviderManifestVersionClaims";
+import {DevOpsRemoveTagFromCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/removeCatalogProviderManifestVersionTags";
+import {DevOpsManagementProviderRenameProviderCommand} from "./devopsManagementProvider/renameRemoteProvider";
+import {DevOpsManagementProviderUpdateUserCommand} from "./devopsManagementProvider/updateRemoteProviderUser";
+import {DevOpsPullCatalogManifestMachineOnHostCommand} from "./devopsRemoteHostProvider/pullCatalogManifestMachineOnHost";
 
 export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   AddVmCommand,
@@ -189,4 +196,4 @@ export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderMana
   DevOpsManagementProviderRemoveRoleCommand,
   DevOpsManagementProviderRenameProviderCommand,
   DevOpsManagementProviderUpdateUserCommand
-]
+];

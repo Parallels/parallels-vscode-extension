@@ -1,13 +1,13 @@
-import { config } from 'process';
-import { DevOpsCatalogProvider } from '../../devopsCatalogProvider/devopsCatalogProvider';
+import {config} from "process";
+import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import * as vscode from "vscode";
-import { Provider } from "../../../ioc/provider";
-import { CommandsFlags, TelemetryEventIds } from "../../../constants/flags";
-import { LogService } from "../../../services/logService";
-import { DevOpsCatalogCommand } from "../BaseCommand";
-import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsCatalogHostProvider } from '../../../models/devops/catalogHostProvider';
-import { cleanString } from '../../../helpers/strings';
+import {Provider} from "../../../ioc/provider";
+import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
+import {LogService} from "../../../services/logService";
+import {DevOpsCatalogCommand} from "../BaseCommand";
+import {DevOpsService} from "../../../services/devopsService";
+import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
+import {cleanString} from "../../../helpers/strings";
 
 const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
   context.subscriptions.push(
@@ -44,16 +44,16 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
         password: "",
         state: "unknown",
         manifests: []
-      }
+      };
 
-      let hostname: URL
+      let hostname: URL;
       try {
-        hostname = new URL(host)
+        hostname = new URL(host);
       } catch (error) {
         vscode.window.showErrorMessage("Invalid Catalog Provider Host");
         return;
       }
-        
+
       catalogHostProvider.host = hostname.hostname;
       catalogHostProvider.port = parseInt(hostname.port);
       catalogHostProvider.scheme = hostname.protocol.replace(":", "");
@@ -75,7 +75,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
           prompt: "Catalog Provider Password?",
           placeHolder: "Enter the Catalog Provider Password",
           password: true,
-          ignoreFocusOut: true,
+          ignoreFocusOut: true
         });
         if (!password) {
           vscode.window.showErrorMessage("Catalog Provider Password is required");
@@ -85,7 +85,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
         catalogHostProvider.username = username;
         catalogHostProvider.password = password;
 
-        const auth = await DevOpsService.authorize(catalogHostProvider).catch((error) => {
+        const auth = await DevOpsService.authorize(catalogHostProvider).catch(error => {
           foundError = true;
         });
         if (auth && auth.token && !foundError) {

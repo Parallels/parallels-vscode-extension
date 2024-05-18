@@ -4,12 +4,15 @@ import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {DevOpsRemoteHostsCommand} from "../BaseCommand";
-import { DevOpsTreeItem } from "../../treeItems/devOpsTreeItem";
-import { DevOpsRemoteHostsProvider } from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
-import { DevOpsService } from "../../../services/devopsService";
-import { ANSWER_YES, YesNoQuestion } from "../../../helpers/ConfirmDialog";
+import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
+import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {DevOpsService} from "../../../services/devopsService";
+import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 
-const registerDevOpRemoveVirtualMachineCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
+const registerDevOpRemoveVirtualMachineCommand = (
+  context: vscode.ExtensionContext,
+  provider: DevOpsRemoteHostsProvider
+) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoveRemoteProviderHostVm, async (item: DevOpsTreeItem) => {
       vscode.window.withProgress(
@@ -21,10 +24,8 @@ const registerDevOpRemoveVirtualMachineCommand = (context: vscode.ExtensionConte
           if (!item) {
             return;
           }
-          const confirmation = await YesNoQuestion(
-            `Are you sure you want to remove the virtual machine ${item.name}?`
-          );
-    
+          const confirmation = await YesNoQuestion(`Are you sure you want to remove the virtual machine ${item.name}?`);
+
           if (confirmation !== ANSWER_YES) {
             return;
           }
@@ -62,7 +63,9 @@ const registerDevOpRemoveVirtualMachineCommand = (context: vscode.ExtensionConte
 
           DevOpsService.refreshRemoteHostProviders(true);
           vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-          vscode.window.showInformationMessage(`Remote Host virtual machine ${item.name} was removed successfully removed from the Orchestrator ${provider.name}`);
+          vscode.window.showInformationMessage(
+            `Remote Host virtual machine ${item.name} was removed successfully removed from the Orchestrator ${provider.name}`
+          );
         }
       );
     })

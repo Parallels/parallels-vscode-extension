@@ -1,5 +1,5 @@
 export interface DevOpsRolesAndClaims {
-  id:   string;
+  id: string;
   name: string;
 }
 

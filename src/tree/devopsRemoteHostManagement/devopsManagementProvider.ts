@@ -1,12 +1,16 @@
-import { config } from 'process';
+import {config} from "process";
 import * as vscode from "vscode";
-import { Provider } from "../../ioc/provider";
-import { DevOpsTreeItem } from "../treeItems/devOpsTreeItem";
-import { DevOpsCatalogProvider } from "../devopsCatalogProvider/devopsCatalogProvider";
-import { DevOpsRemoteHostProvider } from "../../models/devops/remoteHostProvider";
-import { DevOpsCatalogHostProvider } from "../../models/devops/catalogHostProvider";
+import {Provider} from "../../ioc/provider";
+import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
+import {DevOpsCatalogProvider} from "../devopsCatalogProvider/devopsCatalogProvider";
+import {DevOpsRemoteHostProvider} from "../../models/devops/remoteHostProvider";
+import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
 
-export function drawManagementItems(element: DevOpsTreeItem, data: DevOpsTreeItem[], className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"): Thenable<DevOpsTreeItem[]> {
+export function drawManagementItems(
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
   return new Promise(async (resolve, reject) => {
     data = [];
     if (element) {
@@ -70,7 +74,11 @@ export function drawManagementItems(element: DevOpsTreeItem, data: DevOpsTreeIte
   });
 }
 
-export function drawManagementUserItems(element: DevOpsTreeItem, data: DevOpsTreeItem[], className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"): Thenable<DevOpsTreeItem[]> {
+export function drawManagementUserItems(
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
   return new Promise(async (resolve, reject) => {
     data = [];
     if (element) {
@@ -88,7 +96,7 @@ export function drawManagementUserItems(element: DevOpsTreeItem, data: DevOpsTre
       }
 
       for (const user of provider.users?.sort((a, b) => a.name.localeCompare(b.name)) ?? []) {
-        const id = `${elementId}%%management%%users%%${user.id}`
+        const id = `${elementId}%%management%%users%%${user.id}`;
         const hasRolesOrClaims = user.roles.length > 0 || user.claims.length > 0;
         data.push(
           new DevOpsTreeItem(
@@ -104,7 +112,6 @@ export function drawManagementUserItems(element: DevOpsTreeItem, data: DevOpsTre
             "remote_hosts_management_user"
           )
         );
-
       }
     }
 
@@ -112,7 +119,11 @@ export function drawManagementUserItems(element: DevOpsTreeItem, data: DevOpsTre
   });
 }
 
-export function drawManagementUserSubItems(element: DevOpsTreeItem, data: DevOpsTreeItem[], className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"): Thenable<DevOpsTreeItem[]> {
+export function drawManagementUserSubItems(
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
   return new Promise(async (resolve, reject) => {
     data = [];
     if (element) {
@@ -130,12 +141,12 @@ export function drawManagementUserSubItems(element: DevOpsTreeItem, data: DevOps
         return resolve(data);
       }
 
-      const user = provider?.users?.find((u) => u.id === userId);
+      const user = provider?.users?.find(u => u.id === userId);
       if (!user) {
         return resolve(data);
       }
 
-      const id = `${elementId}%%management%%users%%${userId}`
+      const id = `${elementId}%%management%%users%%${userId}`;
       const claimsLength = user?.claims?.length ?? 0;
       const rolesLength = user?.roles?.length ?? 0;
       data.push(
@@ -172,7 +183,11 @@ export function drawManagementUserSubItems(element: DevOpsTreeItem, data: DevOps
   });
 }
 
-export function drawManagementUserItemClaims(element: DevOpsTreeItem, data: DevOpsTreeItem[], className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"): Thenable<DevOpsTreeItem[]> {
+export function drawManagementUserItemClaims(
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
   return new Promise(async (resolve, reject) => {
     data = [];
     if (element) {
@@ -190,13 +205,13 @@ export function drawManagementUserItemClaims(element: DevOpsTreeItem, data: DevO
         return resolve(data);
       }
 
-      const user = provider?.users?.find((u) => u.id === userId);
+      const user = provider?.users?.find(u => u.id === userId);
       if (!user) {
         return resolve(data);
       }
 
       for (const claim of user.claims?.sort((a, b) => a.localeCompare(b)) ?? []) {
-        const id = `${elementId}%%management%%users%%${user.id}%%claims%%${claim}`
+        const id = `${elementId}%%management%%users%%${user.id}%%claims%%${claim}`;
         data.push(
           new DevOpsTreeItem(
             id,
@@ -211,7 +226,6 @@ export function drawManagementUserItemClaims(element: DevOpsTreeItem, data: DevO
             "remote_hosts_management_claims"
           )
         );
-
       }
     }
 
@@ -219,7 +233,11 @@ export function drawManagementUserItemClaims(element: DevOpsTreeItem, data: DevO
   });
 }
 
-export function drawManagementUserItemRoles(element: DevOpsTreeItem, data: DevOpsTreeItem[], className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"): Thenable<DevOpsTreeItem[]> {
+export function drawManagementUserItemRoles(
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
   return new Promise(async (resolve, reject) => {
     data = [];
     if (element) {
@@ -237,13 +255,13 @@ export function drawManagementUserItemRoles(element: DevOpsTreeItem, data: DevOp
         return resolve(data);
       }
 
-      const user = provider?.users?.find((u) => u.id === userId);
+      const user = provider?.users?.find(u => u.id === userId);
       if (!user) {
         return resolve(data);
       }
 
       for (const role of user.roles?.sort((a, b) => a.localeCompare(b)) ?? []) {
-        const id = `${elementId}%%management%%users%%${user.id}%%roles%%${role}`
+        const id = `${elementId}%%management%%users%%${user.id}%%roles%%${role}`;
         data.push(
           new DevOpsTreeItem(
             id,
@@ -258,7 +276,6 @@ export function drawManagementUserItemRoles(element: DevOpsTreeItem, data: DevOp
             "remote_hosts_management_roles"
           )
         );
-
       }
     }
 
@@ -266,7 +283,11 @@ export function drawManagementUserItemRoles(element: DevOpsTreeItem, data: DevOp
   });
 }
 
-export function drawManagementClaims(element: DevOpsTreeItem, data: DevOpsTreeItem[], className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"): Thenable<DevOpsTreeItem[]> {
+export function drawManagementClaims(
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
   return new Promise(async (resolve, reject) => {
     data = [];
     if (element) {
@@ -284,7 +305,7 @@ export function drawManagementClaims(element: DevOpsTreeItem, data: DevOpsTreeIt
       }
 
       for (const claim of provider.claims?.sort((a, b) => a.name.localeCompare(b.name)) ?? []) {
-        const id = `${elementId}%%management%%claims%%${claim.name}`
+        const id = `${elementId}%%management%%claims%%${claim.name}`;
         data.push(
           new DevOpsTreeItem(
             id,
@@ -299,7 +320,6 @@ export function drawManagementClaims(element: DevOpsTreeItem, data: DevOpsTreeIt
             "remote_hosts_management_claims"
           )
         );
-
       }
     }
 
@@ -307,7 +327,11 @@ export function drawManagementClaims(element: DevOpsTreeItem, data: DevOpsTreeIt
   });
 }
 
-export function drawManagementRoles(element: DevOpsTreeItem, data: DevOpsTreeItem[], className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"): Thenable<DevOpsTreeItem[]> {
+export function drawManagementRoles(
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
   return new Promise(async (resolve, reject) => {
     data = [];
     if (element) {
@@ -325,7 +349,7 @@ export function drawManagementRoles(element: DevOpsTreeItem, data: DevOpsTreeIte
       }
 
       for (const role of provider.roles?.sort((a, b) => a.name.localeCompare(b.name)) ?? []) {
-        const id = `${elementId}%%management%%roles%%${role.name}`
+        const id = `${elementId}%%management%%roles%%${role.name}`;
         data.push(
           new DevOpsTreeItem(
             id,
@@ -340,7 +364,6 @@ export function drawManagementRoles(element: DevOpsTreeItem, data: DevOpsTreeIte
             "remote_hosts_management_roles"
           )
         );
-
       }
     }
 

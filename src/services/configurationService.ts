@@ -1,5 +1,5 @@
-import { configurationInitialized } from './../ioc/provider';
-import { FeatureFlags } from "./../models/FeatureFlags";
+import {configurationInitialized} from "./../ioc/provider";
+import {FeatureFlags} from "./../models/FeatureFlags";
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
@@ -15,27 +15,27 @@ import {
   FLAG_PARALLELS_DESKTOP_EXISTS,
   FLAG_VAGRANT_EXISTS
 } from "../constants/flags";
-import { getUserProfileFolder } from "../helpers/helpers";
-import { Provider } from "../ioc/provider";
-import { VirtualMachineGroup } from "../models/parallels/virtualMachineGroup";
-import { ParallelsDesktopService } from "./parallelsDesktopService";
-import { VirtualMachine } from "../models/parallels/virtualMachine";
-import { HardwareInfo } from "../models/parallels/HardwareInfo";
-import { HelperService } from "./helperService";
-import { LogService } from "./logService";
-import { ParallelsDesktopServerInfo } from "../models/parallels/ParallelsDesktopServerInfo";
-import { Tools } from "../models/tools";
-import { BrewService } from "./brewService";
-import { GitService } from "./gitService";
-import { PackerService } from "./packerService";
-import { VagrantService } from "./vagrantService";
-import { DockerRunItem } from "../models/docker/dockerRunItem";
-import { DevOpsService } from "./devopsService";
-import { DevOpsCatalogHostProvider } from "../models/devops/catalogHostProvider";
-import { CatalogManifest, CatalogManifestItem } from "../models/devops/catalogManifest";
-import { parseHost } from '../models/host';
-import { DevOpsRemoteHostProvider } from "../models/devops/remoteHostProvider";
-import { DevOpsRemoteHost } from "../models/devops/remoteHost";
+import {getUserProfileFolder} from "../helpers/helpers";
+import {Provider} from "../ioc/provider";
+import {VirtualMachineGroup} from "../models/parallels/virtualMachineGroup";
+import {ParallelsDesktopService} from "./parallelsDesktopService";
+import {VirtualMachine} from "../models/parallels/virtualMachine";
+import {HardwareInfo} from "../models/parallels/HardwareInfo";
+import {HelperService} from "./helperService";
+import {LogService} from "./logService";
+import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
+import {Tools} from "../models/tools";
+import {BrewService} from "./brewService";
+import {GitService} from "./gitService";
+import {PackerService} from "./packerService";
+import {VagrantService} from "./vagrantService";
+import {DockerRunItem} from "../models/docker/dockerRunItem";
+import {DevOpsService} from "./devopsService";
+import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
+import {CatalogManifest, CatalogManifestItem} from "../models/devops/catalogManifest";
+import {parseHost} from "../models/host";
+import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
+import {DevOpsRemoteHost} from "../models/devops/remoteHost";
 
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
@@ -283,7 +283,6 @@ export class ConfigurationService {
     }
     const configFolder = getUserProfileFolder();
     const userProfile = path.join(configFolder, "profile.json");
-    
 
     // Backing up before writing
     if (fs.existsSync(userProfile)) {
@@ -508,13 +507,13 @@ export class ConfigurationService {
     const catalogExistsId = this.findCatalogProviderByIOrName(provider.ID);
     if (catalogExistsId) {
       vscode.window.showErrorMessage(`A catalog provider with the id ${provider.ID} already exists`);
-      return false
+      return false;
     }
 
     const catalogNameExists = this.findCatalogProviderByIOrName(provider.name);
     if (catalogNameExists) {
       vscode.window.showErrorMessage(`A catalog provider with the name ${provider.name} already exists`);
-      return false
+      return false;
     }
 
     this.catalogProviders.push(provider);
@@ -528,7 +527,7 @@ export class ConfigurationService {
       return false;
     }
     let foundProvider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined;
-    if (provider.class === "DevOpsRemoteHostProvider") { 
+    if (provider.class === "DevOpsRemoteHostProvider") {
       foundProvider = this.findRemoteHostProviderById(provider.ID);
     }
     if (provider.class === "DevOpsCatalogHostProvider") {
@@ -544,7 +543,7 @@ export class ConfigurationService {
       const index = this.catalogProviders.indexOf(catalogProvider);
       this.catalogProviders[index].name = newName;
     }
-    if (provider.class === "DevOpsRemoteHostProvider"){
+    if (provider.class === "DevOpsRemoteHostProvider") {
       const remoteProvider = foundProvider as DevOpsRemoteHostProvider;
       const index = this.remoteHostProviders.indexOf(remoteProvider);
       this.remoteHostProviders[index].name = newName;
@@ -557,7 +556,9 @@ export class ConfigurationService {
   removeCatalogProvider(providerId: string): boolean {
     const provider = this.findCatalogProviderByIOrName(providerId);
     if (provider) {
-      this.catalogProviders = this.catalogProviders.filter(provider => provider.ID.toLowerCase() !== providerId.toLowerCase());
+      this.catalogProviders = this.catalogProviders.filter(
+        provider => provider.ID.toLowerCase() !== providerId.toLowerCase()
+      );
       this.save();
       return true;
     }
@@ -572,13 +573,15 @@ export class ConfigurationService {
           provider.updatedAt = new Date().toISOString();
           this.save();
         }
-        break
+        break;
       }
     }
   }
 
   findCatalogProviderByIOrName(id: string): DevOpsCatalogHostProvider | undefined {
-    const filteredResult = this.catalogProviders.find(provider => provider.ID.toLowerCase() === id.toLowerCase() || provider.name.toLowerCase() === id.toLowerCase());
+    const filteredResult = this.catalogProviders.find(
+      provider => provider.ID.toLowerCase() === id.toLowerCase() || provider.name.toLowerCase() === id.toLowerCase()
+    );
     return filteredResult;
   }
 
@@ -601,7 +604,7 @@ export class ConfigurationService {
 
     return [];
   }
-  
+
   get allCatalogProviders(): DevOpsCatalogHostProvider[] {
     const providers: DevOpsCatalogHostProvider[] = [];
     if (this.catalogProviders.length > 0) {
@@ -616,13 +619,13 @@ export class ConfigurationService {
     const remoteProviderHostExists = this.findRemoteHostProviderByHost(provider.rawHost ?? "");
     if (remoteProviderHostExists && remoteProviderHostExists.type === provider.type) {
       vscode.window.showErrorMessage(`A remote host provider with the id ${provider.ID} already exists`);
-      return false
+      return false;
     }
 
     const remoteProviderNameExists = this.findRemoteHostProviderByName(provider.name);
     if (remoteProviderNameExists) {
       vscode.window.showErrorMessage(`A remote host provider with the name ${provider.name} already exists`);
-      return false
+      return false;
     }
 
     this.remoteHostProviders.push(provider);
@@ -633,14 +636,16 @@ export class ConfigurationService {
   removeRemoteHostProvider(providerId: string): boolean {
     const provider = this.findRemoteHostProviderById(providerId);
     if (provider) {
-      this.remoteHostProviders = this.remoteHostProviders.filter(provider => provider.ID.toLowerCase() !== providerId.toLowerCase());
+      this.remoteHostProviders = this.remoteHostProviders.filter(
+        provider => provider.ID.toLowerCase() !== providerId.toLowerCase()
+      );
       this.save();
       return true;
     }
     return false;
   }
 
-  updateRemoteHostProviderState(providerId: string, state: "active" | "inactive" | "disabled" |  "unknown") {
+  updateRemoteHostProviderState(providerId: string, state: "active" | "inactive" | "disabled" | "unknown") {
     for (const provider of this.remoteHostProviders) {
       if (provider.ID === providerId) {
         const providerState = provider.state;
@@ -649,19 +654,23 @@ export class ConfigurationService {
           provider.updatedAt = new Date().toISOString();
           this.save();
         }
-        break
+        break;
       }
     }
   }
 
   findRemoteHostProviderByHost(host: string): DevOpsRemoteHostProvider | undefined {
     const hostname = parseHost(host);
-    const filteredResult = this.remoteHostProviders.find(provider => provider.rawHost.toLowerCase() === hostname.hostname.toLowerCase());
+    const filteredResult = this.remoteHostProviders.find(
+      provider => provider.rawHost.toLowerCase() === hostname.hostname.toLowerCase()
+    );
     return filteredResult;
   }
 
   findRemoteHostProviderByName(name: string): DevOpsRemoteHostProvider | undefined {
-    const filteredResult = this.remoteHostProviders.find(provider => provider.name.toLowerCase() === name.toLowerCase());
+    const filteredResult = this.remoteHostProviders.find(
+      provider => provider.name.toLowerCase() === name.toLowerCase()
+    );
     return filteredResult;
   }
 
@@ -679,9 +688,18 @@ export class ConfigurationService {
   }
 
   findRemoteHostProviderVirtualMachine(providerId: string, virtualMachineId: string): VirtualMachine | undefined {
-    const provider = this.remoteHostProviders.find(provider => provider.ID.toLowerCase() === providerId.toLowerCase() || provider.name.toLowerCase() === providerId.toLowerCase() || provider.host?.toLowerCase() === providerId.toLowerCase());
+    const provider = this.remoteHostProviders.find(
+      provider =>
+        provider.ID.toLowerCase() === providerId.toLowerCase() ||
+        provider.name.toLowerCase() === providerId.toLowerCase() ||
+        provider.host?.toLowerCase() === providerId.toLowerCase()
+    );
     if (provider) {
-      return provider.virtualMachines?.find(virtualMachine => virtualMachine.ID.toLowerCase() === virtualMachineId.toLowerCase() || virtualMachine.Name.toLowerCase() === virtualMachineId.toLowerCase());
+      return provider.virtualMachines?.find(
+        virtualMachine =>
+          virtualMachine.ID.toLowerCase() === virtualMachineId.toLowerCase() ||
+          virtualMachine.Name.toLowerCase() === virtualMachineId.toLowerCase()
+      );
     }
     return undefined;
   }
@@ -711,7 +729,6 @@ export class ConfigurationService {
       }
     }
   }
-
 
   sortVms() {
     const settings = Provider.getSettings();
@@ -917,7 +934,8 @@ export class ConfigurationService {
         };
       }
 
-      this.tools.devopsService.isInstalled = (await DevOpsService.isInstalled().catch(reason => reject(reason))) ?? false;
+      this.tools.devopsService.isInstalled =
+        (await DevOpsService.isInstalled().catch(reason => reject(reason))) ?? false;
 
       if (!this.tools.devopsService.isInstalled) {
         LogService.info("Parallels DevOps Service is not installed", "ConfigService");

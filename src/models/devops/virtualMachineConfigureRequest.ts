@@ -3,13 +3,13 @@ export interface DevOpsVirtualMachineConfigureRequest {
 }
 
 export interface DevOpsVirtualMachineConfigureRequestOperation {
-  group:     string;
+  group: string;
   operation: string;
   value?: string;
-  options?:   DevOpsVirtualMachineConfigureRequestOption[];
+  options?: DevOpsVirtualMachineConfigureRequestOption[];
 }
 
 export interface DevOpsVirtualMachineConfigureRequestOption {
-  flag:  string;
+  flag: string;
   value: string;
 }
