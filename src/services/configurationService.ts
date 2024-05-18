@@ -1,9 +1,11 @@
+import {configurationInitialized} from "./../ioc/provider";
 import {FeatureFlags} from "./../models/FeatureFlags";
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 import {
   CommandsFlags,
+  FLAG_DEVOPS_SERVICE_EXISTS,
   FLAG_DOCKER_CONTAINER_ITEMS_EXISTS,
   FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY,
   FLAG_HAS_VAGRANT_BOXES,
@@ -15,22 +17,30 @@ import {
 } from "../constants/flags";
 import {getUserProfileFolder} from "../helpers/helpers";
 import {Provider} from "../ioc/provider";
-import {VirtualMachineGroup} from "../models/virtualMachineGroup";
+import {VirtualMachineGroup} from "../models/parallels/virtualMachineGroup";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
-import {VirtualMachine} from "../models/virtualMachine";
-import {HardwareInfo} from "../models/HardwareInfo";
+import {VirtualMachine} from "../models/parallels/virtualMachine";
+import {HardwareInfo} from "../models/parallels/HardwareInfo";
 import {HelperService} from "./helperService";
 import {LogService} from "./logService";
-import {ParallelsDesktopServerInfo} from "../models/ParallelsDesktopServerInfo";
+import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
 import {Tools} from "../models/tools";
 import {BrewService} from "./brewService";
 import {GitService} from "./gitService";
 import {PackerService} from "./packerService";
 import {VagrantService} from "./vagrantService";
-import {DockerRunItem} from "../models/dockerRunItem";
+import {DockerRunItem} from "../models/docker/dockerRunItem";
+import {DevOpsService} from "./devopsService";
+import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
+import {CatalogManifest, CatalogManifestItem} from "../models/devops/catalogManifest";
+import {parseHost} from "../models/host";
+import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
+import {DevOpsRemoteHost} from "../models/devops/remoteHost";
 
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
+  catalogProviders: DevOpsCatalogHostProvider[];
+  remoteHostProviders: DevOpsRemoteHostProvider[];
   featureFlags: FeatureFlags;
   tools: Tools;
   hardwareInfo?: HardwareInfo;
@@ -47,6 +57,8 @@ export class ConfigurationService {
   constructor(private context: vscode.ExtensionContext) {
     this.virtualMachinesGroups = [];
     this.dockerRunItems = [];
+    this.catalogProviders = [];
+    this.remoteHostProviders = [];
     this.featureFlags = {
       enableTelemetry: undefined,
       hardwareId: undefined,
@@ -83,6 +95,12 @@ export class ConfigurationService {
       },
       parallelsDesktop: {
         name: "prlctl",
+        version: "",
+        isInstalled: false,
+        isReady: false
+      },
+      devopsService: {
+        name: "prldevops",
         version: "",
         isInstalled: false,
         isReady: false
@@ -132,6 +150,15 @@ export class ConfigurationService {
       if (json.lastHeartbeat !== undefined) {
         configuration.lastHeartbeat = json.lastHeartbeat;
       }
+      if (json.devops !== undefined) {
+        configuration.dockerRunItems = json.dockerRunItems;
+      }
+      if (json.catalogProviders !== undefined) {
+        configuration.catalogProviders = json.catalogProviders;
+      }
+      if (json.remoteHostProviders !== undefined) {
+        configuration.remoteHostProviders = json.remoteHostProviders;
+      }
 
       return configuration;
     } catch (e) {
@@ -150,6 +177,7 @@ export class ConfigurationService {
       this.initBrew(),
       this.initGit(),
       this.initParallelsDesktop(),
+      this.initDevOpsService(),
       this.initPacker(),
       this.initVagrant(),
       this.loadDockerRunItems(),
@@ -204,6 +232,8 @@ export class ConfigurationService {
   toJson(): any {
     const config = {
       virtualMachinesGroup: this.virtualMachinesGroups,
+      catalogProviders: this.catalogProviders,
+      remoteHostProviders: this.remoteHostProviders,
       featureFlags: this.featureFlags,
       hardwareInfo: this.hardwareInfo,
       parallelsDesktopServerInfo: this.parallelsDesktopServerInfo,
@@ -247,6 +277,10 @@ export class ConfigurationService {
   }
 
   save() {
+    if (!configurationInitialized) {
+      console.error("Configuration not initialized");
+      return;
+    }
     const configFolder = getUserProfileFolder();
     const userProfile = path.join(configFolder, "profile.json");
 
@@ -469,6 +503,233 @@ export class ConfigurationService {
     }
   }
 
+  addCatalogProvider(provider: DevOpsCatalogHostProvider): boolean {
+    const catalogExistsId = this.findCatalogProviderByIOrName(provider.ID);
+    if (catalogExistsId) {
+      vscode.window.showErrorMessage(`A catalog provider with the id ${provider.ID} already exists`);
+      return false;
+    }
+
+    const catalogNameExists = this.findCatalogProviderByIOrName(provider.name);
+    if (catalogNameExists) {
+      vscode.window.showErrorMessage(`A catalog provider with the name ${provider.name} already exists`);
+      return false;
+    }
+
+    this.catalogProviders.push(provider);
+    this.save();
+    return true;
+  }
+
+  renameRemoteProvider(provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider, newName: string): boolean {
+    if (!provider) {
+      vscode.window.showErrorMessage(`Provider not found`);
+      return false;
+    }
+    let foundProvider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined;
+    if (provider.class === "DevOpsRemoteHostProvider") {
+      foundProvider = this.findRemoteHostProviderById(provider.ID);
+    }
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      foundProvider = this.findCatalogProviderByIOrName(provider.ID);
+    }
+    if (!foundProvider) {
+      vscode.window.showErrorMessage(`Remote Host Provider User ${provider.name} not found`);
+      return false;
+    }
+
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      const catalogProvider = foundProvider as DevOpsCatalogHostProvider;
+      const index = this.catalogProviders.indexOf(catalogProvider);
+      this.catalogProviders[index].name = newName;
+    }
+    if (provider.class === "DevOpsRemoteHostProvider") {
+      const remoteProvider = foundProvider as DevOpsRemoteHostProvider;
+      const index = this.remoteHostProviders.indexOf(remoteProvider);
+      this.remoteHostProviders[index].name = newName;
+    }
+
+    this.save();
+    return true;
+  }
+
+  removeCatalogProvider(providerId: string): boolean {
+    const provider = this.findCatalogProviderByIOrName(providerId);
+    if (provider) {
+      this.catalogProviders = this.catalogProviders.filter(
+        provider => provider.ID.toLowerCase() !== providerId.toLowerCase()
+      );
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
+  updateCatalogProviderState(providerId: string, state: "active" | "inactive" | "unknown") {
+    for (const provider of this.catalogProviders) {
+      if (provider.ID === providerId) {
+        if (provider.state !== state) {
+          provider.state = state;
+          provider.updatedAt = new Date().toISOString();
+          this.save();
+        }
+        break;
+      }
+    }
+  }
+
+  findCatalogProviderByIOrName(id: string): DevOpsCatalogHostProvider | undefined {
+    const filteredResult = this.catalogProviders.find(
+      provider => provider.ID.toLowerCase() === id.toLowerCase() || provider.name.toLowerCase() === id.toLowerCase()
+    );
+    return filteredResult;
+  }
+
+  findCatalogProviderManifest(providerId: string, manifestName: string): CatalogManifestItem | undefined {
+    const provider = this.findCatalogProviderByIOrName(providerId);
+    if (provider) {
+      const manifest = provider.manifests.find(manifest => manifest.name.toLowerCase() === manifestName.toLowerCase());
+      return manifest;
+    }
+  }
+
+  getCatalogProviderManifestVersions(providerId: string, manifestName: string): CatalogManifest[] {
+    const provider = this.findCatalogProviderByIOrName(providerId);
+    if (provider) {
+      const manifest = provider.manifests.find(manifest => manifest.name.toLowerCase() === manifestName.toLowerCase());
+      if (manifest) {
+        return manifest.items;
+      }
+    }
+
+    return [];
+  }
+
+  get allCatalogProviders(): DevOpsCatalogHostProvider[] {
+    const providers: DevOpsCatalogHostProvider[] = [];
+    if (this.catalogProviders.length > 0) {
+      this.catalogProviders.forEach(provider => {
+        providers.push(provider);
+      });
+    }
+    return providers.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  addRemoteHostProvider(provider: DevOpsRemoteHostProvider): boolean {
+    const remoteProviderHostExists = this.findRemoteHostProviderByHost(provider.rawHost ?? "");
+    if (remoteProviderHostExists && remoteProviderHostExists.type === provider.type) {
+      vscode.window.showErrorMessage(`A remote host provider with the id ${provider.ID} already exists`);
+      return false;
+    }
+
+    const remoteProviderNameExists = this.findRemoteHostProviderByName(provider.name);
+    if (remoteProviderNameExists) {
+      vscode.window.showErrorMessage(`A remote host provider with the name ${provider.name} already exists`);
+      return false;
+    }
+
+    this.remoteHostProviders.push(provider);
+    this.save();
+    return true;
+  }
+
+  removeRemoteHostProvider(providerId: string): boolean {
+    const provider = this.findRemoteHostProviderById(providerId);
+    if (provider) {
+      this.remoteHostProviders = this.remoteHostProviders.filter(
+        provider => provider.ID.toLowerCase() !== providerId.toLowerCase()
+      );
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
+  updateRemoteHostProviderState(providerId: string, state: "active" | "inactive" | "disabled" | "unknown") {
+    for (const provider of this.remoteHostProviders) {
+      if (provider.ID === providerId) {
+        const providerState = provider.state;
+        if (provider.state !== state) {
+          provider.state = state;
+          provider.updatedAt = new Date().toISOString();
+          this.save();
+        }
+        break;
+      }
+    }
+  }
+
+  findRemoteHostProviderByHost(host: string): DevOpsRemoteHostProvider | undefined {
+    const hostname = parseHost(host);
+    const filteredResult = this.remoteHostProviders.find(
+      provider => provider.rawHost.toLowerCase() === hostname.hostname.toLowerCase()
+    );
+    return filteredResult;
+  }
+
+  findRemoteHostProviderByName(name: string): DevOpsRemoteHostProvider | undefined {
+    const filteredResult = this.remoteHostProviders.find(
+      provider => provider.name.toLowerCase() === name.toLowerCase()
+    );
+    return filteredResult;
+  }
+
+  findRemoteHostProviderById(id: string): DevOpsRemoteHostProvider | undefined {
+    const filteredResult = this.remoteHostProviders.find(provider => provider.ID.toLowerCase() === id.toLowerCase());
+    return filteredResult;
+  }
+
+  findRemoteHostProviderHostById(providerId: string, id: string): DevOpsRemoteHost | undefined {
+    const provider = this.remoteHostProviders.find(provider => provider.ID.toLowerCase() === providerId.toLowerCase());
+    if (provider) {
+      return provider.hosts?.find(host => host.id.toLowerCase() === id.toLowerCase());
+    }
+    return undefined;
+  }
+
+  findRemoteHostProviderVirtualMachine(providerId: string, virtualMachineId: string): VirtualMachine | undefined {
+    const provider = this.remoteHostProviders.find(
+      provider =>
+        provider.ID.toLowerCase() === providerId.toLowerCase() ||
+        provider.name.toLowerCase() === providerId.toLowerCase() ||
+        provider.host?.toLowerCase() === providerId.toLowerCase()
+    );
+    if (provider) {
+      return provider.virtualMachines?.find(
+        virtualMachine =>
+          virtualMachine.ID.toLowerCase() === virtualMachineId.toLowerCase() ||
+          virtualMachine.Name.toLowerCase() === virtualMachineId.toLowerCase()
+      );
+    }
+    return undefined;
+  }
+
+  get allRemoteHostProviders(): DevOpsRemoteHostProvider[] {
+    const providers: DevOpsRemoteHostProvider[] = [];
+    if (this.remoteHostProviders.length > 0) {
+      this.remoteHostProviders.forEach(provider => {
+        providers.push(provider);
+      });
+    }
+
+    return providers.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  updateDevOpsHostsProviderState(providerId: string, state: "active" | "inactive" | "unknown") {
+    for (const provider of this.remoteHostProviders) {
+      if (provider.ID === providerId) {
+        this.updateRemoteHostProviderState(providerId, state);
+        break;
+      }
+    }
+    for (const provider of this.catalogProviders) {
+      if (provider.ID === providerId) {
+        this.updateCatalogProviderState(providerId, state);
+        break;
+      }
+    }
+  }
+
   sortVms() {
     const settings = Provider.getSettings();
     if (settings.get<boolean>(FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY)) {
@@ -547,6 +808,15 @@ export class ConfigurationService {
   initParallelsDesktop(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       LogService.info("Initializing Parallels Desktop", "ConfigService");
+      if (this.tools.parallelsDesktop === undefined) {
+        this.tools.parallelsDesktop = {
+          name: "prlctl",
+          version: "",
+          isInstalled: false,
+          isReady: false
+        };
+      }
+
       this.tools.parallelsDesktop.isInstalled =
         (await ParallelsDesktopService.isInstalled().catch(reason => reject(reason))) ?? false;
 
@@ -587,6 +857,15 @@ export class ConfigurationService {
   initBrew(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       LogService.info("Initializing Brew", "ConfigService");
+      if (this.tools.brew === undefined) {
+        this.tools.brew = {
+          name: "brew",
+          version: "",
+          isInstalled: false,
+          isReady: false
+        };
+      }
+
       this.tools.brew.isInstalled = (await BrewService.isInstalled().catch(reason => reject(reason))) ?? false;
 
       if (!this.tools.brew.isInstalled) {
@@ -613,6 +892,15 @@ export class ConfigurationService {
   initGit(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       LogService.info("Initializing Git", "ConfigService");
+      if (this.tools.git === undefined) {
+        this.tools.git = {
+          name: "git",
+          version: "",
+          isInstalled: false,
+          isReady: false
+        };
+      }
+
       this.tools.git.isInstalled = (await GitService.isInstalled().catch(reason => reject(reason))) ?? false;
 
       if (!this.tools.git.isInstalled) {
@@ -634,9 +922,54 @@ export class ConfigurationService {
     });
   }
 
+  initDevOpsService(): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      LogService.info("Initializing Parallels DevOps Service", "ConfigService");
+      if (this.tools.devopsService === undefined) {
+        this.tools.devopsService = {
+          name: "prldevops",
+          version: "",
+          isInstalled: false,
+          isReady: false
+        };
+      }
+
+      this.tools.devopsService.isInstalled =
+        (await DevOpsService.isInstalled().catch(reason => reject(reason))) ?? false;
+
+      if (!this.tools.devopsService.isInstalled) {
+        LogService.info("Parallels DevOps Service is not installed", "ConfigService");
+        vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
+        return resolve(false);
+      }
+
+      DevOpsService.version()
+        .then(version => {
+          this.tools.devopsService.version = version;
+          vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, true);
+          return resolve(true);
+        })
+        .catch(reason => {
+          this.tools.devopsService.isInstalled = false;
+          this.tools.devopsService.version = "";
+          vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
+          LogService.error(`Parallels DevOps Service is not installed, err: ${reason}`, "ConfigService");
+          return resolve(false);
+        });
+    });
+  }
+
   initPacker(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       LogService.info("Initializing Packer", "ConfigService");
+      if (this.tools.packer === undefined) {
+        this.tools.packer = {
+          name: "packer",
+          version: "",
+          isInstalled: false,
+          isReady: false
+        };
+      }
       this.tools.packer.isInstalled = (await PackerService.isInstalled().catch(reason => reject(reason))) ?? false;
 
       if (!this.tools.packer.isInstalled) {
@@ -666,6 +999,14 @@ export class ConfigurationService {
   initVagrant(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       LogService.info("Initializing Vagrant", "ConfigService");
+      if (this.tools.vagrant === undefined) {
+        this.tools.vagrant = {
+          name: "vagrant",
+          version: "",
+          isInstalled: false,
+          isReady: false
+        };
+      }
       this.tools.vagrant.isInstalled = (await VagrantService.isInstalled().catch(reason => reject(reason))) ?? false;
 
       if (!this.tools.vagrant.isInstalled) {

@@ -11,4 +11,5 @@ export interface Tools {
   packer: Tool;
   vagrant: Tool;
   parallelsDesktop: Tool;
+  devopsService: Tool;
 }

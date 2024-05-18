@@ -34,9 +34,16 @@ export function formatDate(date: Date) {
 }
 
 export function getFoldersBasePath(): string {
+  const os = Provider.getOs();
   let foldersBasePath = Provider.getSettings().get<string>(FLAG_PARALLELS_EXTENSION_PATH);
-  if (!foldersBasePath) {
-    const homePath = cp.execSync(`echo $HOME`).toString();
+  const folderExists = fs.existsSync(foldersBasePath ?? "");
+  if (!foldersBasePath || !folderExists) {
+    let homePath = "";
+    if (os === "darwin" || os === "linux") {
+      homePath = cp.execSync(`echo $HOME`).toString().replace("\r\r", "").replace("\n", "");
+    } else if (os.toLowerCase().startsWith("win")) {
+      homePath = process.env.APPDATA ?? "";
+    }
     foldersBasePath = path.join(homePath.trim(), ".parallels-desktop-vscode");
     if (!fs.existsSync(foldersBasePath)) {
       fs.mkdirSync(foldersBasePath, {recursive: true});

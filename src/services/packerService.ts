@@ -4,8 +4,8 @@ import * as fs from "fs";
 import * as path from "path";
 import {Constants, FLAG_PACKER_PATH, FLAG_PACKER_VERSION} from "../constants/flags";
 import {Provider} from "../ioc/provider";
-import {VirtualMachineAddon} from "../models/VirtualMachineAddon";
-import {PackerVirtualMachineConfig} from "../models/PackerVirtualMachineConfig";
+import {VirtualMachineAddon} from "../models/parallels/VirtualMachineAddon";
+import {PackerVirtualMachineConfig} from "../models/packer/PackerVirtualMachineConfig";
 import {LogService} from "./logService";
 import {getPackerTemplateFolder} from "../helpers/helpers";
 

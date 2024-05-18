@@ -19,3 +19,6 @@ docs/
 *.pvm
 *.macvm
 *.ipsw
+.github/
+.vscode/
+remote-desktop-client-src/

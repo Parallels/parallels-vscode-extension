@@ -1,5 +1,7 @@
 export const FLAG_NO_GROUP = "no_group";
+export const FLAG_OS = "parallels-desktop:os";
 export const FLAG_CONFIGURATION = "parallels.configuration";
+export const FLAG_CONFIGURATION_INITIALIZED = "parallels.configuration.initialized";
 export const FLAG_VAGRANT_VERSION = "hashicorp.vagrant.version";
 export const FLAG_VAGRANT_PATH = "hashicorp.vagrant.path";
 export const FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS = "hashicorp.vagrant.parallels.plugin";
@@ -15,6 +17,9 @@ export const FLAG_ENABLE_SHOW_HIDDEN = "parallels-desktop:enableShowHidden";
 export const FLAG_DISABLE_SHOW_HIDDEN = "parallels-desktop:disableShowHidden";
 export const FLAG_VAGRANT_EXISTS = "parallels-desktop:vagrant";
 export const FLAG_PACKER_EXISTS = "parallels-desktop:packer";
+export const FLAG_DEVOPS_SERVICE_EXISTS = "parallels-desktop:devops-service";
+export const FLAG_DEVOPS_CATALOG_HAS_ITEMS = "parallels-desktop:devops-service-catalog-provider-has-items";
+export const FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS = "parallels-desktop:devops-service-remote-host-provider-has-items";
 export const FLAG_PARALLELS_DESKTOP_EXISTS = "parallels-desktop:parallels";
 export const FLAG_PARALLELS_EXTENSION_INITIALIZED = "parallels-desktop:initialized";
 export const FLAG_DOCKER_CONTAINER_ITEMS_EXISTS = "parallels-desktop:docker-container-items";
@@ -29,6 +34,10 @@ export const FLAG_GIT_PATH = "git.path";
 export const FLAG_GIT_VERSION = "git.version";
 export const FLAG_BREW_PATH = "brew.path";
 export const FLAG_BREW_VERSION = "brew.version";
+export const FLAG_DEVOPS_PATH = "devops-service.path";
+export const FLAG_DEVOPS_VERSION = "devops-service.version";
+export const FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED = "devops-service.catalog-provider.initialized";
+export const FLAG_DEVOPS_REMOTE_HOST_PROVIDER_INITIALIZED = "devops-service.remote-host-provider.initialized";
 
 const COMMAND_PREFIX = "parallels-desktop";
 const TREE_VIEW_PREFIX = "tree-view";
@@ -133,6 +142,7 @@ export class Constants {
   static CacheFlagHardwareInfo = "parallels-desktop.hardware-info";
   static CacheFlagParallelsServerInfo = "parallels-desktop.server-info";
   static CacheFlagPackerAddons = "parallels-desktop.packer-addons";
+  static CacheFlagArchitecture = "parallels-desktop.architecture";
 }
 
 export class CommandsFlags {
@@ -192,5 +202,60 @@ export class CommandsFlags {
   static dockerRunContainer = `${COMMAND_PREFIX}.docker.run-container`;
   static dockerRemoveImage = `${COMMAND_PREFIX}.docker.remove-image`;
 
+  // Devops General Commands
+
+  // Devops Catalog Commands
+  static devopsInstallFromCatalogProvider = `${COMMAND_PREFIX}.devops-service.install-from-catalog-provider`;
+  static devopsAddCatalogProvider = `${COMMAND_PREFIX}.devops-service.add-catalog-provider`;
+  static devopsRemoveCatalogProvider = `${COMMAND_PREFIX}.devops-service.remove-catalog-provider`;
+  static devopsRemoveCatalogProviderManifest = `${COMMAND_PREFIX}.devops-service.remove-catalog-provider-manifest`;
+  static devopsRefreshCatalogProvider = `${COMMAND_PREFIX}.devops-service.refresh-catalog-provider`;
+  static devopsPullCatalogManifestMachineOnHost = `${COMMAND_PREFIX}.devops-service.pull-catalog-provider-manifest`;
+  static devopsPushVmToCatalogProviderManifest = `${COMMAND_PREFIX}.devops-service.push-catalog-provider-manifest`;
+  static devopsTaintCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.taint-catalog-provider-manifest-version`;
+  static devopsUntaintCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.untaint-catalog-provider-manifest-version`;
+  static devopsRevokeCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.revoke-catalog-provider-manifest-version`;
+  static devopsAddRoleToCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.add-role-to-catalog-provider-manifest-version`;
+  static devopsRemoveRoleFromCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.remove-role-from-catalog-provider-manifest-version`;
+  static devopsAddClaimToCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.add-claim-to-catalog-provider-manifest-version`;
+  static devopsRemoveClaimFromCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.remove-claim-from-catalog-provider-manifest-version`;
+  static devopsAddTagToCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.add-tag-to-catalog-provider-manifest-version`;
+  static devopsRemoveTagFromCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.remove-tag-from-catalog-provider-manifest-version`;
+
+  //Remote Provider Commands
+  static devopsInstallFromRemoteProvider = `${COMMAND_PREFIX}.devops-service.install-from-remote-host-provider`;
+  static devopsAddRemoteProvider = `${COMMAND_PREFIX}.devops-service.add-remote-host-provider`;
+  static devopsRemoveRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider`;
+  static devopsRefreshRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.refresh-remote-host-provider`;
+  static devopsForceRefreshRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.force-refresh-remote-host-provider`;
+  static devopsAddRemoteProviderOrchestratorHost = `${COMMAND_PREFIX}.devops-service.add-remote-provider-orchestrator-host`;
+  static devopsRemoveRemoteProviderOrchestratorHost = `${COMMAND_PREFIX}.devops-service.remove-remote-provider-orchestrator-host`;
+  static devopsRemoveRemoteProviderHost = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider-host`;
+  static devopsEnableRemoteProviderHost = `${COMMAND_PREFIX}.devops-service.enable-remote-host-provider-host`;
+  static devopsDisableRemoteProviderHost = `${COMMAND_PREFIX}.devops-service.disable-remote-host-provider-host`;
+  static devopsStartRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.start-remote-host-provider-host-vm`;
+  static devopsStopRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.stop-remote-host-provider-host-vm`;
+  static devopsResumeRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.resume-remote-host-provider-host-vm`;
+  static devopsSuspendRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.suspend-remote-host-provider-host-vm`;
+  static devopsPauseRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.pause-remote-host-provider-host-vm`;
+  static devopsCloneRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.clone-remote-host-provider-host-vm`;
+  static devopsRemoveRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider-host-vm`;
+  static devopsPullCatalogManifestMachineOnRemoteHost = `${COMMAND_PREFIX}.devops-service.remote-host.pull-catalog-manifest-machine-on-host`;
+
+  static devopsRemoteProviderManagementRenameProvider = `${COMMAND_PREFIX}.devops-service.management.rename-remote-provider`;
+  static devopsRemoteProviderManagementAddUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-user`;
+  static devopsRemoteProviderManagementRemoveUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-user`;
+  static devopsRemoteProviderManagementUpdateUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.update-user`;
+  static devopsRemoteProviderManagementAddUserRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-user-role`;
+  static devopsRemoteProviderManagementRemoveUserRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-user-role`;
+  static devopsRemoteProviderManagementAddUserClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-user-claim`;
+  static devopsRemoteProviderManagementRemoveUserClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-user-claim`;
+
+  static devopsRemoteProviderManagementAddRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-role`;
+  static devopsRemoteProviderManagementRemoveRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-role`;
+  static devopsRemoteProviderManagementAddClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-claim`;
+  static devopsRemoteProviderManagementRemoveClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-claim`;
+
+  // Vagrant Commands
   static vagrantSearchAndDownload = `${COMMAND_PREFIX}.vagrant.search-and-download`;
 }

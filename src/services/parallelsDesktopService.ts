@@ -5,14 +5,15 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 import {Provider} from "../ioc/provider";
 import {FLAG_NO_GROUP} from "../constants/flags";
-import {VirtualMachineGroup} from "../models/virtualMachineGroup";
-import {VirtualMachine} from "../models/virtualMachine";
-import {MachineSnapshot} from "../models/virtualMachineSnapshot";
+import {VirtualMachineGroup} from "../models/parallels/virtualMachineGroup";
+import {VirtualMachine} from "../models/parallels/virtualMachine";
+import {MachineSnapshot} from "../models/parallels/virtualMachineSnapshot";
 import {generateMacConfigPvs} from "../helpers/pvsConfig";
 import {LogService} from "./logService";
-import {NewVirtualMachineSpecs} from "../models/NewVirtualMachineSpecs";
-import {ParallelsDesktopServerInfo} from "../models/ParallelsDesktopServerInfo";
-import {VirtualMachineRunningInfo} from "../models/virtualMachineRunningInfo";
+import {NewVirtualMachineSpecs} from "../models/parallels/NewVirtualMachineSpecs";
+import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
+import {VirtualMachineRunningInfo} from "../models/parallels/virtualMachineRunningInfo";
+import {buffer} from "stream/consumers";
 
 export class ParallelsDesktopService {
   static isInstalled(): Promise<boolean> {
@@ -70,7 +71,7 @@ export class ParallelsDesktopService {
           const vms: VirtualMachine[] = JSON.parse(stdout);
           const vmsDetails = await ParallelsDesktopService.getVmsRunningDetails();
           const noGroup = config.getVirtualMachineGroup(FLAG_NO_GROUP);
-          vms.forEach(vm => {
+          for (const vm of vms) {
             const dbMachine = config.getVirtualMachine(vm.ID);
             if (dbMachine !== undefined) {
               // This will try to fix any wrong groups that might have been set
@@ -89,6 +90,7 @@ export class ParallelsDesktopService {
               if (vmDetails !== undefined) {
                 vm.configuredIpAddress = vmDetails.ip_configured;
               }
+
               machineGroup.addVm(vm);
               LogService.debug(`Found vm ${vm.Name} in group ${vm.group}`, "ParallelsDesktopService");
             } else {
@@ -97,10 +99,11 @@ export class ParallelsDesktopService {
               if (vmDetails !== undefined) {
                 vm.configuredIpAddress = vmDetails.ip_configured;
               }
+
               noGroup?.addVm(vm);
               LogService.debug(`Found vm ${vm.Name} in group ${noGroup?.uuid}`, "ParallelsDesktopService");
             }
-          });
+          }
           // Checking for duplicated VMs, this can happen if a machine has been renamed
 
           // sync the config file and clean any unwanted machines
@@ -117,6 +120,41 @@ export class ParallelsDesktopService {
         } catch (e) {
           LogService.error(`Error while parsing vms: ${e}`, "ParallelsDesktopService");
           return reject(e);
+        }
+      });
+    });
+  }
+
+  static async getVmPath(vmId: string): Promise<VirtualMachine> {
+    return new Promise(async (resolve, reject) => {
+      LogService.info(`Getting Vm path`, "ParallelsDesktopService");
+      const prlctl = cp.spawn("prlctl", ["list", vmId, "-a", "-i", "--json"], {shell: true});
+      let stdOut = "";
+      prlctl.stdout.on("data", data => {
+        stdOut += data.toString();
+        LogService.debug(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlctl list exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl list exited with code ${code}`);
+        }
+        try {
+          // Adding all of the VMs to the default group
+          const vm: VirtualMachine[] = JSON.parse(stdOut);
+          if (vm === undefined || vm.length !== 1) {
+            LogService.error(`VM not found`, "ParallelsDesktopService");
+            return reject(`VM not found`);
+          }
+
+          LogService.info(`Got vm info`, "ParallelsDesktopService");
+          return resolve(vm[0]);
+        } catch (e) {
+          LogService.error(`Error while parsing vm: ${e}`, "ParallelsDesktopService");
+          return reject(`Error while parsing vm`);
         }
       });
     });

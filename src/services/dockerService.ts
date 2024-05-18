@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import {DockerContainer as DockerContainer} from "../models/dockerContainer";
+import {DockerContainer as DockerContainer} from "../models/docker/dockerContainer";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
 import {LogService} from "./logService";
-import {DockerImage} from "../models/dockerImage";
+import {DockerImage} from "../models/docker/dockerImage";
 
 export enum DockerContainerOperation {
   Start = "start",

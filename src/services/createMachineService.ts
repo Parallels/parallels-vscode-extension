@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import {OperatingSystem} from "../models/operatingSystem";
+import {OperatingSystem} from "../models/parallels/operatingSystem";
 import * as path from "path";
 import * as fs from "fs";
 import {ParallelsDesktopService} from "./parallelsDesktopService";
@@ -7,12 +7,12 @@ import {getDownloadFolder, getPackerTemplateFolder, getVagrantBoxFolder} from ".
 import {CommandsFlags, getVmType} from "../constants/flags";
 import {PackerService} from "./packerService";
 import {VagrantService} from "./vagrantService";
-import {OperatingSystemsData} from "../models/OperatingSystemsData";
-import {OperatingSystemImage} from "../models/OperatingSystemImage";
-import {NewVirtualMachineRequest} from "../models/NewVirtualMachineRequest";
-import {NewVirtualMachineSpecs} from "../models/NewVirtualMachineSpecs";
+import {OperatingSystemsData} from "../models/parallels/OperatingSystemsData";
+import {OperatingSystemImage} from "../models/parallels/OperatingSystemImage";
+import {NewVirtualMachineRequest} from "../models/parallels/NewVirtualMachineRequest";
+import {NewVirtualMachineSpecs} from "../models/parallels/NewVirtualMachineSpecs";
 import {HelperService} from "./helperService";
-import {PackerVirtualMachineConfig} from "../models/PackerVirtualMachineConfig";
+import {PackerVirtualMachineConfig} from "../models/packer/PackerVirtualMachineConfig";
 import {Provider} from "../ioc/provider";
 import {LogService} from "./logService";
 

@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
-import {VirtualMachineProvider} from "../../virtual_machine";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {LogService} from "../../../services/logService";
-import {VirtualMachineTreeItem} from "../../virtual_machine_item";
+import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
-import {VirtualMachine} from "../../../models/virtualMachine";
+import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
 
 const registerPauseDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
