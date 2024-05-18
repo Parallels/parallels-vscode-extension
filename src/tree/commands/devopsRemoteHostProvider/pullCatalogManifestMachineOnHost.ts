@@ -56,6 +56,8 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
           } else {
             catalogProviderId = selectedProvider.id;
           }
+        } else {
+          pickupManualCatalogProvider = true;
         }
 
         if (pickupManualCatalogProvider) {

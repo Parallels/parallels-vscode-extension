@@ -1599,7 +1599,7 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-host.pull-catalog-manifest-machine-on-host",
-                    "when": "view == parallels-desktop-remote-hosts && parallels-desktop:os === darwin && viewItem =~ /devops\\.remote\\.provider\\.active$/",
+                    "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.provider\\.active$/",
                     "group": "inline@1"
                 }
             ]
