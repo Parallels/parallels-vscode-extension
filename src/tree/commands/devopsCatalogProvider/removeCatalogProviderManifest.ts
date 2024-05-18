@@ -1,17 +1,17 @@
 import * as vscode from "vscode";
-import { DevOpsCatalogProvider } from '../../devops_catalog/devops_catalog';
+import { DevOpsCatalogProvider } from '../../devopsCatalogProvider/devopsCatalogProvider';
 import { Provider } from "../../../ioc/provider";
 import { CommandsFlags, TelemetryEventIds } from "../../../constants/flags";
 import { LogService } from "../../../services/logService";
 import { DevOpsCatalogCommand } from "../BaseCommand";
 import { DevOpsService } from '../../../services/devopsService';
 import { ANSWER_YES, YesNoQuestion } from '../../../helpers/ConfirmDialog';
-import { DevOpsCatalogTreeItem } from '../../devops_catalog/devops_catalog_tree_item';
+import { DevOpsTreeItem } from '../../treeItems/devOpsTreeItem';
 
 
 const registerDevOpsRemoveCatalogProviderManifestCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.devopsRemoveCatalogProviderManifest, async (item: DevOpsCatalogTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.devopsRemoveCatalogProviderManifest, async (item: DevOpsTreeItem) => {
       if (!item) {
         return;
       }
@@ -22,7 +22,7 @@ const registerDevOpsRemoveCatalogProviderManifestCommand = (context: vscode.Exte
         vscode.window.showErrorMessage(`Provider ${item.name} not found`);
         return;
       }
-      const manifestId = item.id.split("%%")[1];
+      const manifestId = item.id.split("%%")[2];
       const manifest = config.findCatalogProviderManifest(providerId, manifestId);
       if (!manifest) {
         vscode.window.showErrorMessage(`Manifest ${item.name} not found`);
@@ -32,7 +32,7 @@ const registerDevOpsRemoveCatalogProviderManifestCommand = (context: vscode.Exte
       let versionId = ''
       // if we selected the manifest item, we need to get the versions and display them on a quick pick
       if (item.contextValue === "devops.catalog.manifest.version") {
-        versionId = item.id.split("%%")[2];
+        versionId = item.id.split("%%")[3];
       }
       if (manifest.items.length === 1) {
         versionId = ''
@@ -63,6 +63,8 @@ const registerDevOpsRemoveCatalogProviderManifestCommand = (context: vscode.Exte
           if (foundError) {
             return;
           }
+          
+          await DevOpsService.refreshCatalogProviders(true);
           vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
           vscode.window.showInformationMessage(`Manifest${versionId !== '' ? ' version':''} ${item.name} removed from provider ${provider.name}`);
         });

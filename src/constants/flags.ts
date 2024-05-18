@@ -210,14 +210,24 @@ export class CommandsFlags {
   static devopsRemoveCatalogProvider = `${COMMAND_PREFIX}.devops-service.remove-catalog-provider`;
   static devopsRemoveCatalogProviderManifest = `${COMMAND_PREFIX}.devops-service.remove-catalog-provider-manifest`;
   static devopsRefreshCatalogProvider = `${COMMAND_PREFIX}.devops-service.refresh-catalog-provider`;
-  static devopsPullCatalogProviderManifest = `${COMMAND_PREFIX}.devops-service.pull-catalog-provider-manifest`;
+  static devopsPullCatalogManifestMachineOnHost = `${COMMAND_PREFIX}.devops-service.pull-catalog-provider-manifest`;
   static devopsPushVmToCatalogProviderManifest = `${COMMAND_PREFIX}.devops-service.push-catalog-provider-manifest`;
+  static devopsTaintCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.taint-catalog-provider-manifest-version`;
+  static devopsUntaintCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.untaint-catalog-provider-manifest-version`;
+  static devopsRevokeCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.revoke-catalog-provider-manifest-version`;
+  static devopsAddRoleToCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.add-role-to-catalog-provider-manifest-version`;
+  static devopsRemoveRoleFromCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.remove-role-from-catalog-provider-manifest-version`;
+  static devopsAddClaimToCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.add-claim-to-catalog-provider-manifest-version`;
+  static devopsRemoveClaimFromCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.remove-claim-from-catalog-provider-manifest-version`;
+  static devopsAddTagToCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.add-tag-to-catalog-provider-manifest-version`;
+  static devopsRemoveTagFromCatalogProviderManifestVersion = `${COMMAND_PREFIX}.devops-service.remove-tag-from-catalog-provider-manifest-version`;
 
   //Remote Provider Commands
   static devopsInstallFromRemoteProvider = `${COMMAND_PREFIX}.devops-service.install-from-remote-host-provider`;
   static devopsAddRemoteProvider = `${COMMAND_PREFIX}.devops-service.add-remote-host-provider`;
   static devopsRemoveRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider`;
   static devopsRefreshRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.refresh-remote-host-provider`;
+  static devopsForceRefreshRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.force-refresh-remote-host-provider`;
   static devopsAddRemoteProviderOrchestratorHost = `${COMMAND_PREFIX}.devops-service.add-remote-provider-orchestrator-host`;
   static devopsRemoveRemoteProviderOrchestratorHost = `${COMMAND_PREFIX}.devops-service.remove-remote-provider-orchestrator-host`;
   static devopsRemoveRemoteProviderHost = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider-host`;
@@ -230,6 +240,21 @@ export class CommandsFlags {
   static devopsPauseRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.pause-remote-host-provider-host-vm`;
   static devopsCloneRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.clone-remote-host-provider-host-vm`;
   static devopsRemoveRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider-host-vm`;
+  static devopsPullCatalogManifestMachineOnRemoteHost = `${COMMAND_PREFIX}.devops-service.remote-host.pull-catalog-manifest-machine-on-host`;
+
+  static devopsRemoteProviderManagementRenameProvider = `${COMMAND_PREFIX}.devops-service.management.rename-remote-provider`;
+  static devopsRemoteProviderManagementAddUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-user`;
+  static devopsRemoteProviderManagementRemoveUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-user`;
+  static devopsRemoteProviderManagementUpdateUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.update-user`;
+  static devopsRemoteProviderManagementAddUserRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-user-role`;
+  static devopsRemoteProviderManagementRemoveUserRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-user-role`;
+  static devopsRemoteProviderManagementAddUserClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-user-claim`;
+  static devopsRemoteProviderManagementRemoveUserClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-user-claim`;
+
+  static devopsRemoteProviderManagementAddRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-role`;
+  static devopsRemoteProviderManagementRemoveRole = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-role`;
+  static devopsRemoteProviderManagementAddClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-claim`;
+  static devopsRemoteProviderManagementRemoveClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-claim`;
 
   // Vagrant Commands
   static vagrantSearchAndDownload = `${COMMAND_PREFIX}.vagrant.search-and-download`;

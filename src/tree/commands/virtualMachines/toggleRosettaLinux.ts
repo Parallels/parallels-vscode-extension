@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import {VirtualMachineProvider} from "../../virtual_machine";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {
   CommandsFlags,
   FLAG_DISABLE_SHOW_HIDDEN,
@@ -8,7 +8,7 @@ import {
   FLAG_TREE_SHOW_HIDDEN,
   TelemetryEventIds
 } from "../../../constants/flags";
-import {VirtualMachineTreeItem} from "../../virtual_machine_item";
+import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";

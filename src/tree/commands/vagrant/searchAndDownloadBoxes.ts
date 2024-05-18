@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
-import {VirtualMachineProvider} from "../../virtual_machine";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {LogService} from "../../../services/logService";
-import {VagrantBoxProvider} from "../../vagrant_boxes";
+import {VagrantBoxProvider} from "../../vagrantBoxProvider/vagrantBoxProvider";
 import {VagrantService} from "../../../services/vagrantService";
 import {VagrantCommand} from "../BaseCommand";
 
@@ -32,7 +32,6 @@ const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContex
                   };
                 });
                 quickPick.onDidChangeSelection(async selection => {
-                  console.log(JSON.stringify(selection));
                   quickPick.hide();
                   if (selection.length === 0 || !selection[0]) {
                     vscode.window.showErrorMessage(`Failed to download and create Vagrant Box from cloud`);

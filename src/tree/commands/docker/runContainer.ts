@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
-import {VirtualMachineProvider} from "../../virtual_machine";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {LogService} from "../../../services/logService";
-import {VirtualMachineTreeItem} from "../../virtual_machine_item";
+import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {DockerService} from "../../../services/dockerService";
 import {VirtualMachineCommand} from "../BaseCommand";

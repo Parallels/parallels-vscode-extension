@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
 
 import {CommandsFlags} from "../../../constants/flags";
-import {VagrantBoxProvider} from "../../vagrant_boxes";
-import {VagrantBoxTreeItem} from "../../vagrant_box_item";
+import {VagrantBoxProvider} from "../../vagrantBoxProvider/vagrantBoxProvider";
+import {VagrantBoxTreeItem} from "../../treeItems/vagrantBoxItem";
 import {VagrantService} from "../../../services/vagrantService";
 import {VagrantCommand} from "../BaseCommand";
 

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as clipboardy from "clipboardy";
 import {CommandsFlags} from "../../../constants/flags";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
-import {VirtualMachineProvider} from "../../virtual_machine";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {VirtualMachineCommand} from "../BaseCommand";
 
 const registerCopyIpAddressCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {

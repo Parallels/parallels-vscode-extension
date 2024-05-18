@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import {VirtualMachineProvider} from "../../virtual_machine";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
-import {VirtualMachineTreeItem} from "../../virtual_machine_item";
+import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
 

@@ -1,5 +1,5 @@
 import { config } from 'process';
-import { DevOpsCatalogProvider } from '../../devops_catalog/devops_catalog';
+import { DevOpsCatalogProvider } from '../../devopsCatalogProvider/devopsCatalogProvider';
 import * as vscode from "vscode";
 import { Provider } from "../../../ioc/provider";
 import { CommandsFlags, FLAG_DEVOPS_CATALOG_HAS_ITEMS, TelemetryEventIds } from "../../../constants/flags";
@@ -24,9 +24,8 @@ const registerDevOpsRemoveCatalogProviderCommand = (context: vscode.ExtensionCon
         return;
       }
 
-      console.log(item)
       const config = Provider.getConfiguration();
-      const providerId = item.id.split("%%")[0];
+      const providerId = item.id.split("%%")[1];
       const provider = config.findCatalogProviderByIOrName(providerId);
       if (!provider) {
         vscode.window.showErrorMessage(`Catalog Provider ${item.name} not found`);

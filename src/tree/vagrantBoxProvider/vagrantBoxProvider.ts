@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import * as uuid from "uuid";
-import {VagrantBoxTreeItem} from "./vagrant_box_item";
-import {VagrantService} from "../services/vagrantService";
-import {FLAG_NO_GROUP} from "../constants/flags";
-import {parallelsOutputChannel} from "../helpers/channel";
-import {LogService} from "../services/logService";
-import {AllVagrantCommands} from "./commands/AllCommands";
+import {VagrantBoxTreeItem} from "../treeItems/vagrantBoxItem";
+import {VagrantService} from "../../services/vagrantService";
+import {FLAG_NO_GROUP} from "../../constants/flags";
+import {parallelsOutputChannel} from "../../helpers/channel";
+import {LogService} from "../../services/logService";
+import {AllVagrantCommands} from "../commands/AllCommands";
 
 export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTreeItem> {
   data: VagrantBoxTreeItem[] = [];

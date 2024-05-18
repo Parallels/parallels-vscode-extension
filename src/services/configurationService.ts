@@ -522,6 +522,38 @@ export class ConfigurationService {
     return true;
   }
 
+  renameRemoteProvider(provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider, newName: string): boolean {
+    if (!provider) {
+      vscode.window.showErrorMessage(`Provider not found`);
+      return false;
+    }
+    let foundProvider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined;
+    if (provider.class === "DevOpsRemoteHostProvider") { 
+      foundProvider = this.findRemoteHostProviderById(provider.ID);
+    }
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      foundProvider = this.findCatalogProviderByIOrName(provider.ID);
+    }
+    if (!foundProvider) {
+      vscode.window.showErrorMessage(`Remote Host Provider User ${provider.name} not found`);
+      return false;
+    }
+
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      const catalogProvider = foundProvider as DevOpsCatalogHostProvider;
+      const index = this.catalogProviders.indexOf(catalogProvider);
+      this.catalogProviders[index].name = newName;
+    }
+    if (provider.class === "DevOpsRemoteHostProvider"){
+      const remoteProvider = foundProvider as DevOpsRemoteHostProvider;
+      const index = this.remoteHostProviders.indexOf(remoteProvider);
+      this.remoteHostProviders[index].name = newName;
+    }
+
+    this.save();
+    return true;
+  }
+
   removeCatalogProvider(providerId: string): boolean {
     const provider = this.findCatalogProviderByIOrName(providerId);
     if (provider) {
@@ -535,7 +567,7 @@ export class ConfigurationService {
   updateCatalogProviderState(providerId: string, state: "active" | "inactive" | "unknown") {
     for (const provider of this.catalogProviders) {
       if (provider.ID === providerId) {
-        if (provider.state != state) {
+        if (provider.state !== state) {
           provider.state = state;
           provider.updatedAt = new Date().toISOString();
           this.save();
@@ -581,7 +613,7 @@ export class ConfigurationService {
   }
 
   addRemoteHostProvider(provider: DevOpsRemoteHostProvider): boolean {
-    const remoteProviderHostExists = this.findRemoteHostProviderByHost(provider.host ?? "");
+    const remoteProviderHostExists = this.findRemoteHostProviderByHost(provider.rawHost ?? "");
     if (remoteProviderHostExists && remoteProviderHostExists.type === provider.type) {
       vscode.window.showErrorMessage(`A remote host provider with the id ${provider.ID} already exists`);
       return false
@@ -608,9 +640,10 @@ export class ConfigurationService {
     return false;
   }
 
-  updateRemoteHostProviderState(providerId: string, state: "active" | "inactive" | "unknown") {
+  updateRemoteHostProviderState(providerId: string, state: "active" | "inactive" | "disabled" |  "unknown") {
     for (const provider of this.remoteHostProviders) {
       if (provider.ID === providerId) {
+        const providerState = provider.state;
         if (provider.state !== state) {
           provider.state = state;
           provider.updatedAt = new Date().toISOString();
@@ -623,7 +656,7 @@ export class ConfigurationService {
 
   findRemoteHostProviderByHost(host: string): DevOpsRemoteHostProvider | undefined {
     const hostname = parseHost(host);
-    const filteredResult = this.remoteHostProviders.find(provider => provider.rawHost.toLowerCase() === hostname.hostname.toLowerCase() || provider.host?.toLowerCase() === hostname.hostname.toLowerCase());
+    const filteredResult = this.remoteHostProviders.find(provider => provider.rawHost.toLowerCase() === hostname.hostname.toLowerCase());
     return filteredResult;
   }
 

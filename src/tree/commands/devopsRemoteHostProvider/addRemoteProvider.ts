@@ -6,14 +6,14 @@ import { DevOpsRemoteHostsCommand } from "../BaseCommand";
 import { DevOpsService } from '../../../services/devopsService';
 import { DevOpsCatalogHostProvider } from '../../../models/devops/catalogHostProvider';
 import { randomUUID } from 'crypto';
-import { DevOpsRemoteHostsTreeProvider } from '../../devops_remote/remote_hosts_tree_provider';
+import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
 import { DevOpsRemoteHostProvider } from "../../../models/devops/remoteHostProvider";
 import { cleanString } from "../../../helpers/strings";
 
-const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsTreeProvider) => {
+const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddRemoteProvider, async (item: any) => {
-      const currentItems:  vscode.QuickPickItem[] = [
+      const currentItems: vscode.QuickPickItem[] = [
         {
           label: "Orchestrator"
 
@@ -23,43 +23,74 @@ const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext
         }
       ];
 
-      const quickPick = vscode.window.createQuickPick();
-      quickPick.ignoreFocusOut = true;
-      quickPick.items = currentItems;
-      quickPick.placeholder = "Select the type of remote provider you want to add";
-      quickPick.title = "What type of provider?";
+      const selectedType = await vscode.window.showQuickPick(currentItems, {
+        placeHolder: "Select the type of remote provider you want to add",
+        ignoreFocusOut: true,
+        title: "What type of provider?"
+      });
 
-      quickPick.onDidAccept(async () => {
-        const type = quickPick.activeItems[0].label;
-        const typeName = type === currentItems[0].label ? "Orchestrator" : "Remote";
-        quickPick.hide();
-        const host = await vscode.window.showInputBox({
-          prompt:  `${typeName} host?`,
-          placeHolder: `Enter the ${typeName} host, example http://localhost:8080`,
-          ignoreFocusOut: true
-        });
-        if (!host) {
-          vscode.window.showErrorMessage(`${typeName} host is required`);
-          return;
-        }
+      const type = selectedType?.label ?? "Orchestrator";
+      const typeName = type === currentItems[0].label ? "Orchestrator" : "Remote";
+      let host = await vscode.window.showInputBox({
+        prompt: `${typeName} host?`,
+        placeHolder: `Enter the ${typeName} host, example http://localhost:8080`,
+        ignoreFocusOut: true
+      });
+      if (!host) {
+        vscode.window.showErrorMessage(`${typeName} host is required`);
+        return;
+      }
+      if (!host.startsWith("http://") && !host.startsWith("https://")) {
+        host = `https://${host}`;
+      }
 
-        const name = await vscode.window.showInputBox({
-          prompt: `${typeName} host Name?`,
-          placeHolder: `Enter the ${ typeName} host Name`,
-          ignoreFocusOut: true
-        });
-        if (!name) {
-          vscode.window.showErrorMessage(`${typeName} name is required`);
-          return;
-        }
+      const name = await vscode.window.showInputBox({
+        prompt: `${typeName} host Name?`,
+        placeHolder: `Enter the ${typeName} host Name`,
+        ignoreFocusOut: true
+      });
+      if (!name) {
+        vscode.window.showErrorMessage(`${typeName} name is required`);
+        return;
+      }
 
+      const remoteHostProvider: DevOpsRemoteHostProvider = {
+        class: "DevOpsRemoteHostProvider",
+        ID: cleanString(name),
+        type: type === currentItems[0].label ? "orchestrator" : "remote_host",
+        rawHost: host ?? "",
+        name: name ?? "",
+        username: "",
+        password: "",
+        state: "unknown",
+        virtualMachines: []
+      }
+      
+      let hostname: URL
+      try {
+        hostname = new URL(host)
+      } catch (error) {
+        vscode.window.showErrorMessage("Invalid Catalog Provider Host");
+        return;
+      }
+      remoteHostProvider.host = hostname.hostname;
+      remoteHostProvider.port = parseInt(hostname.port);
+      remoteHostProvider.scheme = hostname.protocol.replace(":", "");
+
+      let retry = 3;
+      let foundError = false;
+      while (true) {
         const username = await vscode.window.showInputBox({
           prompt: `${typeName} Username?`,
           placeHolder: `Enter the ${typeName} Username`,
           ignoreFocusOut: true
         });
         if (!username) {
-          vscode.window.showErrorMessage(`${typeName} Username is required`);
+          if (retry < 3) {
+            vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+          } else {
+            vscode.window.showErrorMessage(`${typeName} Username is required`);
+          }
           return;
         }
 
@@ -70,45 +101,52 @@ const registerDevOpsAddRemoteProviderCommand = (context: vscode.ExtensionContext
           ignoreFocusOut: true,
         });
         if (!password) {
-          vscode.window.showErrorMessage(`${typeName} Password is required`);
+          if (retry < 3) {
+            vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+          } else {
+            vscode.window.showErrorMessage(`${typeName} Password is required`);
+          }
           return;
         }
 
-        const remoteHostProvider: DevOpsRemoteHostProvider = {
-          class: "DevOpsRemoteHostProvider",
-          ID: cleanString(name),
-          type: type === currentItems[0].label ? "orchestrator" : "remote_host",
-          rawHost: host ?? "",
-          name: name ?? "",
-          username: username ?? "",
-          password: password ?? "",
-          state: "unknown",
-          virtualMachines: []
+        remoteHostProvider.username = username;
+        remoteHostProvider.password = password;
+
+        const auth = await DevOpsService.authorize(remoteHostProvider).catch((error) => {
+          foundError = true;
+        });
+        if (auth && auth.token && !foundError) {
+          break;
         }
 
-        const hostname = new URL(host)
-        remoteHostProvider.host = hostname.hostname;
-        remoteHostProvider.port = parseInt(hostname.port);
-        remoteHostProvider.scheme = hostname.protocol.replace(":", "");
+        if (!auth || !foundError) {
+          foundError = true;
+        }
 
-        DevOpsService.testHost(remoteHostProvider).then(async () => {
-          const config = Provider.getConfiguration();
-          const ok = config.addRemoteHostProvider(remoteHostProvider);
-          if (!ok) {
-            vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
-            return;
-          }
-      
-          vscode.window.showInformationMessage(`${typeName} Host was added successfully`);
-          await DevOpsService.refreshRemoteHostProviders(true);
+        if (retry === 0) {
+          break;
+        }
+        vscode.window.showErrorMessage(`Failed to connect to ${typeName} Host ${host}`);
 
-          vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-        }).catch((error) => {
-          vscode.window.showErrorMessage(`Failed to connect to ${typeName} Host ${host}, err:\n ${error}`);
-        })
-      });
+        retry--;
+      }
 
-      quickPick.show();
+      if (foundError) {
+        vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+        return;
+      }
+
+      const config = Provider.getConfiguration();
+      const ok = config.addRemoteHostProvider(remoteHostProvider);
+      if (!ok) {
+        vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+        return;
+      }
+
+      vscode.window.showInformationMessage(`${typeName} Host was added successfully`);
+
+      await DevOpsService.refreshRemoteHostProviders(true);
+      vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
     })
   );
 };

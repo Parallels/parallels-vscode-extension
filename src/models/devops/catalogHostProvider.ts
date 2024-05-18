@@ -1,7 +1,12 @@
 import { CatalogManifestItem } from "./catalogManifest";
+import { HostHardwareInfo } from "./hardwareInfo";
+import { DevOpsRolesAndClaims } from "./rolesAndClaims";
+import { DevOpsUser } from "./users";
 
 export interface DevOpsCatalogHostProvider {
   class: "DevOpsCatalogHostProvider";
+  authToken?: string;
+  user?: DevOpsUser;
   ID: string;
   name: string;
   host?: string;
@@ -15,4 +20,7 @@ export interface DevOpsCatalogHostProvider {
   updatedAt?: string;
   needsTreeRefresh?: boolean;
   manifests: CatalogManifestItem[];
+  users?: DevOpsUser[];
+  roles?: DevOpsRolesAndClaims[];
+  claims?: DevOpsRolesAndClaims[];
 }

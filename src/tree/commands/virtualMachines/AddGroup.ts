@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
-import {VirtualMachineProvider} from "../../virtual_machine";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";

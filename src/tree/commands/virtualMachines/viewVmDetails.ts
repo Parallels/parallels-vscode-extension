@@ -2,8 +2,8 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 
-import {VirtualMachineProvider} from "../../virtual_machine";
-import {VirtualMachineTreeItem} from "../../virtual_machine_item";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
+import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {CommandsFlags} from "../../../constants/flags";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {generateHtml} from "../../../views/header.html";

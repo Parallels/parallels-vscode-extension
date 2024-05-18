@@ -1,28 +1,32 @@
 import * as vscode from "vscode";
 
-import { DevOpsCatalogProvider } from '../../devops_catalog/devops_catalog';
+import { DevOpsCatalogProvider } from '../../devopsCatalogProvider/devopsCatalogProvider';
 import { Provider } from "../../../ioc/provider";
 import { CommandsFlags, FLAG_DEVOPS_CATALOG_HAS_ITEMS, TelemetryEventIds } from "../../../constants/flags";
 import { LogService } from "../../../services/logService";
 import { DevOpsCatalogCommand } from "../BaseCommand";
 import { DevOpsService } from '../../../services/devopsService';
 import { ANSWER_YES, YesNoQuestion } from '../../../helpers/ConfirmDialog';
-import { DevOpsCatalogTreeItem } from '../../devops_catalog/devops_catalog_tree_item';
+import { DevOpsTreeItem } from '../../treeItems/devOpsTreeItem';
 import { ParallelsDesktopService } from '../../../services/parallelsDesktopService';
 import { HelperService } from '../../../services/helperService';
 import { VirtualMachine } from '../../../models/parallels/virtualMachine';
 import { CatalogPushRequest } from '../../../models/devops/catalogPushRequest';
 import { cleanString } from "../../../helpers/strings";
+import { DevOpsRolesAndClaims } from "../../../models/devops/rolesAndClaims";
 
 const registerDevOpsPushVmToCatalogProviderManifestCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.devopsPushVmToCatalogProviderManifest, async (item: DevOpsCatalogTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.devopsPushVmToCatalogProviderManifest, async (item: DevOpsTreeItem) => {
       if (!item) {
         return;
       }
+    
       if (!(await DevOpsService.isInstalled())) {
         const options: string[] = [];
-        options.push("Install Parallels Desktop DevOps Service");
+        if (Provider.getOs() === 'darwin' || Provider.getOs() === 'linux') {
+          options.push("Install Parallels Desktop DevOps Service");
+        }
         options.push("Download Parallels Desktop DevOps Service");
         const selection = await vscode.window
           .showErrorMessage(
@@ -51,6 +55,11 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (context: vscode.Ex
             );
             return;
         }
+      }
+
+      if (!(await DevOpsService.isInstalled())) {
+        vscode.window.showErrorMessage('Could not find Parallels Desktop DevOps Service');
+        return;
       }
       
       const config = Provider.getConfiguration();
@@ -172,25 +181,74 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (context: vscode.Ex
         return;
       }
 
+      const existingClaims = provider.claims?.map((claim: DevOpsRolesAndClaims) => {
+        return {
+          label: claim.name,
+        }
+      }) ?? [];
+      const existingRoles = provider.roles?.map((role: DevOpsRolesAndClaims) => {
+        return {
+          label: role.name,
+        }
+      }) ?? [];
+
+      const selectedClaims = await vscode.window.showQuickPick(existingClaims, {
+        placeHolder: `Select the claims to add to the catalog manifest ${catalogId}`,
+        canPickMany: true
+      });
+
+      const selectedRoles = await vscode.window.showQuickPick(existingRoles, {
+        placeHolder: `Select the roles to add to the catalog manifest ${catalogId}`,
+        canPickMany: true
+      });
+
+      const tagsInput = await vscode.window.showInputBox({
+        placeHolder: 'Enter Tags separated by comma',
+        ignoreFocusOut: true,
+        value: 'latest'
+      });
+
+      const tags = tagsInput?.split(',').map(t => t.trim()) ?? [];
+
       const request: CatalogPushRequest = {
         catalog_id: catalogId,
         version: version ?? 'latest',
         architecture: architecture,
         connection: providerConnectionString,
         local_path: machinePath,
-        required_roles: [],
-        required_claims: []
+        required_roles: selectedRoles?.map(r => r.label) ?? [],
+        required_claims: selectedClaims?.map(c => c.label) ?? [],
+        tags: tags
+      }
+
+      if (request.required_roles.length === 0) {
+        if (provider.user) {
+          const roles = provider.user?.roles ?? []
+          request.required_roles.push(...roles);
+        } else {
+          request.required_roles.push("USER");
+        }
       }
 
       await vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
         title: `Pushing machine ${request.local_path}`
       }, async () => {
+        let foundError = false;
         await DevOpsService.pushManifestFromCatalogProvider(provider, request).catch(reject => {
-          LogService.error(`Error pulling manifest from provider ${provider.name}`, reject);
-          vscode.window.showErrorMessage(`Error pulling manifest from provider ${provider.name}`);
+          LogService.error(`Error pushing manifest from provider ${provider.name}`, reject);
+          vscode.window.showErrorMessage(`Error pushing manifest from provider ${provider.name}`);
+          foundError = true;
         return;
         });
+
+        if (foundError) {
+          return;
+        }
+
+
+        await DevOpsService.refreshCatalogProviders(true);
+        vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
 
         vscode.window.showInformationMessage(`Machine ${request.local_path} pushed successfully`);
       });

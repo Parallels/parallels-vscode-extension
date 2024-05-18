@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { CommandsFlags } from "../../../constants/flags";
 import { LogService } from "../../../services/logService";
 import { DevOpsService } from "../../../services/devopsService";
-import { DevOpsCatalogProvider } from "../../devops_catalog/devops_catalog";
+import { DevOpsCatalogProvider } from "../../devopsCatalogProvider/devopsCatalogProvider";
 import { DevOpsCatalogCommand } from "../BaseCommand";
 
 const registerDevOpsRefreshCatalogProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {

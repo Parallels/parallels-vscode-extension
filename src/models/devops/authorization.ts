@@ -8,3 +8,11 @@ export interface AuthorizationResponse {
   token:      string;
   expires_at: number;
 }
+
+export interface AuthorizationToken {
+  claims?: string[];
+  roles?: string[];
+  email?: string;
+  exp?: number;
+  uid?: string;
+}

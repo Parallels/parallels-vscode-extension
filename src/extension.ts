@@ -1,11 +1,11 @@
 import { config } from "process";
 import * as vscode from "vscode";
-import { VirtualMachineProvider } from "./tree/virtual_machine";
+import { VirtualMachineProvider } from "./tree/virtualMachinesProvider/virtualMachineProvider";
 import { Provider } from "./ioc/provider";
 import { ParallelsDesktopService } from "./services/parallelsDesktopService";
 import { initialize } from "./initialization";
 import { registerClearDownloadCacheCommand } from "./commands/clearDownloads";
-import { VagrantBoxProvider } from "./tree/vagrant_boxes";
+import { VagrantBoxProvider } from "./tree/vagrantBoxProvider/vagrantBoxProvider";
 import {
   CommandsFlags,
   FLAG_AUTO_REFRESH,
@@ -19,9 +19,10 @@ import {
 } from "./constants/flags";
 import { parallelsOutputChannel } from "./helpers/channel";
 import { LogService } from "./services/logService";
-import { DevOpsCatalogProvider } from "./tree/devops_catalog/devops_catalog";
-import { DevOpsRemoteHostsTreeProvider } from "./tree/devops_remote/remote_hosts_tree_provider";
+import { DevOpsCatalogProvider } from "./tree/devopsCatalogProvider/devopsCatalogProvider";
+import { DevOpsRemoteHostsProvider } from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import { DevOpsService } from "./services/devopsService";
+import { AllDevopsRemoteProviderManagementCommands } from "./tree/commands/AllCommands";
 
 let autoRefreshInterval: NodeJS.Timeout | undefined;
 
@@ -54,9 +55,11 @@ export async function activate(context: vscode.ExtensionContext) {
   DevOpsService.startCatalogViewAutoRefresh();
 
   // Initializing the DevOps Remote Provider
-  const devopsRemoteProvider = new DevOpsRemoteHostsTreeProvider(context);
+  const devopsRemoteProvider = new DevOpsRemoteHostsProvider(context);
   vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
   DevOpsService.startRemoteHostsViewAutoRefresh();
+
+  AllDevopsRemoteProviderManagementCommands.forEach(c => c.register(context, devopsRemoteProvider));
 
   if (os === 'darwin') {
     // Initializing the extension

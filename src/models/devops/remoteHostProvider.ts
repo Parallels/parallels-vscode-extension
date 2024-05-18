@@ -1,9 +1,14 @@
 import { VirtualMachine } from "../parallels/virtualMachine";
+import { HostHardwareInfo } from "./hardwareInfo";
 import { DevOpsRemoteHost } from "./remoteHost";
 import { DevOpsRemoteHostResource } from "./remoteHostResource";
+import { DevOpsRolesAndClaims } from "./rolesAndClaims";
+import { DevOpsUser } from "./users";
 
 export interface DevOpsRemoteHostProvider {
   class: "DevOpsRemoteHostProvider"
+  authToken?: string;
+  user?: DevOpsUser;
   ID: string;
   name: string;
   host?: string;
@@ -20,4 +25,8 @@ export interface DevOpsRemoteHostProvider {
   virtualMachines: VirtualMachine[];
   resources?: DevOpsRemoteHostResource[];
   hosts?: DevOpsRemoteHost[];
+  users?: DevOpsUser[];
+  roles?: DevOpsRolesAndClaims[];
+  claims?: DevOpsRolesAndClaims[];
+  hardwareInfo?: HostHardwareInfo;
 }

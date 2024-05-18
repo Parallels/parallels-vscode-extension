@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import {VirtualMachineProvider} from "../virtual_machine";
-import {VagrantBoxProvider} from "../vagrant_boxes";
-import { DevOpsCatalogProvider } from "../devops_catalog/devops_catalog";
-import { DevOpsRemoteHostsTreeProvider } from "../devops_remote/remote_hosts_tree_provider";
+import {VirtualMachineProvider} from "../virtualMachinesProvider/virtualMachineProvider";
+import {VagrantBoxProvider} from "../vagrantBoxProvider/vagrantBoxProvider";
+import { DevOpsCatalogProvider } from "../devopsCatalogProvider/devopsCatalogProvider";
+import { DevOpsRemoteHostsProvider } from "../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 
 export type VirtualMachineCommand = {
   register: (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => void;
@@ -17,7 +17,11 @@ export type DevOpsCatalogCommand = {
 };
 
 export type DevOpsRemoteHostsCommand = {
-  register: (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsTreeProvider) => void;
+  register: (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => void;
 };
 
-export type BaseCommand = VirtualMachineCommand | VagrantCommand | DevOpsCatalogCommand | DevOpsRemoteHostsCommand;
+export type DevOpsRemoteProviderManagementCommand = {
+  register: (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider) => void;
+};
+
+export type BaseCommand = VirtualMachineCommand | VagrantCommand | DevOpsCatalogCommand | DevOpsRemoteHostsCommand | DevOpsRemoteProviderManagementCommand;

@@ -4,9 +4,9 @@ import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {DevOpsCatalogCommand, DevOpsRemoteHostsCommand} from "../BaseCommand";
 import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsRemoteHostsTreeProvider } from '../../devops_remote/remote_hosts_tree_provider';
+import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
 
-const registerDevOpsInstallFromRemoteCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsTreeProvider) => {
+const registerDevOpsInstallFromRemoteCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsInstallFromRemoteProvider, async (item: any) => {
       DevOpsService.install().then(() => {

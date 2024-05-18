@@ -1,4 +1,4 @@
-import {BaseCommand, DevOpsCatalogCommand, DevOpsRemoteHostsCommand, VagrantCommand, VirtualMachineCommand} from "./BaseCommand";
+import {BaseCommand, DevOpsCatalogCommand, DevOpsRemoteHostsCommand, DevOpsRemoteProviderManagementCommand, VagrantCommand, VirtualMachineCommand} from "./BaseCommand";
 import {AddGroupCommand} from "./virtualMachines/AddGroup";
 import {AddVmCommand} from "./virtualMachines/AddVm";
 import {CopyIpAddressCommand} from "./virtualMachines/copyIpAddress";
@@ -63,6 +63,29 @@ import { DevOpsPushVmToCatalogProviderManifestCommand } from "./devopsCatalogPro
 import { DevOpsRemoveCatalogProviderManifestCommand } from "./devopsCatalogProvider/removeCatalogProviderManifest";
 import { DevOpsAddRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/addRemoteProviderOrchestratorHost";
 import { DevOpsRemoveRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/removeRemoteProviderOrchestratorHost";
+import { DevOpsForceRefreshRemoteHostsProviderCommand } from "./devopsRemoteHostProvider/forceRefreshRemoteHostsProvider";
+import { DevOpsManagementProviderAddUserCommand } from "./devopsManagementProvider/addRemoteProviderUser";
+import { DevOpsManagementProviderRemoveUserCommand } from "./devopsManagementProvider/removeRemoteProviderUser";
+import { DevOpsManagementProviderAddUserClaimCommand } from "./devopsManagementProvider/addRemoteProviderUserClaim";
+import { DevOpsManagementProviderRemoveUserClaimCommand } from "./devopsManagementProvider/removeRemoteProviderUserClaim";
+import { DevOpsManagementProviderAddUserRoleCommand } from "./devopsManagementProvider/addRemoteProviderUserRoles";
+import { DevOpsManagementProviderRemoveUserRoleCommand } from "./devopsManagementProvider/removeRemoteProviderUserRoles";
+import { DevOpsManagementProviderAddClaimCommand } from "./devopsManagementProvider/addRemoteProviderClaim";
+import { DevOpsManagementProviderRemoveClaimCommand } from "./devopsManagementProvider/removeRemoteProviderClaim";
+import { DevOpsManagementProviderRemoveRoleCommand } from "./devopsManagementProvider/removeRemoteProviderRole";
+import { DevOpsManagementProviderAddRoleCommand } from "./devopsManagementProvider/addRemoteProviderRole";
+import { DevOpsTaintCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/taintCatalogProviderManifestVersion";
+import { DevOpsUnTaintCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/untaintCatalogProviderManifestVersion";
+import { DevOpsRevokeCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/revokeCatalogProviderManifestVersion";
+import { DevOpsAddRoleToCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/addCatalogProviderManifestVersionRoles";
+import { DevOpsRemoveRoleFromCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/removeCatalogProviderManifestVersionRoles";
+import { DevOpsAddClaimsToCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/addCatalogProviderManifestVersionClaims";
+import { DevOpsAddTagsToCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/addCatalogProviderManifestVersionTags";
+import { DevOpsRemoveClaimFromCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/removeCatalogProviderManifestVersionClaims";
+import { DevOpsRemoveTagFromCatalogProviderManifestVersionCommand } from "./devopsCatalogProvider/removeCatalogProviderManifestVersionTags";
+import { DevOpsManagementProviderRenameProviderCommand } from "./devopsManagementProvider/renameRemoteProvider";
+import { DevOpsManagementProviderUpdateUserCommand } from "./devopsManagementProvider/updateRemoteProviderUser";
+import { DevOpsPullCatalogManifestMachineOnHostCommand } from "./devopsRemoteHostProvider/pullCatalogManifestMachineOnHost";
 
 export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   AddVmCommand,
@@ -121,7 +144,16 @@ export const AllDevOpsCatalogCommands: DevOpsCatalogCommand[] = [
   DevOpsRemoveCatalogProviderManifestCommand,
   DevOpsPullCatalogProviderManifestCommand,
   DevOpsPushVmToCatalogProviderManifestCommand,
-  DevOpsRefreshCatalogProviderCommand
+  DevOpsRefreshCatalogProviderCommand,
+  DevOpsTaintCatalogProviderManifestVersionCommand,
+  DevOpsUnTaintCatalogProviderManifestVersionCommand,
+  DevOpsRevokeCatalogProviderManifestVersionCommand,
+  DevOpsAddRoleToCatalogProviderManifestVersionCommand,
+  DevOpsRemoveRoleFromCatalogProviderManifestVersionCommand,
+  DevOpsAddClaimsToCatalogProviderManifestVersionCommand,
+  DevOpsRemoveClaimFromCatalogProviderManifestVersionCommand,
+  DevOpsAddTagsToCatalogProviderManifestVersionCommand,
+  DevOpsRemoveTagFromCatalogProviderManifestVersionCommand
 ];
 
 export const AllDevOpsRemoteCommands: DevOpsRemoteHostsCommand[] = [
@@ -129,6 +161,7 @@ export const AllDevOpsRemoteCommands: DevOpsRemoteHostsCommand[] = [
   DevOpsAddRemoteProviderCommand,
   DevOpsRemoveRemoteProviderCommand,
   DevOpsRefreshRemoteHostsProviderCommand,
+  DevOpsForceRefreshRemoteHostsProviderCommand,
   DevOpsAddRemoteProviderOrchestratorHostCommand,
   DevOpsRemoveRemoteProviderOrchestratorHostCommand,
   DevOpsEnableRemoteProviderOrchestratorHostCommand,
@@ -140,4 +173,20 @@ export const AllDevOpsRemoteCommands: DevOpsRemoteHostsCommand[] = [
   DevOpsResumeVirtualMachineCommand,
   DevOpsCloneVirtualMachineCommand,
   DevOpsRemoveVirtualMachineCommand,
+  DevOpsPullCatalogManifestMachineOnHostCommand
 ];
+
+export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderManagementCommand[] = [
+  DevOpsManagementProviderAddUserCommand,
+  DevOpsManagementProviderRemoveUserCommand,
+  DevOpsManagementProviderAddUserClaimCommand,
+  DevOpsManagementProviderRemoveUserClaimCommand,
+  DevOpsManagementProviderAddUserRoleCommand,
+  DevOpsManagementProviderRemoveUserRoleCommand,
+  DevOpsManagementProviderAddClaimCommand,
+  DevOpsManagementProviderRemoveClaimCommand,
+  DevOpsManagementProviderAddRoleCommand,
+  DevOpsManagementProviderRemoveRoleCommand,
+  DevOpsManagementProviderRenameProviderCommand,
+  DevOpsManagementProviderUpdateUserCommand
+]

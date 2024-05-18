@@ -1,4 +1,4 @@
-import { DevOpsCatalogProvider } from '../../devops_catalog/devops_catalog';
+import { DevOpsCatalogProvider } from '../../devopsCatalogProvider/devopsCatalogProvider';
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";

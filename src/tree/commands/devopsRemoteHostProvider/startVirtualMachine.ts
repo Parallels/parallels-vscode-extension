@@ -4,13 +4,13 @@ import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {DevOpsRemoteHostsCommand} from "../BaseCommand";
-import { DevOpsRemoteHostsTreeItem } from "../../devops_remote/remote_hosts_tree_item";
-import { DevOpsRemoteHostsTreeProvider } from "../../devops_remote/remote_hosts_tree_provider";
+import { DevOpsTreeItem } from "../../treeItems/devOpsTreeItem";
+import { DevOpsRemoteHostsProvider } from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import { DevOpsService } from "../../../services/devopsService";
 
-const registerDevOpStartVirtualMachineCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsTreeProvider) => {
+const registerDevOpStartVirtualMachineCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.devopsStartRemoteProviderHostVm, async (item: DevOpsRemoteHostsTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.devopsStartRemoteProviderHostVm, async (item: DevOpsTreeItem) => {
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -22,7 +22,7 @@ const registerDevOpStartVirtualMachineCommand = (context: vscode.ExtensionContex
           }
           const config = Provider.getConfiguration();
           const providerId = item.id.split("%%")[0];
-          const machineId = item.id.split("%%")[2];
+          const machineId = item.id.split("%%")[3];
           const machine = config.findRemoteHostProviderVirtualMachine(providerId, machineId);
           if (!machine) {
             vscode.window.showErrorMessage(`Machine ${item.name} not found`);
@@ -71,6 +71,9 @@ const registerDevOpStartVirtualMachineCommand = (context: vscode.ExtensionContex
               );
               break;
             }
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
             retry--;
           }
 

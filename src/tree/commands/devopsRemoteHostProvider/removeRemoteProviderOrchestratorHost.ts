@@ -4,10 +4,10 @@ import { CommandsFlags, TelemetryEventIds } from "../../../constants/flags";
 import { LogService } from "../../../services/logService";
 import { DevOpsRemoteHostsCommand } from "../BaseCommand";
 import { DevOpsService } from '../../../services/devopsService';
-import { DevOpsRemoteHostsTreeProvider } from '../../devops_remote/remote_hosts_tree_provider';
+import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
 import { ANSWER_YES, YesNoQuestion } from "../../../helpers/ConfirmDialog";
 
-const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsTreeProvider) => {
+const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoveRemoteProviderOrchestratorHost, async (item: any) => {
       if (!item) {
@@ -15,7 +15,7 @@ const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (context: vsco
       }
       const config = Provider.getConfiguration();
       const providerId = item.id.split("%%")[0];
-      const hostId = item.id.split("%%")[1];
+      const hostId = item.id.split("%%")[2];
       const provider = config.findRemoteHostProviderById(providerId);
       const host = config.findRemoteHostProviderHostById(providerId, hostId);
       if (!provider|| !host) {
@@ -36,7 +36,7 @@ const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (context: vsco
         return;
       })
 
-        vscode.window.showInformationMessage(`Remote Host was added successfully to the Orchestrator ${provider.name}`);
+        vscode.window.showInformationMessage(`Remote Host was removed successfully to the Orchestrator ${provider.name}`);
         await DevOpsService.refreshRemoteHostProviders(true);
         vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
     })

@@ -1,5 +1,5 @@
 import { CatalogPullRequest } from '../../../models/devops/catalogPullRequest';
-import { DevOpsCatalogProvider } from '../../devops_catalog/devops_catalog';
+import { DevOpsCatalogProvider } from '../../devopsCatalogProvider/devopsCatalogProvider';
 import * as vscode from "vscode";
 import { Provider } from "../../../ioc/provider";
 import { CommandsFlags, TelemetryEventIds } from "../../../constants/flags";
@@ -7,19 +7,21 @@ import { LogService } from "../../../services/logService";
 import { DevOpsCatalogCommand } from "../BaseCommand";
 import { DevOpsService } from '../../../services/devopsService';
 import { ANSWER_YES, YesNoQuestion } from '../../../helpers/ConfirmDialog';
-import { DevOpsCatalogTreeItem } from '../../devops_catalog/devops_catalog_tree_item';
+import { DevOpsTreeItem } from '../../treeItems/devOpsTreeItem';
 import { ParallelsDesktopService } from '../../../services/parallelsDesktopService';
 import { HelperService } from '../../../services/helperService';
 
 const registerDevOpsPullCatalogProviderManifestCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.devopsPullCatalogProviderManifest, async (item: DevOpsCatalogTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.devopsPullCatalogManifestMachineOnHost, async (item: DevOpsTreeItem) => {
       if (!item) {
         return;
       }
       if (!(await DevOpsService.isInstalled())) {
         const options: string[] = [];
-        options.push("Install Parallels Desktop DevOps Service");
+        if (Provider.getOs() === 'darwin' || Provider.getOs() === 'linux'){
+          options.push("Install Parallels Desktop DevOps Service");
+        }
         options.push("Download Parallels Desktop DevOps Service");
         const selection = await vscode.window
           .showErrorMessage(
@@ -48,6 +50,11 @@ const registerDevOpsPullCatalogProviderManifestCommand = (context: vscode.Extens
             );
             return;
         }
+      }
+
+      if (!(await DevOpsService.isInstalled())) {
+        vscode.window.showErrorMessage('Could not find Parallels Desktop DevOps Service');
+        return;
       }
 
       const config = Provider.getConfiguration();
@@ -158,6 +165,9 @@ const registerDevOpsPullCatalogProviderManifestCommand = (context: vscode.Extens
           if (foundError) {
             return;
           }
+          await DevOpsService.refreshCatalogProviders(true);
+          vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+  
           vscode.window.showInformationMessage(`Manifest ${manifestId} pulled from provider ${provider.name}`);
         });
     })

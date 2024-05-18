@@ -2,8 +2,8 @@ import {NewVirtualMachineRequiredVariables} from "../../../models/parallels/NewV
 import * as vscode from "vscode";
 import * as path from "path";
 
-import {VirtualMachineProvider} from "../../virtual_machine";
-import {VirtualMachineTreeItem} from "../../virtual_machine_item";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
+import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {generateHtml} from "../../../views/header.html";
 import {CreateMachineService} from "../../../services/createMachineService";

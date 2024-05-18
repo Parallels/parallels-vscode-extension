@@ -6,12 +6,12 @@ import { DevOpsRemoteHostsCommand } from "../BaseCommand";
 import { DevOpsService } from '../../../services/devopsService';
 import { DevOpsCatalogHostProvider } from '../../../models/devops/catalogHostProvider';
 import { randomUUID } from 'crypto';
-import { DevOpsRemoteHostsTreeProvider } from '../../devops_remote/remote_hosts_tree_provider';
+import { DevOpsRemoteHostsProvider } from '../../devopsRemoteHostProvider/devOpsRemoteHostProvider';
 import { DevOpsRemoteHostProvider } from "../../../models/devops/remoteHostProvider";
 import { cleanString } from "../../../helpers/strings";
 import { ANSWER_YES, YesNoQuestion } from "../../../helpers/ConfirmDialog";
 
-const registerDevOpsRemoveRemoteProviderHostCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsTreeProvider) => {
+const registerDevOpsRemoveRemoteProviderHostCommand = (context: vscode.ExtensionContext, provider: DevOpsRemoteHostsProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoveRemoteHostProvider, async (item: any) => {
       if (!item) {
@@ -25,7 +25,6 @@ const registerDevOpsRemoveRemoteProviderHostCommand = (context: vscode.Extension
         return;
       }
 
-      console.log(item)
       const config = Provider.getConfiguration();
       const providerId = item.id.split("%%")[0];
       const provider = config.findRemoteHostProviderById(providerId);
