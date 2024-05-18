@@ -15,15 +15,15 @@ const registerDevOpRemoveVirtualMachineCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoveRemoteProviderHostVm, async (item: DevOpsTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
           title: `Removing virtual machine ${item.name}`
         },
         async () => {
-          if (!item) {
-            return;
-          }
           const confirmation = await YesNoQuestion(`Are you sure you want to remove the virtual machine ${item.name}?`);
 
           if (confirmation !== ANSWER_YES) {

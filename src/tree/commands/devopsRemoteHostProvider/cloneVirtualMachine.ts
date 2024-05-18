@@ -14,15 +14,15 @@ const registerDevOpCloneVirtualMachineCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsCloneRemoteProviderHostVm, async (item: DevOpsTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
           title: `Cloning virtual machine ${item.name}`
         },
         async () => {
-          if (!item) {
-            return;
-          }
           const cloneName = await vscode.window.showInputBox({
             prompt: "Enter the name of the new virtual machine",
             value: `${item.name}-clone`

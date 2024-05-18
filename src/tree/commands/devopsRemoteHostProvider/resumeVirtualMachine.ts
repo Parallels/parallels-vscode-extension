@@ -14,15 +14,15 @@ const registerDevOpResumeVirtualMachineCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsResumeRemoteProviderHostVm, async (item: DevOpsTreeItem) => {
+      if (!item) {
+        return;
+      }
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
           title: `Resuming virtual machine ${item.name}`
         },
         async () => {
-          if (!item) {
-            return;
-          }
           const config = Provider.getConfiguration();
           const providerId = item.id.split("%%")[0];
           const machineId = item.id.split("%%")[3];

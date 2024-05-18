@@ -1,8 +1,6 @@
-import {config} from "process";
 import * as vscode from "vscode";
 import {VirtualMachineProvider} from "./tree/virtualMachinesProvider/virtualMachineProvider";
 import {Provider} from "./ioc/provider";
-import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {initialize} from "./initialization";
 import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
 import {VagrantBoxProvider} from "./tree/vagrantBoxProvider/vagrantBoxProvider";
@@ -17,7 +15,6 @@ import {
   FLAG_START_VMS_HEADLESS_DEFAULT,
   TelemetryEventIds
 } from "./constants/flags";
-import {parallelsOutputChannel} from "./helpers/channel";
 import {LogService} from "./services/logService";
 import {DevOpsCatalogProvider} from "./tree/devopsCatalogProvider/devopsCatalogProvider";
 import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
