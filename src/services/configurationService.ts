@@ -607,7 +607,7 @@ export class ConfigurationService {
 
   get allCatalogProviders(): DevOpsCatalogHostProvider[] {
     const providers: DevOpsCatalogHostProvider[] = [];
-    if (this.catalogProviders.length > 0) {
+    if (this.catalogProviders?.length > 0) {
       this.catalogProviders.forEach(provider => {
         providers.push(provider);
       });
@@ -706,7 +706,7 @@ export class ConfigurationService {
 
   get allRemoteHostProviders(): DevOpsRemoteHostProvider[] {
     const providers: DevOpsRemoteHostProvider[] = [];
-    if (this.remoteHostProviders.length > 0) {
+    if (this.remoteHostProviders?.length > 0) {
       this.remoteHostProviders.forEach(provider => {
         providers.push(provider);
       });
