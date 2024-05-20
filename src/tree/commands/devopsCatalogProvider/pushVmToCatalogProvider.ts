@@ -2,11 +2,10 @@ import * as vscode from "vscode";
 
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import {Provider} from "../../../ioc/provider";
-import {CommandsFlags, FLAG_DEVOPS_CATALOG_HAS_ITEMS, TelemetryEventIds} from "../../../constants/flags";
+import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
-import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 import {HelperService} from "../../../services/helperService";

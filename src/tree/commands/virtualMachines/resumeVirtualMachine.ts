@@ -3,7 +3,6 @@ import * as vscode from "vscode";
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
-import {parallelsOutputChannel} from "../../../helpers/channel";
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";

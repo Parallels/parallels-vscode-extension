@@ -1,18 +1,14 @@
-import {CatalogPullRequest} from "../../../models/devops/catalogPullRequest";
-import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
-import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
+import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
-import {DevOpsCatalogCommand, DevOpsRemoteHostsCommand} from "../BaseCommand";
+import {DevOpsRemoteHostsCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
-import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
-import {HelperService} from "../../../services/helperService";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
-import {CreateCatalogMachine, CreateCatalogMachineCatalogManifest} from "../../../models/devops/createCatalogMachine";
+import {CreateCatalogMachine} from "../../../models/devops/createCatalogMachine";
 
 const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
   context: vscode.ExtensionContext,

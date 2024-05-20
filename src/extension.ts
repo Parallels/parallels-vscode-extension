@@ -12,9 +12,7 @@ import {
   FLAG_IS_HEADLESS_DEFAULT,
   FLAG_OS,
   FLAG_PARALLELS_EXTENSION_INITIALIZED,
-  FLAG_START_VMS_HEADLESS_DEFAULT,
-  TelemetryEventIds
-} from "./constants/flags";
+  FLAG_START_VMS_HEADLESS_DEFAULT} from "./constants/flags";
 import {LogService} from "./services/logService";
 import {DevOpsCatalogProvider} from "./tree/devopsCatalogProvider/devopsCatalogProvider";
 import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";

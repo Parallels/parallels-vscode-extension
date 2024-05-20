@@ -4,7 +4,6 @@ import {parallelsOutputChannel} from "../helpers/channel";
 import {Provider} from "../ioc/provider";
 import {TelemetryRequest} from "../models/TelemetryRequest";
 import {TelemetryEventIds} from "../constants/flags";
-import {TelemetryEventMetadata} from "../models/TelemetryEventMetadata";
 
 enum LogLevel {
   Error = 0,

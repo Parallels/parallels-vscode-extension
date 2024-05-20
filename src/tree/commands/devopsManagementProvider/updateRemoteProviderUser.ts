@@ -5,8 +5,7 @@ import {DevOpsRemoteProviderManagementCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
-import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
-import {DevOpsCreateUserRequest, DevOpsUpdateUserRequest} from "../../../models/devops/users";
+import {DevOpsUpdateUserRequest} from "../../../models/devops/users";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
 

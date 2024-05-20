@@ -13,7 +13,6 @@ import {LogService} from "./logService";
 import {NewVirtualMachineSpecs} from "../models/parallels/NewVirtualMachineSpecs";
 import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
 import {VirtualMachineRunningInfo} from "../models/parallels/virtualMachineRunningInfo";
-import {buffer} from "stream/consumers";
 
 export class ParallelsDesktopService {
   static isInstalled(): Promise<boolean> {

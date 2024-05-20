@@ -1,7 +1,6 @@
 import {CatalogManifest, CatalogManifestItem} from "../../models/devops/catalogManifest";
 import path = require("path");
 import * as vscode from "vscode";
-import {DevOpsCatalogProvider} from "../devopsCatalogProvider/devopsCatalogProvider";
 import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
 
 export class DevOpsTreeItem extends vscode.TreeItem {

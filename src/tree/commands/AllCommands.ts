@@ -1,5 +1,4 @@
 import {
-  BaseCommand,
   DevOpsCatalogCommand,
   DevOpsRemoteHostsCommand,
   DevOpsRemoteProviderManagementCommand,

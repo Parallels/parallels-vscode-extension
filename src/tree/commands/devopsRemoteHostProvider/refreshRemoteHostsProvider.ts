@@ -3,7 +3,6 @@ import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {DevOpsRemoteHostsCommand} from "../BaseCommand";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
-import {DevOpsService} from "../../../services/devopsService";
 
 const registerDevOpsRefreshRemoteHostsProviderCommand = (
   context: vscode.ExtensionContext,

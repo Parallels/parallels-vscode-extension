@@ -1,8 +1,5 @@
 import path = require("path");
 import * as vscode from "vscode";
-import {VirtualMachine} from "../../models/parallels/virtualMachine";
-import {MachineSnapshot} from "../../models/parallels/virtualMachineSnapshot";
-import {VirtualMachineGroup} from "../../models/parallels/virtualMachineGroup";
 
 export class VagrantBoxTreeItem extends vscode.TreeItem {
   name: string;

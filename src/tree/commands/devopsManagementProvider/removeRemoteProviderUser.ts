@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags} from "../../../constants/flags";
-import {LogService} from "../../../services/logService";
 import {DevOpsRemoteProviderManagementCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";

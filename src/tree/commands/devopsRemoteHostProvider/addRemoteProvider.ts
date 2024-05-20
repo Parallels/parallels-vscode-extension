@@ -1,15 +1,12 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
-import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
+import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {DevOpsRemoteHostsCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
-import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
-import {randomUUID} from "crypto";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {cleanString} from "../../../helpers/strings";
-import {log} from "console";
 
 const registerDevOpsAddRemoteProviderCommand = (
   context: vscode.ExtensionContext,

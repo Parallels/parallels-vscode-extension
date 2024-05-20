@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
-import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import {DevOpsCatalogCommand} from "../BaseCommand";
 

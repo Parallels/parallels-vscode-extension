@@ -1,13 +1,9 @@
-import {config} from "process";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
-import {CommandsFlags, FLAG_DEVOPS_CATALOG_HAS_ITEMS, TelemetryEventIds} from "../../../constants/flags";
-import {LogService} from "../../../services/logService";
+import {CommandsFlags, FLAG_DEVOPS_CATALOG_HAS_ITEMS} from "../../../constants/flags";
 import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
-import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
-import {cleanString} from "../../../helpers/strings";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 
 const registerDevOpsRemoveCatalogProviderCommand = (

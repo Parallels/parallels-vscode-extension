@@ -1,10 +1,8 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags} from "../../../constants/flags";
-import {LogService} from "../../../services/logService";
-import {DevOpsCatalogCommand, DevOpsRemoteProviderManagementCommand} from "../BaseCommand";
+import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
-import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 

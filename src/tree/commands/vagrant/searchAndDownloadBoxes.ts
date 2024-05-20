@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
 import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
-import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {LogService} from "../../../services/logService";
 import {VagrantBoxProvider} from "../../vagrantBoxProvider/vagrantBoxProvider";
 import {VagrantService} from "../../../services/vagrantService";

@@ -4,7 +4,6 @@ import {CommandsFlags} from "../../../constants/flags";
 import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
-import {DevOpsRolesAndClaims} from "../../../models/devops/rolesAndClaims";
 
 const registerDevOpsAddTagsToCatalogProviderManifestVersionCommand = (
   context: vscode.ExtensionContext,

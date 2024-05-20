@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
-import {CommandsFlags, FLAG_NO_GROUP, TelemetryEventIds} from "../../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";

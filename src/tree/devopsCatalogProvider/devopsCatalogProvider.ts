@@ -1,9 +1,8 @@
 import * as vscode from "vscode";
 import {FLAG_DEVOPS_CATALOG_HAS_ITEMS} from "../../constants/flags";
-import {LogService} from "../../services/logService";
 
 import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
-import {AllDevOpsCatalogCommands, AllDevopsRemoteProviderManagementCommands} from "../commands/AllCommands";
+import {AllDevOpsCatalogCommands} from "../commands/AllCommands";
 import {DevOpsService} from "../../services/devopsService";
 import {Provider} from "../../ioc/provider";
 import {

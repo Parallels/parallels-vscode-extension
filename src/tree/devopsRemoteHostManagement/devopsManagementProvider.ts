@@ -1,8 +1,6 @@
-import {config} from "process";
 import * as vscode from "vscode";
 import {Provider} from "../../ioc/provider";
 import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
-import {DevOpsCatalogProvider} from "../devopsCatalogProvider/devopsCatalogProvider";
 import {DevOpsRemoteHostProvider} from "../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
 

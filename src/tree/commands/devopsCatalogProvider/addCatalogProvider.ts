@@ -1,8 +1,7 @@
-import {config} from "process";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import * as vscode from "vscode";
 import {Provider} from "../../../ioc/provider";
-import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
+import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
