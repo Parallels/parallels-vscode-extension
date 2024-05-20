@@ -42,12 +42,10 @@
             "properties": {
                 "parallels-desktop.output_path": {
                     "type": "string",
-                    "default": "/Users/cjlapao/parallels_extension",
                     "description": "Output path for Packer images"
                 },
                 "parallels-desktop.prlctl.path": {
                     "type": "string",
-                    "default": "/usr/local/bin/prlctl",
                     "description": "Path to prlctl executable"
                 },
                 "parallels-desktop.extension.path": {
@@ -1654,12 +1652,12 @@
             },
             {
                 "view": "parallels-desktop-catalog",
-                "when": "parallels-desktop:devops-service-catalog-provider-has-items !== true",
+                "when": "parallels-desktop:initialized == true && parallels-desktop:devops-service-catalog-provider-has-items !== true",
                 "contents": "Welcome to Parallels Desktop Catalog\nTo learn more about how to get started and to see an example please go to the [documentation page](https://parallels.github.io/prl-devops-service/examples/remote-catalog/)\nTo add your first Catalog Provider press this button\n[Add Catalog Provider](command:parallels-desktop.devops-service.add-catalog-provider)"
             },
             {
                 "view": "parallels-desktop-remote-hosts",
-                "when": "parallels-desktop:devops-service-remote-host-provider-has-items !== true",
+                "when": "parallels-desktop:initialized == true && parallels-desktop:devops-service-remote-host-provider-has-items !== true",
                 "contents": "Welcome to Parallels Desktop Remote Hosts\nTo learn more about how to get started please go to our [documentation page](https://parallels.github.io/prl-devops-service/examples/remote-catalog/)\nTo add your first Remote Host or Orchestrator press this button\n[Add Remote Host Provider](command:parallels-desktop.devops-service.add-remote-host-provider)"
             },
             {
@@ -1683,6 +1681,7 @@
         "vscode:prepublish": "npm run build",
         "compile": "webpack && gulp copy-images",
         "watch": "webpack --watch",
+        "watch:prod": "webpack --watch --mode production",
         "build": "webpack --mode production && gulp copy-images",
         "package": "npm run clean && vsce package",
         "open-in-browser": "vscode-test-web --extensionDevelopmentPath=src .",

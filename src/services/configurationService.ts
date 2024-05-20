@@ -169,25 +169,33 @@ export class ConfigurationService {
 
   async init(): Promise<void> {
     const promises: Promise<any>[] = [];
-
     // We will have two ways of configuring the extension, this first run if we do not have a configuration file
     // they we will wait to populate everything, otherwise we will just load the configuration file and start a background
     // task to update the configuration
+
+    const os = Provider.getOs();
     promises.push(
-      this.initBrew(),
-      this.initGit(),
-      this.initParallelsDesktop(),
       this.initDevOpsService(),
-      this.initPacker(),
-      this.initVagrant(),
-      this.loadDockerRunItems(),
-      HelperService.getHardwareInfo().then(info => {
-        this.hardwareInfo = info;
-      }),
-      HelperService.getLocale().then(locale => {
-        this.locale = locale.replace(/"/g, "").trim();
-      })
     );
+
+    // This is only available on macOS
+    if (os === "darwin") {
+      promises.push(
+        this.initBrew(),
+        this.initGit(),
+        this.initParallelsDesktop(),
+        this.initPacker(),
+        this.initVagrant(),
+        this.loadDockerRunItems(),
+        HelperService.getHardwareInfo().then(info => {
+          this.hardwareInfo = info;
+        }),
+        HelperService.getLocale().then(locale => {
+          this.locale = locale.replace(/"/g, "").trim();
+        })
+      );
+    }
+
     if (
       this.lastSynced === undefined ||
       this.hardwareInfo === undefined ||

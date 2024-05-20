@@ -15,6 +15,7 @@ export let configurationInitialized = false;
 
 export class Provider {
   constructor(private context: vscode.ExtensionContext) {
+    console.log("Provider");
     localStorage = new LocalStorageService(this.context.globalState);
     cache = new CacheService();
     this.loadConfiguration();
@@ -43,7 +44,6 @@ export class Provider {
   private loadConfiguration(): void {
     const configFolder = getUserProfileFolder();
     console.log("configFolder", configFolder);
-    LogService.info("configFolder", configFolder);
     const userProfile = path.join(configFolder, "profile.json");
     if (!fs.existsSync(userProfile)) {
       config = new ConfigurationService(this.context);

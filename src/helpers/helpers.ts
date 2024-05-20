@@ -116,11 +116,11 @@ export function getVagrantBoxFolder(): string {
 }
 
 export function getUserProfileFolder(): string {
-  const packerFilesFolder = path.join(getFoldersBasePath(), "profile");
+  const userConfigFolder = path.join(getFoldersBasePath(), "profile");
 
-  if (!fs.existsSync(packerFilesFolder)) {
-    fs.mkdirSync(packerFilesFolder, {recursive: true});
+  if (!fs.existsSync(userConfigFolder)) {
+    fs.mkdirSync(userConfigFolder, {recursive: true});
   }
 
-  return packerFilesFolder;
+  return userConfigFolder;
 }
