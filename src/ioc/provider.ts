@@ -6,6 +6,7 @@ import {FLAG_CONFIGURATION, FLAG_CONFIGURATION_INITIALIZED} from "../constants/f
 import {getUserProfileFolder} from "../helpers/helpers";
 import * as path from "path";
 import * as fs from "fs";
+import {LogService} from "../services/logService";
 
 export let localStorage: LocalStorageService;
 export let cache: CacheService;
@@ -41,6 +42,8 @@ export class Provider {
 
   private loadConfiguration(): void {
     const configFolder = getUserProfileFolder();
+    console.log("configFolder", configFolder);
+    LogService.info("configFolder", configFolder);
     const userProfile = path.join(configFolder, "profile.json");
     if (!fs.existsSync(userProfile)) {
       config = new ConfigurationService(this.context);

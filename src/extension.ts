@@ -20,10 +20,13 @@ import {DevOpsCatalogProvider} from "./tree/devopsCatalogProvider/devopsCatalogP
 import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsService} from "./services/devopsService";
 import {AllDevopsRemoteProviderManagementCommands} from "./tree/commands/AllCommands";
+import {getUserProfileFolder} from "./helpers/helpers";
 
 let autoRefreshInterval: NodeJS.Timeout | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
+  console.log("Activating Parallels Desktop Extension");
+  console.log(getUserProfileFolder());
   const provider = new Provider(context);
   const os = Provider.getOs();
   vscode.commands.executeCommand("setContext", FLAG_OS, os);

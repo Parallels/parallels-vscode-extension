@@ -12,6 +12,7 @@ import {cleanString} from "../../../helpers/strings";
 const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddCatalogProvider, async (item: any) => {
+      LogService.info("pressed the add remote provider button");
       let host = await vscode.window.showInputBox({
         prompt: "Catalog Provider Host?",
         placeHolder: "Enter the Catalog Provider Host, example http://localhost:8080",

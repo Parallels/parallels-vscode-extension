@@ -9,6 +9,7 @@ import {randomUUID} from "crypto";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {cleanString} from "../../../helpers/strings";
+import {log} from "console";
 
 const registerDevOpsAddRemoteProviderCommand = (
   context: vscode.ExtensionContext,
@@ -16,6 +17,7 @@ const registerDevOpsAddRemoteProviderCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddRemoteProvider, async (item: any) => {
+      LogService.info("pressed the add remote provider button");
       const currentItems: vscode.QuickPickItem[] = [
         {
           label: "Orchestrator"

@@ -34,6 +34,8 @@ export function formatDate(date: Date) {
 }
 
 export function getFoldersBasePath(): string {
+  console.log("getFoldersBasePath");
+  let folderName = ".parallels-desktop-vscode";
   const os = Provider.getOs();
   let foldersBasePath = Provider.getSettings().get<string>(FLAG_PARALLELS_EXTENSION_PATH);
   const folderExists = fs.existsSync(foldersBasePath ?? "");
@@ -42,9 +44,20 @@ export function getFoldersBasePath(): string {
     if (os === "darwin" || os === "linux") {
       homePath = cp.execSync(`echo $HOME`).toString().replace("\r\r", "").replace("\n", "");
     } else if (os.toLowerCase().startsWith("win")) {
+      folderName = "ParallelsDesktop";
       homePath = process.env.APPDATA ?? "";
+      if (!homePath) {
+        homePath = process.env.USERPROFILE ?? "";
+      }
+      if (!homePath) {
+        homePath = process.env.HOME ?? "";
+      }
+      if (!homePath) {
+        homePath = "C:\\";
+      }
     }
-    foldersBasePath = path.join(homePath.trim(), ".parallels-desktop-vscode");
+    console.log("homePath", homePath);
+    foldersBasePath = path.join(homePath.trim(), folderName);
     if (!fs.existsSync(foldersBasePath)) {
       fs.mkdirSync(foldersBasePath, {recursive: true});
     }
