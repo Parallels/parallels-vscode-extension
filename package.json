@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.0.13",
+    "version": "1.1.0",
     "engines": {
         "vscode": "^1.77.0"
     },
@@ -1167,7 +1167,6 @@
                     "command": "parallels-desktop.devops-service.remote-host.pull-catalog-manifest-machine-on-host",
                     "when": "false"
                 }
-                
             ],
             "view/title": [
                 {
