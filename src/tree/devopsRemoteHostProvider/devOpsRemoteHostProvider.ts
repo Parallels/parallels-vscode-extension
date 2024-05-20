@@ -26,9 +26,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
     });
     const config = Provider.getConfiguration();
     if (!config.remoteHostProviders) {
-      config.remoteHostProviders = []
+      config.remoteHostProviders = [];
     }
-    
+
     if (config.remoteHostProviders?.length === 0) {
       vscode.commands.executeCommand("setContext", FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS, false);
     } else {

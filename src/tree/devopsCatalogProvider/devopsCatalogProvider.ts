@@ -29,7 +29,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
 
     const config = Provider.getConfiguration();
     if (!config.catalogProviders) {
-      config.catalogProviders = []
+      config.catalogProviders = [];
     }
     if (config.catalogProviders?.length === 0) {
       vscode.commands.executeCommand("setContext", FLAG_DEVOPS_CATALOG_HAS_ITEMS, false);
