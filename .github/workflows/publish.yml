@@ -227,23 +227,6 @@ jobs:
               draft: false,
               prerelease: false
             });
-      - name: Create release and upload release asset
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require("fs");
-
-            const release = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: "release-v${{ env.EXT_VERSION }}",
-              name: "v${{ env.EXT_VERSION }}",
-              draft: false,
-              prerelease: false
-            });
-
-            core.summary.addLink(`Release v${{ env.EXT_VERSION }}`, release.data.html_url);
-            await core.summary.write();
 
   upload-artifacts-to-release:
     name: Upload artifacts to release v${{ needs.check-version-change.outputs.version }}
@@ -251,6 +234,7 @@ jobs:
       - create-release
       - check-version-change
 
+    if: false  
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -295,28 +279,6 @@ jobs:
           script: |
             const fs = require("fs");
 
-            const release = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: "release-v${{ env.EXT_VERSION }}",
-              name: "v${{ env.EXT_VERSION }}",
-              draft: false,
-              prerelease: false
-            });
-      - name: Create release and upload release asset
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require("fs");
-
-            const release = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: "release-v${{ env.EXT_VERSION }}",
-              name: "v${{ env.EXT_VERSION }}",
-              draft: false,
-              prerelease: false
-            });
             const path = "./parallels-desktop-${{ matrix.vsce_target }}-${{ env.EXT_VERSION }}.vsix";
             await github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
@@ -337,10 +299,7 @@ jobs:
     # environment: publish
     needs: 
       - check-version-change
-      - upload-artifacts-to-release
-    # needs: 
-    #   - release
-    #   - release-win
+
     runs-on: ubuntu-latest
     permissions: {}
     env:
