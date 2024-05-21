@@ -299,6 +299,7 @@ jobs:
     # environment: publish
     needs: 
       - check-version-change
+      - create-release
 
     runs-on: ubuntu-latest
     permissions: {}
