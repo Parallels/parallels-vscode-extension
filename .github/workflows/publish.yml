@@ -64,7 +64,7 @@ jobs:
           echo "EXT_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
 
   release:
-    name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ needs.check-version-change.outputs.changed }} ${{ matrix.ls_target }} ${{ matrix.vsce_target }}
+    name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ matrix.vsce_target }}
     needs: 
       - check-version-change
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
@@ -76,7 +76,7 @@ jobs:
       packages: read
 
     env:
-      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
+      EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
 
     strategy:
       matrix:
@@ -137,7 +137,7 @@ jobs:
         run: mv package.json.real package.json
 
   release-win:
-    name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ needs.check-version-change.outputs.changed }} ${{ matrix.ls_target }} ${{ matrix.vsce_target }}
+    name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ matrix.vsce_target }}
     
     needs: 
       - check-version-change
@@ -151,7 +151,7 @@ jobs:
       packages: read
 
     env:
-      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
+      EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
 
     strategy:
       matrix:
@@ -197,6 +197,7 @@ jobs:
           move package.json.real package.json
 
   create-release:
+    name: Create release v${{ needs.check-version-change.outputs.version }}
     needs: 
       - release
       - release-win
@@ -208,7 +209,7 @@ jobs:
       packages: read
 
     env:
-      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
+      EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
 
     steps:
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
@@ -245,6 +246,7 @@ jobs:
             await core.summary.write();
 
   upload-artifacts-to-release:
+    name: Upload artifacts to release v${{ needs.check-version-change.outputs.version }}
     needs: 
       - create-release
       - check-version-change
@@ -277,7 +279,7 @@ jobs:
             npm_config_arch: arm64
 
     env:
-      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
+      EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
 
     steps:
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
@@ -325,13 +327,18 @@ jobs:
             core.summary.addLink(`Release v${{ env.EXT_VERSION }}`, release.data.html_url);
             await core.summary.write();
   publish:
+    name: Publish extension v${{ needs.check-version-change.outputs.version }}
     # environment: publish
-    needs: upload-artifacts-to-release
+    needs: 
+      - check-version-change
+      - upload-artifacts-to-release
     # needs: 
     #   - release
     #   - release-win
     runs-on: ubuntu-latest
     permissions: {}
+    env:
+      EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
 
     steps:
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
