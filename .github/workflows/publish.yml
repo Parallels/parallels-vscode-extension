@@ -63,13 +63,39 @@ jobs:
 
     outputs:
       version: ${{ env.EXT_VERSION }}
-
+    strategy:
+      matrix:
+        include:
+          - vsce_target: web
+            ls_target: web_noop
+            npm_config_arch: x64
+          - vsce_target: win32-x64
+            ls_target: windows_amd64
+            npm_config_arch: x64
+          - vsce_target: win32-arm64
+            ls_target: windows_arm64
+            npm_config_arch: arm
+          - vsce_target: linux-x64
+            ls_target: linux_amd64
+            npm_config_arch: x64
+          - vsce_target: linux-arm64
+            ls_target: linux_arm64
+            npm_config_arch: arm64
+          - vsce_target: linux-armhf
+            ls_target: linux_arm
+            npm_config_arch: arm
+          - vsce_target: darwin-x64
+            ls_target: darwin_amd64
+            npm_config_arch: x64
+          - vsce_target: darwin-arm64
+            ls_target: darwin_arm64
+            npm_config_arch: arm64
     steps:
       - uses: actions/checkout@v3
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 20.x
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
 
@@ -77,55 +103,64 @@ jobs:
         run: |
           echo "EXT_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
 
-      - run: npm install
+      - run: npm intall
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          npm_config_arch: ${{ matrix.npm_config_arch }}
+          ls_target: ${{ matrix.ls_target }}
 
       - name: create a package.json that actions/upload will like
         run: |
           cp package.json package.json.real
           sed --regexp-extended '/"name"\s*:/ s#@[a-zA-Z\\-]+/##' package.json.real > package.json
 
-      - run: npm run package
+      - run: npm run ci
+        env:
+          npm_config_arch: ${{ matrix.npm_config_arch }}
+          ls_target: ${{ matrix.ls_target }}
 
-      - uses: actions/upload-artifact@v3
+      - name: Package Stable VSIX
+        run: npm run package -- --target=${{ matrix.vsce_target }}
+
+      - name: Upload vsix as artifact
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
-          name: parallels-desktop-${{ env.EXT_VERSION }}.vsix
-          path: ./parallels-desktop-${{ env.EXT_VERSION }}.vsix
+          name: ${{ matrix.vsce_target }}
+          path: '*.vsix'
 
       - name: restore old package.json
         run: mv package.json.real package.json
 
-      - name: Create release and upload release asset
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require("fs");
+      # - name: Create release and upload release asset
+      #   uses: actions/github-script@v6
+      #   with:
+      #     script: |
+      #       const fs = require("fs");
 
-            const release = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: "release-v${{ env.EXT_VERSION }}",
-              name: "v${{ env.EXT_VERSION }}",
-              draft: false,
-              prerelease: false
-            });
+      #       const release = await github.rest.repos.createRelease({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         tag_name: "release-v${{ env.EXT_VERSION }}",
+      #         name: "v${{ env.EXT_VERSION }}",
+      #         draft: false,
+      #         prerelease: false
+      #       });
 
-            const path = "./parallels-desktop-${{ env.EXT_VERSION }}.vsix";
-            await github.rest.repos.uploadReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: release.data.id,
-              data: fs.readFileSync(path),
-              name: "parallels-desktop-${{ env.EXT_VERSION }}.vsix",
-              headers: {
-                "content-type": "application/vsix",
-                "content-length": fs.statSync(path).size
-              }
-            });
+      #       const path = "./parallels-desktop-${{ env.EXT_VERSION }}.vsix";
+      #       await github.rest.repos.uploadReleaseAsset({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         release_id: release.data.id,
+      #         data: fs.readFileSync(path),
+      #         name: "parallels-desktop-${{ env.EXT_VERSION }}.vsix",
+      #         headers: {
+      #           "content-type": "application/vsix",
+      #           "content-length": fs.statSync(path).size
+      #         }
+      #       });
 
-            core.summary.addLink(`Release v${{ env.EXT_VERSION }}`, release.data.html_url);
-            await core.summary.write();
+      #       core.summary.addLink(`Release v${{ env.EXT_VERSION }}`, release.data.html_url);
+      #       await core.summary.write();
 
   publish:
     # environment: publish
@@ -133,15 +168,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions: {}
 
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: parallels-desktop-${{ needs.release.outputs.version }}.vsix
+    # steps:
+    #   - uses: actions/download-artifact@v3
+    #     with:
+    #       name: parallels-desktop-${{ needs.release.outputs.version }}.vsix
 
-      - name: Publish to marketplace
-        # https://github.com/HaaLeo/publish-vscode-extension/releases/tag/v1.2.0
-        uses: HaaLeo/publish-vscode-extension@c1a0486c5a3eed24e8c21d4e37889a7c4c60c443
-        with:
-          pat: ${{ secrets.PUBLISHER_KEY }}
-          registryUrl: https://marketplace.visualstudio.com
-          extensionFile: ./parallels-desktop-${{ needs.release.outputs.version }}.vsix
+    #   - name: Publish to marketplace
+    #     # https://github.com/HaaLeo/publish-vscode-extension/releases/tag/v1.2.0
+    #     uses: HaaLeo/publish-vscode-extension@c1a0486c5a3eed24e8c21d4e37889a7c4c60c443
+    #     with:
+    #       pat: ${{ secrets.PUBLISHER_KEY }}
+    #       registryUrl: https://marketplace.visualstudio.com
+    #       extensionFile: ./parallels-desktop-${{ needs.release.outputs.version }}.vsix
+    steps:
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - name: Publish Stable to OpenVSX
+        run: npx ovsx publish --packagePath $(find . -iname *.vsix)
+        env:
+          OVSX_PAT: ${{ secrets.PUBLISHER_KEY }}
