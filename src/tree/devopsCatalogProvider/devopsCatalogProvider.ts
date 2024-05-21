@@ -275,6 +275,12 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             if (version.revoked) {
               context = "devops.catalog.manifests.manifest.version.revoked";
             }
+            const provider = config.findCatalogProviderByIOrName(elementId);
+            const isSuperUser = provider?.user?.isSuperUser ?? false;
+            if (isSuperUser) {
+              context = `${context}.super_user`;
+            }
+
             let tooltip = version.version;
             if (version.tainted) {
               tooltip = `${tooltip} - Tainted by ${version.tainted_by} on ${new Date(
@@ -331,6 +337,9 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         const rolesLength = manifestItem?.required_roles?.length ?? 0;
         const claimsLength = manifestItem?.required_claims?.length ?? 0;
         const tagsLength = manifestItem?.tags?.length ?? 0;
+        const context = "provider.catalog.manifests.manifest.architecture";
+        const provider = config.findCatalogProviderByIOrName(elementId);
+        const isSuperUser = provider?.user?.isSuperUser ?? false;
         this.data.push(
           new DevOpsTreeItem(
             `${element.id}%%roles`,
@@ -340,7 +349,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             "Roles",
             "",
             "DevOpsCatalogHostProvider",
-            "provider.catalog.manifests.manifest.architecture.roles",
+            isSuperUser ? `${context}.roles.super_user` : `${context}.roles`,
             rolesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
             "remote_hosts_management_roles"
           )
@@ -355,7 +364,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             "Claims",
             "",
             "DevOpsCatalogHostProvider",
-            "provider.catalog.manifests.manifest.architecture.claims",
+            isSuperUser ? `${context}.claims.super_user` : `${context}.claims`,
             claimsLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
             "remote_hosts_management_claims"
           )
@@ -369,7 +378,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             "Tags",
             "",
             "DevOpsCatalogHostProvider",
-            "provider.catalog.manifests.manifest.architecture.tags",
+            isSuperUser ? `${context}.tags.super_user` : `${context}.tags`,
             tagsLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
             "tags"
           )
@@ -394,6 +403,12 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         }
         const manifestItem = manifest?.items.find(i => i.id === versionId);
         if (manifestItem) {
+          const provider = config.findCatalogProviderByIOrName(elementId);
+          const isSuperUser = provider?.user?.isSuperUser ?? false;
+          let context = "provider.catalog.manifests.manifest.architecture.role";
+          if (isSuperUser) {
+            context = `${context}.super_user`;
+          }
           for (const role of manifestItem.required_roles?.sort((a, b) => a.localeCompare(b)) ?? []) {
             const id = `${element.id}%%roles%%${role}`;
             this.data.push(
@@ -405,7 +420,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 role,
                 "",
                 "DevOpsCatalogHostProvider",
-                "provider.catalog.manifests.manifest.architecture.role",
+                context,
                 vscode.TreeItemCollapsibleState.None,
                 "remote_hosts_management_roles"
               )
@@ -432,6 +447,12 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         }
         const manifestItem = manifest?.items.find(i => i.id === versionId);
         if (manifestItem) {
+          const provider = config.findCatalogProviderByIOrName(elementId);
+          const isSuperUser = provider?.user?.isSuperUser ?? false;
+          let context = "provider.catalog.manifests.manifest.architecture.claim";
+          if (isSuperUser) {
+            context = `${context}.super_user`;
+          }
           for (const claim of manifestItem.required_claims?.sort((a, b) => a.localeCompare(b)) ?? []) {
             const id = `${element.id}%%claims%%${claim}`;
             this.data.push(
@@ -443,7 +464,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 claim,
                 "",
                 "DevOpsCatalogHostProvider",
-                "provider.catalog.manifests.manifest.architecture.claim",
+                context,
                 vscode.TreeItemCollapsibleState.None,
                 "remote_hosts_management_claims"
               )
@@ -470,6 +491,12 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         }
         const manifestItem = manifest?.items.find(i => i.id === versionId);
         if (manifestItem) {
+          const provider = config.findCatalogProviderByIOrName(elementId);
+          const isSuperUser = provider?.user?.isSuperUser ?? false;
+          let context = "provider.catalog.manifests.manifest.architecture.tag";
+          if (isSuperUser) {
+            context = `${context}.super_user`;
+          }
           for (const tag of manifestItem.tags?.sort((a, b) => a.localeCompare(b)) ?? []) {
             const id = `${element.id}%%tags%%${tag}`;
             this.data.push(
@@ -481,7 +508,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 tag,
                 "",
                 "DevOpsCatalogHostProvider",
-                "provider.catalog.manifests.manifest.architecture.tag",
+                context,
                 vscode.TreeItemCollapsibleState.None,
                 "tags"
               )

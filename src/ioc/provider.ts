@@ -5,7 +5,7 @@ import {CacheService} from "../services/memoryCache";
 import {getUserProfileFolder} from "../helpers/helpers";
 import * as path from "path";
 import * as fs from "fs";
-import { LogService } from "../services/logService";
+import {LogService} from "../services/logService";
 
 export let localStorage: LocalStorageService;
 export let cache: CacheService;

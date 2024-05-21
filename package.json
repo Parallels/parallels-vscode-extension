@@ -1416,7 +1416,7 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-catalog-provider-manifest",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.(manifests$|manifests\\.manifest\\.version.*)$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.(manifests$|manifests\\.manifest\\.version.*)\\.super_user$/",
                     "group": "inline@10"
                 },
                 {
@@ -1431,47 +1431,47 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.taint-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version.super_user$/",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.devops-service.untaint-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version\\.tainted$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version\\.tainted.super_user$/",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.devops-service.revoke-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.(version|version\\.tainted)$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.(version|version.super_user\\.tainted.super_user)$/",
                     "group": "inline@2"
                 },
                 {
                     "command": "parallels-desktop.devops-service.add-role-to-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.roles$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.roles.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-role-from-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.role$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.role.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.add-claim-to-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claims$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claims.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-claim-from-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claim$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claim.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.add-tag-to-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tags$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tags.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-tag-from-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tag$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tag.super_user$/",
                     "group": "inline@10"
                 },
                 {
