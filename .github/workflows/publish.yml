@@ -196,6 +196,7 @@ jobs:
     needs: 
       - release
       - release-win
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -220,7 +221,20 @@ jobs:
               draft: false,
               prerelease: false
             });
+      - name: Create release and upload release asset
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require("fs");
 
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "release-v${{ env.EXT_VERSION }}",
+              name: "v${{ env.EXT_VERSION }}",
+              draft: false,
+              prerelease: false
+            });
             const path = "./parallels-desktop-${{ matrix.vsce_target }}-${{ env.EXT_VERSION }}.vsix";
             await github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
@@ -238,7 +252,10 @@ jobs:
             await core.summary.write();
   publish:
     # environment: publish
-    needs: create-release
+    # needs: create-release
+    needs: 
+      - release
+      - release-win
     runs-on: ubuntu-latest
     permissions: {}
 
