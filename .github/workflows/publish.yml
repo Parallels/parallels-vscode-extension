@@ -114,7 +114,7 @@ jobs:
           cp package.json package.json.real
           sed --regexp-extended '/"name"\s*:/ s#@[a-zA-Z\\-]+/##' package.json.real > package.json
 
-      - run: npm run ci
+      - run: npm ci
         env:
           npm_config_arch: ${{ matrix.npm_config_arch }}
           ls_target: ${{ matrix.ls_target }}
