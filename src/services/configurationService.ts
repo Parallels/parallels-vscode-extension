@@ -174,9 +174,7 @@ export class ConfigurationService {
     // task to update the configuration
 
     const os = Provider.getOs();
-    promises.push(
-      this.initDevOpsService(),
-    );
+    promises.push(this.initDevOpsService());
 
     // This is only available on macOS
     if (os === "darwin") {
