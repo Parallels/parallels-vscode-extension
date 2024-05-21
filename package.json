@@ -1441,7 +1441,7 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.revoke-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.(version|version.super_user\\.tainted.super_user)$/",
+                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.(version.super_user|version.super_user\\.tainted.super_user)$/",
                     "group": "inline@2"
                 },
                 {
