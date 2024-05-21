@@ -44,7 +44,7 @@ export function getFoldersBasePath(): string {
   if (foldersBasePath) {
     folderExists = fs.existsSync(foldersBasePath ?? "");
   }
-  console.log("foldersBasePath", foldersBasePath);
+
   if (!foldersBasePath || !folderExists) {
     let homePath = "";
     if (os === "darwin" || os === "linux") {
@@ -62,7 +62,7 @@ export function getFoldersBasePath(): string {
         homePath = "C:\\";
       }
     }
-    console.log("homePath", homePath);
+
     foldersBasePath = path.join(homePath.trim(), folderName);
     if (!fs.existsSync(foldersBasePath)) {
       fs.mkdirSync(foldersBasePath, {recursive: true});

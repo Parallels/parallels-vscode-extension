@@ -14,8 +14,12 @@ on:
         required: true
 jobs:
   check-version-change:
+    env:
+      EXT_VERSION: ${{ github.event.inputs.version }}
+
     outputs:
       changed: ${{ steps.check-version.outputs.result }}
+      version: ${{ env.EXT_VERSION }}
 
     runs-on: ubuntu-latest
 
@@ -24,6 +28,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: "npm"
+          registry-url: "https://npm.pkg.github.com"
+
       - name: Check if version has changed
         id: check-version
         uses: actions/github-script@v6
@@ -48,8 +59,14 @@ jobs:
             console.log(`Version ${version} does not have a release`);
             return true;
 
+      - name: Export Version
+        run: |
+          echo "EXT_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
+
   release:
-    needs: check-version-change
+    name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ needs.check-version-change.outputs.changed }} ${{ matrix.ls_target }} ${{ matrix.vsce_target }}
+    needs: 
+      - check-version-change
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
 
     runs-on: ubuntu-latest
@@ -59,10 +76,8 @@ jobs:
       packages: read
 
     env:
-      EXT_VERSION: "" # will be set in the workflow
+      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
 
-    outputs:
-      version: ${{ env.EXT_VERSION }}
     strategy:
       matrix:
         include:
@@ -93,17 +108,13 @@ jobs:
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
 
-      - name: Parse version from package.json
-        run: |
-          echo "EXT_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
-
       - run: npm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_arch: ${{ matrix.npm_config_arch }}
           ls_target: ${{ matrix.ls_target }}
 
-      - name: create a package.json that actions/upload will like
+      - name: Create a package.json that actions/upload will like
         run: |
           cp package.json package.json.real
           sed --regexp-extended '/"name"\s*:/ s#@[a-zA-Z\\-]+/##' package.json.real > package.json
@@ -122,11 +133,15 @@ jobs:
           name: ${{ matrix.vsce_target }}
           path: '*.vsix'
 
-      - name: restore old package.json
+      - name: Restore old package.json
         run: mv package.json.real package.json
 
   release-win:
-    needs: check-version-change
+    name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ needs.check-version-change.outputs.changed }} ${{ matrix.ls_target }} ${{ matrix.vsce_target }}
+    
+    needs: 
+      - check-version-change
+
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
 
     runs-on: windows-latest
@@ -136,10 +151,8 @@ jobs:
       packages: read
 
     env:
-      EXT_VERSION: "" # will be set in the workflow
+      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
 
-    outputs:
-      version: ${{ env.EXT_VERSION }}
     strategy:
       matrix:
         include:
@@ -151,34 +164,25 @@ jobs:
             npm_config_arch: arm
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-node@v3
         with:
           node-version: 20.x
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
 
-      - name: Parse version from package.json
-        run: |
-          echo "EXT_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
-
-      - run: npm install
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          npm_config_arch: ${{ matrix.npm_config_arch }}
-          ls_target: ${{ matrix.ls_target }}
-
       - name: create a package.json that actions/upload will like
         run: |
           cp package.json package.json.real
           sed --regexp-extended '/"name"\s*:/ s#@[a-zA-Z\\-]+/##' package.json.real > package.json
 
-      - run: npm ci
+      - name: Install dependencies
+        run: |
+          npm ci
         env:
           npm_config_arch: ${{ matrix.npm_config_arch }}
           ls_target: ${{ matrix.ls_target }}
 
-      - name: Package Stable VSIX
+      - name: Package stable VSIX
         run: npm run package -- --target=${{ matrix.vsce_target }}
 
       - name: Upload vsix as artifact
@@ -187,23 +191,93 @@ jobs:
           name: ${{ matrix.vsce_target }}
           path: '*.vsix'
 
-      - name: restore old package.json
+      - name: Restore old package.json
         run:  |
           del package.json
           move package.json.real package.json
+
   create-release:
-    # environment: publish
     needs: 
       - release
       - release-win
-    if: false
+      - check-version-change
+
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: read
 
     env:
-      EXT_VERSION: "" # will be set in the workflow
+      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
+
+    steps:
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - name: Create release and upload release asset
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require("fs");
+
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "release-v${{ env.EXT_VERSION }}",
+              name: "v${{ env.EXT_VERSION }}",
+              draft: false,
+              prerelease: false
+            });
+      - name: Create release and upload release asset
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require("fs");
+
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "release-v${{ env.EXT_VERSION }}",
+              name: "v${{ env.EXT_VERSION }}",
+              draft: false,
+              prerelease: false
+            });
+
+            core.summary.addLink(`Release v${{ env.EXT_VERSION }}`, release.data.html_url);
+            await core.summary.write();
+
+  upload-artifacts-to-release:
+    needs: 
+      - create-release
+      - check-version-change
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+
+    strategy:
+      matrix:
+        include:
+          - vsce_target: web
+            ls_target: web_noop
+            npm_config_arch: x64
+          - vsce_target: linux-x64
+            ls_target: linux_amd64
+            npm_config_arch: x64
+          - vsce_target: linux-arm64
+            ls_target: linux_arm64
+            npm_config_arch: arm64
+          - vsce_target: linux-armhf
+            ls_target: linux_arm
+            npm_config_arch: arm
+          - vsce_target: darwin-x64
+            ls_target: darwin_amd64
+            npm_config_arch: x64
+          - vsce_target: darwin-arm64
+            ls_target: darwin_arm64
+            npm_config_arch: arm64
+
+    env:
+      EXT_VERSION: ${{ needs.check-version-change.outputs.changed }}
 
     steps:
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
@@ -252,10 +326,10 @@ jobs:
             await core.summary.write();
   publish:
     # environment: publish
-    # needs: create-release
-    needs: 
-      - release
-      - release-win
+    needs: upload-artifacts-to-release
+    # needs: 
+    #   - release
+    #   - release-win
     runs-on: ubuntu-latest
     permissions: {}
 
@@ -265,18 +339,3 @@ jobs:
         run: npx vsce publish --no-git-tag-version --packagePath $(find . -iname *.vsix)
         env:
           VSCE_PAT: ${{ secrets.PUBLISHER_KEY }}
-    # steps:
-    #   - uses: actions/download-artifact@v3
-
-    #   - name: Publish to marketplace
-    #     # https://github.com/HaaLeo/publish-vscode-extension/releases/tag/v1.2.0
-    #     uses: HaaLeo/publish-vscode-extension@c1a0486c5a3eed24e8c21d4e37889a7c4c60c443
-    #     with:
-    #       pat: ${{ secrets.PUBLISHER_KEY }}
-    #       registryUrl: https://marketplace.visualstudio.com
-    # steps:
-    #   - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
-    #   - name: Publish Stable to OpenVSX
-    #     run: npx ovsx publish --packagePath $(find . -iname *.vsix)
-    #     env:
-    #       OVSX_PAT: ${{ secrets.PUBLISHER_KEY }}

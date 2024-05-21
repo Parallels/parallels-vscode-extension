@@ -24,7 +24,6 @@ let autoRefreshInterval: NodeJS.Timeout | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   console.log("Activating Parallels Desktop Extension");
-  console.log(getUserProfileFolder());
   const provider = new Provider(context);
   const os = Provider.getOs();
   vscode.commands.executeCommand("setContext", FLAG_OS, os);
