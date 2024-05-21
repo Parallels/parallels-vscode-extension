@@ -131,37 +131,6 @@ jobs:
       - name: restore old package.json
         run: mv package.json.real package.json
 
-      - name: Create release and upload release asset
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require("fs");
-
-            const release = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: "release-v${{ env.EXT_VERSION }}",
-              name: "v${{ env.EXT_VERSION }}",
-              draft: false,
-              prerelease: false
-            });
-
-            const path = "./parallels-desktop-${{ matrix.vsce_target }}-${{ env.EXT_VERSION }}.vsix";
-            await github.rest.repos.uploadReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: release.data.id,
-              data: fs.readFileSync(path),
-              name: "parallels-desktop-${{ matrix.vsce_target }}-${{ env.EXT_VERSION }}.vsix",
-              headers: {
-                "content-type": "application/vsix",
-                "content-length": fs.statSync(path).size
-              }
-            });
-
-            core.summary.addLink(`Release v${{ env.EXT_VERSION }}`, release.data.html_url);
-            await core.summary.write();
-
   release-win:
     needs: check-version-change
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
