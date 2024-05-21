@@ -226,7 +226,16 @@ jobs:
 
       - name: restore old package.json
         run: mv package.json.real package.json
+  create-release:
+    # environment: publish
+    needs: 
+      - release
+      - release-win
+    runs-on: ubuntu-latest
+    permissions: {}
 
+    steps:
+      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
       - name: Create release and upload release asset
         uses: actions/github-script@v6
         with:
@@ -259,7 +268,7 @@ jobs:
             await core.summary.write();
   publish:
     # environment: publish
-    needs: release
+    needs: create-release
     runs-on: ubuntu-latest
     permissions: {}
 
