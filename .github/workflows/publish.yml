@@ -188,7 +188,7 @@ jobs:
           path: '*.vsix'
 
       - name: restore old package.json
-        run: mv package.json.real package.json
+        run: move package.json.real package.json
   create-release:
     # environment: publish
     needs: 
