@@ -70,7 +70,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
           vscode.window.showErrorMessage(`Provider ${item.name} not found`);
           return;
         }
-        const manifestId = item.id.split("%%")[1];
+        const manifestId = item.id.split("%%")[2];
         const manifest = config.findCatalogProviderManifest(providerId, manifestId);
         let version = "";
         // if we selected the manifest item, we need to get the versions and display them on a quick pick
