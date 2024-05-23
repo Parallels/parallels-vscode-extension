@@ -1421,7 +1421,7 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.pull-catalog-provider-manifest",
-                    "when": "view == parallels-desktop-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests\\.(manifest|manifest\\.version)$/",
+                    "when": "view == parallels-desktop-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests\\.(manifest|manifest\\.version|manifest\\.version\\.super_user)$/",
                     "group": "inline@0"
                 },
                 {
