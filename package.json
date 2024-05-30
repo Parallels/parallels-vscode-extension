@@ -10,7 +10,7 @@
     "icon": "img/logo/parallels_logo.png",
     "version": "1.1.14",
     "engines": {
-        "vscode": "^1.77.0"
+        "vscode": "^1.90.0"
     },
     "categories": [
         "Testing"
@@ -21,6 +21,9 @@
             "href": "https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml",
             "description": "Build Status"
         }
+    ],
+    "extensionDependencies": [
+        "github.copilot-chat"
     ],
     "preview": false,
     "keywords": [
@@ -33,10 +36,31 @@
     ],
     "homepage": "https://parallels.com",
     "activationEvents": [
-        "onView:nodeDependencies"
+    ],
+    "enabledApiProposals": [
+        "chatVariableResolver"
     ],
     "main": "./dist/extension.js",
     "contributes": {
+        "chatParticipants": [
+            {
+                "id": "parallels.chat",
+                "fullName": "Parallels Desktop",
+                "name": "parallels",
+                "description": "How can I help?",
+                "isSticky": true,
+                "commands": [
+                    {
+                        "name": "create",
+                        "description": "create a new VM"
+                    },
+                    {
+                        "name": "state",
+                        "description": "change the state of a VM"
+                    }
+                ]
+            }
+        ],
         "configuration": {
             "title": "Parallels Desktop",
             "properties": {
@@ -1682,7 +1706,7 @@
         "clean": "rimraf ./dist ./out",
         "vscode:prepublish": "npm run build",
         "compile": "webpack && gulp copy-images",
-        "watch": "webpack --watch --mode production ",
+        "watch": "webpack --watch",
         "watch:prod": "webpack --watch --mode production",
         "build": "webpack --mode production && gulp copy-images",
         "package": "npm run clean && vsce package",
@@ -1696,12 +1720,11 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
+        "@types/axios": "^0.14.0",
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "16.x",
         "@types/uuid": "^9.0.1",
-        "@types/vscode": "^1.77.0",
-        "@types/axios": "^0.14.0",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
         "@vscode/test-electron": "^2.3.0",
@@ -1722,11 +1745,11 @@
         "webpack-cli": "^5.0.1"
     },
     "dependencies": {
-        "@vscode/vsce": "^2.19.0",
+        "@vscode/vsce": "^2.26.0",
         "axios": "^1.4.0",
-        "tailwindcss": "^3.3.2",
-        "uuid": "^9.0.0",
         "clipboardy": "^3.0.0",
-        "jwt-decode": "^4.0.0"
+        "jwt-decode": "^4.0.0",
+        "tailwindcss": "^3.3.2",
+        "uuid": "^9.0.0"
     }
 }

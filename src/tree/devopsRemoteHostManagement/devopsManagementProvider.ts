@@ -46,7 +46,7 @@ export function drawManagementItems(
           "management.roles",
           "Roles",
           "",
-          "DevOpsRemoteHostProvider",
+          className,
           "devops.remote.management.roles",
           rolesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
           "remote_hosts_management_roles"
