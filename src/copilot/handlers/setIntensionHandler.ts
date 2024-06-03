@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ParallelsDesktopService } from '../../services/parallelsDesktopService';
 import { CopilotOperation } from '../models';
 import { VirtualMachine } from '../../models/parallels/virtualMachine';
+import { processDeductedValueResponse } from '../training/choose_approximate';
 
 export async function setIntensionHandler(operation: string, vmName: string, stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken): Promise<CopilotOperation[]> {
   return new Promise(async (resolve, reject) => {
@@ -48,9 +49,16 @@ export async function setIntensionHandler(operation: string, vmName: string, str
         }
       } else {
         stream.progress(`finding the virtual machine ${vmName}...`);
-        const vm = (await ParallelsDesktopService.getVms()).find(vm => vm.Name.toLowerCase() === vmName.toLowerCase());
+        const vms = await ParallelsDesktopService.getVms();
+        let vm = vms.find(vm => vm.Name.toLowerCase() === vmName.toLowerCase());
         if (vm) {
           vms.push(vm);
+        } else {
+          const approximateVmName = await processDeductedValueResponse(vmName, vms.map(vm => vm.Name), model, token);
+          vm = vms.find(vm => vm.Name.toLowerCase() === approximateVmName.toLowerCase());
+          if (vm) {
+            vms.push(vm);
+          }
         }
       }
 
