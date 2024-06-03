@@ -83,7 +83,7 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
       }
 
       let email: string | undefined;
-      if (selectedOptions.label === "Password") {
+      if (selectedOptions.label === "Email") {
         email = await vscode.window.showInputBox({
           prompt: `User Email?`,
           placeHolder: `Enter the user email, example johndoe@example.com`,
