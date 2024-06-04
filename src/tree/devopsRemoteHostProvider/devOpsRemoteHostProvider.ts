@@ -17,8 +17,10 @@ import {cleanString} from "../../helpers/strings";
 
 export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
+  context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
+    this.context = context;
     const view = vscode.window.createTreeView("parallels-desktop-remote-hosts", {
       treeDataProvider: this,
       showCollapseAll: true,
@@ -85,6 +87,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
           }
           this.data.push(
             new DevOpsTreeItem(
+              this.context,
               id,
               "",
               provider.name,
@@ -150,25 +153,25 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             });
             break;
           case "management":
-            this.data = await drawManagementItems(element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementItems(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.users":
-            this.data = await drawManagementUserItems(element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserItems(this.context,element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.user":
-            this.data = await drawManagementUserSubItems(element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserSubItems(this.context,element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.user.claims":
-            this.data = await drawManagementUserItemClaims(element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserItemClaims(this.context,element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.user.roles":
-            this.data = await drawManagementUserItemRoles(element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserItemRoles(this.context,element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.claims":
-            this.data = await drawManagementClaims(element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementClaims(this.context,element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.roles":
-            this.data = await drawManagementRoles(element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementRoles(this.context,element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           default:
             return resolve(this.data);
@@ -189,6 +192,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         if (isSuperUser) {
           this.data.push(
             new DevOpsTreeItem(
+              this.context,
               `${elementId}%%management`,
               elementId,
               "Management",
@@ -204,6 +208,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         }
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${elementId}%%resources`,
             elementId,
             "Resources",
@@ -218,6 +223,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         );
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${elementId}%%hosts`,
             elementId,
             "Hosts",
@@ -232,6 +238,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         );
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${elementId}%%virtual_machines`,
             elementId,
             "Virtual Machines",
@@ -264,6 +271,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             const id = `${element.id}%%${resource.cpu_type}`;
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 id,
                 elementId,
                 resource.cpu_type,
@@ -299,6 +307,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             }
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${element.id}%%resources_total`,
                 elementId,
                 "Total",
@@ -313,6 +322,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             );
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${element.id}%%resources_available`,
                 elementId,
                 "Available",
@@ -327,6 +337,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             );
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${element.id}%%resources_used`,
                 elementId,
                 "Used",
@@ -341,6 +352,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             );
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${element.id}%%resources_reserved`,
                 elementId,
                 "Reserved",
@@ -392,6 +404,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             }
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${element.id}%%cpu`,
                 elementId,
                 `CPU: ${cpuTotal} Cores`,
@@ -406,6 +419,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             );
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${element.id}%%memory`,
                 elementId,
                 `Memory: ${memoryTotal} Mb`,
@@ -451,6 +465,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             const context = `devops.remote.orchestrator.host_${host.state}_${host.enabled ? "enabled" : "disabled"}`;
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 id,
                 element.id,
                 host.description,
@@ -491,6 +506,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             }`;
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 id,
                 element.id,
                 virtualMachine.Name,
@@ -524,6 +540,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         if (provider?.hardwareInfo) {
           this.data.push(
             new DevOpsTreeItem(
+              this.context,
               `${elementId}%%hardware`,
               elementId,
               provider.hardwareInfo.cpu_brand,
@@ -540,6 +557,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         if (isSuperUser) {
           this.data.push(
             new DevOpsTreeItem(
+              this.context,
               `${elementId}%%management`,
               elementId,
               "Management",
@@ -555,6 +573,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         }
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${elementId}%%virtual_machines`,
             elementId,
             "Virtual Machines",
@@ -602,6 +621,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             }
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${element.id}%%host`,
                 element.id,
                 virtualMachine.host,
@@ -640,6 +660,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             const id = `${elementId}%%local%%${virtualMachine.ID}`;
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 id,
                 elementId,
                 virtualMachine.Name,

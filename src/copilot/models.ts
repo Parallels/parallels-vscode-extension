@@ -10,6 +10,7 @@ export interface CopilotUserIntension {
   intension:       string;
   operation:       string;
   operation_value: string;
+  target:          string;
   VM: string;
   intension_description: string;
 }

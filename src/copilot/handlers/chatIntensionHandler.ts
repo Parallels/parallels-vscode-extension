@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
-import { ParallelsDesktopService } from '../../services/parallelsDesktopService';
 import { CopilotOperation } from '../models';
-import { processChatOperation } from '../training/chat';
+import { processChatIntensions } from '../training/processChatIntensions';
 
-export async function chatIntensionHandler(userPrompt: string,stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken ): Promise <CopilotOperation> {
+export async function chatIntensionHandler(userPrompt: string,context: vscode.ChatContext, model: vscode.LanguageModelChat, token: vscode.CancellationToken ): Promise <CopilotOperation> {
   return new Promise(async (resolve, reject) => {
     const response: CopilotOperation = {
       operation: '',
@@ -11,7 +10,7 @@ export async function chatIntensionHandler(userPrompt: string,stream: vscode.Cha
     };
     
     try {
-      const chatResponse = await processChatOperation(userPrompt, model, token);
+      const chatResponse = await processChatIntensions(userPrompt, context, model, token);
       response.operation = chatResponse;
       response.state = 'success';
       resolve(response);

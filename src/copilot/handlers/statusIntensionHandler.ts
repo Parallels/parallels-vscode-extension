@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { ParallelsDesktopService } from '../../services/parallelsDesktopService';
 import { CopilotOperation } from '../models';
-import { processDeductedValueResponse } from '../training/choose_approximate';
+import { processPredictiveValueIntension } from '../training/processPredictiveValueIntension';
 
-export async function statusIntensionHandler(vmName: string,stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken ): Promise <CopilotOperation> {
+export async function statusIntensionHandler(vmName: string,context: vscode.ChatContext,stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken ): Promise <CopilotOperation> {
   return new Promise(async (resolve, reject) => {
     const response: CopilotOperation = {
       operation: '',
@@ -15,7 +15,7 @@ export async function statusIntensionHandler(vmName: string,stream: vscode.ChatR
       const vms = await ParallelsDesktopService.getVms();
       let vm = vms.find(vm => vm.Name.toLowerCase() === vmName.toLowerCase());
       if (!vm) {
-        const approximateVmName = await processDeductedValueResponse(vmName, vms.map(vm => vm.Name), model, token);
+        const approximateVmName = await processPredictiveValueIntension(vmName, vms.map(vm => vm.Name), context, model, token);
         vm = vms.find(vm => vm.Name.toLowerCase() === approximateVmName.toLowerCase());
         if (!vm) {
           response.operation = `The virtual machine ${vmName} was not found`;

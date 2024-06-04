@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import { ParallelsDesktopService } from '../../services/parallelsDesktopService';
 import { CopilotOperation } from '../models';
 import { VirtualMachine } from '../../models/parallels/virtualMachine';
-import { processDeductedValueResponse } from '../training/choose_approximate';
+import { processPredictiveValueIntension } from '../training/processPredictiveValueIntension';
 
-export async function setIntensionHandler(operation: string, vmName: string, stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken): Promise<CopilotOperation[]> {
+export async function setIntensionHandler(operation: string, vmName: string,context: vscode.ChatContext, stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken): Promise<CopilotOperation[]> {
   return new Promise(async (resolve, reject) => {
     const responses: CopilotOperation[] = []
     try {
@@ -49,13 +49,13 @@ export async function setIntensionHandler(operation: string, vmName: string, str
         }
       } else {
         stream.progress(`finding the virtual machine ${vmName}...`);
-        const vms = await ParallelsDesktopService.getVms();
-        let vm = vms.find(vm => vm.Name.toLowerCase() === vmName.toLowerCase());
+        const existingVms = await ParallelsDesktopService.getVms();
+        let vm = existingVms.find(vm => vm.Name.toLowerCase() === vmName.toLowerCase());
         if (vm) {
           vms.push(vm);
         } else {
-          const approximateVmName = await processDeductedValueResponse(vmName, vms.map(vm => vm.Name), model, token);
-          vm = vms.find(vm => vm.Name.toLowerCase() === approximateVmName.toLowerCase());
+          const approximateVmName = await processPredictiveValueIntension(vmName, existingVms.map(vm => vm.Name), context, model, token);
+          vm = existingVms.find(vm => vm.Name.toLowerCase() === approximateVmName.toLowerCase());
           if (vm) {
             vms.push(vm);
           }

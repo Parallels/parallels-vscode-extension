@@ -5,6 +5,7 @@ import {DevOpsRemoteHostProvider} from "../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
 
 export function drawManagementItems(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -26,6 +27,7 @@ export function drawManagementItems(
       const rolesLength = provider?.roles?.length ?? 0;
       data.push(
         new DevOpsTreeItem(
+          context,
           `${elementId}%%management.users`,
           elementId,
           "Users",
@@ -40,6 +42,7 @@ export function drawManagementItems(
       );
       data.push(
         new DevOpsTreeItem(
+          context,
           `${elementId}%%roles`,
           elementId,
           "Roles",
@@ -54,6 +57,7 @@ export function drawManagementItems(
       );
       data.push(
         new DevOpsTreeItem(
+          context,
           `${elementId}%%management.claims`,
           elementId,
           "Claims",
@@ -73,6 +77,7 @@ export function drawManagementItems(
 }
 
 export function drawManagementUserItems(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -98,6 +103,7 @@ export function drawManagementUserItems(
         const hasRolesOrClaims = user.roles.length > 0 || user.claims.length > 0;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             user.name,
@@ -118,6 +124,7 @@ export function drawManagementUserItems(
 }
 
 export function drawManagementUserSubItems(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -149,6 +156,7 @@ export function drawManagementUserSubItems(
       const rolesLength = user?.roles?.length ?? 0;
       data.push(
         new DevOpsTreeItem(
+          context,
           `${id}%%roles`,
           elementId,
           "Roles",
@@ -163,6 +171,7 @@ export function drawManagementUserSubItems(
       );
       data.push(
         new DevOpsTreeItem(
+          context,
           `${id}%%claims`,
           elementId,
           "Claims",
@@ -182,6 +191,7 @@ export function drawManagementUserSubItems(
 }
 
 export function drawManagementUserItemClaims(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -212,6 +222,7 @@ export function drawManagementUserItemClaims(
         const id = `${elementId}%%management%%users%%${user.id}%%claims%%${claim}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             claim,
@@ -232,6 +243,7 @@ export function drawManagementUserItemClaims(
 }
 
 export function drawManagementUserItemRoles(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -262,6 +274,7 @@ export function drawManagementUserItemRoles(
         const id = `${elementId}%%management%%users%%${user.id}%%roles%%${role}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             role,
@@ -282,6 +295,7 @@ export function drawManagementUserItemRoles(
 }
 
 export function drawManagementClaims(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -306,6 +320,7 @@ export function drawManagementClaims(
         const id = `${elementId}%%management%%claims%%${claim.name}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             claim.name,
@@ -326,6 +341,7 @@ export function drawManagementClaims(
 }
 
 export function drawManagementRoles(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -350,6 +366,7 @@ export function drawManagementRoles(
         const id = `${elementId}%%management%%roles%%${role.name}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             role.name,

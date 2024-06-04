@@ -5,6 +5,7 @@ import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider
 
 export class DevOpsTreeItem extends vscode.TreeItem {
   constructor(
+    public extensionContext: vscode.ExtensionContext,
     public id: string,
     public parentId: string,
     public name: string,
@@ -60,8 +61,8 @@ export class DevOpsTreeItem extends vscode.TreeItem {
     this.name = name;
     this.type = type;
     this.iconPath = {
-      light: path.join(__filename, "..", "..", "img", "light", `${iconName}.svg`),
-      dark: path.join(__filename, "..", "..", "img", "dark", `${iconName}.svg`)
+      light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
+      dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
     };
     this.label = label;
     this.description = description;

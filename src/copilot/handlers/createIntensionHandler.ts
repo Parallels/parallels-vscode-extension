@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { processCreateVmIntension } from '../training/create';
+import { processCreateVmIntentions } from '../training/processCreateVmIntentions';
 import { Provider } from '../../ioc/provider';
 import { CatalogManifest, CatalogManifestItem } from '../../models/devops/catalogManifest';
 import { ParallelsDesktopService } from '../../services/parallelsDesktopService';
@@ -8,7 +8,7 @@ import { HelperService } from '../../services/helperService';
 import { DevOpsService } from '../../services/devopsService';
 import { CopilotOperation } from '../models';
 
-export async function createIntensionHandler(userIntension: string,stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken ): Promise <CopilotOperation> {
+export async function createIntensionHandler(userIntension: string, context: vscode.ChatContext,stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken ): Promise <CopilotOperation> {
   return new Promise(async (resolve, reject) => {
     const response: CopilotOperation = {
       operation: '',
@@ -18,7 +18,7 @@ export async function createIntensionHandler(userIntension: string,stream: vscod
     try {
       const config = Provider.getConfiguration()
       const catalogNames: string[] = config.catalogProviders.map(c => c.name);
-      const createOp = await processCreateVmIntension(userIntension, catalogNames, model, token);
+      const createOp = await processCreateVmIntentions(userIntension, catalogNames, context, model, token);
       vmName = createOp.name;
       const catalogProvider = config.catalogProviders.find(c => c.name.toLowerCase() === createOp.catalog_manifest.connection.toLowerCase());
       if (!catalogProvider) {

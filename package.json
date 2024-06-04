@@ -40,7 +40,7 @@
     "enabledApiProposals": [
         "chatVariableResolver"
     ],
-    "main": "./dist/extension.js",
+    "main": "./out/extension.js",
     "contributes": {
         "chatParticipants": [
             {
@@ -1705,8 +1705,8 @@
     "scripts": {
         "clean": "rimraf ./dist ./out",
         "vscode:prepublish": "npm run build",
-        "compile": "webpack && gulp copy-images",
-        "watch": "webpack --watch",
+        "compile:webpack": "webpack && gulp copy-images",
+        "watch:webpack": "webpack --watch",
         "watch:prod": "webpack --watch --mode production",
         "build": "webpack --mode production && gulp copy-images",
         "package": "npm run clean && vsce package",
@@ -1717,7 +1717,13 @@
         "lint-fix": "eslint . --ext .ts --fix",
         "format": "prettier --write \"**/*.ts\"",
         "format-check": "prettier --check \"**/*.ts\"",
-        "test": "node ./out/test/runTest.js"
+        "test": "node ./out/test/runTest.js",
+        "compile": "tsc -p ./ && gulp copy-images-out",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "npm run setupTiktoken",
+        "setupTiktoken": "run-script-os",
+        "setupTiktoken:linux:darwin": "cp node_modules/@vscode/prompt-tsx/dist/base/tokenizer/cl100k_base.tiktoken out/",
+        "setupTiktoken:windows": "copy node_modules\\@vscode\\prompt-tsx\\dist\\base\\tokenizer\\cl100k_base.tiktoken out\\"
     },
     "devDependencies": {
         "@types/axios": "^0.14.0",
@@ -1729,7 +1735,7 @@
         "@typescript-eslint/parser": "^5.59.8",
         "@vscode/test-electron": "^2.3.0",
         "@vscode/test-web": "*",
-        "@vscode/vsce": "2.26.1",
+        "@vscode/vsce": "^2.26.1",
         "eslint": "^8.36.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.2.1",
@@ -1742,10 +1748,11 @@
         "ts-loader": "^9.4.2",
         "typescript": "^4.9.5",
         "webpack": "^5.76.3",
-        "webpack-cli": "^5.0.1"
+        "webpack-cli": "^5.0.1",
+        "@vscode/prompt-tsx": "^0.1.10-alpha",
+        "run-script-os": "^1.1.6"
     },
     "dependencies": {
-        "@vscode/vsce": "^2.26.0",
         "axios": "^1.4.0",
         "clipboardy": "^3.0.0",
         "jwt-decode": "^4.0.0",

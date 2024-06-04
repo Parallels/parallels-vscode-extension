@@ -18,8 +18,10 @@ import {cleanString} from "../../helpers/strings";
 
 export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
+  context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
+    this.context = context;
     const view = vscode.window.createTreeView("parallels-desktop-catalog", {
       treeDataProvider: this,
       showCollapseAll: true,
@@ -75,6 +77,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
           }
           this.data.push(
             new DevOpsTreeItem(
+              this.context,
               id,
               "",
               provider.name,
@@ -134,25 +137,25 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             break;
 
           case "management":
-            this.data = await drawManagementItems(element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementItems(this.context,element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.users":
-            this.data = await drawManagementUserItems(element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserItems(this.context,element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user":
-            this.data = await drawManagementUserSubItems(element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserSubItems(this.context,element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user.claims":
-            this.data = await drawManagementUserItemClaims(element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserItemClaims(this.context,element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user.roles":
-            this.data = await drawManagementUserItemRoles(element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserItemRoles(this.context,element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.claims":
-            this.data = await drawManagementClaims(element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementClaims(this.context,element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.roles":
-            this.data = await drawManagementRoles(element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementRoles(this.context,element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           default:
             return resolve(this.data);
@@ -174,6 +177,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         if (isSuperUser) {
           this.data.push(
             new DevOpsTreeItem(
+              this.context,
               `${elementId}%%management`,
               elementId,
               "Management",
@@ -189,6 +193,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         }
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${elementId}%%manifest`,
             elementId,
             "Catalog Manifests",
@@ -230,6 +235,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             }
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${elementId}%%manifests%%${manifest.name}`,
                 element.id,
                 versions,
@@ -300,6 +306,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
 
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 `${elementId}%%manifests%%${manifestId}%%${version.id}`,
                 manifest.name,
                 `${version.version} - ${version.architecture}`,
@@ -342,6 +349,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         const isSuperUser = provider?.user?.isSuperUser ?? false;
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${element.id}%%roles`,
             elementId,
             "Roles",
@@ -357,6 +365,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
 
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${element.id}%%claims`,
             elementId,
             "Claims",
@@ -371,6 +380,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         );
         this.data.push(
           new DevOpsTreeItem(
+            this.context,
             `${element.id}%%tags`,
             elementId,
             "Tags",
@@ -413,6 +423,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             const id = `${element.id}%%roles%%${role}`;
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 id,
                 manifest.name,
                 role,
@@ -457,6 +468,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             const id = `${element.id}%%claims%%${claim}`;
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 id,
                 manifest.name,
                 claim,
@@ -501,6 +513,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             const id = `${element.id}%%tags%%${tag}`;
             this.data.push(
               new DevOpsTreeItem(
+                this.context,
                 id,
                 manifest.name,
                 tag,

@@ -1,15 +1,18 @@
 import * as vscode from 'vscode';
 import { MODEL_SELECTOR } from './constants';
 import { CommandsFlags } from '../constants/flags';
-import { processUserIntensions } from './training/intensions';
+import { processUserIntensions } from './training/processUserIntensions';
 import { CopilotOperation, ICatChatResult } from './models';
-import { processCopilotOperationResponse } from './training/copilotResponse';
+import { processChatAgentResponse } from './training/processChatAgentResponse';
 import { createIntensionHandler } from './handlers/createIntensionHandler';
 import { statusIntensionHandler } from './handlers/statusIntensionHandler';
 import { countStatusIntensionHandler } from './handlers/countStatusIntensionHandler';
 import { setIntensionHandler } from './handlers/setIntensionHandler';
 import { chatIntensionHandler } from './handlers/chatIntensionHandler';
 import { getChatHistory } from './helpers';
+import { catalogIntensionHandler } from './handlers/catalogIntensionHandler';
+import { orchestratorIntensionHandler } from './handlers/orchestartorIntensionHandler';
+import { remoteHostIntensionHandler } from './handlers/remoteHostIntensionHandler';
 
 // Define the parallels desktop conversation handler.
 export const conversationHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, context: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<ICatChatResult> => {
@@ -69,11 +72,15 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
     const intensions = await processUserIntensions(request.prompt, context, model, token);
     const intensionOperations: CopilotOperation[] = [];
     for (let i = 0; i < intensions.length; i++) {
+      if (!intensions[i].intension) {
+        stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
+        return { metadata: { command: '' } };
+      }
       console.log(intensions[i])
       const userIntension = intensions[i].intension_description ? intensions[i].intension_description : request.prompt;
       switch (intensions[i].intension.toUpperCase()) {
         case 'CREATE': {
-          const response = await createIntensionHandler(userIntension, stream, model, token);
+          const response = await createIntensionHandler(userIntension, context, stream, model, token);
           if (i < intensions.length - 1) {
             stream.progress(response.operation);
             intensionOperations.push(response);
@@ -83,13 +90,30 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
           break;
         }
         case 'CHAT': {
-          const response = await chatIntensionHandler(userIntension, stream, model, token);
+          const response = await chatIntensionHandler(userIntension, context, model, token);
           stream.markdown(response.operation);
           break;
         }
+        case 'CHAT_OUTPUT': {
+          stream.markdown(intensions[i].intension_description);
+          return { metadata: { command: '' } };
+        }
         case 'STATUS': {
-          const vmName = intensions[i].VM ? intensions[i].VM : intensions[i].operation_value;
-          const response = await statusIntensionHandler(vmName, stream, model, token);
+          if (!intensions[i].operation) {
+            stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
+            return { metadata: { command: '' } };
+          }
+    
+          let vmName = intensions[i].VM ? intensions[i].VM : intensions[i].operation_value;
+          if (!vmName && intensions[i].target) {
+            vmName = intensions[i].target;
+          }
+          if (!vmName) {
+            stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
+            return { metadata: { command: '' } };
+          }
+          
+          const response = await statusIntensionHandler(vmName, context, stream, model, token);
           if (i < intensions.length - 1) {
             stream.progress(response.operation);
             intensionOperations.push(response);
@@ -100,7 +124,12 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
           break;
         }
         case 'COUNT_STATUS': {
-          if (intensions[i].operation === 'all') {
+          if (!intensions[i].operation) {
+            stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
+            return { metadata: { command: '' } };
+          }
+    
+          if (intensions[i].operation.toUpperCase() === 'ALL') {
             const running = await countStatusIntensionHandler('RUNNING', stream, model, token);
             const stopped = await countStatusIntensionHandler('STOPPED', stream, model, token);
             const paused = await countStatusIntensionHandler('PAUSED', stream, model, token);
@@ -117,11 +146,38 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
           break;
         }
         case 'SET': {
-          const vmName = intensions[i].VM ? intensions[i].VM : intensions[i].operation_value;
-          const responses = await setIntensionHandler(intensions[i].operation.toUpperCase(), vmName, stream, model, token);
+          if (!intensions[i].operation) {
+            stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
+            return { metadata: { command: '' } };
+          }
+        
+          let vmName = intensions[i].VM ? intensions[i].VM : intensions[i].operation_value;
+          if (!vmName && intensions[i].target) {
+            vmName = intensions[i].target;
+          }
+          if (!vmName) {
+            stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
+            return { metadata: { command: '' } };
+          }
+          const responses = await setIntensionHandler(intensions[i].operation.toUpperCase(), vmName,context, stream, model, token);
           for (const response of responses) {
             intensionOperations.push(response);
           }
+          break;
+        }
+        case 'CATALOG_PROVIDER': {
+          const response = await catalogIntensionHandler(intensions[i], context, stream, model, token);
+          intensionOperations.push(response);
+          break;
+        }
+        case 'ORCHESTRATOR_PROVIDER': {
+          const response = await orchestratorIntensionHandler(intensions[i],context, stream, model, token);
+          intensionOperations.push(response);
+          break;
+        }
+        case 'REMOTE_HOST_PROVIDER': {
+          const response = await remoteHostIntensionHandler(intensions[i], context, stream, model, token);
+          intensionOperations.push(response);
           break;
         }
       }
@@ -134,7 +190,7 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
       stream.markdown(intensionOperations[0].operation);
       return { metadata: { command: '' } };
     } else {
-      const response = await processCopilotOperationResponse(intensionOperations, model, token);
+      const response = await processChatAgentResponse(intensionOperations, context, model, token);
 
       stream.markdown(response);
 

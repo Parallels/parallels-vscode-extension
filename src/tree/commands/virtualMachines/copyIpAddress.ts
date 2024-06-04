@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import * as clipboardy from "clipboardy";
 import {CommandsFlags} from "../../../constants/flags";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
@@ -12,7 +11,7 @@ const registerCopyIpAddressCommand = (context: vscode.ExtensionContext, provider
         return;
       }
       if (item.configuredIpAddress !== undefined && item.configuredIpAddress !== "-") {
-        clipboardy.default.writeSync(item.configuredIpAddress);
+        // clipboardy.default.writeSync(item.configuredIpAddress);
         vscode.window.showInformationMessage(`Copied ${item.configuredIpAddress} to clipboard`);
         return;
       }
