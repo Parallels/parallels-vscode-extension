@@ -10,7 +10,7 @@ const registerCopyIpAddressCommand = (context: vscode.ExtensionContext, provider
       if (!item) {
         return;
       }
-      
+
       if (item.configuredIpAddress !== undefined && item.configuredIpAddress !== "-") {
         vscode.window.showInformationMessage(`Copied ${item.configuredIpAddress} to clipboard`);
         return;

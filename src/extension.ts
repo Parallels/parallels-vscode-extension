@@ -55,7 +55,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // Initializing the DevOps Remote Provider
   const devopsRemoteProvider = new DevOpsRemoteHostsProvider(context);
   vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-  new DevOpsService(context)
+  new DevOpsService(context);
   DevOpsService.startRemoteHostsViewAutoRefresh();
 
   AllDevopsRemoteProviderManagementCommands.forEach(c => c.register(context, devopsRemoteProvider));

@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { Provider } from "../../../ioc/provider";
-import { CommandsFlags } from "../../../constants/flags";
-import { DevOpsRemoteHostsCommand } from "../BaseCommand";
-import { DevOpsService } from "../../../services/devopsService";
-import { DevOpsRemoteHostsProvider } from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
-import { UpdateOrchestratorHostRequest } from "../../../models/devops/updateOrchestratorHostRequest";
+import {Provider} from "../../../ioc/provider";
+import {CommandsFlags} from "../../../constants/flags";
+import {DevOpsRemoteHostsCommand} from "../BaseCommand";
+import {DevOpsService} from "../../../services/devopsService";
+import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {UpdateOrchestratorHostRequest} from "../../../models/devops/updateOrchestratorHostRequest";
 
 const registerDevOpsUpdateRemoteProviderOrchestratorHostCommand = (
   context: vscode.ExtensionContext,
@@ -116,9 +116,7 @@ const registerDevOpsUpdateRemoteProviderOrchestratorHostCommand = (
         return;
       }
 
-      vscode.window.showInformationMessage(
-        `Remote Host was updated successfully in the Orchestrator ${provider.name}`
-      );
+      vscode.window.showInformationMessage(`Remote Host was updated successfully in the Orchestrator ${provider.name}`);
       await DevOpsService.refreshRemoteHostProviders(true);
       vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
     })

@@ -1,6 +1,6 @@
 export interface UpdateOrchestratorHostRequest {
-  host?:           string;
-  description?:    string;
+  host?: string;
+  description?: string;
   authentication?: UpdateOrchestratorHostRequestAuthentication;
 }
 
