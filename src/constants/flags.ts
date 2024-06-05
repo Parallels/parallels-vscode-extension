@@ -226,9 +226,11 @@ export class CommandsFlags {
   static devopsInstallFromRemoteProvider = `${COMMAND_PREFIX}.devops-service.install-from-remote-host-provider`;
   static devopsAddRemoteProvider = `${COMMAND_PREFIX}.devops-service.add-remote-host-provider`;
   static devopsRemoveRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider`;
+  static devopsUpdateRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.update-remote-host-provider`;
   static devopsRefreshRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.refresh-remote-host-provider`;
   static devopsForceRefreshRemoteHostProvider = `${COMMAND_PREFIX}.devops-service.force-refresh-remote-host-provider`;
   static devopsAddRemoteProviderOrchestratorHost = `${COMMAND_PREFIX}.devops-service.add-remote-provider-orchestrator-host`;
+  static devopsUpdateRemoteProviderOrchestratorHost = `${COMMAND_PREFIX}.devops-service.update-remote-provider-orchestrator-host`;
   static devopsRemoveRemoteProviderOrchestratorHost = `${COMMAND_PREFIX}.devops-service.remove-remote-provider-orchestrator-host`;
   static devopsRemoveRemoteProviderHost = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider-host`;
   static devopsEnableRemoteProviderHost = `${COMMAND_PREFIX}.devops-service.enable-remote-host-provider-host`;
@@ -242,7 +244,7 @@ export class CommandsFlags {
   static devopsRemoveRemoteProviderHostVm = `${COMMAND_PREFIX}.devops-service.remove-remote-host-provider-host-vm`;
   static devopsPullCatalogManifestMachineOnRemoteHost = `${COMMAND_PREFIX}.devops-service.remote-host.pull-catalog-manifest-machine-on-host`;
 
-  static devopsRemoteProviderManagementRenameProvider = `${COMMAND_PREFIX}.devops-service.management.rename-remote-provider`;
+  static devopsRemoteProviderManagementUpdateProvider = `${COMMAND_PREFIX}.devops-service.remote-provider-management.update-remote-provider`;
   static devopsRemoteProviderManagementAddUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.add-user`;
   static devopsRemoteProviderManagementRemoveUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-user`;
   static devopsRemoteProviderManagementUpdateUser = `${COMMAND_PREFIX}.devops-service.remote-provider-management.update-user`;

@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 		"sourceMap": true,
+    "outDir": "./dist",
 		"rootDir": "src",
 		"strict": true   /* enable all strict type-checking options */
 		/* Additional Checks */

@@ -559,6 +559,44 @@ export class ConfigurationService {
     return true;
   }
 
+  updateRemoteProvider(provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider): boolean {
+    if (!provider) {
+      vscode.window.showErrorMessage(`Provider not found`);
+      return false;
+    }
+    let foundProvider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined;
+    if (provider.class === "DevOpsRemoteHostProvider") {
+      foundProvider = this.findRemoteHostProviderById(provider.ID);
+    }
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      foundProvider = this.findCatalogProviderByIOrName(provider.ID);
+    }
+    if (!foundProvider) {
+      vscode.window.showErrorMessage(`Remote Host Provider User ${provider.name} not found`);
+      return false;
+    }
+
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      const catalogProvider = foundProvider as DevOpsCatalogHostProvider;
+      const index = this.catalogProviders.indexOf(catalogProvider);
+      this.catalogProviders[index].name = provider.name;
+      this.catalogProviders[index].username = provider.username;
+      this.catalogProviders[index].password = provider.password;
+      this.catalogProviders[index].authToken = "";
+    }
+    if (provider.class === "DevOpsRemoteHostProvider") {
+      const remoteProvider = foundProvider as DevOpsRemoteHostProvider;
+      const index = this.remoteHostProviders.indexOf(remoteProvider);
+      this.remoteHostProviders[index].name = provider.name;
+      this.remoteHostProviders[index].username = provider.username;
+      this.remoteHostProviders[index].password = provider.password;
+      this.remoteHostProviders[index].authToken = "";
+    }
+
+    this.save();
+    return true;
+  }
+
   removeCatalogProvider(providerId: string): boolean {
     const provider = this.findCatalogProviderByIOrName(providerId);
     if (provider) {
