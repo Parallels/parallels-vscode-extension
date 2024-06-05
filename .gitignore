@@ -22,3 +22,4 @@ tsconfig.lsif.json
 **/*/.env
 node_modules/
 /remote-desktop-client-src/
+vscode.d.ts

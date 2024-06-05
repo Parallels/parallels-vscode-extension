@@ -700,10 +700,18 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-remote-provider-orchestrator-host",
-                "title": "Parallels DevOps: Add Orchestrator Host",
+                "title": "Add Orchestrator Host",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.devops-service.update-remote-provider-orchestrator-host",
+                "title": "Update Orchestrator Host",
+                "icon": {
+                    "light": "img/light/edit.svg",
+                    "dark": "img/dark/edit.svg"
                 }
             },
             {
@@ -862,8 +870,8 @@
                 }
             },
             {
-                "command": "parallels-desktop.devops-service.management.rename-remote-provider",
-                "title": "Rename",
+                "command": "parallels-desktop.devops-service.remote-provider-management.update-remote-provider",
+                "title": "Update Provider",
                 "icon": {
                     "light": "img/light/edit.svg",
                     "dark": "img/dark/edit.svg"
@@ -1086,6 +1094,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "parallels-desktop.devops-service.update-remote-provider-orchestrator-host",
+                    "when": "false"
+                },
+                {
                     "command": "parallels-desktop.devops-service.remove-remote-provider-orchestrator-host",
                     "when": "false"
                 },
@@ -1158,7 +1170,7 @@
                     "when": "false"
                 },
                 {
-                    "command": "parallels-desktop.devops-service.management.rename-remote-provider",
+                    "command": "parallels-desktop.devops-service.remote-provider-management.update-remote-provider",
                     "when": "false"
                 },
                 {
@@ -1495,6 +1507,11 @@
                     "group": "inline@0"
                 },
                 {
+                    "command": "parallels-desktop.devops-service.update-remote-provider-orchestrator-host",
+                    "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.orchestrator\\.host_(healthy|unhealthy).*/",
+                    "group": "inline@1"
+                },
+                {
                     "command": "parallels-desktop.devops-service.remove-remote-provider-orchestrator-host",
                     "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.orchestrator\\.host_(healthy|unhealthy).*/",
                     "group": "inline@50"
@@ -1590,7 +1607,7 @@
                     "group": "inline@10"
                 },
                 {
-                    "command": "parallels-desktop.devops-service.management.rename-remote-provider",
+                    "command": "parallels-desktop.devops-service.remote-provider-management.update-remote-provider",
                     "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.(remote\\.provider|catalog\\.provider)/",
                     "group": "inline@0"
                 },
@@ -1696,12 +1713,12 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
+        "@types/axios": "^0.14.0",
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "16.x",
         "@types/uuid": "^9.0.1",
         "@types/vscode": "^1.77.0",
-        "@types/axios": "^0.14.0",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
         "@vscode/test-electron": "^2.3.0",
@@ -1724,9 +1741,10 @@
     "dependencies": {
         "@vscode/vsce": "^2.19.0",
         "axios": "^1.4.0",
-        "tailwindcss": "^3.3.2",
-        "uuid": "^9.0.0",
         "clipboardy": "^3.0.0",
-        "jwt-decode": "^4.0.0"
+        "copy-paste": "^1.5.3",
+        "jwt-decode": "^4.0.0",
+        "tailwindcss": "^3.3.2",
+        "uuid": "^9.0.0"
     }
 }

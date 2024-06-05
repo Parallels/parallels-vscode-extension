@@ -89,9 +89,10 @@ import {DevOpsAddClaimsToCatalogProviderManifestVersionCommand} from "./devopsCa
 import {DevOpsAddTagsToCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/addCatalogProviderManifestVersionTags";
 import {DevOpsRemoveClaimFromCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/removeCatalogProviderManifestVersionClaims";
 import {DevOpsRemoveTagFromCatalogProviderManifestVersionCommand} from "./devopsCatalogProvider/removeCatalogProviderManifestVersionTags";
-import {DevOpsManagementProviderRenameProviderCommand} from "./devopsManagementProvider/renameRemoteProvider";
+import {DevOpsManagementProviderUpdateProviderCommand} from "./devopsManagementProvider/updateRemoteProvider";
 import {DevOpsManagementProviderUpdateUserCommand} from "./devopsManagementProvider/updateRemoteProviderUser";
 import {DevOpsPullCatalogManifestMachineOnHostCommand} from "./devopsRemoteHostProvider/pullCatalogManifestMachineOnHost";
+import { DevOpsUpdateRemoteProviderOrchestratorHostCommand } from "./devopsRemoteHostProvider/updateRemoteProviderOrchestratorHost";
 
 export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   AddVmCommand,
@@ -179,7 +180,8 @@ export const AllDevOpsRemoteCommands: DevOpsRemoteHostsCommand[] = [
   DevOpsResumeVirtualMachineCommand,
   DevOpsCloneVirtualMachineCommand,
   DevOpsRemoveVirtualMachineCommand,
-  DevOpsPullCatalogManifestMachineOnHostCommand
+  DevOpsPullCatalogManifestMachineOnHostCommand,
+  DevOpsUpdateRemoteProviderOrchestratorHostCommand
 ];
 
 export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderManagementCommand[] = [
@@ -193,6 +195,6 @@ export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderMana
   DevOpsManagementProviderRemoveClaimCommand,
   DevOpsManagementProviderAddRoleCommand,
   DevOpsManagementProviderRemoveRoleCommand,
-  DevOpsManagementProviderRenameProviderCommand,
+  DevOpsManagementProviderUpdateProviderCommand,
   DevOpsManagementProviderUpdateUserCommand
 ];
