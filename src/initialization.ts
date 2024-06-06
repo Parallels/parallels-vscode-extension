@@ -69,22 +69,24 @@ export async function initialize() {
       if (config.tools.git.isInstalled && config.tools.packer.isInstalled) {
         progress.report({message: "Parallels Desktop: Updating Packer Recipes"});
         // Cloning Packer example repo, need to wait to allow background process to finish
-        GitService.cloneOrUpdatePackerExamples().then(() => {
-          // Caching Packer Addons
-          if (config.tools.packer.isInstalled && config.tools.git.isInstalled && config.packerTemplatesCloned) {
-            const platforms = ["windows", "ubuntu", "macos"];
-            platforms.forEach(platform => {
-              const addons = PackerService.getPlatformAddons(platform);
-              Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, addons);
-            });
-          }
-          vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, true);
-          config.tools.packer.isCached = false;
-        }).catch(error => {
-          LogService.error(error, "CoreService");
-          config.tools.packer.isCached = false;
-          vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, false);
-        });
+        GitService.cloneOrUpdatePackerExamples()
+          .then(() => {
+            // Caching Packer Addons
+            if (config.tools.packer.isInstalled && config.tools.git.isInstalled && config.packerTemplatesCloned) {
+              const platforms = ["windows", "ubuntu", "macos"];
+              platforms.forEach(platform => {
+                const addons = PackerService.getPlatformAddons(platform);
+                Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, addons);
+              });
+            }
+            vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, true);
+            config.tools.packer.isCached = false;
+          })
+          .catch(error => {
+            LogService.error(error, "CoreService");
+            config.tools.packer.isCached = false;
+            vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, false);
+          });
       }
 
       progress.report({message: "Parallels Desktop: Reading Feature Flags"});

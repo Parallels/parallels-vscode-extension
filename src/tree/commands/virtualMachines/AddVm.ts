@@ -1,26 +1,28 @@
-import { NewVirtualMachineRequiredVariables } from "../../../models/parallels/NewVirtualMachineRequiredVariables";
+import {NewVirtualMachineRequiredVariables} from "../../../models/parallels/NewVirtualMachineRequiredVariables";
 import * as vscode from "vscode";
 import * as path from "path";
 
-import { VirtualMachineProvider } from "../../virtualMachinesProvider/virtualMachineProvider";
-import { VirtualMachineTreeItem } from "../../treeItems/virtualMachineTreeItem";
-import { CommandsFlags, Constants, FLAG_PACKER_RECIPES_CACHED, TelemetryEventIds } from "../../../constants/flags";
-import { generateHtml } from "../../../views/header.html";
-import { CreateMachineService } from "../../../services/createMachineService";
-import { ParallelsDesktopService } from "../../../services/parallelsDesktopService";
-import { NewVirtualMachineRequest } from "../../../models/parallels/NewVirtualMachineRequest";
-import { LogService } from "../../../services/logService";
-import { Provider } from "../../../ioc/provider";
-import { VirtualMachineCommand } from "../BaseCommand";
-import { PackerService } from "../../../services/packerService";
-import { GitService } from "../../../services/gitService";
+import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
+import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
+import {CommandsFlags, Constants, FLAG_PACKER_RECIPES_CACHED, TelemetryEventIds} from "../../../constants/flags";
+import {generateHtml} from "../../../views/header.html";
+import {CreateMachineService} from "../../../services/createMachineService";
+import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
+import {NewVirtualMachineRequest} from "../../../models/parallels/NewVirtualMachineRequest";
+import {LogService} from "../../../services/logService";
+import {Provider} from "../../../ioc/provider";
+import {VirtualMachineCommand} from "../BaseCommand";
+import {PackerService} from "../../../services/packerService";
+import {GitService} from "../../../services/gitService";
 
 const registerAddVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeAddVm, async (item: VirtualMachineTreeItem) => {
       if (!(await PackerService.canAddVms())) {
-        vscode.window.showErrorMessage("There are some required dependencies missing. Please install them and try again.");
-        return
+        vscode.window.showErrorMessage(
+          "There are some required dependencies missing. Please install them and try again."
+        );
+        return;
       }
 
       LogService.info("Add VM command called", "AddVmCommand");
@@ -55,16 +57,16 @@ const registerAddVmCommand = (context: vscode.ExtensionContext, provider: Virtua
           case "setFlag": {
             const cmd = JSON.parse(message.text);
             vscode.window.showInformationMessage(message.text);
-            panel.webview.postMessage({ command: "updateFlag", text: cmd.value });
+            panel.webview.postMessage({command: "updateFlag", text: cmd.value});
             return;
           }
           case "vmNameChange": {
             const config = Provider.getConfiguration();
             const exists = config.allMachines.find(m => m.Name === message.text);
             if (exists) {
-              panel.webview.postMessage({ command: "vmNameExists", text: "true" });
+              panel.webview.postMessage({command: "vmNameExists", text: "true"});
             } else {
-              panel.webview.postMessage({ command: "vmNameExists", text: "false" });
+              panel.webview.postMessage({command: "vmNameExists", text: "false"});
             }
             break;
           }

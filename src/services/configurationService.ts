@@ -1,5 +1,5 @@
-import { configurationInitialized } from "./../ioc/provider";
-import { FeatureFlags } from "./../models/FeatureFlags";
+import {configurationInitialized} from "./../ioc/provider";
+import {FeatureFlags} from "./../models/FeatureFlags";
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
@@ -19,27 +19,27 @@ import {
   FLAG_PARALLELS_DESKTOP_EXISTS,
   FLAG_VAGRANT_EXISTS
 } from "../constants/flags";
-import { getUserProfileFolder } from "../helpers/helpers";
-import { Provider } from "../ioc/provider";
-import { VirtualMachineGroup } from "../models/parallels/virtualMachineGroup";
-import { ParallelsDesktopService } from "./parallelsDesktopService";
-import { VirtualMachine } from "../models/parallels/virtualMachine";
-import { HardwareInfo } from "../models/parallels/HardwareInfo";
-import { HelperService } from "./helperService";
-import { LogService } from "./logService";
-import { ParallelsDesktopServerInfo } from "../models/parallels/ParallelsDesktopServerInfo";
-import { Tools } from "../models/tools";
-import { BrewService } from "./brewService";
-import { GitService } from "./gitService";
-import { PackerService } from "./packerService";
-import { VagrantService } from "./vagrantService";
-import { DockerRunItem } from "../models/docker/dockerRunItem";
-import { DevOpsService } from "./devopsService";
-import { DevOpsCatalogHostProvider } from "../models/devops/catalogHostProvider";
-import { CatalogManifest, CatalogManifestItem } from "../models/devops/catalogManifest";
-import { parseHost } from "../models/host";
-import { DevOpsRemoteHostProvider } from "../models/devops/remoteHostProvider";
-import { DevOpsRemoteHost } from "../models/devops/remoteHost";
+import {getUserProfileFolder} from "../helpers/helpers";
+import {Provider} from "../ioc/provider";
+import {VirtualMachineGroup} from "../models/parallels/virtualMachineGroup";
+import {ParallelsDesktopService} from "./parallelsDesktopService";
+import {VirtualMachine} from "../models/parallels/virtualMachine";
+import {HardwareInfo} from "../models/parallels/HardwareInfo";
+import {HelperService} from "./helperService";
+import {LogService} from "./logService";
+import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
+import {Tools} from "../models/tools";
+import {BrewService} from "./brewService";
+import {GitService} from "./gitService";
+import {PackerService} from "./packerService";
+import {VagrantService} from "./vagrantService";
+import {DockerRunItem} from "../models/docker/dockerRunItem";
+import {DevOpsService} from "./devopsService";
+import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
+import {CatalogManifest, CatalogManifestItem} from "../models/devops/catalogManifest";
+import {parseHost} from "../models/host";
+import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
+import {DevOpsRemoteHost} from "../models/devops/remoteHost";
 
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
@@ -1025,7 +1025,7 @@ export class ConfigurationService {
           isCached: false
         };
       }
-      this.tools.packer.isCached = false
+      this.tools.packer.isCached = false;
       this.tools.packer.isInstalled = (await PackerService.isInstalled().catch(reason => reject(reason))) ?? false;
 
       if (!this.tools.packer.isInstalled) {
@@ -1040,7 +1040,7 @@ export class ConfigurationService {
 
       PackerService.version()
         .then(version => {
-          this.tools.packer. version = version;
+          this.tools.packer.version = version;
           vscode.commands.executeCommand("setContext", FLAG_PACKER_EXISTS, true);
           vscode.commands.executeCommand("setContext", FLAG_HAS_PACKER, true);
           return resolve(true);
