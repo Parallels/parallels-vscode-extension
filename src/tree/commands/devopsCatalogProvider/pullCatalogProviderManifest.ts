@@ -84,7 +84,9 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
             version = manifest.items[0].version;
           } else {
             const versions: vscode.QuickPickItem[] = [];
-            for (const item of manifest.items) {
+            for (const item of manifest.items.filter(
+              item => item.architecture.toLowerCase() === architecture.toLowerCase() && !item.revoked && !item.tainted
+            )) {
               versions.push({label: item.version, description: item.description});
             }
             versions.sort((a, b) => a.label.localeCompare(b.label));

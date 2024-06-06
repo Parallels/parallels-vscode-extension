@@ -4,7 +4,7 @@ import * as path from "path";
 
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
-import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
+import {CommandsFlags, Constants, FLAG_PACKER_RECIPES_CACHED, TelemetryEventIds} from "../../../constants/flags";
 import {generateHtml} from "../../../views/header.html";
 import {CreateMachineService} from "../../../services/createMachineService";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
@@ -12,10 +12,19 @@ import {NewVirtualMachineRequest} from "../../../models/parallels/NewVirtualMach
 import {LogService} from "../../../services/logService";
 import {Provider} from "../../../ioc/provider";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {PackerService} from "../../../services/packerService";
+import {GitService} from "../../../services/gitService";
 
 const registerAddVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeAddVm, async (item: VirtualMachineTreeItem) => {
+      if (!(await PackerService.canAddVms())) {
+        vscode.window.showErrorMessage(
+          "There are some required dependencies missing. Please install them and try again."
+        );
+        return;
+      }
+
       LogService.info("Add VM command called", "AddVmCommand");
       LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachine);
       const svc = new CreateMachineService(context);

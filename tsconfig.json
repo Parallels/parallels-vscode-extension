@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 		"sourceMap": true,
+    "outDir": "./dist",
 		"rootDir": "src",
     "outDir": "out",
     "jsx": "react",

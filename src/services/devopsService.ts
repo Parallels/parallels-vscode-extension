@@ -7,13 +7,7 @@ import {AuthorizationRequest, AuthorizationToken} from "./../models/devops/autho
 import {spawn} from "child_process";
 import {Provider} from "../ioc/provider";
 import {LogService} from "./logService";
-import {
-  CommandsFlags,
-  FLAG_DEVOPS_PATH,
-  FLAG_DEVOPS_VERSION,
-  FLAG_GIT_PATH,
-  FLAG_GIT_VERSION
-} from "../constants/flags";
+import {CommandsFlags, FLAG_DEVOPS_PATH, FLAG_DEVOPS_VERSION} from "../constants/flags";
 import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
 import axios from "axios";
 import {AuthorizationResponse} from "../models/devops/authorization";
@@ -35,6 +29,7 @@ import {
 } from "../models/devops/rolesAndClaims";
 import {HostHardwareInfo} from "../models/devops/hardwareInfo";
 import {CreateCatalogMachine} from "../models/devops/createCatalogMachine";
+import {UpdateOrchestratorHostRequest} from "../models/devops/updateOrchestratorHostRequest";
 
 const refreshThreshold = 5000;
 
@@ -47,7 +42,10 @@ let isRefreshingRemoteHostProviders = false;
 let remoteHostViewAutoRefreshStarted = false;
 
 export class DevOpsService {
-  constructor(private context: vscode.ExtensionContext) {}
+  constructor(private context: vscode.ExtensionContext) {
+    axios.defaults.headers.common["X-SOURCE-ID"] = "VSCODE_EXTENSION";
+    axios.defaults.timeout = 15000;
+  }
 
   static isInstalled(): Promise<boolean> {
     return new Promise(resolve => {
@@ -767,6 +765,7 @@ export class DevOpsService {
       const response = await axios
         .get(`${url}/api/v1/catalog`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -809,6 +808,7 @@ export class DevOpsService {
       const response = await axios
         .get<HostHardwareInfo>(`${url}/api/v1/config/hardware`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -841,6 +841,7 @@ export class DevOpsService {
       const response = await axios
         .get<VirtualMachine[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -869,6 +870,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsUser[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1113,6 +1115,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRolesAndClaims[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1198,6 +1201,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRolesAndClaims[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1287,6 +1291,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRemoteHostResource[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1317,6 +1322,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRemoteHost[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1413,6 +1419,44 @@ export class DevOpsService {
       let error: any;
       const response = await axios
         .post(`${path}`, request, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`
+          }
+        })
+        .catch(err => {
+          error = err;
+          return reject(err);
+        });
+
+      return !response ? reject(error) : resolve(response?.data ?? []);
+    });
+  }
+
+  static async updateRemoteHostOrchestratorHost(
+    provider: DevOpsRemoteHostProvider,
+    hostId: string,
+    request: UpdateOrchestratorHostRequest
+  ): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const url = await this.getHostUrl(provider).catch(err => {
+        return reject(err);
+      });
+      if (!request) {
+        return reject("Request is required");
+      }
+
+      const path = `${url}/api/v1/orchestrator/hosts/${hostId}`;
+      if (provider.type !== "orchestrator") {
+        return reject("Only orchestrator type can get resources");
+      }
+
+      const auth = await this.authorize(provider).catch(err => {
+        return reject(err);
+      });
+
+      let error: any;
+      const response = await axios
+        .put(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
           }

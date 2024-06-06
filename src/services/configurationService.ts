@@ -8,6 +8,10 @@ import {
   FLAG_DEVOPS_SERVICE_EXISTS,
   FLAG_DOCKER_CONTAINER_ITEMS_EXISTS,
   FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY,
+  FLAG_HAS_BREW,
+  FLAG_HAS_GIT,
+  FLAG_HAS_PACKER,
+  FLAG_HAS_VAGRANT,
   FLAG_HAS_VAGRANT_BOXES,
   FLAG_HAS_VIRTUAL_MACHINES,
   FLAG_NO_GROUP,
@@ -559,6 +563,44 @@ export class ConfigurationService {
     return true;
   }
 
+  updateRemoteProvider(provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider): boolean {
+    if (!provider) {
+      vscode.window.showErrorMessage(`Provider not found`);
+      return false;
+    }
+    let foundProvider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined;
+    if (provider.class === "DevOpsRemoteHostProvider") {
+      foundProvider = this.findRemoteHostProviderById(provider.ID);
+    }
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      foundProvider = this.findCatalogProviderByIOrName(provider.ID);
+    }
+    if (!foundProvider) {
+      vscode.window.showErrorMessage(`Remote Host Provider User ${provider.name} not found`);
+      return false;
+    }
+
+    if (provider.class === "DevOpsCatalogHostProvider") {
+      const catalogProvider = foundProvider as DevOpsCatalogHostProvider;
+      const index = this.catalogProviders.indexOf(catalogProvider);
+      this.catalogProviders[index].name = provider.name;
+      this.catalogProviders[index].username = provider.username;
+      this.catalogProviders[index].password = provider.password;
+      this.catalogProviders[index].authToken = "";
+    }
+    if (provider.class === "DevOpsRemoteHostProvider") {
+      const remoteProvider = foundProvider as DevOpsRemoteHostProvider;
+      const index = this.remoteHostProviders.indexOf(remoteProvider);
+      this.remoteHostProviders[index].name = provider.name;
+      this.remoteHostProviders[index].username = provider.username;
+      this.remoteHostProviders[index].password = provider.password;
+      this.remoteHostProviders[index].authToken = "";
+    }
+
+    this.save();
+    return true;
+  }
+
   removeCatalogProvider(providerId: string): boolean {
     const provider = this.findCatalogProviderByIOrName(providerId);
     if (provider) {
@@ -876,6 +918,7 @@ export class ConfigurationService {
 
       if (!this.tools.brew.isInstalled) {
         LogService.info("Brew is not installed", "ConfigService");
+        vscode.commands.executeCommand("setContext", FLAG_HAS_BREW, false);
         return resolve(false);
       }
 
@@ -884,11 +927,13 @@ export class ConfigurationService {
       BrewService.version()
         .then(version => {
           this.tools.brew.version = version;
+          vscode.commands.executeCommand("setContext", FLAG_HAS_BREW, true);
           return resolve(true);
         })
         .catch(reason => {
           this.tools.brew.isInstalled = false;
           this.tools.brew.version = "";
+          vscode.commands.executeCommand("setContext", FLAG_HAS_BREW, false);
           LogService.error(`Brew is not installed, err: ${reason}`, "ConfigService");
           return resolve(false);
         });
@@ -911,16 +956,19 @@ export class ConfigurationService {
 
       if (!this.tools.git.isInstalled) {
         LogService.info("Git is not installed", "ConfigService");
+        vscode.commands.executeCommand("setContext", FLAG_HAS_GIT, false);
         return resolve(false);
       }
 
       GitService.version()
         .then(version => {
           this.tools.git.version = version;
+          vscode.commands.executeCommand("setContext", FLAG_HAS_GIT, true);
           return resolve(true);
         })
         .catch(reason => {
           this.tools.git.isInstalled = false;
+          vscode.commands.executeCommand("setContext", FLAG_HAS_GIT, false);
           this.tools.git.version = "";
           LogService.error(`Git is not installed, err: ${reason}`, "ConfigService");
           return resolve(false);
@@ -973,14 +1021,18 @@ export class ConfigurationService {
           name: "packer",
           version: "",
           isInstalled: false,
-          isReady: false
+          isReady: false,
+          isCached: false
         };
       }
+      this.tools.packer.isCached = false;
       this.tools.packer.isInstalled = (await PackerService.isInstalled().catch(reason => reject(reason))) ?? false;
 
       if (!this.tools.packer.isInstalled) {
         LogService.info("Packer is not installed", "ConfigService");
         vscode.commands.executeCommand("setContext", FLAG_PACKER_EXISTS, false);
+        vscode.commands.executeCommand("setContext", FLAG_HAS_PACKER, false);
+
         return resolve(false);
       }
 
@@ -990,10 +1042,12 @@ export class ConfigurationService {
         .then(version => {
           this.tools.packer.version = version;
           vscode.commands.executeCommand("setContext", FLAG_PACKER_EXISTS, true);
+          vscode.commands.executeCommand("setContext", FLAG_HAS_PACKER, true);
           return resolve(true);
         })
         .catch(reason => {
           vscode.commands.executeCommand("setContext", FLAG_PACKER_EXISTS, false);
+          vscode.commands.executeCommand("setContext", FLAG_HAS_PACKER, false);
           this.tools.packer.version = "";
           this.tools.packer.isInstalled = false;
           LogService.error(`Packer is not installed, err: ${reason}`, "ConfigService");
@@ -1018,6 +1072,7 @@ export class ConfigurationService {
       if (!this.tools.vagrant.isInstalled) {
         LogService.info("Vagrant is not installed", "ConfigService");
         vscode.commands.executeCommand("setContext", FLAG_VAGRANT_EXISTS, false);
+        vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT, false);
         return resolve(false);
       }
 
@@ -1030,22 +1085,27 @@ export class ConfigurationService {
               .then(successfullyInstalled => {
                 if (successfullyInstalled) {
                   this.tools.vagrant.isReady = true;
+                  vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT, true);
                 } else {
                   this.tools.vagrant.isReady = false;
+                  vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT, false);
                 }
               })
               .catch(error => {
                 this.tools.vagrant.isReady = false;
+                vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT, false);
               });
           }
         })
         .catch(error => {
           this.tools.vagrant.isReady = false;
+          vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT, false);
         });
 
       VagrantService.version()
         .then(async version => {
           this.tools.vagrant.version = version;
+          vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT, true);
           const boxes = await VagrantService.getBoxes();
           if (boxes.length > 0) {
             vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT_BOXES, true);
@@ -1058,6 +1118,7 @@ export class ConfigurationService {
         })
         .catch(reason => {
           vscode.commands.executeCommand("setContext", FLAG_VAGRANT_EXISTS, false);
+          vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT, false);
           this.tools.vagrant.isInstalled = false;
           this.tools.vagrant.version = "";
           LogService.error(`Vagrant is not installed, err: ${reason}`, "ConfigService");
