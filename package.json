@@ -1646,7 +1646,6 @@
                     "when": "parallels-desktop:initialized == true"
                 },
                 {
-                    "when": "parallels-desktop:vagrant == true && parallels-desktop:os === darwin",
                     "id": "parallels-desktop-vagrant",
                     "name": "Vagrant Boxes",
                     "icon": "media/parallels_logo.svg",
@@ -1666,17 +1665,17 @@
         "viewsWelcome": [
             {
                 "view": "parallels-desktop-machines",
-                "when": "parallels-desktop:initialized == true && parallels-desktop:hasVirtualMachines == false",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:hasVirtualMachines === false",
                 "contents": "Welcome to Parallels Desktop\n Please add a virtual machine to start using the extension.\n[Create Virtual Machine](command:parallels-desktop.tree-view.add-vm)"
             },
             {
                 "view": "parallels-desktop-catalog",
-                "when": "parallels-desktop:initialized == true && parallels-desktop:devops-service-catalog-provider-has-items !== true",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:devops-service-catalog-provider-has-items !== true",
                 "contents": "Welcome to Parallels Desktop Catalog\nTo learn more about how to get started and to see an example please go to the [documentation page](https://parallels.github.io/prl-devops-service/examples/remote-catalog/)\nTo add your first Catalog Provider press this button\n[Add Catalog Provider](command:parallels-desktop.devops-service.add-catalog-provider)"
             },
             {
                 "view": "parallels-desktop-remote-hosts",
-                "when": "parallels-desktop:initialized == true && parallels-desktop:devops-service-remote-host-provider-has-items !== true",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:devops-service-remote-host-provider-has-items !== true",
                 "contents": "Welcome to Parallels Desktop Remote Hosts\nTo learn more about how to get started please go to our [documentation page](https://parallels.github.io/prl-devops-service/examples/remote-catalog/)\nTo add your first Remote Host or Orchestrator press this button\n[Add Remote Host Provider](command:parallels-desktop.devops-service.add-remote-host-provider)"
             },
             {
@@ -1686,8 +1685,13 @@
             },
             {
                 "view": "parallels-desktop-vagrant",
-                "when": "parallels-desktop:initialized == true && parallels-desktop:vagrant == true && parallels-desktop:hasVagrantBoxes == false",
+                "when": "parallels-desktop:initialized == true && vagrant.initialized === true && parallels-desktop:hasVagrantBoxes === false",
                 "contents": "Welcome to Vagrant Boxes Management\n Please add a Vagrant box to start using the extension."
+            },
+            {
+                "view": "parallels-desktop-vagrant",
+                "when": "parallels-desktop:initialized == true && (vagrant.initialized === false || vagrant.initialized === undefined)",
+                "contents": "Welcome to Vagrant Boxes Management\nYou don't seem to have Vagrant from Hashicorp installed in your system, to know more aboutHashicorp Vagrant please visit [Hashicorp Vagrant](https://www.vagrantup.com/)\nTo install Hashicorp Vagrant press this button\n[Install Vagrant](command:parallels-desktop.vagrant.install)"
             },
             {
                 "view": "parallels-desktop-help",
