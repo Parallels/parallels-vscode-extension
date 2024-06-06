@@ -9,6 +9,7 @@ import {
   FLAG_ENABLE_SHOW_HIDDEN,
   FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE,
   FLAG_IS_HEADLESS_DEFAULT,
+  FLAG_PACKER_RECIPES_CACHED,
   FLAG_START_VMS_HEADLESS_DEFAULT,
   FLAG_TREE_SHOW_HIDDEN
 } from "./constants/flags";
@@ -65,112 +66,8 @@ export async function initialize() {
           });
       }
 
-      progress.report({message: "Parallels Desktop: Checking for Hashicorp Packer"});
-      if (!config.tools.packer.isInstalled) {
-        const options: string[] = [];
-        if (config.tools.brew.isInstalled) {
-          options.push("Install Hashicorp Packer");
-        }
-        options.push("Download Hashicorp Packer");
-        vscode.window
-          .showErrorMessage(
-            "Hashicorp Packer is not installed, please install Hashicorp Packer to be able to create virtual machines with Packer scripts.",
-            "Open Packer Website",
-            ...options
-          )
-          .then(selection => {
-            if (selection === "Open Packer Website") {
-              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://developer.hashicorp.com/packer"));
-              return;
-            }
-            if (selection === "Install Hashicorp Packer") {
-              PackerService.install();
-              return;
-            }
-            if (selection === "Download Hashicorp Packer") {
-              vscode.commands.executeCommand(
-                "vscode.open",
-                vscode.Uri.parse(
-                  "https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli"
-                )
-              );
-              return;
-            }
-          });
-      }
-
-      progress.report({message: "Parallels Desktop: Checking for Hashicorp Vagrant"});
-      if (!config.tools.vagrant.isInstalled) {
-        const options: string[] = [];
-        if (config.tools.brew.isInstalled) {
-          options.push("Install Hashicorp Vagrant");
-        }
-        options.push("Download Hashicorp Vagrant");
-        vscode.window
-          .showErrorMessage(
-            "Hashicorp Vagrant is not installed, please install Hashicorp Vagrant to be able to create and manage Vagrant Boxes.",
-            "Open Vagrant Website",
-            ...options
-          )
-          .then(selection => {
-            if (selection === "Open Vagrant Website") {
-              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://www.vagrantup.com/"));
-              return;
-            }
-            if (selection === "Install Hashicorp Vagrant") {
-              VagrantService.install();
-              return;
-            }
-            if (selection === "Download Hashicorp Vagrant") {
-              vscode.commands.executeCommand(
-                "vscode.open",
-                vscode.Uri.parse("https://developer.hashicorp.com/vagrant/docs/installation")
-              );
-              return;
-            }
-          });
-      }
-
-      progress.report({message: "Parallels Desktop: Checking for Git"});
-      if (!config.tools.git.isInstalled) {
-        const options: string[] = [];
-        if (config.tools.brew.isInstalled) {
-          options.push("Install Git");
-        }
-        options.push("Download Git");
-        vscode.window
-          .showErrorMessage(
-            "Git is not installed, please install git to be able to create Packer Virtual Machines.",
-            "Open Git Website",
-            ...options
-          )
-          .then(selection => {
-            if (selection === "Open Git Website") {
-              vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://git-scm.com/"));
-              return;
-            }
-            if (selection === "Install Git") {
-              GitService.install().then(isGitInstalled => {
-                if (!isGitInstalled) {
-                  return;
-                }
-                // Cloning Packer example repo, need to wait to allow background process to finish
-                GitService.cloneOrUpdatePackerExamples();
-              });
-              return;
-            }
-            if (selection === "Download Git") {
-              vscode.commands.executeCommand(
-                "vscode.open",
-                vscode.Uri.parse("https://git-scm.com/book/en/v2/Getting-Started-Installing-Git")
-              );
-              return;
-            }
-          });
-      }
-
-      progress.report({message: "Parallels Desktop: Updating Packer Recipes"});
-      if (config.tools.git.isInstalled) {
+      if (config.tools.git.isInstalled && config.tools.packer.isInstalled) {
+        progress.report({message: "Parallels Desktop: Updating Packer Recipes"});
         // Cloning Packer example repo, need to wait to allow background process to finish
         GitService.cloneOrUpdatePackerExamples().then(() => {
           // Caching Packer Addons
@@ -181,6 +78,12 @@ export async function initialize() {
               Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, addons);
             });
           }
+          vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, true);
+          config.tools.packer.isCached = false;
+        }).catch(error => {
+          LogService.error(error, "CoreService");
+          config.tools.packer.isCached = false;
+          vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, false);
         });
       }
 

@@ -43,7 +43,7 @@ let remoteHostViewAutoRefreshStarted = false;
 
 export class DevOpsService {
   constructor(private context: vscode.ExtensionContext) {
-    axios.defaults.headers.common["X-LOGGING"] = "IGNORE";
+    axios.defaults.headers.common["X-SOURCE-ID"] = "VSCODE_EXTENSION";
     axios.defaults.timeout = 15000;
   }
 
@@ -765,6 +765,7 @@ export class DevOpsService {
       const response = await axios
         .get(`${url}/api/v1/catalog`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -807,6 +808,7 @@ export class DevOpsService {
       const response = await axios
         .get<HostHardwareInfo>(`${url}/api/v1/config/hardware`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -839,6 +841,7 @@ export class DevOpsService {
       const response = await axios
         .get<VirtualMachine[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -867,6 +870,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsUser[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1111,6 +1115,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRolesAndClaims[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1196,6 +1201,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRolesAndClaims[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1285,6 +1291,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRemoteHostResource[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })
@@ -1315,6 +1322,7 @@ export class DevOpsService {
       const response = await axios
         .get<DevOpsRemoteHost[]>(`${path}`, {
           headers: {
+            "X-LOGGING": "IGNORE",
             Authorization: `Bearer ${auth?.token}`
           }
         })

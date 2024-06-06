@@ -2,15 +2,16 @@ import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
-import {Constants, FLAG_PACKER_PATH, FLAG_PACKER_VERSION} from "../constants/flags";
-import {Provider} from "../ioc/provider";
-import {VirtualMachineAddon} from "../models/parallels/VirtualMachineAddon";
-import {PackerVirtualMachineConfig} from "../models/packer/PackerVirtualMachineConfig";
-import {LogService} from "./logService";
-import {getPackerTemplateFolder} from "../helpers/helpers";
+import { Constants, FLAG_PACKER_PATH, FLAG_PACKER_RECIPES_CACHED, FLAG_PACKER_VERSION } from "../constants/flags";
+import { Provider } from "../ioc/provider";
+import { VirtualMachineAddon } from "../models/parallels/VirtualMachineAddon";
+import { PackerVirtualMachineConfig } from "../models/packer/PackerVirtualMachineConfig";
+import { LogService } from "./logService";
+import { getPackerTemplateFolder } from "../helpers/helpers";
+import { GitService } from "./gitService";
 
 export class PackerService {
-  constructor(private context: vscode.ExtensionContext) {}
+  constructor(private context: vscode.ExtensionContext) { }
 
   static isInstalled(): Promise<boolean> {
     return new Promise(resolve => {
@@ -83,7 +84,7 @@ export class PackerService {
           cancellable: false
         },
         async (progress, token) => {
-          progress.report({message: "Installing Packer..."});
+          progress.report({ message: "Installing Packer..." });
           const result = await new Promise(async (resolve, reject) => {
             const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
             brew.stdout.on("data", data => {
@@ -120,11 +121,11 @@ export class PackerService {
             });
           });
           if (!result) {
-            progress.report({message: "Failed to install Packer, see logs for more details"});
+            progress.report({ message: "Failed to install Packer, see logs for more details" });
             vscode.window.showErrorMessage("Failed to install Packer, see logs for more details");
             return resolve(false);
           } else {
-            progress.report({message: "Packer was installed successfully"});
+            progress.report({ message: "Packer was installed successfully" });
             vscode.window.showInformationMessage("Packer was installed successfully");
             return resolve(true);
           }
@@ -241,9 +242,8 @@ export class PackerService {
         result = "{\n";
       }
       Object.keys(variable).forEach((k, i) => {
-        result += `${indentStr}${k} = ${this.generateObjectVar(variable[k], indent + 2)}${
-          i < Object.keys(variable).length - 1 ? "" : ""
-        }\n`;
+        result += `${indentStr}${k} = ${this.generateObjectVar(variable[k], indent + 2)}${i < Object.keys(variable).length - 1 ? "" : ""
+          }\n`;
       });
       if (indent === 0) {
         result += "";
@@ -327,7 +327,7 @@ export class PackerService {
         if (fs.existsSync(machine.outputFolder)) {
           if (machine.forceBuild) {
             LogService.info(`Removing existing output folder ${machine.outputFolder}`, "PackerService");
-            fs.rmdirSync(machine.outputFolder, {recursive: true});
+            fs.rmdirSync(machine.outputFolder, { recursive: true });
           } else {
             LogService.error(`Output folder ${machine.outputFolder} already exists`, "PackerService");
             return reject(`Output folder ${machine.outputFolder} already exists`);
@@ -440,5 +440,102 @@ export class PackerService {
     }
 
     return result;
+  }
+
+  static async canAddVms(): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      const config = Provider.getConfiguration();
+      let missingTools = false;
+      if (!config.tools.packer.isInstalled) {
+        missingTools = true;
+        const options: string[] = [];
+        if (config.tools.brew.isInstalled) {
+          options.push("Install Hashicorp Packer");
+        }
+        options.push("Download Hashicorp Packer");
+        const selection = await vscode.window
+          .showErrorMessage(
+            "Hashicorp Packer is not installed, we use Hashicorp Packer to create Vms, please install Hashicorp Packer to be able to create virtual machines with Packer scripts.",
+            "Open Packer Website",
+            ...options
+          )
+
+        if (selection === "Open Packer Website") {
+          vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://developer.hashicorp.com/packer"));
+          return;
+        }
+        if (selection === "Install Hashicorp Packer") {
+          PackerService.install();
+          return;
+        }
+        if (selection === "Download Hashicorp Packer") {
+          vscode.commands.executeCommand(
+            "vscode.open",
+            vscode.Uri.parse(
+              "https://developer.hashicorp.com/packer/tutorials/docker-get-started/get-started-install-cli"
+            )
+          );
+          return;
+        }
+      }
+
+      if (!config.tools.git.isInstalled) {
+        missingTools = true;
+        const options: string[] = [];
+        if (config.tools.brew.isInstalled) {
+          options.push("Install Git");
+        }
+        options.push("Download Git");
+        const selection = await vscode.window
+          .showErrorMessage(
+            "Git is not installed, we need git to clone our vm recipes please install git to be able to create Packer Virtual Machines.",
+            "Open Git Website",
+            ...options
+          )
+        if (selection === "Open Git Website") {
+          vscode.commands.executeCommand("vscode.open", vscode.Uri.parse("https://git-scm.com/"));
+          return;
+        }
+        if (selection === "Install Git") {
+          GitService.install().then(isGitInstalled => {
+            if (!isGitInstalled) {
+              return;
+            }
+            // Cloning Packer example repo, need to wait to allow background process to finish
+            GitService.cloneOrUpdatePackerExamples();
+          });
+          return;
+        }
+        if (selection === "Download Git") {
+          vscode.commands.executeCommand(
+            "vscode.open",
+            vscode.Uri.parse("https://git-scm.com/book/en/v2/Getting-Started-Installing-Git")
+          );
+          return;
+        }
+      }
+
+      if (config.tools.git.isInstalled && (!(config.tools.packer.isCached ?? false))) {
+        // Cloning Packer example repo, need to wait to allow background process to finish
+        await GitService.cloneOrUpdatePackerExamples().catch(error => {
+          missingTools = true;
+          LogService.error(error, "CoreService");
+          config.tools.packer.isCached = false;
+          vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, false);
+        });
+        // Caching Packer Addons
+        if (config.tools.packer.isInstalled && config.tools.git.isInstalled && config.packerTemplatesCloned) {
+          const platforms = ["windows", "ubuntu", "macos"];
+          platforms.forEach(platform => {
+            const addons = PackerService.getPlatformAddons(platform);
+            Provider.getCache().set(`${Constants.CacheFlagPackerAddons}.${platform}`, addons);
+          });
+        }
+        vscode.commands.executeCommand("setContext", FLAG_PACKER_RECIPES_CACHED, true);
+        config.tools.packer.isCached = true;
+      }
+
+      resolve(!missingTools);
+    });
   }
 }

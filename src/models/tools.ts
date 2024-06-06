@@ -3,6 +3,7 @@ export interface Tool {
   version: string;
   isInstalled: boolean;
   isReady: boolean;
+  isCached? : boolean;
 }
 
 export interface Tools {

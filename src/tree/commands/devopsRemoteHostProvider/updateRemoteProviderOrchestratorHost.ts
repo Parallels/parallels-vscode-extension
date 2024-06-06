@@ -5,6 +5,7 @@ import {DevOpsRemoteHostsCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {UpdateOrchestratorHostRequest} from "../../../models/devops/updateOrchestratorHostRequest";
+import { YesNoQuestion, ANSWER_YES } from "../../../helpers/ConfirmDialog";
 
 const registerDevOpsUpdateRemoteProviderOrchestratorHostCommand = (
   context: vscode.ExtensionContext,
@@ -64,6 +65,14 @@ const registerDevOpsUpdateRemoteProviderOrchestratorHostCommand = (
             ignoreFocusOut: true
           });
           request.description = description;
+
+          const confirmation = await YesNoQuestion(
+            `Are you sure you want to rename provider ${item.name} to ${description}?`
+          );
+    
+          if (confirmation !== ANSWER_YES) {
+            return;
+          }
           break;
         }
         case "HOST": {
@@ -74,6 +83,13 @@ const registerDevOpsUpdateRemoteProviderOrchestratorHostCommand = (
             ignoreFocusOut: true
           });
           request.host = hostname;
+          const confirmation = await YesNoQuestion(
+            `Are you sure you want to update provider ${item.name} host to ${hostname}?`
+          );
+    
+          if (confirmation !== ANSWER_YES) {
+            return;
+          }
           break;
         }
         case "CREDENTIALS": {
@@ -101,6 +117,14 @@ const registerDevOpsUpdateRemoteProviderOrchestratorHostCommand = (
             username: username,
             password: password
           };
+
+          const confirmation = await YesNoQuestion(
+            `Are you sure you want to update provider ${item.name} credentials?`
+          );
+    
+          if (confirmation !== ANSWER_YES) {
+            return;
+          }
           break;
         }
       }
