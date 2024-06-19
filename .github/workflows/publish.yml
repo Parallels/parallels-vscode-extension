@@ -161,7 +161,7 @@ jobs:
             npm_config_arch: x64
           - vsce_target: win32-arm64
             ls_target: windows_arm64
-            npm_config_arch: arm
+            npm_config_arch: arm64
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
