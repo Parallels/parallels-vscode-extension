@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.1.19",
+    "version": "1.1.20",
     "engines": {
         "vscode": "^1.90.0"
     },
@@ -1736,11 +1736,7 @@
         "lint-fix": "eslint . --ext .ts --fix",
         "format": "prettier --write \"**/*.ts\"",
         "format-check": "prettier --check \"**/*.ts\"",
-        "test": "node ./out/test/runTest.js",
-        "postinstall": "npm run setupTiktoken",
-        "setupTiktoken": "run-script-os",
-        "setupTiktoken:linux:darwin": "cp node_modules/@vscode/prompt-tsx/dist/base/tokenizer/cl100k_base.tiktoken out/",
-        "setupTiktoken:windows": "copy node_modules\\@vscode\\prompt-tsx\\dist\\base\\tokenizer\\cl100k_base.tiktoken out\\"
+        "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
         "@types/axios": "^0.14.0",
@@ -1753,7 +1749,7 @@
         "@vscode/prompt-tsx": "^0.2.3-alpha",
         "@vscode/test-electron": "^2.3.0",
         "@vscode/test-web": "*",
-        "@vscode/vsce": "^2.27.0",
+        "@vscode/vsce": "^2.28.0",
         "esbuild": "^0.21.5",
         "eslint": "^8.36.0",
         "eslint-config-prettier": "^8.5.0",
