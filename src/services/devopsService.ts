@@ -44,7 +44,7 @@ let remoteHostViewAutoRefreshStarted = false;
 export class DevOpsService {
   constructor(private context: vscode.ExtensionContext) {
     axios.defaults.headers.common["X-SOURCE-ID"] = "VSCODE_EXTENSION";
-    axios.defaults.timeout = 15000;
+    axios.defaults.timeout = 150000;
   }
 
   static isInstalled(): Promise<boolean> {
