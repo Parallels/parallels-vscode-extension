@@ -36,9 +36,6 @@
     "homepage": "https://parallels.com",
     "main": "./dist/extension.js",
     "activationEvents": [],
-    "enabledApiProposals": [
-        "chatVariableResolver"
-    ],
     "contributes": {
         "chatParticipants": [
             {
