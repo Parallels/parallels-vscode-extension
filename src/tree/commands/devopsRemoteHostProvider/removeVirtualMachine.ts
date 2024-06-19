@@ -48,16 +48,28 @@ const registerDevOpRemoveVirtualMachineCommand = (
             vscode.window.showErrorMessage(`Machine ${item.name} not found`);
             return;
           }
+          if (machine.State === "invalid") {
+            const ok = await DevOpsService.unregisterRemoteHostVm(provider, machineId).catch(reject => {
+              vscode.window.showErrorMessage(`${reject}`);
+              foundError = true;
+              return;
+            });
 
-          const ok = await DevOpsService.removeRemoteHostVm(provider, machineId).catch(reject => {
-            vscode.window.showErrorMessage(`${reject}`);
-            foundError = true;
-            return;
-          });
+            if (!ok || foundError) {
+              vscode.window.showErrorMessage(`Failed to remove virtual machine ${item.name}`);
+              return;
+            }
+          } else {
+            const ok = await DevOpsService.removeRemoteHostVm(provider, machineId).catch(reject => {
+              vscode.window.showErrorMessage(`${reject}`);
+              foundError = true;
+              return;
+            });
 
-          if (!ok || foundError) {
-            vscode.window.showErrorMessage(`Failed to remove virtual machine ${item.name}`);
-            return;
+            if (!ok || foundError) {
+              vscode.window.showErrorMessage(`Failed to remove virtual machine ${item.name}`);
+              return;
+            }
           }
 
           DevOpsService.refreshRemoteHostProviders(true);

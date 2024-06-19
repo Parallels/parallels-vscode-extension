@@ -5,6 +5,7 @@ import {DevOpsRemoteHostProvider} from "../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
 
 export function drawManagementItems(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -17,6 +18,8 @@ export function drawManagementItems(
       let provider: DevOpsRemoteHostProvider | DevOpsCatalogHostProvider | undefined = undefined;
       if (className === "DevOpsRemoteHostProvider") {
         provider = config.findRemoteHostProviderById(elementId);
+        const t = provider as DevOpsRemoteHostProvider;
+        console.log(t);
       }
       if (className === "DevOpsCatalogHostProvider") {
         provider = config.findCatalogProviderByIOrName(elementId);
@@ -24,8 +27,26 @@ export function drawManagementItems(
       const usersLength = provider?.users?.length ?? 0;
       const claimsLength = provider?.claims?.length ?? 0;
       const rolesLength = provider?.roles?.length ?? 0;
+      if (provider?.hardwareInfo && provider?.hardwareInfo?.devops_version) {
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${elementId}%%management.info`,
+            elementId,
+            "Information",
+            "management.info",
+            "Information",
+            "",
+            className,
+            "devops.remote.management.info",
+            usersLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            "management_information"
+          )
+        );
+      }
       data.push(
         new DevOpsTreeItem(
+          context,
           `${elementId}%%management.users`,
           elementId,
           "Users",
@@ -40,13 +61,14 @@ export function drawManagementItems(
       );
       data.push(
         new DevOpsTreeItem(
+          context,
           `${elementId}%%roles`,
           elementId,
           "Roles",
           "management.roles",
           "Roles",
           "",
-          "DevOpsRemoteHostProvider",
+          className,
           "devops.remote.management.roles",
           rolesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
           "remote_hosts_management_roles"
@@ -54,6 +76,7 @@ export function drawManagementItems(
       );
       data.push(
         new DevOpsTreeItem(
+          context,
           `${elementId}%%management.claims`,
           elementId,
           "Claims",
@@ -73,6 +96,7 @@ export function drawManagementItems(
 }
 
 export function drawManagementUserItems(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -98,6 +122,7 @@ export function drawManagementUserItems(
         const hasRolesOrClaims = user.roles.length > 0 || user.claims.length > 0;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             user.name,
@@ -117,7 +142,118 @@ export function drawManagementUserItems(
   });
 }
 
+export function drawManagementInfoSubItems(
+  context: vscode.ExtensionContext,
+  element: DevOpsTreeItem,
+  data: DevOpsTreeItem[],
+  className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
+): Thenable<DevOpsTreeItem[]> {
+  return new Promise(async (resolve, reject) => {
+    data = [];
+    if (element) {
+      const config = Provider.getConfiguration();
+      const elementId = element.id.split("%%")[0];
+      let provider: DevOpsRemoteHostProvider | DevOpsCatalogHostProvider | undefined = undefined;
+      if (className === "DevOpsRemoteHostProvider") {
+        provider = config.findRemoteHostProviderById(elementId);
+      }
+      if (className === "DevOpsCatalogHostProvider") {
+        provider = config.findCatalogProviderByIOrName(elementId);
+      }
+      if (!provider) {
+        return resolve(data);
+      }
+      const id = `${elementId}%%management%%info`;
+      if (!provider?.hardwareInfo && provider?.hardwareInfo?.devops_version) {
+        return resolve(data);
+      }
+
+      if (provider?.hardwareInfo && provider?.hardwareInfo?.cpu_brand) {
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${id}%%cpu`,
+            elementId,
+            `CPU: ${provider?.hardwareInfo?.cpu_brand}`,
+            "management.info.cpu",
+            `CPU: ${provider?.hardwareInfo?.cpu_brand}`,
+            "",
+            className,
+            "devops.remote.management.info.cpu",
+            vscode.TreeItemCollapsibleState.None,
+            "remote_hosts_provider_orchestrator_resources_architecture"
+          )
+        );
+      }
+      if (
+        provider?.hardwareInfo &&
+        provider?.hardwareInfo?.cpu_type &&
+        provider?.hardwareInfo?.cpu_type !== "unknown"
+      ) {
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${id}%%architecture`,
+            elementId,
+            `Architecture: ${provider?.hardwareInfo?.cpu_type}`,
+            "management.info.architecture",
+            `Architecture: ${provider?.hardwareInfo?.cpu_type}`,
+            "",
+            className,
+            "devops.remote.management.info.architecture",
+            vscode.TreeItemCollapsibleState.None,
+            "remote_hosts_provider_orchestrator_resources_architecture"
+          )
+        );
+      }
+      if (provider?.hardwareInfo && provider?.hardwareInfo?.devops_version) {
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${id}%%devops_version`,
+            elementId,
+            `DevOps Service ${provider?.hardwareInfo?.devops_version}`,
+            "management.info.devops_version",
+            `DevOps Service ${provider?.hardwareInfo?.devops_version}`,
+            "",
+            className,
+            "devops.remote.management.info.devops_version",
+            vscode.TreeItemCollapsibleState.None,
+            "management_information_item"
+          )
+        );
+      }
+      if (provider?.hardwareInfo && provider?.hardwareInfo?.parallels_desktop_version) {
+        let caption = `Parallels Desktop ${provider?.hardwareInfo?.parallels_desktop_version}`;
+        if (provider?.hardwareInfo?.parallels_desktop_licensed) {
+          caption += " (Licensed)";
+        } else {
+          caption += " (Not Licensed)";
+        }
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${id}%%parallels_desktop_version`,
+            elementId,
+            caption,
+            "management.info.parallels_desktop_version",
+            caption,
+            "",
+            className,
+            "devops.remote.management.info.devops_version",
+            vscode.TreeItemCollapsibleState.None,
+            "management_information_item"
+          )
+        );
+      }
+    }
+
+    return resolve(data);
+  });
+}
+
 export function drawManagementUserSubItems(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -149,6 +285,7 @@ export function drawManagementUserSubItems(
       const rolesLength = user?.roles?.length ?? 0;
       data.push(
         new DevOpsTreeItem(
+          context,
           `${id}%%roles`,
           elementId,
           "Roles",
@@ -163,6 +300,7 @@ export function drawManagementUserSubItems(
       );
       data.push(
         new DevOpsTreeItem(
+          context,
           `${id}%%claims`,
           elementId,
           "Claims",
@@ -182,6 +320,7 @@ export function drawManagementUserSubItems(
 }
 
 export function drawManagementUserItemClaims(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -212,6 +351,7 @@ export function drawManagementUserItemClaims(
         const id = `${elementId}%%management%%users%%${user.id}%%claims%%${claim}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             claim,
@@ -232,6 +372,7 @@ export function drawManagementUserItemClaims(
 }
 
 export function drawManagementUserItemRoles(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -262,6 +403,7 @@ export function drawManagementUserItemRoles(
         const id = `${elementId}%%management%%users%%${user.id}%%roles%%${role}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             role,
@@ -282,6 +424,7 @@ export function drawManagementUserItemRoles(
 }
 
 export function drawManagementClaims(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -306,6 +449,7 @@ export function drawManagementClaims(
         const id = `${elementId}%%management%%claims%%${claim.name}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             claim.name,
@@ -326,6 +470,7 @@ export function drawManagementClaims(
 }
 
 export function drawManagementRoles(
+  context: vscode.ExtensionContext,
   element: DevOpsTreeItem,
   data: DevOpsTreeItem[],
   className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider"
@@ -350,6 +495,7 @@ export function drawManagementRoles(
         const id = `${elementId}%%management%%roles%%${role.name}`;
         data.push(
           new DevOpsTreeItem(
+            context,
             id,
             elementId,
             role.name,

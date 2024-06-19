@@ -16,6 +16,7 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
   vmId: string | undefined;
 
   constructor(
+    public extensionContext: vscode.ExtensionContext,
     item: VirtualMachine | VirtualMachineGroup | MachineSnapshot | undefined,
     public type:
       | "Group"
@@ -44,8 +45,8 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
     this.name = name;
     this.vmId = vmId;
     this.iconPath = {
-      light: path.join(__filename, "..", "..", "img", "light", `${iconName}.svg`),
-      dark: path.join(__filename, "..", "..", "img", "dark", `${iconName}.svg`)
+      light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
+      dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
     };
     this.label = label;
     this.status = version;

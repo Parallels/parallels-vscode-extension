@@ -12,7 +12,7 @@ import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
 import axios from "axios";
 import {AuthorizationResponse} from "../models/devops/authorization";
 import {CatalogManifestItem} from "../models/devops/catalogManifest";
-import {diffArray} from "../helpers/diff";
+import {diffArray, hasPassed24Hours} from "../helpers/diff";
 import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
 import {VirtualMachine} from "../models/parallels/virtualMachine";
 import {DevOpsRemoteHostResource} from "../models/devops/remoteHostResource";
@@ -32,6 +32,7 @@ import {CreateCatalogMachine} from "../models/devops/createCatalogMachine";
 import {UpdateOrchestratorHostRequest} from "../models/devops/updateOrchestratorHostRequest";
 
 const refreshThreshold = 5000;
+const hardwareRefreshThreshold = 10;
 
 let catalogViewAutoRefreshInterval: NodeJS.Timeout | undefined;
 let isRefreshingCatalogProviders = false;
@@ -299,6 +300,27 @@ export class DevOpsService {
         continue;
       }
 
+      if (
+        !provider.hardwareInfo ||
+        hasPassed24Hours(provider.lastUpdatedHardwareInfo ?? "", hardwareRefreshThreshold)
+      ) {
+        this.getRemoteHostHardwareInfo(provider)
+          .then(hardwareInfo => {
+            provider.hardwareInfo = hardwareInfo;
+            provider.lastUpdatedHardwareInfo = new Date().toISOString();
+            provider.needsTreeRefresh = true;
+            hasUpdate = true;
+            vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+          })
+          .catch(err => {
+            hasUpdate = true;
+            LogService.error(
+              `Error getting hardware info for catalog provider ${provider.name}, err: ${err}`,
+              "DevOpsService"
+            );
+          });
+      }
+
       this.getCatalogManifests(provider)
         .then(manifests => {
           if (manifests && (force || diffArray(provider.manifests, manifests, "name"))) {
@@ -426,12 +448,16 @@ export class DevOpsService {
 
       let hasUpdate = false;
 
-      if (!provider.hardwareInfo && provider.type === "remote_host") {
+      if (
+        !provider.hardwareInfo ||
+        hasPassed24Hours(provider.lastUpdatedHardwareInfo ?? "", hardwareRefreshThreshold)
+      ) {
         this.getRemoteHostHardwareInfo(provider)
           .then(hardwareInfo => {
             provider.hardwareInfo = hardwareInfo;
             provider.needsTreeRefresh = true;
             hasUpdate = true;
+            provider.lastUpdatedHardwareInfo = new Date().toISOString();
             vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
           })
           .catch(err => {
@@ -795,7 +821,9 @@ export class DevOpsService {
     });
   }
 
-  static async getRemoteHostHardwareInfo(provider: DevOpsRemoteHostProvider): Promise<HostHardwareInfo | undefined> {
+  static async getRemoteHostHardwareInfo(
+    provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider
+  ): Promise<HostHardwareInfo | undefined> {
     return new Promise(async (resolve, reject) => {
       const url = await this.getHostUrl(provider).catch(err => {
         return reject(err);
@@ -1529,7 +1557,8 @@ export class DevOpsService {
         .put(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -1569,7 +1598,8 @@ export class DevOpsService {
         .put(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -1609,7 +1639,8 @@ export class DevOpsService {
         .put(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -1649,7 +1680,8 @@ export class DevOpsService {
         .put(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -1689,7 +1721,8 @@ export class DevOpsService {
         .put(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -1719,7 +1752,53 @@ export class DevOpsService {
         .delete(`${path}`, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 600000
+        })
+        .catch(err => {
+          error = err;
+          return reject(err);
+        });
+
+      return !response ? reject(error) : resolve(true);
+    });
+  }
+
+  static async unregisterRemoteHostVm(provider: DevOpsRemoteHostProvider, virtualMachineId: string): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      const url = await this.getHostUrl(provider).catch(err => {
+        return reject(err);
+      });
+      const auth = await this.authorize(provider).catch(err => {
+        return reject(err);
+      });
+
+      const request = {
+        id: virtualMachineId,
+        clean_source_uuid: true
+      };
+
+      let path = `${url}/api/v1/machines/${virtualMachineId}/unregister`;
+      if (provider.type === "orchestrator") {
+        const vm = provider.virtualMachines.find(
+          vm =>
+            vm.ID.toLowerCase() === virtualMachineId.toLowerCase() ||
+            vm.Name.toLowerCase() === virtualMachineId.toLowerCase()
+        );
+        if (!vm) {
+          return reject("Virtual machine not found");
+        }
+
+        path = `${url}/api/v1/orchestrator/hosts/${vm.host_id}/machines/${virtualMachineId}/unregister`;
+      }
+
+      let error: any;
+      const response = await axios
+        .post(`${path}`, request, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`
+          },
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -1771,7 +1850,8 @@ export class DevOpsService {
         .put(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 300000
         })
         .catch(err => {
           error = err;
@@ -1989,7 +2069,7 @@ LOCAL_PATH ${request.local_path}
       });
 
       cmd.on("close", code => {
-        fs.unlinkSync(path);
+        // fs.unlinkSync(path);
         if (code !== 0) {
           LogService.error(`prldevops push exited with code ${code}, err: ${error}`, "DevOpsService");
           return reject(`prldevops push exited with code ${code}`);

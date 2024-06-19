@@ -8,8 +8,10 @@ import {AllVagrantCommands} from "../commands/AllCommands";
 
 export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTreeItem> {
   data: VagrantBoxTreeItem[] = [];
+  context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
+    this.context = context;
     const view = vscode.window.createTreeView("parallels-desktop-vagrant", {
       treeDataProvider: this,
       showCollapseAll: true,
@@ -43,6 +45,7 @@ export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTre
             boxes.forEach(box => {
               this.data.push(
                 new VagrantBoxTreeItem(
+                  this.context,
                   "Box",
                   FLAG_NO_GROUP,
                   uuid.v4(),

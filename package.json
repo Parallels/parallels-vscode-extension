@@ -8,12 +8,14 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.1.18",
+    "version": "1.1.20",
     "engines": {
-        "vscode": "^1.77.0"
+        "vscode": "^1.90.0"
     },
     "categories": [
-        "Testing"
+        "Testing",
+        "AI",
+        "Chat"
     ],
     "badges": [
         {
@@ -32,11 +34,31 @@
         "docker"
     ],
     "homepage": "https://parallels.com",
-    "activationEvents": [
-        "onView:nodeDependencies"
-    ],
     "main": "./dist/extension.js",
+    "activationEvents": [],
+    "enabledApiProposals": [
+        "chatVariableResolver"
+    ],
     "contributes": {
+        "chatParticipants": [
+            {
+                "id": "parallels.chat",
+                "fullName": "Parallels Desktop",
+                "name": "parallels",
+                "description": "How can I help?",
+                "isSticky": true,
+                "commands": [
+                    {
+                        "name": "create",
+                        "description": "create a new VM"
+                    },
+                    {
+                        "name": "state",
+                        "description": "change the state of a VM"
+                    }
+                ]
+            }
+        ],
         "configuration": {
             "title": "Parallels Desktop",
             "properties": {
@@ -532,7 +554,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-catalog-provider",
-                "title": "Parallels DevOps: Add Catalog Host Provider",
+                "title": "Add Catalog Host Provider",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -540,7 +562,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.refresh-catalog-provider",
-                "title": "Parallels DevOps: Refresh Catalog Provider",
+                "title": "Refresh Catalog Provider",
                 "icon": {
                     "light": "img/light/refresh.svg",
                     "dark": "img/dark/refresh.svg"
@@ -604,7 +626,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-claim-to-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Add Claim to Manifest Version",
+                "title": "Add Claim to Manifest Version",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -612,7 +634,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-claim-from-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Remove Claim from Manifest Version",
+                "title": "Remove Claim from Manifest Version",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -620,7 +642,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-tag-to-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Add Tag to Manifest Version",
+                "title": "Add Tag to Manifest Version",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -628,7 +650,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-tag-from-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Remove Tag from Manifest Version",
+                "title": "Remove Tag from Manifest Version",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -636,7 +658,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-remote-host-provider",
-                "title": "Parallels DevOps: Add Remote Host Provider",
+                "title": "Add Remote Host Provider",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -644,7 +666,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.refresh-remote-host-provider",
-                "title": "Parallels DevOps: Refresh Remote Hosts Provider",
+                "title": "Refresh Remote Hosts Provider",
                 "icon": {
                     "light": "img/light/refresh.svg",
                     "dark": "img/dark/refresh.svg"
@@ -652,7 +674,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.force-refresh-remote-host-provider",
-                "title": "Parallels DevOps: Refresh Remote Hosts Provider",
+                "title": "Refresh Remote Hosts Provider",
                 "icon": {
                     "light": "img/light/refresh.svg",
                     "dark": "img/dark/refresh.svg"
@@ -660,7 +682,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.enable-remote-host-provider-host",
-                "title": "Parallels DevOps: Enable Remote Host Provider",
+                "title": "Enable Remote Host Provider",
                 "icon": {
                     "light": "img/light/resume.svg",
                     "dark": "img/dark/resume.svg"
@@ -668,7 +690,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.disable-remote-host-provider-host",
-                "title": "Parallels DevOps: Disable Remote Host Provider",
+                "title": "Disable Remote Host Provider",
                 "icon": {
                     "light": "img/light/pause.svg",
                     "dark": "img/dark/pause.svg"
@@ -676,7 +698,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.pull-catalog-provider-manifest",
-                "title": "Parallels DevOps: Pull Catalog Manifest",
+                "title": "Pull Catalog Manifest",
                 "icon": {
                     "light": "img/light/catalog_manifest_pull.svg",
                     "dark": "img/dark/catalog_manifest_pull.svg"
@@ -684,7 +706,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.push-catalog-provider-manifest",
-                "title": "Parallels DevOps: Push Catalog Manifest",
+                "title": "Push Catalog Manifest",
                 "icon": {
                     "light": "img/light/catalog_manifest_push.svg",
                     "dark": "img/dark/catalog_manifest_push.svg"
@@ -692,7 +714,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-remote-host-provider",
-                "title": "Parallels DevOps: Remove Remote Host Provider",
+                "title": "Remove Remote Host Provider",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -716,7 +738,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-remote-provider-orchestrator-host",
-                "title": "Parallels DevOps: Add Orchestrator Host",
+                "title": "Add Orchestrator Host",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -741,7 +763,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.resume-remote-host-provider-host-vm",
-                "title": "Parallels: Resume VM",
+                "title": "Resume VM",
                 "shortTitle": "Resume VM",
                 "icon": {
                     "light": "img/light/resume.svg",
@@ -750,7 +772,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.pause-remote-host-provider-host-vm",
-                "title": "Parallels: Pause VM",
+                "title": "Pause VM",
                 "shortTitle": "Pause VM",
                 "icon": {
                     "light": "img/light/pause.svg",
@@ -1543,7 +1565,7 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-remote-host-provider-host-vm",
-                    "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.(host|orchestrator)\\.virtual_machine\\.(stopped|suspended|paused)/",
+                    "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.(host|orchestrator)\\.virtual_machine\\.(stopped|suspended|paused|invalid)/",
                     "group": "inline@2"
                 },
                 {
@@ -1624,6 +1646,7 @@
                     "id": "parallels-desktop-machines",
                     "name": "Virtual Machines",
                     "icon": "media/parallels_logo.svg",
+                    "type": "tree",
                     "when": "parallels-desktop:initialized == true && parallels-desktop:os === darwin",
                     "contextualTitle": "Parallels Desktop Virtual Machines"
                 },
@@ -1657,8 +1680,7 @@
                     "id": "parallels-desktop-help",
                     "name": "Helpful Links",
                     "icon": "media/parallels_logo.svg",
-                    "contextualTitle": "Helpful",
-                    "visibility": "collapsed"
+                    "contextualTitle": "Helpful Links"
                 }
             ]
         },
@@ -1700,13 +1722,13 @@
         ]
     },
     "scripts": {
-        "clean": "rimraf ./dist ./out",
+        "compile": "webpack --mode development && gulp copy-images",
+        "watch": "webpack --mode development --watch",
         "vscode:prepublish": "npm run build",
-        "compile": "webpack && gulp copy-images",
-        "watch": "webpack --watch --mode production ",
-        "watch:prod": "webpack --watch --mode production",
-        "build": "webpack --mode production && gulp copy-images",
         "package": "npm run clean && vsce package",
+        "clean": "rimraf ./dist ./out",
+        "watch:prod": "webpack --watch --mode production",
+        "build": "webpack --mode production --devtool hidden-source-map && gulp copy-images",
         "open-in-browser": "vscode-test-web --extensionDevelopmentPath=src .",
         "compile-tests": "tsc -p . --outDir out",
         "watch-tests": "tsc -p . -w --outDir out",
@@ -1722,12 +1744,13 @@
         "@types/mocha": "^10.0.1",
         "@types/node": "16.x",
         "@types/uuid": "^9.0.1",
-        "@types/vscode": "^1.77.0",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
+        "@vscode/prompt-tsx": "^0.2.3-alpha",
         "@vscode/test-electron": "^2.3.0",
         "@vscode/test-web": "*",
-        "@vscode/vsce": "2.26.1",
+        "@vscode/vsce": "^2.28.0",
+        "esbuild": "^0.21.5",
         "eslint": "^8.36.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.2.1",
@@ -1737,16 +1760,17 @@
         "mocha": "^10.2.0",
         "prettier": "^2.8.3",
         "rimraf": "^3.0.1",
-        "ts-loader": "^9.4.2",
+        "run-script-os": "^1.1.6",
+        "ts-loader": "^9.5.1",
         "typescript": "^4.9.5",
-        "webpack": "^5.76.3",
-        "webpack-cli": "^5.0.1"
+        "vscpp": "^2.1.1",
+        "webpack": "^5.92.0",
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^5.0.4"
     },
     "dependencies": {
-        "@vscode/vsce": "^2.19.0",
         "axios": "^1.4.0",
         "clipboardy": "^3.0.0",
-        "copy-paste": "^1.5.3",
         "jwt-decode": "^4.0.0",
         "tailwindcss": "^3.3.2",
         "uuid": "^9.0.0"

@@ -16,7 +16,7 @@
         "PARALLELS_DESKTOP_DEBUG": "true"
       },
       "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
+        "${workspaceFolder}/out/**/*.js"
       ],
       "preLaunchTask": "${defaultBuildTask}"
     },

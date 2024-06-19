@@ -1,7 +1,7 @@
 .devcontainer
 .vscode
 node_modules
-out/
+out/*.map
 src/
 tsconfig.json
 webpack.config.js
