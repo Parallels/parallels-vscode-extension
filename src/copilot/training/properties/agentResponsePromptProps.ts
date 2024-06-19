@@ -1,6 +1,4 @@
-
-import {
-	BasePromptElementProps} from '@vscode/prompt-tsx';
+import {BasePromptElementProps} from "@vscode/prompt-tsx";
 
 export interface AgentResponsePromptProps extends BasePromptElementProps {
   operations: string[];

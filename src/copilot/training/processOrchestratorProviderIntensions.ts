@@ -1,50 +1,56 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { CopilotUserIntension } from "../models"
-import { extractJsonFromMarkdownCodeBlock, getChatHistory, processChatResponse } from '../helpers';
-import { renderPrompt, Cl100KBaseTokenizer } from '@vscode/prompt-tsx';
-import { LogIntensionPrompt } from './debug';
-import { OrchestratorProviderIntensionPrompt } from './prompts/orchestratorProviderPrompt';
+import {CopilotUserIntension} from "../models";
+import {extractJsonFromMarkdownCodeBlock, getChatHistory, processChatResponse} from "../helpers";
+import {renderPrompt} from "@vscode/prompt-tsx";
+import {LogIntensionPrompt} from "./debug";
+import {OrchestratorProviderIntensionPrompt} from "./prompts/orchestratorProviderPrompt";
 
-export async function processOrchestratorProviderIntensions(userPrompt: string, context: vscode.ChatContext, model: vscode.LanguageModelChat, token: vscode.CancellationToken): Promise < CopilotUserIntension[] > {
+export async function processOrchestratorProviderIntensions(
+  userPrompt: string,
+  context: vscode.ChatContext,
+  model: vscode.LanguageModelChat,
+  token: vscode.CancellationToken
+): Promise<CopilotUserIntension[]> {
   return new Promise(async (resolve, reject) => {
     try {
-      const { messages } = await renderPrompt(
+      const {messages} = await renderPrompt(
         OrchestratorProviderIntensionPrompt,
-        { userQuery: userPrompt, history: getChatHistory(context.history)},
-        { modelMaxPromptTokens: model.maxInputTokens },
-        new Cl100KBaseTokenizer())
+        {userQuery: userPrompt, history: getChatHistory(context.history)},
+        {modelMaxPromptTokens: model.maxInputTokens},
+        model
+      );
 
       const intensionMsgResponse = await model.sendRequest(messages, {}, token);
-      const data = await processChatResponse(intensionMsgResponse)
+      const data = await processChatResponse(intensionMsgResponse);
 
       // extracting the json from the markdown code block
       const rawJsonBlock = extractJsonFromMarkdownCodeBlock(data);
-      if (rawJsonBlock === '{}') {
-        const response: CopilotUserIntension[] = []
+      if (rawJsonBlock === "{}") {
+        const response: CopilotUserIntension[] = [];
         const chatRequest: CopilotUserIntension = {
-          intension: 'CHAT_OUTPUT',
+          intension: "CHAT_OUTPUT",
           operation: data,
-          operation_value: '',
-          target: '',
-          VM: '',
+          operation_value: "",
+          target: "",
+          VM: "",
           intension_description: data
-        }
-        response.push(chatRequest)
-        resolve(response)
-      }
-      
-      LogIntensionPrompt(messages, data, rawJsonBlock)
-      const jsonBlock: CopilotUserIntension[] = JSON.parse(rawJsonBlock);
-      if (!Array.isArray(jsonBlock)) {
-        console.log(`Returning an array for the object: ${jsonBlock}`)
-        resolve([jsonBlock])
+        };
+        response.push(chatRequest);
+        resolve(response);
       }
 
-      resolve(jsonBlock)
+      LogIntensionPrompt(messages, data, rawJsonBlock);
+      const jsonBlock: CopilotUserIntension[] = JSON.parse(rawJsonBlock);
+      if (!Array.isArray(jsonBlock)) {
+        console.log(`Returning an array for the object: ${jsonBlock}`);
+        resolve([jsonBlock]);
+      }
+
+      resolve(jsonBlock);
     } catch (error) {
-      console.error(error)
-      reject(error)
+      console.error(error);
+      reject(error);
     }
   });
 }

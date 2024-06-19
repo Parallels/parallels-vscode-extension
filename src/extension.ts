@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
-import { VirtualMachineProvider } from "./tree/virtualMachinesProvider/virtualMachineProvider";
-import { Provider } from "./ioc/provider";
-import { initialize } from "./initialization";
-import { registerClearDownloadCacheCommand } from "./commands/clearDownloads";
-import { VagrantBoxProvider } from "./tree/vagrantBoxProvider/vagrantBoxProvider";
+import {VirtualMachineProvider} from "./tree/virtualMachinesProvider/virtualMachineProvider";
+import {Provider} from "./ioc/provider";
+import {initialize} from "./initialization";
+import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
+import {VagrantBoxProvider} from "./tree/vagrantBoxProvider/vagrantBoxProvider";
 import {
   CommandsFlags,
   FLAG_AUTO_REFRESH,
@@ -12,13 +12,14 @@ import {
   FLAG_IS_HEADLESS_DEFAULT,
   FLAG_OS,
   FLAG_PARALLELS_EXTENSION_INITIALIZED,
-  FLAG_START_VMS_HEADLESS_DEFAULT} from "./constants/flags";
-import { LogService } from "./services/logService";
-import { DevOpsCatalogProvider } from "./tree/devopsCatalogProvider/devopsCatalogProvider";
-import { DevOpsRemoteHostsProvider } from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
-import { DevOpsService } from "./services/devopsService";
-import { AllDevopsRemoteProviderManagementCommands } from "./tree/commands/AllCommands";
-import { initializeCopilot } from "./copilotInitialization";
+  FLAG_START_VMS_HEADLESS_DEFAULT
+} from "./constants/flags";
+import {LogService} from "./services/logService";
+import {DevOpsCatalogProvider} from "./tree/devopsCatalogProvider/devopsCatalogProvider";
+import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
+import {DevOpsService} from "./services/devopsService";
+import {AllDevopsRemoteProviderManagementCommands} from "./tree/commands/AllCommands";
+import {initializeCopilot} from "./copilotInitialization";
 
 let autoRefreshInterval: NodeJS.Timeout | undefined;
 

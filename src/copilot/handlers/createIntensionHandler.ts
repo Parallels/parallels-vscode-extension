@@ -1,29 +1,37 @@
-import * as vscode from 'vscode';
-import { processCreateVmIntentions } from '../training/processCreateVmIntentions';
-import { Provider } from '../../ioc/provider';
-import { CatalogManifest, CatalogManifestItem } from '../../models/devops/catalogManifest';
-import { ParallelsDesktopService } from '../../services/parallelsDesktopService';
-import { CatalogPullRequest } from '../../models/devops/catalogPullRequest';
-import { HelperService } from '../../services/helperService';
-import { DevOpsService } from '../../services/devopsService';
-import { CopilotOperation } from '../models';
+import * as vscode from "vscode";
+import {processCreateVmIntentions} from "../training/processCreateVmIntentions";
+import {Provider} from "../../ioc/provider";
+import {CatalogManifest, CatalogManifestItem} from "../../models/devops/catalogManifest";
+import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
+import {CatalogPullRequest} from "../../models/devops/catalogPullRequest";
+import {HelperService} from "../../services/helperService";
+import {DevOpsService} from "../../services/devopsService";
+import {CopilotOperation} from "../models";
 
-export async function createIntensionHandler(userIntension: string, context: vscode.ChatContext,stream: vscode.ChatResponseStream, model: vscode.LanguageModelChat, token: vscode.CancellationToken ): Promise <CopilotOperation> {
+export async function createIntensionHandler(
+  userIntension: string,
+  context: vscode.ChatContext,
+  stream: vscode.ChatResponseStream,
+  model: vscode.LanguageModelChat,
+  token: vscode.CancellationToken
+): Promise<CopilotOperation> {
   return new Promise(async (resolve, reject) => {
     const response: CopilotOperation = {
-      operation: '',
-      state: 'failed'
+      operation: "",
+      state: "failed"
     };
-    let vmName = '';
+    let vmName = "";
     try {
-      const config = Provider.getConfiguration()
+      const config = Provider.getConfiguration();
       const catalogNames: string[] = config.catalogProviders.map(c => c.name);
       const createOp = await processCreateVmIntentions(userIntension, catalogNames, context, model, token);
       vmName = createOp.name;
-      const catalogProvider = config.catalogProviders.find(c => c.name.toLowerCase() === createOp.catalog_manifest.connection.toLowerCase());
+      const catalogProvider = config.catalogProviders.find(
+        c => c.name.toLowerCase() === createOp.catalog_manifest.connection.toLowerCase()
+      );
       if (!catalogProvider) {
-        response.operation = `The catalog provider ${createOp.catalog_manifest.catalog_id} is not available`
-        response.state = 'failed';
+        response.operation = `The catalog provider ${createOp.catalog_manifest.catalog_id} is not available`;
+        response.state = "failed";
         resolve(response);
         return;
       }
@@ -40,7 +48,7 @@ export async function createIntensionHandler(userIntension: string, context: vsc
 
       if (!manifest) {
         response.operation = `The manifest ${createOp.catalog_manifest.catalog_id} was not found in the catalog provider ${catalogProvider.name}`;
-        response.state = 'failed';
+        response.state = "failed";
         resolve(response);
         return;
       }
@@ -59,7 +67,7 @@ export async function createIntensionHandler(userIntension: string, context: vsc
 
       if (!version) {
         response.operation = `The version ${createOp.catalog_manifest.version} is not available`;
-        response.state = 'failed';
+        response.state = "failed";
         resolve(response);
         return;
       }
@@ -89,17 +97,17 @@ export async function createIntensionHandler(userIntension: string, context: vsc
       });
       if (foundError) {
         response.operation = `Failed to create the virtual machine ${createOp.name}`;
-        response.state = 'failed';
+        response.state = "failed";
         resolve(response);
       } else {
         response.operation = `The virtual machine ${createOp.name} has been created`;
-        response.state = 'success';
+        response.state = "success";
         resolve(response);
       }
     } catch (error) {
       console.error(error);
-      response.operation = `Failed to create the virtual machine${vmName ? ` ${vmName}` : ''}`;
-      response.state = 'failed';
+      response.operation = `Failed to create the virtual machine${vmName ? ` ${vmName}` : ""}`;
+      response.state = "failed";
       resolve(response);
     }
   });

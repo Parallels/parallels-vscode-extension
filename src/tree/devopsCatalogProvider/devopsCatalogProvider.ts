@@ -137,25 +137,35 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
             break;
 
           case "management":
-            this.data = await drawManagementItems(this.context,element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementItems(this.context, element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.users":
-            this.data = await drawManagementUserItems(this.context,element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserItems(this.context, element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user":
-            this.data = await drawManagementUserSubItems(this.context,element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserSubItems(this.context, element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.user.claims":
-            this.data = await drawManagementUserItemClaims(this.context,element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserItemClaims(
+              this.context,
+              element,
+              this.data,
+              "DevOpsCatalogHostProvider"
+            );
             return resolve(this.data);
           case "management.user.roles":
-            this.data = await drawManagementUserItemRoles(this.context,element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementUserItemRoles(
+              this.context,
+              element,
+              this.data,
+              "DevOpsCatalogHostProvider"
+            );
             return resolve(this.data);
           case "management.claims":
-            this.data = await drawManagementClaims(this.context,element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementClaims(this.context, element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.roles":
-            this.data = await drawManagementRoles(this.context,element, this.data, "DevOpsCatalogHostProvider");
+            this.data = await drawManagementRoles(this.context, element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           default:
             return resolve(this.data);

@@ -5,7 +5,6 @@ import {
   UserMessage
 } from '@vscode/prompt-tsx';
 
-import { PromptProps } from '../properties/promptProps';
 import { VmInfoPromptProps } from '../properties/vmInfoPromptProps';
 
 export class VmInfoIntensionPrompt extends PromptElement<VmInfoPromptProps, void> {

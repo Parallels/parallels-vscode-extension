@@ -3,18 +3,22 @@
     "**/node_modules",
     "**/typings"
   ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
 	"compilerOptions": {
 		"module": "Node16",
 		"target": "ES2022",
 		"lib": [
 			"ES2022"
 		],
+    "noImplicitAny": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
 		"sourceMap": true,
     "outDir": "./dist",
 		"rootDir": "src",
-    "outDir": "out",
     "jsx": "react",
 		"jsxFactory": "vscpp",
 		"jsxFragmentFactory": "vscppf",

@@ -1,5 +1,5 @@
 import {CatalogManifestItem} from "./catalogManifest";
-import { HostHardwareInfo } from "./hardwareInfo";
+import {HostHardwareInfo} from "./hardwareInfo";
 import {DevOpsRolesAndClaims} from "./rolesAndClaims";
 import {DevOpsUser} from "./users";
 

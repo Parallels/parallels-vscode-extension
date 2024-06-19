@@ -156,22 +156,27 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             this.data = await drawManagementItems(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.users":
-            this.data = await drawManagementUserItems(this.context,element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserItems(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.user":
-            this.data = await drawManagementUserSubItems(this.context,element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserSubItems(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.user.claims":
-            this.data = await drawManagementUserItemClaims(this.context,element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserItemClaims(
+              this.context,
+              element,
+              this.data,
+              "DevOpsRemoteHostProvider"
+            );
             return resolve(this.data);
           case "management.user.roles":
-            this.data = await drawManagementUserItemRoles(this.context,element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementUserItemRoles(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.claims":
-            this.data = await drawManagementClaims(this.context,element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementClaims(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.roles":
-            this.data = await drawManagementRoles(this.context,element, this.data, "DevOpsRemoteHostProvider");
+            this.data = await drawManagementRoles(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           default:
             return resolve(this.data);

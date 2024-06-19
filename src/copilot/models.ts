@@ -1,23 +1,23 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export interface ICatChatResult extends vscode.ChatResult {
   metadata: {
-      command: string;
-  }
+    command: string;
+  };
 }
 
 export interface CopilotUserIntension {
-  intension:       string;
-  operation:       string;
+  intension: string;
+  operation: string;
   operation_value: string;
-  target:          string;
+  target: string;
   VM: string;
   intension_description: string;
 }
 
 export interface CopilotOperation {
   operation: string;
-  state: 'success' | 'failed';
+  state: "success" | "failed";
 }
 
 export interface CreateCatalogMachine {

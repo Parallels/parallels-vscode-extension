@@ -47,7 +47,7 @@ export const FLAG_DEVOPS_REMOTE_HOST_PROVIDER_INITIALIZED = "devops-service.remo
 const COMMAND_PREFIX = "parallels-desktop";
 const TREE_VIEW_PREFIX = "tree-view";
 
-export const PARALLELS_CHAT_ID = 'parallels.chat';
+export const PARALLELS_CHAT_ID = "parallels.chat";
 
 export enum VM_TYPE {
   "win-311",

@@ -812,7 +812,9 @@ export class DevOpsService {
     });
   }
 
-  static async getRemoteHostHardwareInfo(provider: DevOpsCatalogHostProvider |DevOpsRemoteHostProvider): Promise<HostHardwareInfo | undefined> {
+  static async getRemoteHostHardwareInfo(
+    provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider
+  ): Promise<HostHardwareInfo | undefined> {
     return new Promise(async (resolve, reject) => {
       const url = await this.getHostUrl(provider).catch(err => {
         return reject(err);
