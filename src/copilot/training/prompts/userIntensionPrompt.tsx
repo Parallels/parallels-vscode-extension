@@ -140,6 +140,32 @@ export class UserIntensionPrompt extends PromptElement<PromptProps, void> {
           "intension_description": "Get the status of the remote host 'test remote host'"
           {"}"}
           ]
+          if the user asks for a vm info like disk size, ip address or any other info, the intension should be VM_INFO, the operation should be the operation and the operation_value should be the value of the operation and the target should be the vm name.
+          for example:
+          what is the disk size of the vm test
+          should generate the json object:
+          [
+          {"{"}
+          "intension": "VM_INFO",
+            
+          "operation": "disk size",
+          "operation_value": "",
+          "target": "test",
+          "intension_description": "Get the disk size of the vm 'test'"
+          {"}"}
+          ]
+          another example is:
+          what is the ip address of the vm test
+          should generate the json object:
+          [
+          {"{"}
+          "intension": "VM_INFO",
+          "operation": "ip_address",
+          "operation_value": "",
+          "target": "test",
+          "intension_description": "Get the ip address of the vm 'test'"
+          {"}"}
+          ]
 
           Your response should only be the json output, even if there is just one intension detected you should create an json array.
           The array is very important and you should not generate anything else, just the json output.

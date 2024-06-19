@@ -37,6 +37,7 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "provider.remote_host.virtual_machines"
       | "provider.remote_host.virtual_machines.virtual_machine"
       | "management"
+      | "management.info"
       | "management.users"
       | "management.user"
       | "management.user.roles"

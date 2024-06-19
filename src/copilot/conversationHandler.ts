@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { MODEL_SELECTOR } from './constants';
+import {  GPT_3_TURBO_MODEL_SELECTOR } from './constants';
 import { CommandsFlags } from '../constants/flags';
 import { processUserIntensions } from './training/processUserIntensions';
 import { CopilotOperation, ICatChatResult } from './models';
@@ -13,6 +13,7 @@ import { getChatHistory } from './helpers';
 import { catalogIntensionHandler } from './handlers/catalogIntensionHandler';
 import { orchestratorIntensionHandler } from './handlers/orchestartorIntensionHandler';
 import { remoteHostIntensionHandler } from './handlers/remoteHostIntensionHandler';
+import { vmInfoIntensionHandler } from './handlers/vmInfoIntensionHandler';
 
 // Define the parallels desktop conversation handler.
 export const conversationHandler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, context: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<ICatChatResult> => {
@@ -43,7 +44,7 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
           `),
       vscode.LanguageModelChatMessage.User(topic)
     ];
-    const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
+    const [model] = await vscode.lm.selectChatModels(GPT_3_TURBO_MODEL_SELECTOR);
     const chatResponse = await model.sendRequest(messages, {}, token);
     for await (const fragment of chatResponse.text) {
       stream.markdown(fragment);
@@ -61,14 +62,19 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
       vscode.LanguageModelChatMessage.User('You are a cat! Reply in the voice of a cat, using cat analogies when appropriate. Be concise to prepare for cat play time.'),
       vscode.LanguageModelChatMessage.User('Give a small random python code samples (that have cat names for variables). ' + request.prompt)
     ];
-    const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
+    const [model] = await vscode.lm.selectChatModels(GPT_3_TURBO_MODEL_SELECTOR);
     const chatResponse = await model.sendRequest(messages, {}, token);
     for await (const fragment of chatResponse.text) {
       stream.markdown(fragment);
     }
     return { metadata: { command: 'status' } };
   } else {
-    const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
+    const models = await vscode.lm.selectChatModels(GPT_3_TURBO_MODEL_SELECTOR);
+    if (models.length === 0) {
+      stream.markdown('There was an error getting the models, please reach out to the extension developer.');
+      return { metadata: { command: '' } };
+    }
+    const model = models[0];
     const intensions = await processUserIntensions(request.prompt, context, model, token);
     const intensionOperations: CopilotOperation[] = [];
     for (let i = 0; i < intensions.length; i++) {
@@ -99,7 +105,7 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
           return { metadata: { command: '' } };
         }
         case 'STATUS': {
-          if (!intensions[i].operation) {
+          if (!intensions[i].operation && (!intensions[i].VM && !intensions[i].operation_value && !intensions[i].target)) {
             stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
             return { metadata: { command: '' } };
           }
@@ -178,6 +184,16 @@ export const conversationHandler: vscode.ChatRequestHandler = async (request: vs
         case 'REMOTE_HOST_PROVIDER': {
           const response = await remoteHostIntensionHandler(intensions[i], context, stream, model, token);
           intensionOperations.push(response);
+          break;
+        }
+        case 'VM_INFO': {
+          const response = await vmInfoIntensionHandler(intensions[i], context, stream, model, token);
+          if (i < intensions.length - 1) {
+            stream.progress(response.operation);
+            intensionOperations.push(response);
+          } else {
+            intensionOperations.push(response);
+          }
           break;
         }
       }

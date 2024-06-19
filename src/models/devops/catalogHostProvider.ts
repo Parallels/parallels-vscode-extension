@@ -1,4 +1,5 @@
 import {CatalogManifestItem} from "./catalogManifest";
+import { HostHardwareInfo } from "./hardwareInfo";
 import {DevOpsRolesAndClaims} from "./rolesAndClaims";
 import {DevOpsUser} from "./users";
 
@@ -22,4 +23,5 @@ export interface DevOpsCatalogHostProvider {
   users?: DevOpsUser[];
   roles?: DevOpsRolesAndClaims[];
   claims?: DevOpsRolesAndClaims[];
+  hardwareInfo?: HostHardwareInfo;
 }

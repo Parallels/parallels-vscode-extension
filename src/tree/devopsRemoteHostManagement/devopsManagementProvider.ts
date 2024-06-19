@@ -18,6 +18,8 @@ export function drawManagementItems(
       let provider: DevOpsRemoteHostProvider | DevOpsCatalogHostProvider | undefined = undefined;
       if (className === "DevOpsRemoteHostProvider") {
         provider = config.findRemoteHostProviderById(elementId);
+        const t = provider as DevOpsRemoteHostProvider;
+        console.log(t);
       }
       if (className === "DevOpsCatalogHostProvider") {
         provider = config.findCatalogProviderByIOrName(elementId);
@@ -25,6 +27,23 @@ export function drawManagementItems(
       const usersLength = provider?.users?.length ?? 0;
       const claimsLength = provider?.claims?.length ?? 0;
       const rolesLength = provider?.roles?.length ?? 0;
+      if (provider?.hardwareInfo && provider?.hardwareInfo?.DevOpsVersion) {
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${elementId}%%management.info`,
+            elementId,
+            "Information",
+            "management.info",
+            "Information",
+            "",
+            className,
+            "devops.remote.management.info",
+            usersLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            "remote_hosts_management_users"
+          )
+        );
+      }
       data.push(
         new DevOpsTreeItem(
           context,

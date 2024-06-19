@@ -1,6 +1,10 @@
 export interface HostHardwareInfo {
   cpu_type: string;
   cpu_brand: string;
+  DevOpsVersion?: string
+  ParallelsDesktopVersion?: string
+  ParallelsDesktopLicensed?: boolean
+  SystemReserved: HostHardwareInfoTotal
   total: HostHardwareInfoTotal;
   total_available: HostHardwareInfoTotal;
   total_in_use: HostHardwareInfoTotal;

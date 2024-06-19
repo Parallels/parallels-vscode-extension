@@ -13,7 +13,9 @@
         "vscode": "^1.90.0"
     },
     "categories": [
-        "Testing"
+        "Testing",
+        "AI",
+        "Chat"
     ],
     "badges": [
         {
@@ -21,9 +23,6 @@
             "href": "https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml",
             "description": "Build Status"
         }
-    ],
-    "extensionDependencies": [
-        "github.copilot-chat"
     ],
     "preview": false,
     "keywords": [
@@ -35,12 +34,12 @@
         "docker"
     ],
     "homepage": "https://parallels.com",
+    "main": "./out/extension.js",
     "activationEvents": [
     ],
     "enabledApiProposals": [
         "chatVariableResolver"
     ],
-    "main": "./out/extension.js",
     "contributes": {
         "chatParticipants": [
             {
@@ -1648,6 +1647,7 @@
                     "id": "parallels-desktop-machines",
                     "name": "Virtual Machines",
                     "icon": "media/parallels_logo.svg",
+                    "type": "tree",
                     "when": "parallels-desktop:initialized == true && parallels-desktop:os === darwin",
                     "contextualTitle": "Parallels Desktop Virtual Machines"
                 },
@@ -1681,8 +1681,7 @@
                     "id": "parallels-desktop-help",
                     "name": "Helpful Links",
                     "icon": "media/parallels_logo.svg",
-                    "contextualTitle": "Helpful",
-                    "visibility": "collapsed"
+                    "contextualTitle": "Helpful Links"
                 }
             ]
         },
