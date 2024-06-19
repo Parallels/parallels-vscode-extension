@@ -48,7 +48,7 @@ const registerDevOpRemoveVirtualMachineCommand = (
             vscode.window.showErrorMessage(`Machine ${item.name} not found`);
             return;
           }
-          if (machine.State === 'invalid') {
+          if (machine.State === "invalid") {
             const ok = await DevOpsService.unregisterRemoteHostVm(provider, machineId).catch(reject => {
               vscode.window.showErrorMessage(`${reject}`);
               foundError = true;
@@ -60,7 +60,6 @@ const registerDevOpRemoveVirtualMachineCommand = (
               return;
             }
           } else {
-
             const ok = await DevOpsService.removeRemoteHostVm(provider, machineId).catch(reject => {
               vscode.window.showErrorMessage(`${reject}`);
               foundError = true;

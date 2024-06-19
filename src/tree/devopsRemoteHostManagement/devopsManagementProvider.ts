@@ -180,12 +180,16 @@ export function drawManagementInfoSubItems(
             "",
             className,
             "devops.remote.management.info.cpu",
-             vscode.TreeItemCollapsibleState.None,
+            vscode.TreeItemCollapsibleState.None,
             "remote_hosts_provider_orchestrator_resources_architecture"
           )
         );
       }
-      if (provider?.hardwareInfo && provider?.hardwareInfo?.cpu_type && provider?.hardwareInfo?.cpu_type !== 'unknown') {
+      if (
+        provider?.hardwareInfo &&
+        provider?.hardwareInfo?.cpu_type &&
+        provider?.hardwareInfo?.cpu_type !== "unknown"
+      ) {
         data.push(
           new DevOpsTreeItem(
             context,
@@ -197,7 +201,7 @@ export function drawManagementInfoSubItems(
             "",
             className,
             "devops.remote.management.info.architecture",
-             vscode.TreeItemCollapsibleState.None,
+            vscode.TreeItemCollapsibleState.None,
             "remote_hosts_provider_orchestrator_resources_architecture"
           )
         );
@@ -214,7 +218,7 @@ export function drawManagementInfoSubItems(
             "",
             className,
             "devops.remote.management.info.devops_version",
-             vscode.TreeItemCollapsibleState.None,
+            vscode.TreeItemCollapsibleState.None,
             "management_information_item"
           )
         );
@@ -237,7 +241,7 @@ export function drawManagementInfoSubItems(
             "",
             className,
             "devops.remote.management.info.devops_version",
-             vscode.TreeItemCollapsibleState.None,
+            vscode.TreeItemCollapsibleState.None,
             "management_information_item"
           )
         );

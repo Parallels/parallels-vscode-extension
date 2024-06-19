@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
-import { FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS } from "../../constants/flags";
-import { AllDevOpsRemoteCommands } from "../commands/AllCommands";
-import { DevOpsService } from "../../services/devopsService";
-import { Provider } from "../../ioc/provider";
-import { DevOpsTreeItem } from "../treeItems/devOpsTreeItem";
+import {FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS} from "../../constants/flags";
+import {AllDevOpsRemoteCommands} from "../commands/AllCommands";
+import {DevOpsService} from "../../services/devopsService";
+import {Provider} from "../../ioc/provider";
+import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
 import {
   drawManagementItems,
   drawManagementUserItems,
@@ -14,7 +14,7 @@ import {
   drawManagementRoles,
   drawManagementInfoSubItems
 } from "../devopsRemoteHostManagement/devopsManagementProvider";
-import { cleanString } from "../../helpers/strings";
+import {cleanString} from "../../helpers/strings";
 
 export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
@@ -565,11 +565,11 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const provider = config.findRemoteHostProviderById(elementId);
         if (provider) {
           const resource = provider.hardwareInfo ?? {
-            total: { logical_cpu_count: 0, memory_size: 0 },
-            total_available: { logical_cpu_count: 0, memory_size: 0 },
-            total_in_use: { logical_cpu_count: 0, memory_size: 0 },
-            total_reserved: { logical_cpu_count: 0, memory_size: 0 },
-            system_reserved: { logical_cpu_count: 0, memory_size: 0 }
+            total: {logical_cpu_count: 0, memory_size: 0},
+            total_available: {logical_cpu_count: 0, memory_size: 0},
+            total_in_use: {logical_cpu_count: 0, memory_size: 0},
+            total_reserved: {logical_cpu_count: 0, memory_size: 0},
+            system_reserved: {logical_cpu_count: 0, memory_size: 0}
           };
           let cpuTotal = 0;
           let memoryTotal = 0;
@@ -687,8 +687,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             } else if (virtualMachine.State === "paused" || virtualMachine.State === "suspended") {
               icon = `virtual_machine_paused`;
             }
-            const id = `${elementId}%%${virtualMachine.host_id ? virtualMachine.host_id : "local"}%%virtual_machines%%${virtualMachine.ID
-              }`;
+            const id = `${elementId}%%${virtualMachine.host_id ? virtualMachine.host_id : "local"}%%virtual_machines%%${
+              virtualMachine.ID
+            }`;
             this.data.push(
               new DevOpsTreeItem(
                 this.context,

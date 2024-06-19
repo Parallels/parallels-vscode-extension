@@ -1,35 +1,35 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
-import { jwtDecode } from "jwt-decode";
-import { CatalogPullRequest } from "./../models/devops/catalogPullRequest";
-import { config } from "./../ioc/provider";
-import { AuthorizationRequest, AuthorizationToken } from "./../models/devops/authorization";
-import { spawn } from "child_process";
-import { Provider } from "../ioc/provider";
-import { LogService } from "./logService";
-import { CommandsFlags, FLAG_DEVOPS_PATH, FLAG_DEVOPS_VERSION } from "../constants/flags";
-import { DevOpsCatalogHostProvider } from "../models/devops/catalogHostProvider";
+import {jwtDecode} from "jwt-decode";
+import {CatalogPullRequest} from "./../models/devops/catalogPullRequest";
+import {config} from "./../ioc/provider";
+import {AuthorizationRequest, AuthorizationToken} from "./../models/devops/authorization";
+import {spawn} from "child_process";
+import {Provider} from "../ioc/provider";
+import {LogService} from "./logService";
+import {CommandsFlags, FLAG_DEVOPS_PATH, FLAG_DEVOPS_VERSION} from "../constants/flags";
+import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
 import axios from "axios";
-import { AuthorizationResponse } from "../models/devops/authorization";
-import { CatalogManifestItem } from "../models/devops/catalogManifest";
-import { diffArray, hasPassed24Hours } from "../helpers/diff";
-import { DevOpsRemoteHostProvider } from "../models/devops/remoteHostProvider";
-import { VirtualMachine } from "../models/parallels/virtualMachine";
-import { DevOpsRemoteHostResource } from "../models/devops/remoteHostResource";
-import { DevOpsRemoteHost } from "../models/devops/remoteHost";
-import { cleanString } from "../helpers/strings";
-import { DevOpsVirtualMachineConfigureRequest } from "../models/devops/virtualMachineConfigureRequest";
-import { CatalogPushRequest } from "../models/devops/catalogPushRequest";
-import { AddOrchestratorHostRequest } from "../models/devops/addOrchestratorHostRequest";
-import { DevOpsCreateUserRequest, DevOpsUpdateUserRequest, DevOpsUser } from "../models/devops/users";
+import {AuthorizationResponse} from "../models/devops/authorization";
+import {CatalogManifestItem} from "../models/devops/catalogManifest";
+import {diffArray, hasPassed24Hours} from "../helpers/diff";
+import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
+import {VirtualMachine} from "../models/parallels/virtualMachine";
+import {DevOpsRemoteHostResource} from "../models/devops/remoteHostResource";
+import {DevOpsRemoteHost} from "../models/devops/remoteHost";
+import {cleanString} from "../helpers/strings";
+import {DevOpsVirtualMachineConfigureRequest} from "../models/devops/virtualMachineConfigureRequest";
+import {CatalogPushRequest} from "../models/devops/catalogPushRequest";
+import {AddOrchestratorHostRequest} from "../models/devops/addOrchestratorHostRequest";
+import {DevOpsCreateUserRequest, DevOpsUpdateUserRequest, DevOpsUser} from "../models/devops/users";
 import {
   DevOpsCatalogRolesAndClaimsCreateRequest,
   DevOpsRolesAndClaims,
   DevOpsRolesAndClaimsCreateRequest
 } from "../models/devops/rolesAndClaims";
-import { HostHardwareInfo } from "../models/devops/hardwareInfo";
-import { CreateCatalogMachine } from "../models/devops/createCatalogMachine";
-import { UpdateOrchestratorHostRequest } from "../models/devops/updateOrchestratorHostRequest";
+import {HostHardwareInfo} from "../models/devops/hardwareInfo";
+import {CreateCatalogMachine} from "../models/devops/createCatalogMachine";
+import {UpdateOrchestratorHostRequest} from "../models/devops/updateOrchestratorHostRequest";
 
 const refreshThreshold = 5000;
 const hardwareRefreshThreshold = 10;
@@ -160,7 +160,7 @@ export class DevOpsService {
           cancellable: false
         },
         async (progress, token) => {
-          progress.report({ message: "Installing Parallels DevOps..." });
+          progress.report({message: "Installing Parallels DevOps..."});
           const result = await new Promise(async (resolve, reject) => {
             const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing DevOps Service`);
             terminal.sendText(
@@ -175,16 +175,16 @@ export class DevOpsService {
                     true,
                     false
                   );
-                  progress.report({ message: "Failed to install Parallels DevOps service, see logs for more details" });
+                  progress.report({message: "Failed to install Parallels DevOps service, see logs for more details"});
                   return resolve(false);
                 }
                 const config = Provider.getConfiguration();
                 const ok = await config.initDevOpsService();
                 if (!ok) {
-                  progress.report({ message: "Failed to install Parallels DevOps service, see logs for more details" });
+                  progress.report({message: "Failed to install Parallels DevOps service, see logs for more details"});
                   return resolve(false);
                 } else {
-                  progress.report({ message: "Parallels DevOps installed successfully" });
+                  progress.report({message: "Parallels DevOps installed successfully"});
                   return resolve(true);
                 }
               }
@@ -192,11 +192,11 @@ export class DevOpsService {
           });
 
           if (!result) {
-            progress.report({ message: "Failed to install Parallels DevOps, see logs for more details" });
+            progress.report({message: "Failed to install Parallels DevOps, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Parallels DevOps, see logs for more details");
             return resolve(false);
           } else {
-            progress.report({ message: "Parallels DevOps installed successfully" });
+            progress.report({message: "Parallels DevOps installed successfully"});
             vscode.window.showInformationMessage("Parallels DevOps installed successfully");
             return resolve(true);
           }
@@ -300,7 +300,10 @@ export class DevOpsService {
         continue;
       }
 
-      if (!provider.hardwareInfo || hasPassed24Hours(provider.lastUpdatedHardwareInfo ?? "", hardwareRefreshThreshold)) {
+      if (
+        !provider.hardwareInfo ||
+        hasPassed24Hours(provider.lastUpdatedHardwareInfo ?? "", hardwareRefreshThreshold)
+      ) {
         this.getRemoteHostHardwareInfo(provider)
           .then(hardwareInfo => {
             provider.hardwareInfo = hardwareInfo;
@@ -445,7 +448,10 @@ export class DevOpsService {
 
       let hasUpdate = false;
 
-      if (!provider.hardwareInfo || hasPassed24Hours(provider.lastUpdatedHardwareInfo ?? "", hardwareRefreshThreshold)) {
+      if (
+        !provider.hardwareInfo ||
+        hasPassed24Hours(provider.lastUpdatedHardwareInfo ?? "", hardwareRefreshThreshold)
+      ) {
         this.getRemoteHostHardwareInfo(provider)
           .then(hardwareInfo => {
             provider.hardwareInfo = hardwareInfo;
@@ -1770,27 +1776,30 @@ export class DevOpsService {
       const request = {
         id: virtualMachineId,
         clean_source_uuid: true
-      }
+      };
 
       let path = `${url}/api/v1/machines/${virtualMachineId}/unregister`;
       if (provider.type === "orchestrator") {
-        const vm = provider.virtualMachines.find(vm => vm.ID.toLowerCase() === virtualMachineId.toLowerCase() || vm.Name.toLowerCase() === virtualMachineId.toLowerCase());
+        const vm = provider.virtualMachines.find(
+          vm =>
+            vm.ID.toLowerCase() === virtualMachineId.toLowerCase() ||
+            vm.Name.toLowerCase() === virtualMachineId.toLowerCase()
+        );
         if (!vm) {
           return reject("Virtual machine not found");
         }
-        
+
         path = `${url}/api/v1/orchestrator/hosts/${vm.host_id}/machines/${virtualMachineId}/unregister`;
       }
 
       let error: any;
       const response = await axios
-        .post(`${path}`, request,
-          {
-            headers: {
-              Authorization: `Bearer ${auth?.token}`
-            },
-            timeout: 600000
-          })
+        .post(`${path}`, request, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`
+          },
+          timeout: 600000
+        })
         .catch(err => {
           error = err;
           return reject(err);
