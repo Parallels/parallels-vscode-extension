@@ -12,7 +12,8 @@ import {
   drawManagementUserItemClaims,
   drawManagementUserItemRoles,
   drawManagementClaims,
-  drawManagementRoles
+  drawManagementRoles,
+  drawManagementInfoSubItems
 } from "../devopsRemoteHostManagement/devopsManagementProvider";
 import {cleanString} from "../../helpers/strings";
 
@@ -65,6 +66,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         const config = Provider.getConfiguration();
         const providers = config.allCatalogProviders;
         for (const provider of providers) {
+          const isSuperUser = provider?.user?.isSuperUser ?? false;
           const id = `${cleanString(provider.name).toLowerCase()}%%${provider.ID}`;
           let icon = "catalog_provider";
           switch (provider.state) {
@@ -86,7 +88,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
               provider.rawHost,
               "DevOpsCatalogHostProvider",
               "devops.catalog.provider",
-              provider.manifests.length === 0
+              provider.manifests.length === 0 && !isSuperUser
                 ? vscode.TreeItemCollapsibleState.None
                 : vscode.TreeItemCollapsibleState.Collapsed,
               icon,
@@ -138,6 +140,9 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
 
           case "management":
             this.data = await drawManagementItems(this.context, element, this.data, "DevOpsCatalogHostProvider");
+            return resolve(this.data);
+          case "management.info":
+            this.data = await drawManagementInfoSubItems(this.context, element, this.data, "DevOpsCatalogHostProvider");
             return resolve(this.data);
           case "management.users":
             this.data = await drawManagementUserItems(this.context, element, this.data, "DevOpsCatalogHostProvider");

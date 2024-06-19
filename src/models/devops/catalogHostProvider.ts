@@ -24,4 +24,5 @@ export interface DevOpsCatalogHostProvider {
   roles?: DevOpsRolesAndClaims[];
   claims?: DevOpsRolesAndClaims[];
   hardwareInfo?: HostHardwareInfo;
+  lastUpdatedHardwareInfo?: string;
 }

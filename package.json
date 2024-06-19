@@ -554,7 +554,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-catalog-provider",
-                "title": "Parallels DevOps: Add Catalog Host Provider",
+                "title": "Add Catalog Host Provider",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -562,7 +562,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.refresh-catalog-provider",
-                "title": "Parallels DevOps: Refresh Catalog Provider",
+                "title": "Refresh Catalog Provider",
                 "icon": {
                     "light": "img/light/refresh.svg",
                     "dark": "img/dark/refresh.svg"
@@ -626,7 +626,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-claim-to-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Add Claim to Manifest Version",
+                "title": "Add Claim to Manifest Version",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -634,7 +634,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-claim-from-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Remove Claim from Manifest Version",
+                "title": "Remove Claim from Manifest Version",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -642,7 +642,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-tag-to-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Add Tag to Manifest Version",
+                "title": "Add Tag to Manifest Version",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -650,7 +650,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-tag-from-catalog-provider-manifest-version",
-                "title": "Parallels DevOps: Remove Tag from Manifest Version",
+                "title": "Remove Tag from Manifest Version",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -658,7 +658,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.add-remote-host-provider",
-                "title": "Parallels DevOps: Add Remote Host Provider",
+                "title": "Add Remote Host Provider",
                 "icon": {
                     "light": "img/light/plus.svg",
                     "dark": "img/dark/plus.svg"
@@ -666,7 +666,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.refresh-remote-host-provider",
-                "title": "Parallels DevOps: Refresh Remote Hosts Provider",
+                "title": "Refresh Remote Hosts Provider",
                 "icon": {
                     "light": "img/light/refresh.svg",
                     "dark": "img/dark/refresh.svg"
@@ -674,7 +674,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.force-refresh-remote-host-provider",
-                "title": "Parallels DevOps: Refresh Remote Hosts Provider",
+                "title": "Refresh Remote Hosts Provider",
                 "icon": {
                     "light": "img/light/refresh.svg",
                     "dark": "img/dark/refresh.svg"
@@ -682,7 +682,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.enable-remote-host-provider-host",
-                "title": "Parallels DevOps: Enable Remote Host Provider",
+                "title": "Enable Remote Host Provider",
                 "icon": {
                     "light": "img/light/resume.svg",
                     "dark": "img/dark/resume.svg"
@@ -690,7 +690,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.disable-remote-host-provider-host",
-                "title": "Parallels DevOps: Disable Remote Host Provider",
+                "title": "Disable Remote Host Provider",
                 "icon": {
                     "light": "img/light/pause.svg",
                     "dark": "img/dark/pause.svg"
@@ -698,7 +698,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.pull-catalog-provider-manifest",
-                "title": "Parallels DevOps: Pull Catalog Manifest",
+                "title": "Pull Catalog Manifest",
                 "icon": {
                     "light": "img/light/catalog_manifest_pull.svg",
                     "dark": "img/dark/catalog_manifest_pull.svg"
@@ -706,7 +706,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.push-catalog-provider-manifest",
-                "title": "Parallels DevOps: Push Catalog Manifest",
+                "title": "Push Catalog Manifest",
                 "icon": {
                     "light": "img/light/catalog_manifest_push.svg",
                     "dark": "img/dark/catalog_manifest_push.svg"
@@ -714,7 +714,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-remote-host-provider",
-                "title": "Parallels DevOps: Remove Remote Host Provider",
+                "title": "Remove Remote Host Provider",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -738,7 +738,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.remove-remote-provider-orchestrator-host",
-                "title": "Parallels DevOps: Add Orchestrator Host",
+                "title": "Add Orchestrator Host",
                 "icon": {
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
@@ -763,7 +763,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.resume-remote-host-provider-host-vm",
-                "title": "Parallels: Resume VM",
+                "title": "Resume VM",
                 "shortTitle": "Resume VM",
                 "icon": {
                     "light": "img/light/resume.svg",
@@ -772,7 +772,7 @@
             },
             {
                 "command": "parallels-desktop.devops-service.pause-remote-host-provider-host-vm",
-                "title": "Parallels: Pause VM",
+                "title": "Pause VM",
                 "shortTitle": "Pause VM",
                 "icon": {
                     "light": "img/light/pause.svg",
@@ -1565,7 +1565,7 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-remote-host-provider-host-vm",
-                    "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.(host|orchestrator)\\.virtual_machine\\.(stopped|suspended|paused)/",
+                    "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.(host|orchestrator)\\.virtual_machine\\.(stopped|suspended|paused|invalid)/",
                     "group": "inline@2"
                 },
                 {

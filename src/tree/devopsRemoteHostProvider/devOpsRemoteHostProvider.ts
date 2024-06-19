@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
-import {FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS} from "../../constants/flags";
-import {AllDevOpsRemoteCommands} from "../commands/AllCommands";
-import {DevOpsService} from "../../services/devopsService";
-import {Provider} from "../../ioc/provider";
-import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
+import { FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS } from "../../constants/flags";
+import { AllDevOpsRemoteCommands } from "../commands/AllCommands";
+import { DevOpsService } from "../../services/devopsService";
+import { Provider } from "../../ioc/provider";
+import { DevOpsTreeItem } from "../treeItems/devOpsTreeItem";
 import {
   drawManagementItems,
   drawManagementUserItems,
@@ -11,9 +11,10 @@ import {
   drawManagementUserItemClaims,
   drawManagementUserItemRoles,
   drawManagementClaims,
-  drawManagementRoles
+  drawManagementRoles,
+  drawManagementInfoSubItems
 } from "../devopsRemoteHostManagement/devopsManagementProvider";
-import {cleanString} from "../../helpers/strings";
+import { cleanString } from "../../helpers/strings";
 
 export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
@@ -64,6 +65,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const config = Provider.getConfiguration();
         const providers = config.allRemoteHostProviders;
         for (const provider of providers) {
+          const isSuperUser = provider?.user?.isSuperUser ?? false;
           const id = `${cleanString(provider.name).toLowerCase()}%%${provider.ID}`;
           let icon =
             provider.type === "orchestrator" ? "remote_hosts_provider_orchestrator" : "remote_hosts_provider_host";
@@ -76,7 +78,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               break;
           }
           let collapsible =
-            provider.virtualMachines.length === 0
+            provider.virtualMachines.length === 0 && !isSuperUser
               ? vscode.TreeItemCollapsibleState.None
               : vscode.TreeItemCollapsibleState.Collapsed;
           if (provider.type === "orchestrator") {
@@ -134,6 +136,11 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               resolve(this.data);
             });
             break;
+          case "provider.remote_host.host.resources":
+            this.drawHostResourcesSubItems(element).then(() => {
+              resolve(this.data);
+            });
+            break;
           case "provider.remote_host.orchestrator.resources":
             this.drawOrchestratorResourceArchitectureItem(element).then(() => {
               resolve(this.data);
@@ -148,12 +155,24 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
           case "provider.remote_host.orchestrator.resources.architecture.available":
           case "provider.remote_host.orchestrator.resources.architecture.used":
           case "provider.remote_host.orchestrator.resources.architecture.reserved":
-            this.drawOrchestratorResourceArchitectureTotalResourcesItems(element).then(() => {
+            this.drawResourceArchitectureTotalResourcesItems(element).then(() => {
+              resolve(this.data);
+            });
+            break;
+          case "provider.remote_host.host.resources.architecture.system_reserved":
+          case "provider.remote_host.host.resources.architecture.total":
+          case "provider.remote_host.host.resources.architecture.available":
+          case "provider.remote_host.host.resources.architecture.used":
+          case "provider.remote_host.host.resources.architecture.reserved":
+            this.drawHostResourceTotalResourcesItems(element).then(() => {
               resolve(this.data);
             });
             break;
           case "management":
             this.data = await drawManagementItems(this.context, element, this.data, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
+          case "management.info":
+            this.data = await drawManagementInfoSubItems(this.context, element, this.data, "DevOpsRemoteHostProvider");
             return resolve(this.data);
           case "management.users":
             this.data = await drawManagementUserItems(this.context, element, this.data, "DevOpsRemoteHostProvider");
@@ -378,7 +397,99 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
     });
   }
 
-  drawOrchestratorResourceArchitectureTotalResourcesItems(element: DevOpsTreeItem): Thenable<DevOpsTreeItem[]> {
+  drawHostResourcesSubItems(element: DevOpsTreeItem): Thenable<DevOpsTreeItem[]> {
+    return new Promise(async (resolve, reject) => {
+      this.data = [];
+      if (element && element.type === "provider.remote_host.host.resources") {
+        const config = Provider.getConfiguration();
+        const elementId = element.id.split("%%")[0];
+        const provider = config.findRemoteHostProviderById(elementId);
+        if (provider) {
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${element.id}%%resources_total`,
+              elementId,
+              "Total",
+              "provider.remote_host.host.resources.architecture.total",
+              "Total Resources",
+              "",
+              "DevOpsRemoteHostProvider",
+              "devops.remote.host.resources.total",
+              vscode.TreeItemCollapsibleState.Collapsed,
+              "remote_hosts_provider_orchestrator_resources"
+            )
+          );
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${element.id}%%resources_available`,
+              elementId,
+              "Available",
+              "provider.remote_host.host.resources.architecture.available",
+              "Total Available Resources",
+              "",
+              "DevOpsRemoteHostProvider",
+              "devops.remote.host.resources.total_available",
+              vscode.TreeItemCollapsibleState.Collapsed,
+              "remote_hosts_provider_orchestrator_resources"
+            )
+          );
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${element.id}%%resources_used`,
+              elementId,
+              "Used",
+              "provider.remote_host.host.resources.architecture.used",
+              "Total Used Resources",
+              "",
+              "DevOpsRemoteHostProvider",
+              "devops.remote.host.resources.total_used",
+              vscode.TreeItemCollapsibleState.Collapsed,
+              "remote_hosts_provider_orchestrator_resources"
+            )
+          );
+          if (provider.hardwareInfo && provider.hardwareInfo.system_reserved) {
+            this.data.push(
+              new DevOpsTreeItem(
+                this.context,
+                `${element.id}%%resources_system_reserved`,
+                elementId,
+                "Reserved for System",
+                "provider.remote_host.host.resources.architecture.system_reserved",
+                "Reserved for System",
+                "",
+                "DevOpsRemoteHostProvider",
+                "devops.remote.host.resources.system_reserved",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                "remote_hosts_provider_orchestrator_resources"
+              )
+            );
+          }
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${element.id}%%resources_reserved`,
+              elementId,
+              "Reserved",
+              "provider.remote_host.host.resources.architecture.reserved",
+              "Total Reserved Resources",
+              "",
+              "DevOpsRemoteHostProvider",
+              "devops.remote.host.resources.total_reserved",
+              vscode.TreeItemCollapsibleState.Collapsed,
+              "remote_hosts_provider_orchestrator_resources"
+            )
+          );
+        }
+      }
+
+      return resolve(this.data);
+    });
+  }
+
+  drawResourceArchitectureTotalResourcesItems(element: DevOpsTreeItem): Thenable<DevOpsTreeItem[]> {
     return new Promise(async (resolve, reject) => {
       this.data = [];
       if (element) {
@@ -394,16 +505,16 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
 
             let cpuTotal = 0;
             let memoryTotal = 0;
-            if (element.type === "provider.remote_host.orchestrator.resources.architecture.total") {
+            if (element.type === `provider.remote_host.orchestrator.resources.architecture.total`) {
               cpuTotal = resource["total"].logical_cpu_count ?? 0;
               memoryTotal = resource["total"].memory_size ?? 0;
-            } else if (element.type === "provider.remote_host.orchestrator.resources.architecture.available") {
+            } else if (element.type === `provider.remote_host.orchestrator.resources.architecture.available`) {
               cpuTotal = resource["total_available"].logical_cpu_count ?? 0;
               memoryTotal = resource["total_available"].memory_size ?? 0;
-            } else if (element.type === "provider.remote_host.orchestrator.resources.architecture.used") {
+            } else if (element.type === `provider.remote_host.orchestrator.resources.architecture.used`) {
               cpuTotal = resource["total_in_use"].logical_cpu_count ?? 0;
               memoryTotal = resource["total_in_use"].memory_size ?? 0;
-            } else if (element.type === "provider.remote_host.orchestrator.resources.architecture.reserved") {
+            } else if (element.type === `provider.remote_host.orchestrator.resources.architecture.reserved`) {
               cpuTotal = resource["total_reserved"].logical_cpu_count ?? 0;
               memoryTotal = resource["total_reserved"].memory_size ?? 0;
             }
@@ -417,7 +528,7 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
                 `CPU: ${cpuTotal} Cores`,
                 "",
                 "DevOpsRemoteHostProvider",
-                "devops.remote.orchestrator.resources.architecture.total",
+                `provider.remote_host.orchestrator.resources.architecture.total`,
                 vscode.TreeItemCollapsibleState.None,
                 "remote_hosts_provider_orchestrator_resources_cpu"
               )
@@ -432,12 +543,82 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
                 `Memory: ${memoryTotal} Mb`,
                 "",
                 "DevOpsRemoteHostProvider",
-                "devops.remote.orchestrator.resources.architecture.total",
+                `provider.remote_host.orchestrator.resources.architecture.total`,
                 vscode.TreeItemCollapsibleState.None,
                 "remote_hosts_provider_orchestrator_resources_memory"
               )
             );
           }
+        }
+      }
+
+      return resolve(this.data);
+    });
+  }
+
+  drawHostResourceTotalResourcesItems(element: DevOpsTreeItem): Thenable<DevOpsTreeItem[]> {
+    return new Promise(async (resolve, reject) => {
+      this.data = [];
+      if (element) {
+        const config = Provider.getConfiguration();
+        const elementId = element.id.split("%%")[0];
+        const provider = config.findRemoteHostProviderById(elementId);
+        if (provider) {
+          const resource = provider.hardwareInfo ?? {
+            total: { logical_cpu_count: 0, memory_size: 0 },
+            total_available: { logical_cpu_count: 0, memory_size: 0 },
+            total_in_use: { logical_cpu_count: 0, memory_size: 0 },
+            total_reserved: { logical_cpu_count: 0, memory_size: 0 },
+            system_reserved: { logical_cpu_count: 0, memory_size: 0 }
+          };
+          let cpuTotal = 0;
+          let memoryTotal = 0;
+          if (element.type === `provider.remote_host.host.resources.architecture.system_reserved`) {
+            cpuTotal = resource["system_reserved"].logical_cpu_count ?? 0;
+            memoryTotal = resource["system_reserved"].memory_size ?? 0;
+          } else if (element.type === `provider.remote_host.host.resources.architecture.total`) {
+            cpuTotal = resource["total"].logical_cpu_count ?? 0;
+            memoryTotal = resource["total"].memory_size ?? 0;
+          } else if (element.type === `provider.remote_host.host.resources.architecture.available`) {
+            cpuTotal = resource["total_available"].logical_cpu_count ?? 0;
+            memoryTotal = resource["total_available"].memory_size ?? 0;
+          } else if (element.type === `provider.remote_host.host.resources.architecture.used`) {
+            cpuTotal = resource["total_in_use"].logical_cpu_count ?? 0;
+            memoryTotal = resource["total_in_use"].memory_size ?? 0;
+          } else if (element.type === `provider.remote_host.host.resources.architecture.reserved`) {
+            cpuTotal = resource["total_reserved"].logical_cpu_count ?? 0;
+            memoryTotal = resource["total_reserved"].memory_size ?? 0;
+          }
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${element.id}%%cpu`,
+              elementId,
+              `CPU: ${cpuTotal} Cores`,
+              element.type,
+              `CPU: ${cpuTotal} Cores`,
+              "",
+              "DevOpsRemoteHostProvider",
+              `provider.remote_host.host.resources.architecture.total`,
+              vscode.TreeItemCollapsibleState.None,
+              "remote_hosts_provider_orchestrator_resources_cpu"
+            )
+          );
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${element.id}%%memory`,
+              elementId,
+              `Memory: ${memoryTotal} Mb`,
+              element.type,
+              `Memory: ${memoryTotal} Mb`,
+              "",
+              "DevOpsRemoteHostProvider",
+              `provider.remote_host.host.resources.architecture.total`,
+              vscode.TreeItemCollapsibleState.None,
+              "remote_hosts_provider_orchestrator_resources_memory"
+            )
+          );
         }
       }
 
@@ -506,9 +687,8 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
             } else if (virtualMachine.State === "paused" || virtualMachine.State === "suspended") {
               icon = `virtual_machine_paused`;
             }
-            const id = `${elementId}%%${virtualMachine.host_id ? virtualMachine.host_id : "local"}%%virtual_machines%%${
-              virtualMachine.ID
-            }`;
+            const id = `${elementId}%%${virtualMachine.host_id ? virtualMachine.host_id : "local"}%%virtual_machines%%${virtualMachine.ID
+              }`;
             this.data.push(
               new DevOpsTreeItem(
                 this.context,
@@ -542,23 +722,6 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         const provider = Provider.getConfiguration().findRemoteHostProviderById(elementId);
         const virtualMachinesLength = provider?.virtualMachines?.length ?? 0;
         const isSuperUser = provider?.user?.isSuperUser ?? false;
-        if (provider?.hardwareInfo) {
-          this.data.push(
-            new DevOpsTreeItem(
-              this.context,
-              `${elementId}%%hardware`,
-              elementId,
-              provider.hardwareInfo.cpu_brand,
-              "provider.remote_host.host.hardware",
-              `Hardware: ${provider.hardwareInfo.cpu_brand} | ${provider.hardwareInfo.cpu_type}`,
-              "",
-              "DevOpsRemoteHostProvider",
-              "devops.remote.hardware",
-              vscode.TreeItemCollapsibleState.None,
-              "remote_hosts_provider_orchestrator_resources_architecture"
-            )
-          );
-        }
         if (isSuperUser) {
           this.data.push(
             new DevOpsTreeItem(
@@ -573,6 +736,23 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               "devops.remote.management",
               vscode.TreeItemCollapsibleState.Collapsed,
               "remote_hosts_management"
+            )
+          );
+        }
+        if (provider?.hardwareInfo && provider.hardwareInfo.total) {
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${elementId}%%resources`,
+              elementId,
+              "Resources",
+              "provider.remote_host.host.resources",
+              "Resources",
+              "",
+              "DevOpsRemoteHostProvider",
+              "devops.remote.host.resources",
+              vscode.TreeItemCollapsibleState.Collapsed,
+              "remote_hosts_provider_orchestrator_resources"
             )
           );
         }
