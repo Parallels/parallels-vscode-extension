@@ -192,12 +192,12 @@ export class ConfigurationService {
         HelperService.getHardwareInfo().then(info => {
           this.hardwareInfo = info;
         }).catch(() => {
-          LogService.warning(`Erorr loading HardwareInfo`, "ConfigurationService", true);
+          LogService.warning(`Error loading HardwareInfo`, "ConfigurationService", true);
         }),
         HelperService.getLocale().then(locale => {
           this.locale = locale.replace(/"/g, "").trim();
         }).catch(() => {
-          LogService.warning(`Erorr loading locale, defaulting to en_US`, "ConfigurationService", true);
+          LogService.warning(`Error loading locale, defaulting to en_US`, "ConfigurationService", true);
           this.locale = 'en_US';
         })
       );
