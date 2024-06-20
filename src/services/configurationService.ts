@@ -191,9 +191,14 @@ export class ConfigurationService {
         this.loadDockerRunItems(),
         HelperService.getHardwareInfo().then(info => {
           this.hardwareInfo = info;
+        }).catch(() => {
+          LogService.warning(`Erorr loading HardwareInfo`, "ConfigurationService", true);
         }),
         HelperService.getLocale().then(locale => {
           this.locale = locale.replace(/"/g, "").trim();
+        }).catch(() => {
+          LogService.warning(`Erorr loading locale, defaulting to en_US`, "ConfigurationService", true);
+          this.locale = 'en_US';
         })
       );
     }
