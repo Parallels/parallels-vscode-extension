@@ -8,8 +8,8 @@ This extension allows you to manage a wide range of operations for your Parallel
 > 
 ## Community
 
-[![Discord Server](./img/discord_join_server.png)](https://discord.gg/n5XVf3Wr6G)  
-Join our [Discord server](https://discord.gg/n5XVf3Wr6G) to ask questions, share
+[![Discord Server](./img/discord_join_server.png)](https://discord.gg/n5XVf3Wr6G){:target="_blank"}
+Join our [Discord server](https://discord.gg/n5XVf3Wr6G){:target="_blank"} to ask questions, share
 your experience, and get help from the community.
 
 ## Features
