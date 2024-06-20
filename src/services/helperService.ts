@@ -145,11 +145,7 @@ export class HelperService {
       });
       cmd.on("close", code => {
         if (code !== 0) {
-          LogService.error(
-            `reading defaults exited with code ${code}, could not retrieve AppleLanguages`,
-            "CoreService",
-            true
-          );
+          LogService.error(`reading defaults exited with code ${code}, could not retrieve AppleLanguages`, "CoreService", true);
           LogService.warning(`Defaulting to en_US`, "CoreService", true);
           return resolve("en_US");
         }
