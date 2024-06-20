@@ -5,7 +5,8 @@
 This extension allows you to manage a wide range of operations for your Parallels Desktop virtual machines, creating, grouping, operating their snapshots and containers. It is integrated with HashiCorp Vagrant and Packer to automate your workflows.
 
 > **Attention** For some of the functionalities to work, you need to have Parallels Desktop Pro or Business Edition installed on your Mac.
-> 
+>
+
 ## Community
 
 [![Discord Server](./img/discord_join_server.png)](https://discord.gg/n5XVf3Wr6G){:target="_blank"}
