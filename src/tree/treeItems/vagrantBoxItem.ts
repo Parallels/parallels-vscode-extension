@@ -6,6 +6,7 @@ export class VagrantBoxTreeItem extends vscode.TreeItem {
   status: string;
 
   constructor(
+    public extensionContext: vscode.ExtensionContext,
     public type: "Group" | "Box",
     public group: string | undefined,
     public id: string,
@@ -20,8 +21,8 @@ export class VagrantBoxTreeItem extends vscode.TreeItem {
     super(label, collapsibleState);
     this.name = name;
     this.iconPath = {
-      light: path.join(__filename, "..", "..", "img", "light", `${iconName}.svg`),
-      dark: path.join(__filename, "..", "..", "img", "dark", `${iconName}.svg`)
+      light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
+      dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
     };
     this.label = label;
     this.status = version;

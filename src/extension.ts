@@ -19,7 +19,7 @@ import {DevOpsCatalogProvider} from "./tree/devopsCatalogProvider/devopsCatalogP
 import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsService} from "./services/devopsService";
 import {AllDevopsRemoteProviderManagementCommands} from "./tree/commands/AllCommands";
-import {getUserProfileFolder} from "./helpers/helpers";
+import {initializeCopilot} from "./copilotInitialization";
 
 let autoRefreshInterval: NodeJS.Timeout | undefined;
 
@@ -95,6 +95,10 @@ export async function activate(context: vscode.ExtensionContext) {
   if (config.isDebugEnabled) {
     LogService.info("Debug mode is enabled", "CoreService");
   }
+
+  // initializeCopilot(context);
+  console.log("Initializing Copilot");
+  initializeCopilot(context);
 
   vscode.commands.executeCommand("setContext", FLAG_PARALLELS_EXTENSION_INITIALIZED, true);
   vscode.commands.executeCommand("setContext", FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED, true);

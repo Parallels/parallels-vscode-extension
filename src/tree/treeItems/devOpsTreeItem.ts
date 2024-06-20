@@ -5,6 +5,7 @@ import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider
 
 export class DevOpsTreeItem extends vscode.TreeItem {
   constructor(
+    public extensionContext: vscode.ExtensionContext,
     public id: string,
     public parentId: string,
     public name: string,
@@ -25,8 +26,15 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "provider.remote_host.host"
       | "provider.remote_host"
       | "provider.remote_host.host.hardware"
+      | "provider.remote_host.host.resources"
+      | "provider.remote_host.host.resources.architecture.system_reserved"
+      | "provider.remote_host.host.resources.architecture.total"
+      | "provider.remote_host.host.resources.architecture.used"
+      | "provider.remote_host.host.resources.architecture.available"
+      | "provider.remote_host.host.resources.architecture.reserved"
       | "provider.remote_host.orchestrator.resources"
       | "provider.remote_host.orchestrator.resources.architecture"
+      | "provider.remote_host.orchestrator.resources.architecture.system_reserved"
       | "provider.remote_host.orchestrator.resources.architecture.total"
       | "provider.remote_host.orchestrator.resources.architecture.used"
       | "provider.remote_host.orchestrator.resources.architecture.available"
@@ -36,6 +44,12 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "provider.remote_host.virtual_machines"
       | "provider.remote_host.virtual_machines.virtual_machine"
       | "management"
+      | "management.info"
+      | "management.info.devops_version"
+      | "management.info.architecture"
+      | "management.info.cpu"
+      | "management.info.parallels_desktop_version"
+      | "management.info.parallels_desktop_licensed"
       | "management.users"
       | "management.user"
       | "management.user.roles"
@@ -60,8 +74,8 @@ export class DevOpsTreeItem extends vscode.TreeItem {
     this.name = name;
     this.type = type;
     this.iconPath = {
-      light: path.join(__filename, "..", "..", "img", "light", `${iconName}.svg`),
-      dark: path.join(__filename, "..", "..", "img", "dark", `${iconName}.svg`)
+      light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
+      dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
     };
     this.label = label;
     this.description = description;

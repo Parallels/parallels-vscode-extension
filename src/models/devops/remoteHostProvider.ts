@@ -29,4 +29,5 @@ export interface DevOpsRemoteHostProvider {
   roles?: DevOpsRolesAndClaims[];
   claims?: DevOpsRolesAndClaims[];
   hardwareInfo?: HostHardwareInfo;
+  lastUpdatedHardwareInfo?: string;
 }

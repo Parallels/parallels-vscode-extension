@@ -20,8 +20,10 @@ export class VirtualMachineProvider
   settings = Provider.getSettings();
   dropMimeTypes = ["application/vnd.code.tree.virtualMachine"];
   dragMimeTypes = ["text/uri-list"];
+  context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
+    this.context = context;
     const view = vscode.window.createTreeView("parallels-desktop-machines", {
       treeDataProvider: this,
       showCollapseAll: true,
@@ -68,6 +70,7 @@ export class VirtualMachineProvider
           if ((!group.hidden || this.config.showHidden) && !this.checkIfExists(data, group.uuid)) {
             data.push(
               new VirtualMachineTreeItem(
+                this.context,
                 group,
                 "Group",
                 FLAG_NO_GROUP,
@@ -103,6 +106,7 @@ export class VirtualMachineProvider
           if ((!vm.hidden || this.config.showHidden) && !this.checkIfExists(data, vm.ID)) {
             data.push(
               new VirtualMachineTreeItem(
+                this.context,
                 vm,
                 "VirtualMachine",
                 FLAG_NO_GROUP,
@@ -156,6 +160,7 @@ export class VirtualMachineProvider
       flatSnapshotList.forEach(snapshot => {
         children.push(
           new VirtualMachineTreeItem(
+            this.context,
             parent.item,
             "Snapshot",
             undefined,
@@ -266,6 +271,7 @@ export class VirtualMachineProvider
         const ipAddressId = `${vm.ID ?? uuid.v4()}_ip_address_${vm.configuredIpAddress}}`;
         children.push(
           new VirtualMachineTreeItem(
+            this.context,
             item.item,
             "IpAddress",
             undefined,
@@ -293,6 +299,7 @@ export class VirtualMachineProvider
             if (snapshots.length === 0) {
               children.push(
                 new VirtualMachineTreeItem(
+                  this.context,
                   undefined,
                   "Empty",
                   undefined,
@@ -316,6 +323,7 @@ export class VirtualMachineProvider
                   const hasChildren = snapshots.filter(f => f.parent === snap.id)?.length > 0;
                   children.push(
                     new VirtualMachineTreeItem(
+                      this.context,
                       item.item,
                       "Snapshot",
                       undefined,
@@ -356,6 +364,7 @@ export class VirtualMachineProvider
                 this.config.save();
                 children.push(
                   new VirtualMachineTreeItem(
+                    this.context,
                     item.item,
                     "DockerContainerRoot",
                     undefined,
@@ -398,6 +407,7 @@ export class VirtualMachineProvider
                 this.config.save();
                 children.push(
                   new VirtualMachineTreeItem(
+                    this.context,
                     item.item,
                     "DockerImageRoot",
                     undefined,
@@ -422,6 +432,7 @@ export class VirtualMachineProvider
             parallelsOutputChannel.appendLine(reject);
             children.push(
               new VirtualMachineTreeItem(
+                this.context,
                 undefined,
                 "Empty",
                 undefined,
@@ -454,6 +465,7 @@ export class VirtualMachineProvider
             if (snapshot.length === 0) {
               children.push(
                 new VirtualMachineTreeItem(
+                  this.context,
                   undefined,
                   "Empty",
                   undefined,
@@ -474,6 +486,7 @@ export class VirtualMachineProvider
                 const hasChildren = snapshot.filter(f => f.parent === snap.id)?.length > 0;
                 children.push(
                   new VirtualMachineTreeItem(
+                    this.context,
                     item.item,
                     "Snapshot",
                     undefined,
@@ -495,6 +508,7 @@ export class VirtualMachineProvider
             parallelsOutputChannel.appendLine(reject);
             children.push(
               new VirtualMachineTreeItem(
+                this.context,
                 undefined,
                 "Empty",
                 undefined,
@@ -536,6 +550,7 @@ export class VirtualMachineProvider
           if ((!childGroup.hidden || this.config.showHidden) && !this.checkIfExists(children, childGroup.uuid)) {
             children.push(
               new VirtualMachineTreeItem(
+                this.context,
                 childGroup,
                 "Group",
                 group.uuid,
@@ -568,6 +583,7 @@ export class VirtualMachineProvider
           if ((!childVm.hidden || this.config.showHidden) && !this.checkIfExists(children, childVm.ID)) {
             children.push(
               new VirtualMachineTreeItem(
+                this.context,
                 childVm,
                 "VirtualMachine",
                 group.uuid,
@@ -601,6 +617,7 @@ export class VirtualMachineProvider
         vm.dockerContainers.forEach(dockerContainer => {
           data.push(
             new VirtualMachineTreeItem(
+              this.context,
               vm,
               "DockerContainer",
               undefined,
@@ -635,6 +652,7 @@ export class VirtualMachineProvider
         vm.dockerImages.forEach(dockerImage => {
           data.push(
             new VirtualMachineTreeItem(
+              this.context,
               vm,
               "DockerImage",
               undefined,
@@ -758,6 +776,7 @@ export class VirtualMachineProvider
 
       if (target === undefined) {
         target = new VirtualMachineTreeItem(
+          this.context,
           undefined,
           "Group",
           FLAG_NO_GROUP,
