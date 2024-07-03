@@ -174,8 +174,9 @@ export class LogService {
     message = message.replace(/\r$/, "");
     const config = Provider.getConfiguration();
     const now = new Date();
-    const formattedDate = now.toLocaleString();
+    const formattedDate = now.toISOString();
     let logMessage = "";
+    logMessage += `${formattedDate} `;
     if (service) {
       logMessage += `[${service}] `;
     }

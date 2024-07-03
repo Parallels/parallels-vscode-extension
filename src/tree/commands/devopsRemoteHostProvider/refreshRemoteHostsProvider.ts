@@ -10,7 +10,7 @@ const registerDevOpsRefreshRemoteHostsProviderCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRefreshRemoteHostProvider, async () => {
-      LogService.info("Refreshing remote hosts provider tree", "RefreshRemoteHostProviderCommand");
+      LogService.debug("Refreshing remote hosts provider tree", "RefreshRemoteHostProviderCommand");
       provider.refresh();
     })
   );

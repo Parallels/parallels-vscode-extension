@@ -240,7 +240,7 @@ export class DevOpsService {
             isRefreshingCatalogProviders = false;
           })
           .catch(err => {
-            LogService.error(`Error refreshing catalog providers: ${err}`, "DevOpsService");
+            LogService.info(`Error refreshing catalog providers: ${err}`, "DevOpsService");
             isRefreshingCatalogProviders = false;
           });
       }, refreshThreshold);
@@ -347,91 +347,93 @@ export class DevOpsService {
           );
         });
 
-      this.getRemoteHostUsers(provider)
-        .then(users => {
-          if (users && (force || diffArray(provider.users, users, "name"))) {
-            provider.users = users ?? [];
-            provider.needsTreeRefresh = true;
+      if (provider.user?.isSuperUser) {
+        this.getRemoteHostUsers(provider)
+          .then(users => {
+            if (users && (force || diffArray(provider.users, users, "name"))) {
+              provider.users = users ?? [];
+              provider.needsTreeRefresh = true;
+              hasUpdate = true;
+              LogService.info(
+                `Found different object users for remote host provider ${provider.name} updating tree`,
+                "DevOpsService"
+              );
+              vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+            } else {
+              if (provider.needsTreeRefresh) {
+                provider.needsTreeRefresh = false;
+                hasUpdate = true;
+              }
+            }
+          })
+          .catch(err => {
             hasUpdate = true;
-            LogService.info(
-              `Found different object users for remote host provider ${provider.name} updating tree`,
+            LogService.error(
+              `Error getting virtual machines for remote host provider ${provider.name}, err: ${err}`,
               "DevOpsService"
             );
-            vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
-          } else {
-            if (provider.needsTreeRefresh) {
-              provider.needsTreeRefresh = false;
-              hasUpdate = true;
-            }
-          }
-        })
-        .catch(err => {
-          hasUpdate = true;
-          LogService.error(
-            `Error getting virtual machines for remote host provider ${provider.name}, err: ${err}`,
-            "DevOpsService"
-          );
-        });
+          });
 
-      this.getRemoteHostClaims(provider)
-        .then(claims => {
-          if (claims && (force || diffArray(provider.claims, claims, "name"))) {
-            provider.claims = claims ?? [];
-            provider.needsTreeRefresh = true;
+        this.getRemoteHostClaims(provider)
+          .then(claims => {
+            if (claims && (force || diffArray(provider.claims, claims, "name"))) {
+              provider.claims = claims ?? [];
+              provider.needsTreeRefresh = true;
+              hasUpdate = true;
+              LogService.info(
+                `Found different object roles for remote host provider ${provider.name} updating tree`,
+                "DevOpsService"
+              );
+              vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+            } else {
+              if (provider.needsTreeRefresh) {
+                provider.needsTreeRefresh = false;
+                hasUpdate = true;
+              }
+            }
+          })
+          .catch(err => {
             hasUpdate = true;
-            LogService.info(
-              `Found different object roles for remote host provider ${provider.name} updating tree`,
+            LogService.error(
+              `Error getting claims for remote host provider ${provider.name}, err: ${err}`,
               "DevOpsService"
             );
-            vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
-          } else {
-            if (provider.needsTreeRefresh) {
-              provider.needsTreeRefresh = false;
-              hasUpdate = true;
-            }
-          }
-        })
-        .catch(err => {
-          hasUpdate = true;
-          LogService.error(
-            `Error getting claims for remote host provider ${provider.name}, err: ${err}`,
-            "DevOpsService"
-          );
-        });
+          });
 
-      this.getRemoteHostRoles(provider)
-        .then(roles => {
-          if (roles && (force || diffArray(provider.roles, roles, "name"))) {
-            provider.roles = roles ?? [];
-            provider.needsTreeRefresh = true;
+        this.getRemoteHostRoles(provider)
+          .then(roles => {
+            if (roles && (force || diffArray(provider.roles, roles, "name"))) {
+              provider.roles = roles ?? [];
+              provider.needsTreeRefresh = true;
+              hasUpdate = true;
+              LogService.info(
+                `Found different object roles for remote host provider ${provider.name} updating tree`,
+                "DevOpsService"
+              );
+              vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+            } else {
+              if (provider.needsTreeRefresh) {
+                provider.needsTreeRefresh = false;
+                hasUpdate = true;
+              }
+            }
+          })
+          .catch(err => {
             hasUpdate = true;
-            LogService.info(
-              `Found different object roles for remote host provider ${provider.name} updating tree`,
+            LogService.error(
+              `Error getting roles for remote host provider ${provider.name}, err: ${err}`,
               "DevOpsService"
             );
-            vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
-          } else {
-            if (provider.needsTreeRefresh) {
-              provider.needsTreeRefresh = false;
-              hasUpdate = true;
-            }
-          }
-        })
-        .catch(err => {
-          hasUpdate = true;
-          LogService.error(
-            `Error getting roles for remote host provider ${provider.name}, err: ${err}`,
-            "DevOpsService"
-          );
-        });
+          });
 
-      if (hasUpdate) {
-        for (const provider of providers) {
-          provider.needsTreeRefresh = false;
+        if (hasUpdate) {
+          for (const provider of providers) {
+            provider.needsTreeRefresh = false;
+          }
+
+          config.catalogProviders = providers;
+          config.save();
         }
-
-        config.catalogProviders = providers;
-        config.save();
       }
     }
 
@@ -495,83 +497,85 @@ export class DevOpsService {
           );
         });
 
-      this.getRemoteHostUsers(provider)
-        .then(users => {
-          if (users && (force || diffArray(provider.users, users, "name"))) {
-            provider.users = users ?? [];
-            provider.needsTreeRefresh = true;
+      if (provider.user?.isSuperUser) {
+        this.getRemoteHostUsers(provider)
+          .then(users => {
+            if (users && (force || diffArray(provider.users, users, "name"))) {
+              provider.users = users ?? [];
+              provider.needsTreeRefresh = true;
+              hasUpdate = true;
+              LogService.info(
+                `Found different object users for remote host provider ${provider.name} updating tree`,
+                "DevOpsService"
+              );
+              vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+            } else {
+              if (provider.needsTreeRefresh) {
+                provider.needsTreeRefresh = false;
+                hasUpdate = true;
+              }
+            }
+          })
+          .catch(err => {
             hasUpdate = true;
-            LogService.info(
-              `Found different object users for remote host provider ${provider.name} updating tree`,
+            LogService.error(
+              `Error getting users for remote host provider ${provider.name}, err: ${err}`,
               "DevOpsService"
             );
-            vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-          } else {
-            if (provider.needsTreeRefresh) {
-              provider.needsTreeRefresh = false;
-              hasUpdate = true;
-            }
-          }
-        })
-        .catch(err => {
-          hasUpdate = true;
-          LogService.error(
-            `Error getting users for remote host provider ${provider.name}, err: ${err}`,
-            "DevOpsService"
-          );
-        });
+          });
 
-      this.getRemoteHostClaims(provider)
-        .then(claims => {
-          if (claims && (force || diffArray(provider.claims, claims, "name"))) {
-            provider.claims = claims ?? [];
-            provider.needsTreeRefresh = true;
+        this.getRemoteHostClaims(provider)
+          .then(claims => {
+            if (claims && (force || diffArray(provider.claims, claims, "name"))) {
+              provider.claims = claims ?? [];
+              provider.needsTreeRefresh = true;
+              hasUpdate = true;
+              LogService.info(
+                `Found different object claims for remote host provider ${provider.name} updating tree`,
+                "DevOpsService"
+              );
+              vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+            } else {
+              if (provider.needsTreeRefresh) {
+                provider.needsTreeRefresh = false;
+                hasUpdate = true;
+              }
+            }
+          })
+          .catch(err => {
             hasUpdate = true;
-            LogService.info(
-              `Found different object claims for remote host provider ${provider.name} updating tree`,
+            LogService.error(
+              `Error getting claims for remote host provider ${provider.name}, err: ${err}`,
               "DevOpsService"
             );
-            vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-          } else {
-            if (provider.needsTreeRefresh) {
-              provider.needsTreeRefresh = false;
-              hasUpdate = true;
-            }
-          }
-        })
-        .catch(err => {
-          hasUpdate = true;
-          LogService.error(
-            `Error getting claims for remote host provider ${provider.name}, err: ${err}`,
-            "DevOpsService"
-          );
-        });
+          });
 
-      this.getRemoteHostRoles(provider)
-        .then(roles => {
-          if (roles && (force || diffArray(provider.roles, roles, "name"))) {
-            provider.roles = roles ?? [];
-            provider.needsTreeRefresh = true;
+        this.getRemoteHostRoles(provider)
+          .then(roles => {
+            if (roles && (force || diffArray(provider.roles, roles, "name"))) {
+              provider.roles = roles ?? [];
+              provider.needsTreeRefresh = true;
+              hasUpdate = true;
+              LogService.info(
+                `Found different object roles for remote host provider ${provider.name} updating tree`,
+                "DevOpsService"
+              );
+              vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+            } else {
+              if (provider.needsTreeRefresh) {
+                provider.needsTreeRefresh = false;
+                hasUpdate = true;
+              }
+            }
+          })
+          .catch(err => {
             hasUpdate = true;
-            LogService.info(
-              `Found different object roles for remote host provider ${provider.name} updating tree`,
+            LogService.error(
+              `Error getting roles for remote host provider ${provider.name}, err: ${err}`,
               "DevOpsService"
             );
-            vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-          } else {
-            if (provider.needsTreeRefresh) {
-              provider.needsTreeRefresh = false;
-              hasUpdate = true;
-            }
-          }
-        })
-        .catch(err => {
-          hasUpdate = true;
-          LogService.error(
-            `Error getting roles for remote host provider ${provider.name}, err: ${err}`,
-            "DevOpsService"
-          );
-        });
+          });
+      }
 
       if (provider.type === "orchestrator") {
         // Updating orchestrator resources
