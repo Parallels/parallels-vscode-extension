@@ -173,6 +173,7 @@ export class CommandsFlags {
 
   static treeCopyIpAddress = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.copy-ip-address`;
 
+  static treeCloneVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.clone-vm`;
   static treeTakeVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.take-vm-snapshot`;
   static treeDeleteVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.delete-vm-snapshot`;
   static treeRestoreVmSnapshot = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.restore-vm-snapshot`;
