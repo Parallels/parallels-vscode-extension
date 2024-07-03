@@ -278,6 +278,15 @@
                 }
             },
             {
+                "command": "parallels-desktop.tree-view.clone-vm",
+                "title": "Clone VM",
+                "category": "Parallels",
+                "icon": {
+                    "light": "img/light/clone.svg",
+                    "dark": "img/dark/clone.svg"
+                }
+            },
+            {
                 "command": "parallels-desktop.tree-view.delete-vm-snapshot",
                 "title": "Delete VM Snapshot",
                 "category": "Parallels",
@@ -961,6 +970,10 @@
                     "when": "false"
                 },
                 {
+                    "command": "parallels-desktop.tree-view.clone-vm",
+                    "when": "false"
+                },
+                {
                     "command": "parallels-desktop.tree-view.take-vm-snapshot",
                     "when": "false"
                 },
@@ -1263,6 +1276,11 @@
                     "command": "parallels-desktop.tree-view.take-vm-snapshot",
                     "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!macosx)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\..*/",
                     "group": "inline@19"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.clone-vm",
+                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
+                    "group": "inline@20"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-vm",

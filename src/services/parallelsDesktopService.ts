@@ -741,6 +741,43 @@ export class ParallelsDesktopService {
     });
   }
 
+  static async cloneVm(vmId: string, name: string, destination =""): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (!vmId) {
+        LogService.error(`vmId is empty`, "ParallelsDesktopService");
+        return reject("vmId is empty");
+      }
+      if (!name) {
+        LogService.error(`name is empty`, "ParallelsDesktopService");
+        return reject("name is empty");
+      }
+
+      LogService.info(`Clonning Virtual Machine ${vmId}`, "ParallelsDesktopService");
+      const options = ["clone", `"${vmId}"`, "--name", `"${name}"`, "--regenerate-src-uuid"];
+      if (destination) {
+        options.push("--dst");
+        options.push(destination);
+      }
+
+      const prlctl = cp.spawn("prlctl", options, {shell: true});
+      prlctl.stdout.on("data", data => {
+        LogService.info(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlctl clone exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`prlctl clone exited with code ${code}, please check logs for more details`);
+        }
+
+        LogService.info(`Virtual Machine ${vmId} cloned to ${name} successfully`, "ParallelsDesktopService");
+        return resolve(true);
+      });
+    });
+  }
+
   static async takeVmSnapshot(vmId: string, name: string, description?: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!vmId) {
