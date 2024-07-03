@@ -16,7 +16,7 @@ const registerRefreshVirtualMachineCommand = (context: vscode.ExtensionContext, 
           title: "Refreshing virtual machines"
         },
         async () => {
-          LogService.info("Refreshing virtual machines", "RefreshVirtualMachineCommand");
+          LogService.debug("Refreshing virtual machines", "RefreshVirtualMachineCommand");
           await ParallelsDesktopService.getVms();
           const groups = Provider.getConfiguration().virtualMachinesGroups;
           LogService.debug(`Found ${groups.length} groups`, "RefreshVirtualMachineCommand");

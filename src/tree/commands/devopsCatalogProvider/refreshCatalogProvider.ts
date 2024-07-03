@@ -10,7 +10,7 @@ const registerDevOpsRefreshCatalogProviderCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRefreshCatalogProvider, async () => {
-      LogService.info("Refreshing Catalog Providers", "RefreshCatalogProviderCommand");
+      LogService.debug("Refreshing Catalog Providers", "RefreshCatalogProviderCommand");
 
       provider.refresh();
     })
