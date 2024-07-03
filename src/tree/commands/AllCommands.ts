@@ -93,7 +93,7 @@ import {DevOpsManagementProviderUpdateProviderCommand} from "./devopsManagementP
 import {DevOpsManagementProviderUpdateUserCommand} from "./devopsManagementProvider/updateRemoteProviderUser";
 import {DevOpsPullCatalogManifestMachineOnHostCommand} from "./devopsRemoteHostProvider/pullCatalogManifestMachineOnHost";
 import {DevOpsUpdateRemoteProviderOrchestratorHostCommand} from "./devopsRemoteHostProvider/updateRemoteProviderOrchestratorHost";
-import { CloneVmCommand } from "./virtualMachines/cloneVm";
+import {CloneVmCommand} from "./virtualMachines/cloneVm";
 
 export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   AddVmCommand,

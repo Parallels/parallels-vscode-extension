@@ -22,12 +22,10 @@ const registerCloneVmCommand = (context: vscode.ExtensionContext, provider: Virt
         placeHolder: "Enter a location for the new vm or press enter to create it in the default location"
       });
       if (cloneVM) {
-        const result = await ParallelsDesktopService.cloneVm(item.id, cloneVM, cloneLocation).catch(
-          reject => {
-            vscode.window.showErrorMessage(`${reject}`);
-            return;
-          }
-        );
+        const result = await ParallelsDesktopService.cloneVm(item.id, cloneVM, cloneLocation).catch(reject => {
+          vscode.window.showErrorMessage(`${reject}`);
+          return;
+        });
         if (!result) {
           vscode.window.showErrorMessage(`failed to clone ${cloneVM}`);
           return;

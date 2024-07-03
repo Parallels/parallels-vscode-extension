@@ -741,7 +741,7 @@ export class ParallelsDesktopService {
     });
   }
 
-  static async cloneVm(vmId: string, name: string, destination =""): Promise<boolean> {
+  static async cloneVm(vmId: string, name: string, destination = ""): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!vmId) {
         LogService.error(`vmId is empty`, "ParallelsDesktopService");
