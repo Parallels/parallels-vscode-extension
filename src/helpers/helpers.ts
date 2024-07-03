@@ -48,7 +48,7 @@ export function getFoldersBasePath(): string {
   if (!foldersBasePath || !folderExists) {
     let homePath = "";
     if (os === "darwin" || os === "linux") {
-      homePath = cp.execSync(`echo $HOME`).toString().replace("\r\r", "").replace("\n", "");
+      homePath = process.env.HOME ?? "";
     } else if (os.toLowerCase().startsWith("win")) {
       folderName = "ParallelsDesktop";
       homePath = process.env.APPDATA ?? "";
