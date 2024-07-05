@@ -324,6 +324,30 @@
                 "distros": [],
                 "images": [
                     {
+                        "id": "macos14_23E214",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS Sonoma 14.4",
+                        "description": "This will create a macOS Sonoma 14.4 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/052-61990/47F0DD06-1106-4F2E-9CD6-AE6B361A0EC6/UniversalMac_14.4_23E214_Restore.ipsw",
+                        "isoChecksum": "sha256:5a1b8e15544cd1b83447c53632c4647b89456d58d8d5d41a4786b839ca9fc6d4",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
                         "id": "macos14_23A344",
                         "type": "packer",
                         "packerFolder": "macos",
