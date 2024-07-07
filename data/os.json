@@ -324,6 +324,78 @@
                 "distros": [],
                 "images": [
                     {
+                        "id": "macos14_23F79",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS Sonoma 14.5",
+                        "description": "This will create a macOS Sonoma 14.5 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2024SpringFCS/fullrestores/062-01897/C874907B-9F82-4109-87EB-6B3C9BF1507D/UniversalMac_14.5_23F79_Restore.ipsw",
+                        "isoChecksum": "sha256:7cf807a44289986c5b1bbe1bd97f6922fde4eaf421abee237bc6012c3cd96411",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos14_23E224",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS Sonoma 14.4.1",
+                        "description": "This will create a macOS Sonoma 14.4.1 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/052-77579/4569734E-120C-4F31-AD08-FC1FF825D059/UniversalMac_14.4.1_23E224_Restore.ipsw",
+                        "isoChecksum": "sha256:78b39816521a6eeaf29221a4e59e83dae98ef5f9e8e718b846f8faab540a48c1",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
+                        "id": "macos14_23E214",
+                        "type": "packer",
+                        "packerFolder": "macos",
+                        "name": "macOS Sonoma 14.4",
+                        "description": "This will create a macOS Sonoma 14.4 VM using automated Packer scripts.",
+                        "requireIsoDownload": false,
+                        "allowMachineSpecs": true,
+                        "allowUserOverride": true,
+                        "allowAddons": true,
+                        "isoUrl": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/052-61990/47F0DD06-1106-4F2E-9CD6-AE6B361A0EC6/UniversalMac_14.4_23E214_Restore.ipsw",
+                        "isoChecksum": "sha256:5a1b8e15544cd1b83447c53632c4647b89456d58d8d5d41a4786b839ca9fc6d4",
+                        "addons": [],
+                        "defaults": {
+                            "specs": {
+                                "cpus": 4,
+                                "memory": 8196
+                            },
+                            "user": {
+                                "username": "parallels",
+                                "password": "parallels"
+                            }
+                        }
+                    },
+                    {
                         "id": "macos14_23A344",
                         "type": "packer",
                         "packerFolder": "macos",
