@@ -8,11 +8,11 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "enabledApiProposals": [
-		"treeViewActiveItem",
+        "treeViewActiveItem",
         "extensionRuntime"
-	],
+    ],
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.2.3",
+    "version": "1.2.4",
     "engines": {
         "vscode": "^1.90.0"
     },
@@ -938,7 +938,6 @@
                 },
                 "when": "parallels-desktop:isInstalled"
             }
-
         ],
         "menus": {
             "parallels-desktop.add": [
@@ -1304,7 +1303,6 @@
                     "command": "parallels-desktop.tree-view.take-vm-snapshot",
                     "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!macosx)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\..*/",
                     "group": "inline@19"
-
                 },
                 {
                     "command": "parallels-desktop.tree-view.clone-vm",
