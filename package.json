@@ -7,6 +7,10 @@
         "type": "git",
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
+    "enabledApiProposals": [
+		"treeViewActiveItem",
+        "extensionRuntime"
+	],
     "icon": "img/logo/parallels_logo.png",
     "version": "1.2.3",
     "engines": {
@@ -923,7 +927,31 @@
                 }
             ]
         },
+        "submenus": [
+            {
+                "label": "Add",
+                "id": "parallels-desktop.add",
+                "title": "Add",
+                "icon": {
+                    "light": "img/light/plus.svg",
+                    "dark": "img/dark/plus.svg"
+                },
+                "when": "parallels-desktop:isInstalled"
+            }
+
+        ],
         "menus": {
+            "parallels-desktop.add": [
+                {
+                    "command": "parallels-desktop.tree-view.add-vm",
+                    "when": "view == parallels-desktop-machines && parallels-desktop:initialized",
+                    "group": "navigation@0"
+                },
+                {
+                    "command": "parallels-desktop.tree-view.add-group",
+                    "when": "view == parallels-desktop-machines && parallels-desktop:initialized"
+                }
+            ],
             "commandPalette": [
                 {
                     "command": "parallels-desktop.tree-view.start-vm",
@@ -1217,9 +1245,9 @@
                     "group": "navigation@1"
                 },
                 {
-                    "command": "parallels-desktop.tree-view.add-vm",
+                    "submenu": "parallels-desktop.add",
                     "when": "view == parallels-desktop-machines && parallels-desktop:initialized",
-                    "group": "navigation@0"
+                    "group": "navigation@10"
                 },
                 {
                     "command": "parallels-desktop.core.enable-show-hidden-items",
@@ -1276,6 +1304,7 @@
                     "command": "parallels-desktop.tree-view.take-vm-snapshot",
                     "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!macosx)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\..*/",
                     "group": "inline@19"
+
                 },
                 {
                     "command": "parallels-desktop.tree-view.clone-vm",
@@ -1754,10 +1783,11 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
+        "@types/vscode": "1.90.0",
         "@types/axios": "^0.14.0",
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.1",
-        "@types/node": "16.x",
+        "@types/node": "^20.5.9",
         "@types/uuid": "^9.0.1",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",

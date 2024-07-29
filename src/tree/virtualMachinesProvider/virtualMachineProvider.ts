@@ -1,3 +1,4 @@
+import { DragAndDropTreeItem } from './../treeItems/virtualMachineTreeItem';
 import * as vscode from "vscode";
 import * as uuid from "uuid";
 import {Provider} from "../../ioc/provider";
@@ -18,7 +19,7 @@ export class VirtualMachineProvider
 {
   config = Provider.getConfiguration();
   settings = Provider.getSettings();
-  dropMimeTypes = ["application/vnd.code.tree.virtualMachine"];
+  dropMimeTypes = ["application/vnd.code.tree.parallels-desktop-machines"];
   dragMimeTypes = ["text/uri-list"];
   context: vscode.ExtensionContext;
 
@@ -749,8 +750,20 @@ export class VirtualMachineProvider
     if (source.length === 0) {
       token.isCancellationRequested = true;
     }
+    
+    const targets: DragAndDropTreeItem[] = [];
+    source.forEach(item => {
+      const treeItem = item as VirtualMachineTreeItem;
+      if (treeItem.type === "Group") {
+        targets.push({ type: "Group", id: treeItem.id, name: treeItem.name, group: treeItem.group });
+      } else if (treeItem.type === "VirtualMachine") {
+        targets.push({ type: "VirtualMachine", id: treeItem.id, name: treeItem.name, group: treeItem.group });
+      }
+    });
 
-    dataTransfer.set("application/vnd.code.tree.virtualMachine", new vscode.DataTransferItem(source));
+    console.log("targets", targets);
+
+    dataTransfer.set("application/vnd.code.tree.parallels-desktop-machines", new vscode.DataTransferItem(targets));
   }
 
   public async handleDrop(
@@ -760,7 +773,7 @@ export class VirtualMachineProvider
   ): Promise<void> {
     const itemsToTransfer: VirtualMachineTreeItem[] = [];
 
-    const transferItem = dataTransfer.get("application/vnd.code.tree.virtualMachine");
+    const transferItem = dataTransfer.get("application/vnd.code.tree.parallels-desktop-machines");
     if (!transferItem) {
       return;
     }
@@ -772,7 +785,7 @@ export class VirtualMachineProvider
     }
 
     itemsToTransfer.forEach(async item => {
-      const treeItem = item as VirtualMachineTreeItem;
+      const treeItem = item as DragAndDropTreeItem;
 
       if (target === undefined) {
         target = new VirtualMachineTreeItem(

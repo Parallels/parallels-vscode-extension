@@ -9,6 +9,22 @@ export enum VirtualMachineTreeItemType {
   Packer = "packer"
 }
 
+export interface DragAndDropTreeItem {
+  type:
+  | "Group"
+  | "VirtualMachine"
+  | "Snapshot"
+  | "DockerContainerRoot"
+  | "DockerImageRoot"
+  | "DockerContainer"
+  | "DockerImage"
+  | "IpAddress"
+  | "Empty";
+  id: string;
+  name: string;
+  group: string | undefined;
+}
+
 export class VirtualMachineTreeItem extends vscode.TreeItem {
   name: string;
   status: string;
