@@ -1,4 +1,4 @@
-import { DragAndDropTreeItem } from './../treeItems/virtualMachineTreeItem';
+import {DragAndDropTreeItem} from "./../treeItems/virtualMachineTreeItem";
 import * as vscode from "vscode";
 import * as uuid from "uuid";
 import {Provider} from "../../ioc/provider";
@@ -750,14 +750,14 @@ export class VirtualMachineProvider
     if (source.length === 0) {
       token.isCancellationRequested = true;
     }
-    
+
     const targets: DragAndDropTreeItem[] = [];
     source.forEach(item => {
       const treeItem = item as VirtualMachineTreeItem;
       if (treeItem.type === "Group") {
-        targets.push({ type: "Group", id: treeItem.id, name: treeItem.name, group: treeItem.group });
+        targets.push({type: "Group", id: treeItem.id, name: treeItem.name, group: treeItem.group});
       } else if (treeItem.type === "VirtualMachine") {
-        targets.push({ type: "VirtualMachine", id: treeItem.id, name: treeItem.name, group: treeItem.group });
+        targets.push({type: "VirtualMachine", id: treeItem.id, name: treeItem.name, group: treeItem.group});
       }
     });
 

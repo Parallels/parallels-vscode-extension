@@ -11,15 +11,15 @@ export enum VirtualMachineTreeItemType {
 
 export interface DragAndDropTreeItem {
   type:
-  | "Group"
-  | "VirtualMachine"
-  | "Snapshot"
-  | "DockerContainerRoot"
-  | "DockerImageRoot"
-  | "DockerContainer"
-  | "DockerImage"
-  | "IpAddress"
-  | "Empty";
+    | "Group"
+    | "VirtualMachine"
+    | "Snapshot"
+    | "DockerContainerRoot"
+    | "DockerImageRoot"
+    | "DockerContainer"
+    | "DockerImage"
+    | "IpAddress"
+    | "Empty";
   id: string;
   name: string;
   group: string | undefined;
