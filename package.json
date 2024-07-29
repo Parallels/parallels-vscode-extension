@@ -7,10 +7,6 @@
         "type": "git",
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
-    "enabledApiProposals": [
-        "treeViewActiveItem",
-        "extensionRuntime"
-    ],
     "icon": "img/logo/parallels_logo.png",
     "version": "1.2.4",
     "engines": {
