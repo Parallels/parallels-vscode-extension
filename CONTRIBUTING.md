@@ -8,7 +8,7 @@ Hi there! We're thrilled that you'd like to contribute to this project. Your hel
 
 We accept pull requests for bug fixes and features where we've discussed the approach in an issue and given the go-ahead for a community member to work on it. We'd also love to hear about ideas for new features as issues.
 
-We track issues on our project board [here](https://github.com/orgs/Parallels/projects/2/views/1).
+We track issues on our project board [here](https://github.com/orgs/Parallels/projects/8).
 
 Please do:
 
