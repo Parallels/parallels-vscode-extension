@@ -760,7 +760,7 @@ export class VirtualMachineProvider
         targets.push({type: "VirtualMachine", id: treeItem.id, name: treeItem.name, group: treeItem.group});
       }
     });
-    
+
     dataTransfer.set("application/vnd.code.tree.parallels-desktop-machines", new vscode.DataTransferItem(targets));
   }
 

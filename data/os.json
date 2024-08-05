@@ -336,6 +336,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2024SpringFCS/fullrestores/062-01897/C874907B-9F82-4109-87EB-6B3C9BF1507D/UniversalMac_14.5_23F79_Restore.ipsw",
                         "isoChecksum": "sha256:7cf807a44289986c5b1bbe1bd97f6922fde4eaf421abee237bc6012c3cd96411",
                         "addons": [],
+                        "variables": {
+                            "version": "sonoma"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -360,6 +363,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/052-77579/4569734E-120C-4F31-AD08-FC1FF825D059/UniversalMac_14.4.1_23E224_Restore.ipsw",
                         "isoChecksum": "sha256:78b39816521a6eeaf29221a4e59e83dae98ef5f9e8e718b846f8faab540a48c1",
                         "addons": [],
+                        "variables": {
+                            "version": "sonoma"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -384,6 +390,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/052-61990/47F0DD06-1106-4F2E-9CD6-AE6B361A0EC6/UniversalMac_14.4_23E214_Restore.ipsw",
                         "isoChecksum": "sha256:5a1b8e15544cd1b83447c53632c4647b89456d58d8d5d41a4786b839ca9fc6d4",
                         "addons": [],
+                        "variables": {
+                            "version": "sonoma"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -408,6 +417,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-54934/0E101AD6-3117-4B63-9BF1-143B6DB9270A/UniversalMac_14.0_23A344_Restore.ipsw",
                         "isoChecksum": "sha256:c5a137b905a3f9fc4fb7bba16abfa625c9119154f93759f571aa1c915d3d9664",
                         "addons": [],
+                        "variables": {
+                            "version": "sonoma"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -432,6 +444,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-54934/0E101AD6-3117-4B63-9BF1-143B6DB9270A/UniversalMac_14.0_23A344_Restore.ipsw",
                         "isoChecksum": "sha256:c5a137b905a3f9fc4fb7bba16abfa625c9119154f93759f571aa1c915d3d9664",
                         "addons": [],
+                        "variables": {
+                            "version": "sonoma"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -452,6 +467,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-55833/C0830847-A2F8-458F-B680-967991820931/UniversalMac_13.6_22G120_Restore.ipsw",
                         "isoChecksum": "sha256:9bf095739b8b2d5ebd20f7e8de938f10bc449f9843de21c4a41ae54d73526728",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -520,6 +538,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/042-25658/2D6BE8DB-5549-4F85-8C54-39FC23BABC68/UniversalMac_13.5.1_22G90_Restore.ipsw",
                         "isoChecksum": "sha256:b16966311b54aa5249cd2ee909e9854e0923c3f850e29b050614537d7abe657e",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -544,6 +565,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw",
                         "isoChecksum": "sha256:a42a5ba126a4a35bae9f3dcd64565abc2232e9f3954c658cf5cab5bd92f9d191",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -568,6 +592,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023SpringFCS/fullrestores/042-01877/2F49A9FE-7033-41D0-9D0C-64EFCE6B4C22/UniversalMac_13.4.1_22F82_Restore.ipsw",
                         "isoChecksum": "sha256:5ac144d1661614806d765bc0466d719152e2594c2db3888f1ac02276f5638e98",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -592,6 +619,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023SpringFCS/fullrestores/032-84884/F97A22EE-9B5E-4FD5-94C1-B39DCEE8D80F/UniversalMac_13.4_22F66_Restore.ipsw",
                         "isoChecksum": "sha256:472192932e4152d20d0504641df4c8574929903f2f3244f45b46af7d5b2e4606",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -616,6 +646,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-66602/418BC37A-FCD9-400A-B4FA-022A19576CD4/UniversalMac_13.3.1_22E261_Restore.ipsw",
                         "isoChecksum": "sha256:6e9d9b30528ec951d8a377173b355932647194c326347efc5e54ade1fe71cbc8",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -640,6 +673,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/002-75537/8250FA0E-0962-46D6-8A90-57A390B9FFD7/UniversalMac_13.3_22E252_Restore.ipsw",
                         "isoChecksum": "sha256:91fe1d55843925f242b4a94ce1069073f9a22f22a40eb77a5618b877e0ec9f24",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -664,6 +700,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-48346/EFF99C1E-C408-4E7A-A448-12E1468AF06C/UniversalMac_13.2.1_22D68_Restore.ipsw",
                         "isoChecksum": "sha256:6e9d9b30528ec951d8a377173b355932647194c326347efc5e54ade1fe71cbc8",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -713,6 +752,7 @@
                         "isoChecksum": "sha256:98dd167fb42b345efbadc62c8bf74faa98ec3d7e6079085dc92ef98c7797b14b",
                         "addons": [],
                         "variables": {
+                            "version": "ventura"
                         },
                         "defaults": {
                             "specs": {
@@ -738,6 +778,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-93802/A7270B0F-05F8-43D1-A9AD-40EF5699E82C/UniversalMac_13.0.1_22A400_Restore.ipsw",
                         "isoChecksum": "sha256:58dc6614947cdcc971cc7d1ae882b3daee5c34b8c721d51139a0cff46d3b543f",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -762,6 +805,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-92188/2C38BCD1-2BFF-4A10-B358-94E8E28BE805/UniversalMac_13.0_22A380_Restore.ipsw",
                         "isoChecksum": "sha256:537008900fe34eeb703d928ce613708bfbd6bf445289948058fc617be4f2d090",
                         "addons": [],
+                        "variables": {
+                            "version": "ventura"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -786,6 +832,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-40537/0EC7C669-13E9-49FB-BD64-9EECC1D174B2/UniversalMac_12.6_21G115_Restore.ipsw",
                         "isoChecksum": "sha256:5113f8d3c77fd725ea6357ced5764bc57183d2d388492c58c46ff2729d0658e5",
                         "addons": [],
+                        "variables": {
+                            "version": "monterey"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -810,6 +859,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2022SummerFCS/fullrestores/012-51674/A7019DDB-3355-470F-A355-4162A187AB6C/UniversalMac_12.5.1_21G83_Restore.ipsw",
                         "isoChecksum": "sha256:97a5c61e21e9ddf25158ec9dca67b482205f9dd311d274a1a59915b4bb042c83",
                         "addons": [],
+                        "variables": {
+                            "version": "monterey"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,
@@ -834,6 +886,9 @@
                         "isoUrl": "https://updates.cdn-apple.com/2022SummerFCS/fullrestores/012-42731/BD9917E0-262C-41C5-A69F-AC316A534A39/UniversalMac_12.5_21G72_Restore.ipsw",
                         "isoChecksum": "sha256:49eb74f3313b0b0c22d4c055f56722143fdae1e5ccb1dcbf779a1a4c4dcbc42b",
                         "addons": [],
+                        "variables": {
+                            "version": "monterey"
+                        },
                         "defaults": {
                             "specs": {
                                 "cpus": 4,

@@ -26,7 +26,7 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "env": {
-        "PARALLELS_DESKTOP_DEBUG": "true"
+        "PARALLELS_DESKTOP_DEBUG": "false"
       },
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
