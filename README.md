@@ -150,3 +150,9 @@ Parallels and the Parallels logo are trademarks or registered trademarks of Para
 Apple, Mac, and macOS are trademarks of Apple Inc.
 Microsoft and Windows are registered trademarks of Microsoft Corporation.
 All other company, product and service names, logos, brands and any registered or unregistered trademarks mentioned are used for identification purposes only and remain the exclusive property of their respective owners. Use of any brands, names, logos or any other information, imagery or materials pertaining to a third party does not imply endorsement. We disclaim any proprietary interest in such third-party information, imagery, materials, marks and names of others.
+
+## FAQ
+
+Q: I am trying to create a new macOs virtual machine, and I get Error creating VM: Packer build exited with code 1, please check logs  
+
+A: This error is usually related to the fact that Visual Studio Code will need to have access to record the screen. Please go to System Preferences -> Security & Privacy -> Privacy -> Screen Recording and make sure Visual Studio Code is checked.
