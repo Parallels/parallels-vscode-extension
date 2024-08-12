@@ -78,8 +78,8 @@ export class ConfigurationService {
       ID: "parallels-desktop-vms-catalog",
       rawHost: PARALLELS_CATALOG_URL ?? "",
       name: "Parallels Desktop Vms Catalog",
-      username: "parallels-pro",
-      password: "HPdiRL9vIaynGKb!",
+      username: "",
+      password: "",
       state: "unknown",
       manifests: []
     };
