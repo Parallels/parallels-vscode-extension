@@ -128,8 +128,8 @@ jobs:
           PARALLELS_CATALOG_PRO_PASSWORD: ${{ secrets.PARALLELS_CATALOG_PRO_PASSWORD }}
           PARALLELS_CATALOG_PRO_USER: ${{ secrets.PARALLELS_CATALOG_PRO_USER }}
       - run: |
-          cat /src/telemetry/telemetryService.ts
-          cat /src/services/configurationService.ts
+          cat ./src/telemetry/telemetryService.ts
+          cat ./src/services/configurationService.ts
       - run: npm ci
         env:
           npm_config_arch: ${{ matrix.npm_config_arch }}
