@@ -106,9 +106,9 @@ export async function activate(context: vscode.ExtensionContext) {
       } catch (error) {
         vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
       }
-        vscode.commands.executeCommand("setContext", FLAG_LICENSE, licenseInfo.edition);
-        config.license_edition = licenseInfo.edition;
-        const virtualMachineProvider = new VirtualMachineProvider(context);
+      vscode.commands.executeCommand("setContext", FLAG_LICENSE, licenseInfo.edition);
+      config.license_edition = licenseInfo.edition;
+      const virtualMachineProvider = new VirtualMachineProvider(context);
       if (parallelsCatalogUrl) {
         vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, true);
         const parallelsCatalogProvider = new ParallelsCatalogProvider(context);
