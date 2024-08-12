@@ -6,10 +6,15 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { Provider } from "../../../ioc/provider";
+import { TELEMETRY_VM } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerRestoreVmSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRestoreVmSnapshot, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "RESTORE_VM_SNAPSHOT_COMMAND_CLICK");
       if (item) {
         const vm = item.item as VirtualMachine;
         vscode.window.withProgress(
@@ -19,11 +24,11 @@ const registerRestoreVmSnapshotCommand = (context: vscode.ExtensionContext, prov
           },
           async () => {
             const result = await ParallelsDesktopService.restoreVmSnapshot(vm.ID, item.id).catch(reject => {
-              vscode.window.showErrorMessage(`${reject}`);
+              ShowErrorMessage(TELEMETRY_VM, `Snapshot ${item.name} for vm ${vm.Name} failed to restore: ${reject}`, true);
               return;
             });
             if (!result) {
-              vscode.window.showErrorMessage(`Snapshot ${item.name} for vm ${vm.Name} failed to restore`);
+              ShowErrorMessage(TELEMETRY_VM, `Snapshot ${item.name} for vm ${vm.Name} failed to restore`, true);
               LogService.error(`Snapshot ${item.name} for vm ${vm.Name} failed to restore`, "RestoreVmSnapshotCommand");
               LogService.sendTelemetryEvent(
                 TelemetryEventIds.VirtualMachineAction,
@@ -31,7 +36,7 @@ const registerRestoreVmSnapshotCommand = (context: vscode.ExtensionContext, prov
               );
               return;
             }
-
+              
             vscode.window.showInformationMessage(`Snapshot ${item.name} for vm ${vm.Name} restored`);
             vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             LogService.info(`Snapshot ${item.name} for vm ${vm.Name} restored`, "RestoreVmSnapshotCommand");
@@ -39,6 +44,7 @@ const registerRestoreVmSnapshotCommand = (context: vscode.ExtensionContext, prov
               TelemetryEventIds.VirtualMachineAction,
               `Snapshot ${item.name} for vm ${vm.Name} restored`
             );
+            telemetry.sendOperationEvent(TELEMETRY_VM, "RESTORE_VM_SNAPSHOT_COMMAND_SUCCESS");
           }
         );
       }

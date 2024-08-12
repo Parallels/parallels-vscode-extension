@@ -7,10 +7,14 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_DOCKER} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerResumeDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerResumeContainer, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DOCKER, "RESUME_DOCKER_CONTAINER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -43,7 +47,7 @@ const registerResumeDockerContainerCommand = (context: vscode.ExtensionContext, 
                     `Docker container ${item.name} resumed`
                   );
                 } else {
-                  vscode.window.showErrorMessage(`Failed to resume docker container ${item.name}`);
+                  ShowErrorMessage(TELEMETRY_DOCKER, `Failed to resume docker container ${item.name}`, true);
                   LogService.error(`Failed to resume docker container ${item.name}`, "ResumeDockerContainerCommand");
                   LogService.sendTelemetryEvent(
                     TelemetryEventIds.VirtualMachineAction,
@@ -52,7 +56,7 @@ const registerResumeDockerContainerCommand = (context: vscode.ExtensionContext, 
                 }
               })
               .catch(reject => {
-                vscode.window.showErrorMessage(`Failed to resume docker container ${item.name}`);
+                ShowErrorMessage(TELEMETRY_DOCKER, `Failed to resume docker container ${item.name}`, true);
                 LogService.error(
                   `Failed to resume docker container ${item.name}: ${reject}`,
                   "ResumeDockerContainerCommand"
@@ -63,7 +67,7 @@ const registerResumeDockerContainerCommand = (context: vscode.ExtensionContext, 
                 );
               });
           } catch (error) {
-            vscode.window.showErrorMessage(`Failed to pause docker container ${item.name}`);
+            ShowErrorMessage(TELEMETRY_DOCKER, `Failed to resume docker container ${item.name}`, true);
             LogService.error(`Failed to pause docker container ${item.name}: ${error}`, "ResumeDockerContainerCommand");
             LogService.sendTelemetryEvent(
               TelemetryEventIds.VirtualMachineAction,

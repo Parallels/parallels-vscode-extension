@@ -4,6 +4,7 @@ import {Provider} from "../ioc/provider";
 import {LogService} from "./logService";
 import path = require("path");
 import {FLAG_BREW_PATH, FLAG_BREW_VERSION} from "../constants/flags";
+import {TELEMETRY_INSTALL_BREW} from "../telemetry/operations";
 
 export class BrewService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -67,6 +68,7 @@ export class BrewService {
   }
 
   static install(): Promise<boolean> {
+    const telemetry = Provider.telemetry();
     LogService.info("Installing Brew...", "BrewService");
     return new Promise(async resolve => {
       await vscode.window.withProgress(
@@ -122,10 +124,14 @@ export class BrewService {
             });
           });
           if (!result) {
+            telemetry.sendErrorEvent(TELEMETRY_INSTALL_BREW, "Failed to install Brew");
             progress.report({message: "Failed to install Brew, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Brew, see logs for more details");
             return resolve(false);
           } else {
+            telemetry.sendOperationEvent(TELEMETRY_INSTALL_BREW, "success", {
+              description: "Brew was installed successfully"
+            });
             progress.report({message: "Brew was installed successfully"});
             vscode.window.showInformationMessage("Brew was installed successfully");
             return resolve(true);

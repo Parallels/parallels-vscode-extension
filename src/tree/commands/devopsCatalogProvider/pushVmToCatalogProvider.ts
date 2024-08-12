@@ -13,6 +13,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {CatalogPushRequest} from "../../../models/devops/catalogPushRequest";
 import {cleanString} from "../../../helpers/strings";
 import {DevOpsRolesAndClaims} from "../../../models/devops/rolesAndClaims";
+import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsPushVmToCatalogProviderManifestCommand = (
   context: vscode.ExtensionContext,
@@ -22,6 +24,8 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
     vscode.commands.registerCommand(
       CommandsFlags.devopsPushVmToCatalogProviderManifest,
       async (item: DevOpsTreeItem) => {
+        const telemetry = Provider.telemetry();
+        telemetry.sendOperationEvent(TELEMETRY_DEVOPS_CATALOG, "PUSH_CATALOG_COMMAND_CLICK");
         if (!item) {
           return;
         }
@@ -62,7 +66,7 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
         }
 
         if (!(await DevOpsService.isInstalled())) {
-          vscode.window.showErrorMessage("Could not find Parallels Desktop DevOps Service");
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "Could not find Parallels Desktop DevOps Service");
           return;
         }
 
@@ -71,7 +75,7 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
         const architecture = await HelperService.getArchitecture();
         const provider = config.findCatalogProviderByIOrName(providerId);
         if (!provider) {
-          vscode.window.showErrorMessage(`Provider ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Provider ${item.name} not found`);
           return;
         }
 
@@ -84,7 +88,7 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
           async () => {
             localMachines = config.allMachines.filter(m => m.State === "stopped");
             if (localMachines.length === 0) {
-              vscode.window.showErrorMessage("No local machines found");
+              ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "No local machines found");
               return;
             }
           }
@@ -245,7 +249,7 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
             let foundError = false;
             await DevOpsService.pushManifestFromCatalogProvider(provider, request).catch(reject => {
               LogService.error(`Error pushing manifest from provider ${provider.name}`, reject);
-              vscode.window.showErrorMessage(`Error pushing manifest from provider ${provider.name}`);
+              ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Error pushing manifest from provider ${provider.name}`, true);
               foundError = true;
               return;
             });

@@ -5,6 +5,9 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { Provider } from "../../../ioc/provider";
+import { TELEMETRY_VM } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -12,6 +15,8 @@ const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider:
       if (!item) {
         return;
       }
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "TAKE_SNAPSHOT_COMMAND_CLICK");
       const snapshotName = await vscode.window.showInputBox({
         prompt: "Snapshot Name?",
         placeHolder: "Enter the name for your snapshot"
@@ -23,12 +28,12 @@ const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider:
       if (snapshotName) {
         const result = await ParallelsDesktopService.takeVmSnapshot(item.id, snapshotName, snapshotDescription).catch(
           reject => {
-            vscode.window.showErrorMessage(`${reject}`);
+            ShowErrorMessage(TELEMETRY_VM, `${reject}`);
             return;
           }
         );
         if (!result) {
-          vscode.window.showErrorMessage(`failed to create snapshot ${snapshotName}`);
+          ShowErrorMessage(TELEMETRY_VM, `Failed to create snapshot ${snapshotName}`, true);
           return;
         }
 
@@ -43,6 +48,7 @@ const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider:
               TelemetryEventIds.VirtualMachineAction,
               `Virtual machine ${item.name} finished snapshooting`
             );
+            telemetry.sendOperationEvent(TELEMETRY_VM, "TAKE_SNAPSHOT_COMMAND_SUCCESS", { operationValue: snapshotName });
             break;
           }
           if (retry === 0) {
@@ -51,9 +57,7 @@ const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider:
               TelemetryEventIds.VirtualMachineAction,
               `Virtual machine ${item.name} failed to take the snapshot`
             );
-            vscode.window.showErrorMessage(
-              `Virtual machine ${item.name} failed to take the snapshot, please check the logs`
-            );
+            ShowErrorMessage(TELEMETRY_VM, `Failed to take the snapshot for ${item.name}`, true);
             break;
           }
           retry--;
@@ -62,6 +66,7 @@ const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider:
         vscode.window.showInformationMessage(`Snapshot ${snapshotName} created`);
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         LogService.info(`Snapshot ${snapshotName} created`, "TakeSnapshotCommand");
+        telemetry.sendOperationEvent(TELEMETRY_VM, "TAKE_SNAPSHOT_COMMAND_SUCCESS", { operationValue: snapshotName });
       }
     })
   );

@@ -6,6 +6,8 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { TELEMETRY_VM } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -13,6 +15,9 @@ const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, p
       if (!item) {
         return;
       }
+
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "RESUME_VM_COMMAND_CLICK");
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -26,12 +31,12 @@ const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, p
 
           let foundError = false;
           const ok = await ParallelsDesktopService.resumeVm(item.id).catch(reject => {
-            vscode.window.showErrorMessage(`${reject}`);
+            ShowErrorMessage(TELEMETRY_VM, `${reject}`);
             foundError = true;
             return;
           });
           if (!ok || foundError) {
-            vscode.window.showErrorMessage(`Failed to resume virtual machine ${item.name}`);
+            ShowErrorMessage(TELEMETRY_VM, `Failed to resume virtual machine ${item.name}`, true);
             return;
           }
 
@@ -46,6 +51,7 @@ const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, p
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} resumed`
               );
+              telemetry.sendOperationEvent(TELEMETRY_VM, "RESUME_VM_COMMAND_SUCCESS", { operationValue: `${item.id}_${item.os}`});
               break;
             }
             if (retry === 0) {
@@ -54,9 +60,7 @@ const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, p
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to resume`
               );
-              vscode.window.showErrorMessage(
-                `Failed to check if the machine ${item.name} resumed, please check the logs`
-              );
+              ShowErrorMessage(TELEMETRY_VM, `Failed to check if the machine ${item.name} resumed, please check the logs`, true);
               break;
             }
             retry--;

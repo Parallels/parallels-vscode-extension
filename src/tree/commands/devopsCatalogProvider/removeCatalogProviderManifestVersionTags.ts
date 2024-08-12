@@ -5,6 +5,8 @@ import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
+import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsRemoveTagFromCatalogProviderManifestVersionCommand = (
   context: vscode.ExtensionContext,
@@ -14,6 +16,11 @@ const registerDevOpsRemoveTagFromCatalogProviderManifestVersionCommand = (
     vscode.commands.registerCommand(
       CommandsFlags.devopsRemoveTagFromCatalogProviderManifestVersion,
       async (item: any) => {
+        const telemetry = Provider.telemetry();
+        telemetry.sendOperationEvent(
+          TELEMETRY_DEVOPS_CATALOG,
+          "REMOVE_CATALOG_PROVIDER_MANIFEST_VERSION_TAG_COMMAND_CLICK"
+        );
         if (!item) {
           return;
         }
@@ -22,19 +29,19 @@ const registerDevOpsRemoveTagFromCatalogProviderManifestVersionCommand = (
         const providerId = item.id.split("%%")[0];
         const provider = config.findCatalogProviderByIOrName(providerId);
         if (!provider) {
-          vscode.window.showErrorMessage(`Provider ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Provider ${item.name} not found`);
           return;
         }
         const manifestId = item.id.split("%%")[2];
         const manifest = config.findCatalogProviderManifest(providerId, manifestId);
         if (!manifest) {
-          vscode.window.showErrorMessage(`Manifest ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Manifest ${item.name} not found`);
           return;
         }
         const versionId = item.id.split("%%")[3];
         const manifestItem = manifest.items.find(m => m.id === versionId);
         if (!manifestItem) {
-          vscode.window.showErrorMessage(`Manifest ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Manifest ${item.name} not found`);
           return;
         }
 
@@ -59,10 +66,12 @@ const registerDevOpsRemoveTagFromCatalogProviderManifestVersionCommand = (
               manifestItem.architecture,
               tag
             ).catch(() => {
-              vscode.window.showErrorMessage(
+              ShowErrorMessage(
+                TELEMETRY_DEVOPS_CATALOG,
                 `Failed to remove tag ${tag.join(",")} from the catalog manifest ${manifestItem.catalog_id} version ${
                   manifestItem.version
-                } for ${manifestItem.architecture}`
+                } for ${manifestItem.architecture}`,
+                true
               );
               foundError = true;
               return;
@@ -81,7 +90,11 @@ const registerDevOpsRemoveTagFromCatalogProviderManifestVersionCommand = (
             vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
           })
           .catch(error => {
-            vscode.window.showErrorMessage(`Failed to connect to Remote Host ${provider.name}, err:\n ${error}`);
+            ShowErrorMessage(
+              TELEMETRY_DEVOPS_CATALOG,
+              `Failed to connect to Remote Host ${provider.name}, err:\n ${error}`,
+              true
+            );
           });
       }
     )

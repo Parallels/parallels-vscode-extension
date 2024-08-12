@@ -7,10 +7,14 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { TELEMETRY_VM } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerRenameVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRenameVm, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "RENAME_VM_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -25,7 +29,7 @@ const registerRenameVmCommand = (context: vscode.ExtensionContext, provider: Vir
         await ParallelsDesktopService.renameVm(item.id, newVmName)
           .then(result => {
             if (!result) {
-              vscode.window.showErrorMessage(`Failed to rename ${item.name} to ${newVmName}`);
+              ShowErrorMessage(TELEMETRY_VM, `Failed to rename ${item.name} to ${newVmName}`, true);
               LogService.error(`Failed to rename ${item.name} to ${newVmName}`, "RenameVmCommand");
               LogService.sendTelemetryEvent(
                 TelemetryEventIds.VirtualMachineAction,
@@ -40,9 +44,10 @@ const registerRenameVmCommand = (context: vscode.ExtensionContext, provider: Vir
               TelemetryEventIds.VirtualMachineAction,
               `Virtual Machine ${item.name} renamed to ${newVmName}`
             );
+            telemetry.sendOperationEvent(TELEMETRY_VM, "RENAME_VM_COMMAND_SUCCESS");
           })
           .catch(reject => {
-            vscode.window.showErrorMessage(`Failed to rename ${item.name} to ${newVmName}`);
+            ShowErrorMessage(TELEMETRY_VM, `Failed to rename ${item.name} to ${newVmName}`, true);
             LogService.error(`Failed to rename ${item.name} to ${newVmName}: ${reject}`, "RenameVmCommand");
             LogService.sendTelemetryEvent(
               TelemetryEventIds.VirtualMachineAction,

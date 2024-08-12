@@ -8,13 +8,20 @@ import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvide
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
 import {YesNoQuestion, ANSWER_YES} from "../../../helpers/ConfirmDialog";
 import {DevOpsService} from "../../../services/devopsService";
+import {TELEMETRY_DEVOPS_CATALOG, TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsManagementProviderUpdateProviderCommand = (
   context: vscode.ExtensionContext,
   provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider
 ) => {
+  const localProvider = provider;
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoteProviderManagementUpdateProvider, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      const providerName =
+        localProvider instanceof DevOpsCatalogProvider ? TELEMETRY_DEVOPS_CATALOG : TELEMETRY_DEVOPS_REMOTE;
+      telemetry.sendOperationEvent(providerName, "UPDATE_PROVIDER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -39,7 +46,7 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
         providerType = "Catalog";
       }
       if (!provider) {
-        vscode.window.showErrorMessage(`Remote Host Provider User ${item.name} not found`);
+        ShowErrorMessage(providerName, `Remote Host Provider User ${item.name} not found`);
         return;
       }
 
@@ -60,7 +67,7 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
       );
 
       if (!selectedOptions) {
-        vscode.window.showErrorMessage(`No option selected`);
+        ShowErrorMessage(providerName, `No option selected`);
         return;
       }
 
@@ -73,7 +80,7 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
             value: provider.name
           });
           if (!newName) {
-            vscode.window.showErrorMessage(`New Name is required`);
+            ShowErrorMessage(providerName, `New Name is required`);
             return;
           }
 
@@ -89,7 +96,7 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
           if (ok) {
             vscode.window.showInformationMessage(`Provider ${item.name} renamed to ${newName}`);
           } else {
-            vscode.window.showErrorMessage(`Error renaming provider ${item.name} to ${newName}`);
+            ShowErrorMessage(providerName, `Error renaming provider ${item.name} to ${newName}`);
           }
           if (item.className === "DevOpsRemoteHostProvider") {
             vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
@@ -119,7 +126,7 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
               ignoreFocusOut: true
             });
             if (!username) {
-              vscode.window.showErrorMessage(`${providerType} Provider Name is required`);
+              ShowErrorMessage(providerName, `${providerType} Provider Name is required`);
               return;
             }
 
@@ -131,7 +138,7 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
               ignoreFocusOut: true
             });
             if (!password) {
-              vscode.window.showErrorMessage(`${providerType} Provider Password is required`);
+              ShowErrorMessage(providerName, `${providerType} Provider Password is required`);
               return;
             }
 
@@ -151,18 +158,19 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
             if (retry === 0) {
               break;
             }
-            vscode.window.showErrorMessage(`Failed to connect to ${providerType} provider ${provider.host}`);
+
+            ShowErrorMessage(providerName, `Failed to connect to ${providerType} provider ${provider.host}`);
 
             retry--;
           }
           if (foundError) {
-            vscode.window.showErrorMessage(`Failed to add ${providerType} Provider ${provider.host}`);
+            ShowErrorMessage(providerName, `Failed to connect to ${providerType} provider ${provider.host}`);
             return;
           }
 
           const config = Provider.getConfiguration();
           if (!config.updateRemoteProvider(provider)) {
-            vscode.window.showErrorMessage(`Failed to update ${providerType} Provider ${provider.host}`);
+            ShowErrorMessage(providerName, `Failed to update ${providerType} Provider ${provider.host}`);
             return;
           }
 

@@ -5,10 +5,14 @@ import {LogService} from "../../../services/logService";
 import {VagrantBoxProvider} from "../../vagrantBoxProvider/vagrantBoxProvider";
 import {VagrantService} from "../../../services/vagrantService";
 import {VagrantCommand} from "../BaseCommand";
+import {TELEMETRY_VAGRANT} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantSearchAndDownload, async () => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VAGRANT, "VAGRANT_SEARCH_AND_DOWNLOAD_COMMAND_CLICK");
       return new Promise((resolve, reject) => {
         try {
           const config = Provider.getConfiguration();
@@ -33,7 +37,7 @@ const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContex
                 quickPick.onDidChangeSelection(async selection => {
                   quickPick.hide();
                   if (selection.length === 0 || !selection[0]) {
-                    vscode.window.showErrorMessage(`Failed to download and create Vagrant Box from cloud`);
+                    ShowErrorMessage(TELEMETRY_VAGRANT, `Failed to download and create Vagrant Box from cloud`);
                     return;
                   }
                   vscode.window
@@ -43,7 +47,7 @@ const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContex
                     })
                     .then(async boxName => {
                       if (!boxName) {
-                        vscode.window.showErrorMessage(`Failed to download and create Vagrant Box from cloud`);
+                        ShowErrorMessage(TELEMETRY_VAGRANT, `Failed to download and create Vagrant Box from cloud`);
                         return;
                       }
                       vscode.window.withProgress(
@@ -66,7 +70,7 @@ const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContex
                               TelemetryEventIds.VirtualMachineAction,
                               `Failed to create Vagrant Box ${boxName}`
                             );
-                            vscode.window.showErrorMessage(`${reject}`);
+                            ShowErrorMessage(TELEMETRY_VAGRANT, `${reject}`);
                             return;
                           });
                           if (!box) {
@@ -74,7 +78,7 @@ const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContex
                               TelemetryEventIds.VirtualMachineAction,
                               `Failed to create Vagrant Box ${boxName}`
                             );
-                            vscode.window.showErrorMessage(`Failed to create Vagrant Box ${boxName}.`);
+                            ShowErrorMessage(TELEMETRY_VAGRANT, `Failed to create Vagrant Box ${boxName}`, true);
                             return;
                           }
 
@@ -92,7 +96,7 @@ const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContex
               }
             });
         } catch (error) {
-          vscode.window.showErrorMessage(`Failed to download and create Vagrant Box from cloud`);
+          ShowErrorMessage(TELEMETRY_VAGRANT, `Failed to download and create Vagrant Box from cloud`);
           LogService.error(
             `Failed to download and create Vagrant Box from cloud: ${error}`,
             "CreateDockerContainerCommand"

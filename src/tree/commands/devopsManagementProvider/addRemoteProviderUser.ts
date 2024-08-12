@@ -9,13 +9,20 @@ import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsCreateUserRequest} from "../../../models/devops/users";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
+import {TELEMETRY_DEVOPS_CATALOG, TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsManagementProviderAddUserCommand = (
   context: vscode.ExtensionContext,
   provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider
 ) => {
+  const localProvider = provider;
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoteProviderManagementAddUser, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      const providerName =
+        localProvider instanceof DevOpsCatalogProvider ? TELEMETRY_DEVOPS_CATALOG : TELEMETRY_DEVOPS_REMOTE;
+      telemetry.sendOperationEvent(providerName, "ADD_PROVIDER_USER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -29,7 +36,7 @@ const registerDevOpsManagementProviderAddUserCommand = (
         provider = config.findCatalogProviderByIOrName(providerId);
       }
       if (!provider) {
-        vscode.window.showErrorMessage(`Remote Host Provider User ${item.name} not found`);
+        ShowErrorMessage(providerName, `Provider ${item.name} not found`);
         return;
       }
 
@@ -39,7 +46,7 @@ const registerDevOpsManagementProviderAddUserCommand = (
         ignoreFocusOut: true
       });
       if (!name) {
-        vscode.window.showErrorMessage(`User Name is required`);
+        ShowErrorMessage(providerName, `User Name is required`);
         return;
       }
 
@@ -49,7 +56,7 @@ const registerDevOpsManagementProviderAddUserCommand = (
         ignoreFocusOut: true
       });
       if (!username) {
-        vscode.window.showErrorMessage(`User Username is required`);
+        ShowErrorMessage(providerName, `User Username is required`);
         return;
       }
 
@@ -59,7 +66,7 @@ const registerDevOpsManagementProviderAddUserCommand = (
         ignoreFocusOut: true
       });
       if (!email) {
-        vscode.window.showErrorMessage(`User Username is required`);
+        ShowErrorMessage(providerName, `User Email is required`);
         return;
       }
 
@@ -70,15 +77,16 @@ const registerDevOpsManagementProviderAddUserCommand = (
         ignoreFocusOut: true
       });
       if (!password) {
-        vscode.window.showErrorMessage(`User Password is required`);
+        ShowErrorMessage(providerName, `User Password is required`);
         return;
       }
       if (password.length < 12) {
-        vscode.window.showErrorMessage(`User Password needs to be at least 12 characters long`);
+        ShowErrorMessage(providerName, `User Password needs to be at least 12 characters long`);
         return;
       }
       if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/)) {
-        vscode.window.showErrorMessage(
+        ShowErrorMessage(
+          providerName,
           `User Password needs to have at least one uppercase, one lowercase, one number and one special character`
         );
         return;
@@ -105,8 +113,10 @@ const registerDevOpsManagementProviderAddUserCommand = (
         .then(async () => {
           let foundError = false;
           await DevOpsService.createRemoteHostUsers(provider, request).catch(() => {
-            vscode.window.showErrorMessage(
-              `Failed to create user ${name} on the Orchestrator ${provider?.name ?? "Unknown"}`
+            ShowErrorMessage(
+              providerName,
+              `Failed to create user ${name} on the Remote Host ${provider?.name ?? "Unknown"}`,
+              true
             );
             foundError = true;
             return;
@@ -129,7 +139,11 @@ const registerDevOpsManagementProviderAddUserCommand = (
           }
         })
         .catch(error => {
-          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${name}, err:\n ${error}`);
+          ShowErrorMessage(
+            providerName,
+            `Failed to connect to Remote Host ${provider?.name ?? "Unknown"}, err:\n ${error}`,
+            true
+          );
         });
     })
   );

@@ -4,7 +4,7 @@ import * as path from "path";
 
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
-import {CommandsFlags, Constants, FLAG_PACKER_RECIPES_CACHED, TelemetryEventIds} from "../../../constants/flags";
+import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {generateHtml} from "../../../views/header.html";
 import {CreateMachineService} from "../../../services/createMachineService";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
@@ -13,15 +13,17 @@ import {LogService} from "../../../services/logService";
 import {Provider} from "../../../ioc/provider";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {PackerService} from "../../../services/packerService";
-import {GitService} from "../../../services/gitService";
+import { TELEMETRY_VM } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerAddVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeAddVm, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "ADD_VM_COMMAND_CLICK");
+
       if (!(await PackerService.canAddVms())) {
-        vscode.window.showErrorMessage(
-          "There are some required dependencies missing. Please install them and try again."
-        );
+        ShowErrorMessage(TELEMETRY_VM, "There are some required dependencies missing. Please install them and try again.");
         return;
       }
 
@@ -110,6 +112,8 @@ const registerAddVmCommand = (context: vscode.ExtensionContext, provider: Virtua
                 request.requiredVariables.push(variable);
               });
             }
+            const TELEMETRY_OPERATION = `${request.os.toUpperCase()}_${request.platform.toUpperCase()}_${request.distro.toUpperCase()}_${request.image.toUpperCase()}`;
+            telemetry.sendOperationEvent(TELEMETRY_VM, `CREATE_${TELEMETRY_OPERATION}`);
             vscode.window.withProgress(
               {
                 location: vscode.ProgressLocation.Notification,
@@ -123,6 +127,7 @@ const registerAddVmCommand = (context: vscode.ExtensionContext, provider: Virtua
                     value => {
                       if (value) {
                         ParallelsDesktopService.getVms().then(() => {
+                          telemetry.sendOperationEvent(TELEMETRY_VM, `SUCCESSFULLY_CREATED_${TELEMETRY_OPERATION}`);
                           LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineCompleted);
                           LogService.info(`VM ${request.name} created`, "AddVmCommand");
                           provider.refresh();
@@ -131,19 +136,21 @@ const registerAddVmCommand = (context: vscode.ExtensionContext, provider: Virtua
                         });
                       } else {
                         LogService.info(`VM ${request.name} not created`, "AddVmCommand");
-                        vscode.window.showErrorMessage(`VM ${request.name} not created`);
+                        ShowErrorMessage(TELEMETRY_VM, `VM ${request.name} not created`);
                       }
                     },
                     err => {
+                      telemetry.sendOperationEvent(TELEMETRY_VM, `FAILED_TO_CREATE_${TELEMETRY_OPERATION}`);
                       LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineFailed);
                       LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
-                      vscode.window.showErrorMessage(`Error creating VM: ${err}`);
+                      ShowErrorMessage(TELEMETRY_VM, `Error creating VM: ${err}`);
                     }
                   )
                   .catch(err => {
+                    telemetry.sendOperationEvent(TELEMETRY_VM, `FAILED_TO_CREATE_${TELEMETRY_OPERATION}`);
                     LogService.sendTelemetryEvent(TelemetryEventIds.AddNewMachineFailed);
                     LogService.error(`Error creating VM: ${err}`, "AddVmCommand", true);
-                    vscode.window.showErrorMessage(`Error creating VM: ${err}`);
+                    ShowErrorMessage(TELEMETRY_VM, `Error creating VM: ${err}`);
                   });
                 return;
               }

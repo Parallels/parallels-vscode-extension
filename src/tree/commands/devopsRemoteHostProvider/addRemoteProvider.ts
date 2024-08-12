@@ -7,6 +7,8 @@ import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {cleanString} from "../../../helpers/strings";
+import {TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsAddRemoteProviderCommand = (
   context: vscode.ExtensionContext,
@@ -14,6 +16,8 @@ const registerDevOpsAddRemoteProviderCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddRemoteProvider, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DEVOPS_REMOTE, "ADD_REMOTE_PROVIDER_COMMAND_CLICK");
       LogService.info("pressed the add remote provider button");
       const currentItems: vscode.QuickPickItem[] = [
         {
@@ -38,7 +42,7 @@ const registerDevOpsAddRemoteProviderCommand = (
         ignoreFocusOut: true
       });
       if (!host) {
-        vscode.window.showErrorMessage(`${typeName} host is required`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `${typeName} host is required`);
         return;
       }
       if (!host.startsWith("http://") && !host.startsWith("https://")) {
@@ -51,7 +55,7 @@ const registerDevOpsAddRemoteProviderCommand = (
         ignoreFocusOut: true
       });
       if (!name) {
-        vscode.window.showErrorMessage(`${typeName} name is required`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `${typeName} name is required`);
         return;
       }
 
@@ -71,7 +75,7 @@ const registerDevOpsAddRemoteProviderCommand = (
       try {
         hostname = new URL(host);
       } catch (error) {
-        vscode.window.showErrorMessage("Invalid Catalog Provider Host");
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, "Invalid Catalog Provider Host");
         return;
       }
       remoteHostProvider.host = hostname.hostname;
@@ -88,9 +92,9 @@ const registerDevOpsAddRemoteProviderCommand = (
         });
         if (!username) {
           if (retry < 3) {
-            vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to add ${typeName} Provider`);
           } else {
-            vscode.window.showErrorMessage(`${typeName} Username is required`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `${typeName} Username is required`);
           }
           return;
         }
@@ -103,9 +107,9 @@ const registerDevOpsAddRemoteProviderCommand = (
         });
         if (!password) {
           if (retry < 3) {
-            vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to add ${typeName} Provider`);
           } else {
-            vscode.window.showErrorMessage(`${typeName} Password is required`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `${typeName} Password is required`);
           }
           return;
         }
@@ -127,20 +131,20 @@ const registerDevOpsAddRemoteProviderCommand = (
         if (retry === 0) {
           break;
         }
-        vscode.window.showErrorMessage(`Failed to connect to ${typeName} Host ${host}`);
 
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to connect to ${typeName} Host ${host}`);
         retry--;
       }
 
       if (foundError) {
-        vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to connect to ${typeName} Host ${host}`);
         return;
       }
 
       const config = Provider.getConfiguration();
       const ok = config.addRemoteHostProvider(remoteHostProvider);
       if (!ok) {
-        vscode.window.showErrorMessage(`Failed to add ${typeName} Provider`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to add ${typeName} Provider`);
         return;
       }
 

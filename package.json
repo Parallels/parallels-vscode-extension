@@ -912,6 +912,30 @@
                     "light": "img/light/catalog_manifest_pull.svg",
                     "dark": "img/dark/catalog_manifest_pull.svg"
                 }
+            },
+            {
+                "command": "parallels-desktop.parallels-catalog.refresh",
+                "title": "Refresh Parallels Catalog",
+                "icon": {
+                    "light": "img/light/refresh.svg",
+                    "dark": "img/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.parallels-catalog.force-refresh",
+                "title": "Refresh Parallels Catalog",
+                "icon": {
+                    "light": "img/light/refresh.svg",
+                    "dark": "img/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.parallels-catalog.pull-catalog-manifest",
+                "title": "Pull Catalog Manifest",
+                "icon": {
+                    "light": "img/light/catalog_manifest_pull.svg",
+                    "dark": "img/dark/catalog_manifest_pull.svg"
+                }
             }
         ],
         "viewsContainers": {
@@ -1231,6 +1255,14 @@
                 {
                     "command": "parallels-desktop.devops-service.remote-host.pull-catalog-manifest-machine-on-host",
                     "when": "false"
+                },
+                {
+                    "command":"parallels-desktop.parallels-catalog.refresh",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.parallels-catalog.pull-catalog-manifest",
+                    "when": "false"
                 }
             ],
             "view/title": [
@@ -1275,12 +1307,12 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.add-catalog-provider",
-                    "when": "view == parallels-desktop-catalog && parallels-desktop:devops-service-catalog-provider-has-items == true",
+                    "when": "view == parallels-desktop-remote-catalog && parallels-desktop:devops-service-catalog-provider-has-items == true",
                     "group": "navigation@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.refresh-catalog-provider",
-                    "when": "view == parallels-desktop-catalog && parallels-desktop:devops-service-catalog-provider-has-items == true",
+                    "when": "view == parallels-desktop-remote-catalog && parallels-desktop:devops-service-catalog-provider-has-items == true",
                     "group": "navigation@1"
                 },
                 {
@@ -1292,6 +1324,11 @@
                     "command": "parallels-desktop.devops-service.force-refresh-remote-host-provider",
                     "when": "view == parallels-desktop-remote-hosts && parallels-desktop:devops-service-remote-host-provider-has-items == true",
                     "group": "navigation@1"
+                },
+                {
+                    "command": "parallels-desktop.parallels-catalog.force-refresh",
+                    "when": "view == parallels-desktop-catalog && parallels-desktop:parallels-catalog-has-tree-items == true",
+                    "group": "navigation@0"
                 }
             ],
             "view/item/context": [
@@ -1483,67 +1520,67 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-catalog-provider",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.provider/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /devops\\.catalog\\.provider/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-catalog-provider-manifest",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.(manifests$|manifests\\.manifest\\.version.*)\\.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /devops\\.catalog\\.(manifests$|manifests\\.manifest\\.version.*)\\.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.pull-catalog-provider-manifest",
-                    "when": "view == parallels-desktop-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests\\.(manifest|manifest\\.version|manifest\\.version\\.super_user)$/",
+                    "when": "view == parallels-desktop-remote-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests\\.(manifest|manifest\\.version|manifest\\.version\\.super_user)$/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.push-catalog-provider-manifest",
-                    "when": "view == parallels-desktop-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests$/",
+                    "when": "view == parallels-desktop-remote-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests$/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.taint-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version.super_user$/",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.devops-service.untaint-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version\\.tainted.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.version\\.tainted.super_user$/",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.devops-service.revoke-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.(version.super_user|version.super_user\\.tainted.super_user)$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /devops\\.catalog\\.manifests\\.manifest\\.(version.super_user|version.super_user\\.tainted.super_user)$/",
                     "group": "inline@2"
                 },
                 {
                     "command": "parallels-desktop.devops-service.add-role-to-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.roles.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.roles.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-role-from-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.role.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.role.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.add-claim-to-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claims.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claims.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-claim-from-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claim.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.claim.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.add-tag-to-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tags.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tags.super_user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remove-tag-from-catalog-provider-manifest-version",
-                    "when": "view == parallels-desktop-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tag.super_user$/",
+                    "when": "view == parallels-desktop-remote-catalog && viewItem =~ /provider\\.catalog\\.manifests\\.manifest\\.architecture\\.tag.super_user$/",
                     "group": "inline@10"
                 },
                 {
@@ -1613,68 +1650,73 @@
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.add-user",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.users$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.users$/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.remove-user",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.user$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.user$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.update-user",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.user$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.user$/",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.add-user-role",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.roles$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.roles$/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.remove-user-role",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.role$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.role$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.add-user-claim",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.claims$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.claims$/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.remove-user-claim",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.claim$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.user\\.claim$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.add-role",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.roles$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.roles$/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.remove-role",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.role$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.role$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.add-claim",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.claims$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.claims$/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.remove-claim",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.remote\\.management\\.claim$/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.claim$/",
                     "group": "inline@10"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-provider-management.update-remote-provider",
-                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-catalog) && viewItem =~ /devops\\.(remote\\.provider|catalog\\.provider)/",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.(remote\\.provider|catalog\\.provider)/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.devops-service.remote-host.pull-catalog-manifest-machine-on-host",
                     "when": "view == parallels-desktop-remote-hosts && viewItem =~ /devops\\.remote\\.provider\\.active$/",
                     "group": "inline@1"
+                },
+                {
+                    "command": "parallels-desktop.parallels-catalog.pull-catalog-manifest",
+                    "when": "view == parallels-desktop-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests\\.(manifest|manifest\\.version|manifest\\.version\\.super_user)$/",
+                    "group": "inline@0"
                 }
             ]
         },
@@ -1682,15 +1724,23 @@
             "parallels-desktop": [
                 {
                     "id": "parallels-desktop-machines",
-                    "name": "Virtual Machines",
+                    "name": "My Virtual Machines",
                     "icon": "media/parallels_logo.svg",
                     "type": "tree",
-                    "when": "parallels-desktop:initialized == true && parallels-desktop:os === darwin",
+                    "when": "parallels-desktop:initialized == true && parallels-desktop:os === darwin ",
                     "contextualTitle": "Parallels Desktop Virtual Machines"
                 },
                 {
                     "id": "parallels-desktop-catalog",
-                    "name": "Catalogs",
+                    "name": "Parallels Catalog",
+                    "icon": "media/parallels_logo.svg",
+                    "type": "tree",
+                    "when": "parallels-desktop:initialized == true && parallels-desktop:os === darwin && parallels-desktop:show-catalog === true && (parallels-desktop:is-licensed-show-catalog === true || parallels-desktop:is-licensed-show-catalog === false)",
+                    "contextualTitle": "Parallels Desktop VM Catalog"
+                },
+                {
+                    "id": "parallels-desktop-remote-catalog",
+                    "name": "My Catalogs",
                     "icon": "media/parallels_logo.svg",
                     "contextualTitle": "Catalog Machines",
                     "type": "tree",
@@ -1699,18 +1749,18 @@
                 },
                 {
                     "id": "parallels-desktop-remote-hosts",
-                    "name": "Remote Hosts",
+                    "name": "My Remote Hosts",
                     "icon": "media/parallels_logo.svg",
-                    "contextualTitle": "Remote Hosts",
+                    "contextualTitle": "My Remote Hosts",
                     "type": "tree",
                     "visibility": "collapsed",
                     "when": "parallels-desktop:initialized == true"
                 },
                 {
                     "id": "parallels-desktop-vagrant",
-                    "name": "Vagrant Boxes",
+                    "name": "My Vagrant Boxes",
                     "icon": "media/parallels_logo.svg",
-                    "contextualTitle": "Vagrant Boxes",
+                    "contextualTitle": "My Vagrant Boxes",
                     "type": "tree",
                     "visibility": "collapsed"
                 },
@@ -1725,11 +1775,26 @@
         "viewsWelcome": [
             {
                 "view": "parallels-desktop-machines",
-                "when": "parallels-desktop:initialized === true && parallels-desktop:hasVirtualMachines === false",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:hasVirtualMachines === false && (parallels-desktop:is-licensed-show-catalog === 'pro' || parallels-desktop:is-licensed-show-catalog === 'business')",
                 "contents": "Welcome to Parallels Desktop\n Please add a virtual machine to start using the extension.\n[Create Virtual Machine](command:parallels-desktop.tree-view.add-vm)"
             },
             {
+                "view": "parallels-desktop-machines",
+                "when": "parallels-desktop:initialized === true && (parallels-desktop:is-licensed-show-catalog !== 'pro' && parallels-desktop:is-licensed-show-catalog !== 'business')",
+                "contents": "Welcome to Parallels Desktop\n To have access to this functionality you need a Pro or Business license.\n[Buy Pro License](command:parallels-desktop.common.buy-pro-license)\n[Buy Business License](command:parallels-desktop.common.buy-business-license)"
+            },
+            {
                 "view": "parallels-desktop-catalog",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === false",
+                "contents": "Welcome to Parallels Desktop VMs Catalog\n To have access to this functionality you need a Pro or Business license.\n[Buy Pro License](command:parallels-desktop.common.buy-pro-license)\n[Buy Business License](command:parallels-desktop.common.buy-business-license)"
+            },
+            {
+                "view": "parallels-desktop-catalog",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === true",
+                "contents": "It looks like the Parallels Desktop VMs Catalog is currently unavailable.\nPlease verify your internet connection and ensure you're using the latest version of the extension, then try again.\n[Refresh](command:parallels-desktop.parallels-catalog.force-refresh)"
+            },
+            {
+                "view": "parallels-desktop-remote-catalog",
                 "when": "parallels-desktop:initialized === true && parallels-desktop:devops-service-catalog-provider-has-items !== true",
                 "contents": "Welcome to Parallels Desktop Catalog\nTo learn more about how to get started and to see an example please go to the [documentation page](https://parallels.github.io/prl-devops-service/examples/remote-catalog/)\nTo add your first Catalog Provider press this button\n[Add Catalog Provider](command:parallels-desktop.devops-service.add-catalog-provider)"
             },
@@ -1812,6 +1877,7 @@
         "clipboardy": "^3.0.0",
         "jwt-decode": "^4.0.0",
         "tailwindcss": "^3.3.2",
-        "uuid": "^9.0.0"
+        "uuid": "^9.0.0",
+        "@amplitude/analytics-node": "^1.3.6"
     }
 }

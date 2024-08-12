@@ -7,10 +7,14 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {DockerImageOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_DOCKER} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerRemoveDockerImageCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerRemoveImage, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DOCKER, "REMOVE_DOCKER_IMAGE_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -37,7 +41,7 @@ const registerRemoveDockerImageCommand = (context: vscode.ExtensionContext, prov
                     `Docker image ${item.name} removed`
                   );
                 } else {
-                  vscode.window.showErrorMessage(`Failed to remove docker image ${item.name}`);
+                  ShowErrorMessage(TELEMETRY_DOCKER, `Failed to remove docker image ${item.name}`, true);
                   LogService.error(`Failed to remove docker image ${item.name}`, "RemoveDockerImageCommand");
                   LogService.sendTelemetryEvent(
                     TelemetryEventIds.VirtualMachineAction,
@@ -46,7 +50,7 @@ const registerRemoveDockerImageCommand = (context: vscode.ExtensionContext, prov
                 }
               })
               .catch(reject => {
-                vscode.window.showErrorMessage(`Failed to remove docker image ${item.name}`);
+                ShowErrorMessage(TELEMETRY_DOCKER, `Failed to remove docker image ${item.name}`, true);
                 LogService.error(`Failed to remove docker image ${item.name}: ${reject}`, "RemoveDockerImageCommand");
                 LogService.sendTelemetryEvent(
                   TelemetryEventIds.VirtualMachineAction,
@@ -54,7 +58,7 @@ const registerRemoveDockerImageCommand = (context: vscode.ExtensionContext, prov
                 );
               });
           } catch (error) {
-            vscode.window.showErrorMessage(`Failed to remove docker image ${item.name}`);
+            ShowErrorMessage(TELEMETRY_DOCKER, `Failed to remove docker image ${item.name}`, true);
             LogService.error(`Failed to remove docker image ${item.name}: ${error}`, "RemoveDockerImageCommand");
             LogService.sendTelemetryEvent(
               TelemetryEventIds.VirtualMachineAction,

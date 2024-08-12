@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import {GPT_3_TURBO_MODEL_SELECTOR} from "./constants";
+import {GPT_3_TURBO_MODEL_SELECTOR, GPT_4_MODEL_SELECTOR} from "./constants";
 import {CommandsFlags} from "../constants/flags";
 import {processUserIntensions} from "./training/processUserIntensions";
 import {CopilotOperation, ICatChatResult} from "./models";
@@ -14,6 +14,7 @@ import {catalogIntensionHandler} from "./handlers/catalogIntensionHandler";
 import {orchestratorIntensionHandler} from "./handlers/orchestartorIntensionHandler";
 import {remoteHostIntensionHandler} from "./handlers/remoteHostIntensionHandler";
 import {vmInfoIntensionHandler} from "./handlers/vmInfoIntensionHandler";
+import {Provider} from "../ioc/provider";
 
 // Define the parallels desktop conversation handler.
 export const conversationHandler: vscode.ChatRequestHandler = async (
@@ -22,6 +23,7 @@ export const conversationHandler: vscode.ChatRequestHandler = async (
   stream: vscode.ChatResponseStream,
   token: vscode.CancellationToken
 ): Promise<ICatChatResult> => {
+  const telemetry = Provider.telemetry();
   if (request.command == "create") {
     stream.progress("Picking the right topic to teach...");
     const topic = getChatHistory(context.history);
@@ -78,7 +80,7 @@ export const conversationHandler: vscode.ChatRequestHandler = async (
     }
     return {metadata: {command: "status"}};
   } else {
-    const models = await vscode.lm.selectChatModels(GPT_3_TURBO_MODEL_SELECTOR);
+    const models = await vscode.lm.selectChatModels(GPT_4_MODEL_SELECTOR);
     if (models.length === 0) {
       stream.markdown("There was an error getting the models, please reach out to the extension developer.");
       return {metadata: {command: ""}};
@@ -91,6 +93,8 @@ export const conversationHandler: vscode.ChatRequestHandler = async (
         stream.markdown(`I am not sure what you are asking me to do, please try again with a more defined input.`);
         return {metadata: {command: ""}};
       }
+
+      telemetry.sendCopilotEvent(intensions[i].intension, intensions[i].operation, intensions[i].intension_description);
       console.log(intensions[i]);
       const userIntension = intensions[i].intension_description ? intensions[i].intension_description : request.prompt;
       switch (intensions[i].intension.toUpperCase()) {

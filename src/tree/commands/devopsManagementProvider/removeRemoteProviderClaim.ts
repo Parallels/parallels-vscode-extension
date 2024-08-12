@@ -8,13 +8,20 @@ import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
+import {TELEMETRY_DEVOPS_CATALOG, TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsManagementProviderRemoveClaimCommand = (
   context: vscode.ExtensionContext,
   provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider
 ) => {
+  const localProvider = provider;
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoteProviderManagementRemoveClaim, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      const providerName =
+        localProvider instanceof DevOpsCatalogProvider ? TELEMETRY_DEVOPS_CATALOG : TELEMETRY_DEVOPS_REMOTE;
+      telemetry.sendOperationEvent(providerName, "REMOVE_PROVIDER_CLAIM_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -35,13 +42,13 @@ const registerDevOpsManagementProviderRemoveClaimCommand = (
         provider = config.findCatalogProviderByIOrName(providerId);
       }
       if (!provider) {
-        vscode.window.showErrorMessage(`Remote Host Provider User ${item.name} not found`);
+        ShowErrorMessage(providerName, `Remote Host Provider User ${item.name} not found`);
         return;
       }
 
       const claim = provider.claims?.find(u => u.id === claimId);
       if (!claim) {
-        vscode.window.showErrorMessage(`Remote Host Provider claim ${item.name} not found`);
+        ShowErrorMessage(providerName, `Remote Host Provider claim ${item.name} not found`);
         return;
       }
 
@@ -49,8 +56,10 @@ const registerDevOpsManagementProviderRemoveClaimCommand = (
         .then(async () => {
           let foundError = false;
           await DevOpsService.removeRemoteHostClaim(provider, claimId).catch(() => {
-            vscode.window.showErrorMessage(
-              `Failed to remove claim ${item.name} from the remote provider ${provider?.name ?? "Unknown"}`
+            ShowErrorMessage(
+              providerName,
+              `Failed to remove claim ${item.name} from the remote provider ${provider?.name ?? "Unknown"}`,
+              true
             );
             foundError = true;
             return;
@@ -73,7 +82,7 @@ const registerDevOpsManagementProviderRemoveClaimCommand = (
           }
         })
         .catch(error => {
-          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${claim.name}, err:\n ${error}`);
+          ShowErrorMessage(providerName, `Failed to connect to Remote Host ${claim.name}, err:\n ${error}`, true);
         });
     })
   );

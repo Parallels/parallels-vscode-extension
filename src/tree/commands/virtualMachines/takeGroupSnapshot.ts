@@ -7,6 +7,9 @@ import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { Provider } from "../../../ioc/provider";
+import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerTakeGroupSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -14,6 +17,8 @@ const registerTakeGroupSnapshotCommand = (context: vscode.ExtensionContext, prov
       if (!item) {
         return;
       }
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "TAKE_SNAPSHOT_COMMAND_CLICK");
       const snapshotName = await vscode.window.showInputBox({
         prompt: "Snapshot Name?",
         placeHolder: "Enter the name for your snapshot"
@@ -44,6 +49,7 @@ const registerTakeGroupSnapshotCommand = (context: vscode.ExtensionContext, prov
                   TelemetryEventIds.VirtualMachineAction,
                   `Snapshot ${snapshotName} created for ${group.name}`
                 );
+                telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "TAKE_SNAPSHOT_COMMAND_SUCCESS", { operationValue: snapshotName });
               },
               () => {
                 LogService.error(
@@ -54,7 +60,7 @@ const registerTakeGroupSnapshotCommand = (context: vscode.ExtensionContext, prov
                   TelemetryEventIds.VirtualMachineAction,
                   `Snapshot ${snapshotName} failed to create for ${group.name}`
                 );
-                vscode.window.showErrorMessage(`Snapshot ${snapshotName} failed to create for ${group.name}`);
+                ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to take snapshot ${snapshotName} for ${group.name}`, true);
               }
             );
           }
@@ -78,7 +84,7 @@ function takeSnapshot(
       }
     );
     if (!result) {
-      vscode.window.showErrorMessage(`failed to create snapshot ${snapshotName}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `failed to create snapshot ${snapshotName}`, true);
       return reject(`failed to create snapshot ${snapshotName}`);
     }
 
@@ -93,9 +99,7 @@ function takeSnapshot(
       }
       if (retry === 0) {
         LogService.error(`Virtual machine ${vm.Name} failed to take the snapshoot`);
-        vscode.window.showErrorMessage(
-          `Virtual machine ${vm.Name} failed to take the snapshoot, please check the logs`
-        );
+        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${vm.Name} snapshoot, please check the logs`, true);
         break;
       }
       retry--;

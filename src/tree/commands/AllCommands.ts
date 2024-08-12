@@ -1,7 +1,9 @@
 import {
+  CommonCommand,
   DevOpsCatalogCommand,
   DevOpsRemoteHostsCommand,
   DevOpsRemoteProviderManagementCommand,
+  ParallelsCatalogCommand,
   VagrantCommand,
   VirtualMachineCommand
 } from "./BaseCommand";
@@ -94,6 +96,13 @@ import {DevOpsManagementProviderUpdateUserCommand} from "./devopsManagementProvi
 import {DevOpsPullCatalogManifestMachineOnHostCommand} from "./devopsRemoteHostProvider/pullCatalogManifestMachineOnHost";
 import {DevOpsUpdateRemoteProviderOrchestratorHostCommand} from "./devopsRemoteHostProvider/updateRemoteProviderOrchestratorHost";
 import {CloneVmCommand} from "./virtualMachines/cloneVm";
+import {ParallelsCatalogRefreshCommand} from "./parallelsCatalogProvider/refreshCatalogProvider";
+import {ParallelsCatalogForceRefreshCommand} from "./parallelsCatalogProvider/forceRefreshCatalogProvider";
+import {BuyBusinessLicenseCommonCommand} from "./common/buyBusinessLicense";
+import {ParallelsCatalogPullCatalogManifestCommand} from "./parallelsCatalogProvider/pullCatalogProviderManifest";
+import {BuyProLicenseCommonCommand} from "./common/buyProLicense";
+
+export const AllCommonCommand: CommonCommand[] = [BuyProLicenseCommonCommand, BuyBusinessLicenseCommonCommand];
 
 export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   AddVmCommand,
@@ -199,4 +208,10 @@ export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderMana
   DevOpsManagementProviderRemoveRoleCommand,
   DevOpsManagementProviderUpdateProviderCommand,
   DevOpsManagementProviderUpdateUserCommand
+];
+
+export const AllParallelsCommands: ParallelsCatalogCommand[] = [
+  ParallelsCatalogRefreshCommand,
+  ParallelsCatalogForceRefreshCommand,
+  ParallelsCatalogPullCatalogManifestCommand
 ];

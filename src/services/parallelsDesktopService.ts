@@ -13,6 +13,7 @@ import {LogService} from "./logService";
 import {NewVirtualMachineSpecs} from "../models/parallels/NewVirtualMachineSpecs";
 import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
 import {VirtualMachineRunningInfo} from "../models/parallels/virtualMachineRunningInfo";
+import {TELEMETRY_INSTALL_PARALLELS_DESKTOP} from "../telemetry/operations";
 
 export class ParallelsDesktopService {
   static isInstalled(): Promise<boolean> {
@@ -198,6 +199,7 @@ export class ParallelsDesktopService {
           cancellable: false
         },
         async (progress, token) => {
+          const telemetry = Provider.telemetry();
           progress.report({message: "Installing Parallels Desktop..."});
           const result = await new Promise(async (resolve, reject) => {
             const brew = cp.spawn("brew", ["install", "parallels"]);
@@ -217,10 +219,14 @@ export class ParallelsDesktopService {
             });
           });
           if (!result) {
+            telemetry.sendErrorEvent(TELEMETRY_INSTALL_PARALLELS_DESKTOP, "Failed to install Parallels Desktop");
             progress.report({message: "Failed to install Parallels Desktop, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Parallels Desktop, see logs for more details");
             return resolve(false);
           } else {
+            telemetry.sendOperationEvent(TELEMETRY_INSTALL_PARALLELS_DESKTOP, "success", {
+              description: "Parallels Desktop was installed successfully"
+            });
             progress.report({message: "Parallels Desktop was installed successfully"});
             vscode.window.showInformationMessage("Parallels Desktop was installed successfully");
             return resolve(true);
@@ -1237,8 +1243,26 @@ export class ParallelsDesktopService {
           return reject(`prlsrvctl info exited with code ${code}`);
         }
         try {
-          const info = JSON.parse(stdOut);
-          return resolve(info as ParallelsDesktopServerInfo);
+          const licenseCmd = cp.spawn("prlsrvctl", ["info", "--license", "--json"], {shell: true});
+          let licenseInfo = "";
+          licenseCmd.stdout.on("data", data => {
+            licenseInfo += data.toString();
+            LogService.debug(data.toString(), "ParallelsDesktopService");
+          });
+          licenseCmd.stderr.on("data", data => {
+            LogService.error(data.toString(), "ParallelsDesktopService");
+          });
+          licenseCmd.on("close", code => {
+            if (code !== 0) {
+              LogService.error(`prlsrvctl info --license exited with code ${code}`, "ParallelsDesktopService");
+              const info = JSON.parse(stdOut);
+              return resolve(info as ParallelsDesktopServerInfo);
+            }
+            const info = JSON.parse(stdOut);
+            const license = JSON.parse(licenseInfo);
+            info.License = license;
+            return resolve(info as ParallelsDesktopServerInfo);
+          });
         } catch (e) {
           LogService.error(`prlsrvctl info: ${e}`, "ParallelsDesktopService");
           return reject(e);

@@ -7,7 +7,7 @@ import {AuthorizationRequest, AuthorizationToken} from "./../models/devops/autho
 import {spawn} from "child_process";
 import {Provider} from "../ioc/provider";
 import {LogService} from "./logService";
-import {CommandsFlags, FLAG_DEVOPS_PATH, FLAG_DEVOPS_VERSION} from "../constants/flags";
+import {CommandsFlags, FLAG_DEVOPS_PATH, FLAG_DEVOPS_VERSION, FLAG_IS_PARALLELS_CATALOG_OFFLINE} from "../constants/flags";
 import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
 import axios from "axios";
 import {AuthorizationResponse} from "../models/devops/authorization";
@@ -30,13 +30,19 @@ import {
 import {HostHardwareInfo} from "../models/devops/hardwareInfo";
 import {CreateCatalogMachine} from "../models/devops/createCatalogMachine";
 import {UpdateOrchestratorHostRequest} from "../models/devops/updateOrchestratorHostRequest";
+import {TELEMETRY_INSTALL_DEVOPS} from "../telemetry/operations";
 
 const refreshThreshold = 5000;
+const parallelsCatalogThreshold = 3600000;
 const hardwareRefreshThreshold = 10;
 
 let catalogViewAutoRefreshInterval: NodeJS.Timeout | undefined;
 let isRefreshingCatalogProviders = false;
 let catalogViewAutoRefreshStarted = false;
+
+let parallelsCatalogViewAutoRefreshInterval: NodeJS.Timeout | undefined;
+let isRefreshingParallelsCatalog = false;
+let parallelsCatalogViewAutoRefreshStarted = false;
 
 let remoteHostsViewAutoRefreshInterval: NodeJS.Timeout | undefined;
 let isRefreshingRemoteHostProviders = false;
@@ -141,6 +147,7 @@ export class DevOpsService {
   }
 
   static install(): Promise<boolean> {
+    const telemetry = Provider.telemetry();
     LogService.info("Installing Parallels DevOps...", "DevOpsService");
     return new Promise(async (resolve, reject) => {
       const sudoPassword = await vscode.window.showInputBox({
@@ -164,7 +171,7 @@ export class DevOpsService {
           const result = await new Promise(async (resolve, reject) => {
             const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing DevOps Service`);
             terminal.sendText(
-              `echo ${sudoPassword} | sudo -S /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Parallels/prl-devops-service/main/scripts/install.sh)"; exit $?`
+              `echo ${sudoPassword} | sudo -S /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Parallels/prl-devops-service/main/scripts/install.sh)" - --no-service; exit $?`
             );
             vscode.window.onDidCloseTerminal(async closedTerminal => {
               if (closedTerminal.name === terminal.name) {
@@ -192,10 +199,14 @@ export class DevOpsService {
           });
 
           if (!result) {
+            telemetry.sendErrorEvent(TELEMETRY_INSTALL_DEVOPS, "Failed to install Parallels DevOps");
             progress.report({message: "Failed to install Parallels DevOps, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Parallels DevOps, see logs for more details");
             return resolve(false);
           } else {
+            telemetry.sendOperationEvent(TELEMETRY_INSTALL_DEVOPS, "success", {
+              description: "Parallels DevOps installed successfully"
+            });
             progress.report({message: "Parallels DevOps installed successfully"});
             vscode.window.showInformationMessage("Parallels DevOps installed successfully");
             return resolve(true);
@@ -244,6 +255,50 @@ export class DevOpsService {
             isRefreshingCatalogProviders = false;
           });
       }, refreshThreshold);
+    }
+  }
+
+  static startParallelsCatalogViewAutoRefresh(): void {
+    if (parallelsCatalogViewAutoRefreshStarted) {
+      return;
+    }
+
+    if (parallelsCatalogViewAutoRefreshInterval) {
+      clearInterval(parallelsCatalogViewAutoRefreshInterval);
+    }
+
+    parallelsCatalogViewAutoRefreshStarted = true;
+    if (!isRefreshingParallelsCatalog) {
+      parallelsCatalogViewAutoRefreshInterval = setInterval(() => {
+        isRefreshingParallelsCatalog = true;
+
+        DevOpsService.testHost(config.parallelsCatalogProvider)
+          .then(() => {
+            const oldState = config.parallelsCatalogProvider.state;
+            config.parallelsCatalogProvider.state = "active";
+            vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, false);
+            if (oldState === "inactive") {
+              vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
+            }
+          })
+          .catch(() => {
+            const oldState = config.parallelsCatalogProvider.state;
+            config.parallelsCatalogProvider.state = "inactive";
+            vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
+            if (oldState === "active") {
+              vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
+            }
+          });
+
+        this.refreshParallelsCatalogProvider(false)
+          .then(() => {
+            isRefreshingParallelsCatalog = false;
+          })
+          .catch(err => {
+            LogService.info(`Error refreshing catalog providers: ${err}`, "DevOpsService");
+            isRefreshingParallelsCatalog = false;
+          });
+      }, parallelsCatalogThreshold);
     }
   }
 
@@ -438,6 +493,38 @@ export class DevOpsService {
     }
 
     vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+  }
+
+  static async refreshParallelsCatalogProvider(force: boolean): Promise<void> {
+    const config = Provider.getConfiguration();
+    const provider = config.parallelsCatalogProvider;
+    let hasUpdate = false;
+    if (provider.state === "inactive") {
+      return;
+    }
+
+    const manifests = await this.getCatalogManifests(provider).catch(err => {
+      hasUpdate = true;
+      LogService.error(`Error getting catalog manifests for provider ${provider.name}, err: ${err}`, "DevOpsService");
+    });
+
+    if (manifests && (force || diffArray(provider.manifests, manifests, "name"))) {
+      provider.manifests = manifests;
+      provider.needsTreeRefresh = true;
+      hasUpdate = true;
+      LogService.info(
+        `Found different object catalog manifests for provider ${provider.name} updating tree`,
+        "DevOpsService"
+      );
+      vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
+    } else {
+      if (provider.needsTreeRefresh) {
+        provider.needsTreeRefresh = false;
+        hasUpdate = true;
+      }
+    }
+
+    vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
   }
 
   static async refreshRemoteHostProviders(force: boolean): Promise<void> {

@@ -7,6 +7,8 @@ import {DevOpsRemoteHostsCommand} from "../BaseCommand";
 import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsService} from "../../../services/devopsService";
+import {TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpSuspendVirtualMachineCommand = (
   context: vscode.ExtensionContext,
@@ -14,6 +16,8 @@ const registerDevOpSuspendVirtualMachineCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsSuspendRemoteProviderHostVm, async (item: DevOpsTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DEVOPS_REMOTE, "SUSPEND_VIRTUAL_MACHINE_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -28,7 +32,7 @@ const registerDevOpSuspendVirtualMachineCommand = (
           const machineId = item.id.split("%%")[3];
           const machine = config.findRemoteHostProviderVirtualMachine(providerId, machineId);
           if (!machine) {
-            vscode.window.showErrorMessage(`Machine ${item.name} not found`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Machine ${item.name} not found`);
             return;
           }
 
@@ -36,22 +40,22 @@ const registerDevOpSuspendVirtualMachineCommand = (
 
           const provider = config.findRemoteHostProviderById(providerId);
           if (!provider) {
-            vscode.window.showErrorMessage(`Provider for ${item.name} not found`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Provider for ${item.name} not found`);
             return;
           }
           if (!machineId) {
-            vscode.window.showErrorMessage(`Machine ${item.name} not found`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Machine ${item.name} not found`);
             return;
           }
 
           const ok = await DevOpsService.suspendRemoteHostVm(provider, machineId).catch(reject => {
-            vscode.window.showErrorMessage(`${reject}`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `${reject}`);
             foundError = true;
             return;
           });
 
           if (!ok || foundError) {
-            vscode.window.showErrorMessage(`Failed to suspend virtual machine ${item.name}`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to suspend virtual machine ${item.name}`, true);
             return;
           }
 
@@ -69,8 +73,10 @@ const registerDevOpSuspendVirtualMachineCommand = (
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to suspend`
               );
-              vscode.window.showErrorMessage(
-                `Failed to check if the machine ${item.name} suspended, please check the logs`
+              ShowErrorMessage(
+                TELEMETRY_DEVOPS_REMOTE,
+                `Failed to check if the machine ${item.name} suspended, please check the logs`,
+                true
               );
               break;
             }

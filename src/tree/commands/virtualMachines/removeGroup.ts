@@ -6,10 +6,13 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
 
 const registerRemoveGroupCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeRemoveGroup, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "REMOVE_GROUP_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -24,6 +27,7 @@ const registerRemoveGroupCommand = (context: vscode.ExtensionContext, provider: 
           Provider.getConfiguration().deleteVirtualMachineGroup(item.id);
           vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
           LogService.info(`Group ${item.name} removed`);
+          telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "REMOVE_GROUP_COMMAND_SUCCESS");
           LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, `Group ${item.name} removed`);
         }
       }

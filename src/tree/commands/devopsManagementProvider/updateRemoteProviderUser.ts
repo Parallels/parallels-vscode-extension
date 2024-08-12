@@ -8,13 +8,20 @@ import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogPr
 import {DevOpsUpdateUserRequest} from "../../../models/devops/users";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
+import {TELEMETRY_DEVOPS_CATALOG, TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsManagementProviderUpdateUserCommand = (
   context: vscode.ExtensionContext,
   provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider
 ) => {
+  const localProvider = provider;
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoteProviderManagementUpdateUser, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      const providerName =
+        localProvider instanceof DevOpsCatalogProvider ? TELEMETRY_DEVOPS_CATALOG : TELEMETRY_DEVOPS_REMOTE;
+      telemetry.sendOperationEvent(providerName, "UPDATE_PROVIDER_USER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -28,14 +35,14 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
         provider = config.findCatalogProviderByIOrName(providerId);
       }
       if (!provider) {
-        vscode.window.showErrorMessage(`Remote Host Provider User ${item.name} not found`);
+        ShowErrorMessage(providerName, `Remote Host Provider User ${item.name} not found`);
         return;
       }
       const userId = item.id.split("%%")[3];
 
       const user = provider.users?.find(u => u.id === userId);
       if (!user) {
-        vscode.window.showErrorMessage(`Remote Host Provider user ${item.name} not found`);
+        ShowErrorMessage(providerName, `Remote Host Provider user ${item.name} not found`);
         return;
       }
 
@@ -59,7 +66,7 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
       );
 
       if (!selectedOptions) {
-        vscode.window.showErrorMessage(`No option selected`);
+        ShowErrorMessage(providerName, `No option selected`);
         return;
       }
 
@@ -75,7 +82,7 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
         });
 
         if (!name) {
-          vscode.window.showErrorMessage(`User Name is required`);
+          ShowErrorMessage(providerName, `User Name is required`);
           return;
         }
 
@@ -91,7 +98,7 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
           value: user.email
         });
         if (!email) {
-          vscode.window.showErrorMessage(`User Username is required`);
+          ShowErrorMessage(providerName, `User Email is required`);
           return;
         }
         request.email = email;
@@ -106,15 +113,16 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
           ignoreFocusOut: true
         });
         if (!password) {
-          vscode.window.showErrorMessage(`User Password is required`);
+          ShowErrorMessage(providerName, `User Password is required`);
           return;
         }
         if (password.length < 12) {
-          vscode.window.showErrorMessage(`User Password needs to be at least 12 characters long`);
+          ShowErrorMessage(providerName, `User Password needs to be at least 12 characters long`);
           return;
         }
         if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/)) {
-          vscode.window.showErrorMessage(
+          ShowErrorMessage(
+            providerName,
             `User Password needs to have at least one uppercase, one lowercase, one number and one special character`
           );
           return;
@@ -126,8 +134,10 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
         .then(async () => {
           let foundError = false;
           await DevOpsService.updateRemoteHostUsers(provider, user.id, request).catch(() => {
-            vscode.window.showErrorMessage(
-              `Failed to update user ${name} on the Orchestrator ${provider?.name ?? "Unknown"}`
+            ShowErrorMessage(
+              providerName,
+              `Failed to update user ${name} on the Remote Host ${provider?.name ?? "Unknown"}`,
+              true
             );
             foundError = true;
             return;
@@ -150,7 +160,7 @@ const registerDevOpsManagementProviderUpdateUserCommand = (
           }
         })
         .catch(error => {
-          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${name}, err:\n ${error}`);
+          ShowErrorMessage(providerName, `Failed to connect to Remote Host ${name}, err:\n ${error}`, true);
         });
     })
   );

@@ -5,6 +5,8 @@ import {DevOpsRemoteHostsCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import {TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (
   context: vscode.ExtensionContext,
@@ -12,6 +14,8 @@ const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoveRemoteProviderOrchestratorHost, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DEVOPS_REMOTE, "REMOVE_REMOTE_PROVIDER_HOST_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -21,7 +25,7 @@ const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (
       const provider = config.findRemoteHostProviderById(providerId);
       const host = config.findRemoteHostProviderHostById(providerId, hostId);
       if (!provider || !host) {
-        vscode.window.showErrorMessage(`Remote Host Provider ${item.name} not found`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Remote Host Provider ${item.name} not found`);
         return;
       }
 
@@ -32,7 +36,11 @@ const registerDevOpsRemoveRemoteProviderOrchestratorHostCommand = (
       }
 
       await DevOpsService.removeRemoteHostOrchestratorHost(provider, host.id).catch(() => {
-        vscode.window.showErrorMessage(`Failed to remove ${host.description} from the Orchestrator ${provider.name}`);
+        ShowErrorMessage(
+          TELEMETRY_DEVOPS_REMOTE,
+          `Failed to remove ${host.description} from the Orchestrator ${provider.name}`,
+          true
+        );
         return;
       });
 

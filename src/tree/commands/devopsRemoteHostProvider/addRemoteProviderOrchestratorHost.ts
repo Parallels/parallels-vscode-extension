@@ -7,6 +7,8 @@ import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRe
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {cleanString} from "../../../helpers/strings";
 import {AddOrchestratorHostRequest} from "../../../models/devops/addOrchestratorHostRequest";
+import {TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
   context: vscode.ExtensionContext,
@@ -14,6 +16,8 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddRemoteProviderOrchestratorHost, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DEVOPS_REMOTE, "ADD_REMOTE_PROVIDER_ORCHESTRATOR_HOST_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -30,7 +34,7 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
         ignoreFocusOut: true
       });
       if (!host) {
-        vscode.window.showErrorMessage(`Remote host is required`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Remote host is required`);
         return;
       }
 
@@ -56,7 +60,7 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
         ignoreFocusOut: true
       });
       if (!username) {
-        vscode.window.showErrorMessage(`Remote Host Username is required`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Remote Host Username is required`);
         return;
       }
 
@@ -67,7 +71,7 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
         ignoreFocusOut: true
       });
       if (!password) {
-        vscode.window.showErrorMessage(`Remote Host Password is required`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Remote Host Password is required`);
         return;
       }
 
@@ -101,7 +105,11 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
         .then(async () => {
           let foundError = false;
           await DevOpsService.addRemoteHostOrchestratorHost(provider, request).catch(() => {
-            vscode.window.showErrorMessage(`Failed to add ${host} to the Orchestrator ${provider.name}`);
+            ShowErrorMessage(
+              TELEMETRY_DEVOPS_REMOTE,
+              `Failed to add Remote Host to the Orchestrator ${provider.name}`,
+              true
+            );
             foundError = true;
             return;
           });
@@ -117,7 +125,7 @@ const registerDevOpsAddRemoteProviderOrchestratorHostCommand = (
           vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
         })
         .catch(error => {
-          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${host}, err:\n ${error}`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to connect to Remote Host ${host}, err:\n ${error}`, true);
         });
     })
   );

@@ -11,6 +11,8 @@ import {getScreenCaptureFolder, isDarkTheme} from "../../../helpers/helpers";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { Provider } from "../../../ioc/provider";
+import { TELEMETRY_VM } from "../../../telemetry/operations";
 
 let lastClickedTime: number | undefined;
 
@@ -20,6 +22,8 @@ const registerViewVmDetailsCommand = (context: vscode.ExtensionContext, provider
       if (!item) {
         return;
       }
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "VIEW_VM_DETAILS_COMMAND_CLICK");
       if (item.type !== "Group" && item.type !== "Snapshot") {
         const clickedTime = Date.now();
         // if (lastClickedTime && clickedTime - lastClickedTime < 500) {

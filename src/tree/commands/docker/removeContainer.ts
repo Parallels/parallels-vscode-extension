@@ -7,10 +7,14 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_DOCKER} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerRemoveDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerRemoveContainer, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DOCKER, "REMOVE_DOCKER_CONTAINER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -43,7 +47,7 @@ const registerRemoveDockerContainerCommand = (context: vscode.ExtensionContext, 
                     `Docker container ${item.name} removed`
                   );
                 } else {
-                  vscode.window.showErrorMessage(`Failed to remove docker container ${item.name}`);
+                  ShowErrorMessage(TELEMETRY_DOCKER, `Failed to remove docker container ${item.name}`, true);
                   LogService.error(`Failed to remove docker container ${item.name}`, "RemoveDockerContainerCommand");
                   LogService.sendTelemetryEvent(
                     TelemetryEventIds.VirtualMachineAction,
@@ -52,7 +56,7 @@ const registerRemoveDockerContainerCommand = (context: vscode.ExtensionContext, 
                 }
               })
               .catch(reject => {
-                vscode.window.showErrorMessage(`Failed to remove docker container ${item.name}`);
+                ShowErrorMessage(TELEMETRY_DOCKER, `Failed to remove docker container ${item.name}`, true);
                 LogService.error(
                   `Failed to remove docker container ${item.name}: ${reject}`,
                   "RemoveDockerContainerCommand"
@@ -63,7 +67,7 @@ const registerRemoveDockerContainerCommand = (context: vscode.ExtensionContext, 
                 );
               });
           } catch (error) {
-            vscode.window.showErrorMessage(`Failed to remove docker container ${item.name}`);
+            ShowErrorMessage(TELEMETRY_DOCKER, `Failed to remove docker container ${item.name}`, true);
             LogService.error(
               `Failed to remove docker container ${item.name}: ${error}`,
               "RemoveDockerContainerCommand"

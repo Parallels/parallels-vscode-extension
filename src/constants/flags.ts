@@ -43,6 +43,11 @@ export const FLAG_DEVOPS_PATH = "devops-service.path";
 export const FLAG_DEVOPS_VERSION = "devops-service.version";
 export const FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED = "devops-service.catalog-provider.initialized";
 export const FLAG_DEVOPS_REMOTE_HOST_PROVIDER_INITIALIZED = "devops-service.remote-host-provider.initialized";
+export const FLAG_SHOW_PARALLELS_CATALOG = "parallels-desktop:show-catalog";
+export const FLAG_IS_LICENSED_SHOW_CATALOG = "parallels-desktop:is-licensed-show-catalog";
+export const FLAG_IS_PARALLELS_CATALOG_OFFLINE = "parallels-desktop:is-offline";
+export const FLAG_PARALLELS_CATALOG_HAS_ITEMS = "parallels-desktop:parallels-catalog-has-tree-items";
+export const FLAG_LICENSE = "parallels-desktop:license";
 
 const COMMAND_PREFIX = "parallels-desktop";
 const TREE_VIEW_PREFIX = "tree-view";
@@ -153,6 +158,11 @@ export class Constants {
 }
 
 export class CommandsFlags {
+  // Common Commands
+  static buyProLicenseCommonCommand = `${COMMAND_PREFIX}.common.buy-pro-license`;
+  static buyBusinessLicenseCommonCommand = `${COMMAND_PREFIX}.common.buy-business-license`;
+
+  // Virtual Machine Commands
   static clearDownloadCache = `${COMMAND_PREFIX}.clear-download-cache`;
 
   static treeVmInfo = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.view-vm-details`;
@@ -210,6 +220,10 @@ export class CommandsFlags {
   static dockerRunContainer = `${COMMAND_PREFIX}.docker.run-container`;
   static dockerRemoveImage = `${COMMAND_PREFIX}.docker.remove-image`;
 
+  // Parallels Catalog Commands
+  static parallelsCatalogRefreshProvider = `${COMMAND_PREFIX}.parallels-catalog.refresh`;
+  static parallelsCatalogForceRefreshProvider = `${COMMAND_PREFIX}.parallels-catalog.force-refresh`;
+  static parallelsCatalogPullCatalogManifest = `${COMMAND_PREFIX}.parallels-catalog.pull-catalog-manifest`;
   // Devops General Commands
 
   // Devops Catalog Commands

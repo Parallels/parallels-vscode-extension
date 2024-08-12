@@ -118,7 +118,14 @@ jobs:
         run: |
           cp package.json package.json.real
           sed --regexp-extended '/"name"\s*:/ s#@[a-zA-Z\\-]+/##' package.json.real > package.json
-
+      - name: Insert Variables
+        run: |
+          ./.github/workflow-scripts/insert-secrets.sh
+        env:
+          AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+      - run: |
+          cat /src/telemetry/telemetryService.ts
+          cat /src/services/configurationService.ts
       - run: npm ci
         env:
           npm_config_arch: ${{ matrix.npm_config_arch }}

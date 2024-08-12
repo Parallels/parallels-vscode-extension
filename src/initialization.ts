@@ -122,6 +122,11 @@ export async function initialize() {
         LogService.info(`Telemetry is ${config.isTelemetryEnabled ? "enabled" : "disabled"}`, "CoreService");
       }
 
+      const telemetry = Provider.telemetry();
+
+      telemetry.setLicenseEdition(config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown");
+      telemetry.setLicense(config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown");
+
       // Setting the headless flag to update the context menu
       if (settings.get<boolean>(FLAG_START_VMS_HEADLESS_DEFAULT)) {
         vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, true);

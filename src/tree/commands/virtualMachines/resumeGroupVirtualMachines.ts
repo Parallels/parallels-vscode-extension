@@ -9,6 +9,8 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerResumeGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -16,6 +18,8 @@ const registerResumeGroupVirtualMachinesCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeResumeGroupVms, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "RESUME_GROUP_VMS_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -39,7 +43,7 @@ const registerResumeGroupVirtualMachinesCommand = (
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             })
             .catch(() => {
-              vscode.window.showErrorMessage(`Failed to resume one or more VMs for ${group.name}`);
+              ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to resume one or more VMs for ${group.name}`, true);
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
               return;
             });
@@ -51,6 +55,7 @@ const registerResumeGroupVirtualMachinesCommand = (
 
 function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise<void> {
   return new Promise(async (resolve, reject) => {
+    const telemetry = Provider.telemetry();
     // refreshing the vm state in the config
     const config = Provider.getConfiguration();
     config.setVmStatus(item.ID, "resuming...");
@@ -63,7 +68,7 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
       return reject(reject);
     });
     if (!ok || foundError) {
-      vscode.window.showErrorMessage(`Failed to resume virtual machine ${item.Name}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to resume virtual machine ${item.Name}`, true);
       return reject(`Failed to resume virtual machine ${item.Name}`);
     }
 
@@ -75,6 +80,7 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
       if (result === "running") {
         LogService.info(`Virtual machine ${item.Name} resumed`);
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} resumed`);
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "RESUME_VM_COMMAND_SUCCESS", { operationValue: `${item.ID}_${item.OS}`});
         break;
       }
       if (retry === 0) {
@@ -83,7 +89,7 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to resume`
         );
-        vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} resumed, please check the logs`);
+        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${item.Name} resumed, please check the logs`, true);
         break;
       }
       retry--;

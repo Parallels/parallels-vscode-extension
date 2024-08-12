@@ -6,6 +6,8 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import { TELEMETRY_VM } from "../../../telemetry/operations";
+import { ShowErrorMessage } from "../../../helpers/error";
 
 const registerSuspendVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -13,6 +15,8 @@ const registerSuspendVirtualMachineCommand = (context: vscode.ExtensionContext, 
       if (!item) {
         return;
       }
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "SUSPEND_VM_COMMAND_CLICK");
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -26,12 +30,12 @@ const registerSuspendVirtualMachineCommand = (context: vscode.ExtensionContext, 
 
           let foundError = false;
           const ok = await ParallelsDesktopService.suspendVm(item.id).catch(reject => {
-            vscode.window.showErrorMessage(`${reject}`);
+            ShowErrorMessage(TELEMETRY_VM, `${reject}`);
             foundError = true;
             return;
           });
           if (!ok || foundError) {
-            vscode.window.showErrorMessage(`Failed to suspend virtual machine ${item.name}`);
+            ShowErrorMessage(TELEMETRY_VM, `Failed to suspend virtual machine ${item.name}`, true);
             return;
           }
 
@@ -46,6 +50,7 @@ const registerSuspendVirtualMachineCommand = (context: vscode.ExtensionContext, 
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} suspended`
               );
+              telemetry.sendOperationEvent(TELEMETRY_VM, "SUSPEND_VM_COMMAND_SUCCESS", { operationValue: `${item.id}_${item.name}` });
               break;
             }
             if (retry === 0) {
@@ -54,9 +59,7 @@ const registerSuspendVirtualMachineCommand = (context: vscode.ExtensionContext, 
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to suspend`
               );
-              vscode.window.showErrorMessage(
-                `Failed to check if the machine ${item.name} suspend, please check the logs`
-              );
+              ShowErrorMessage(TELEMETRY_VM, `Failed to check if the machine ${item.name} suspend, please check the logs`, true);
               break;
             }
             retry--;

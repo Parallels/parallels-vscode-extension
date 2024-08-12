@@ -7,10 +7,14 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_DOCKER} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerStopDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerStopContainer, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DOCKER, "STOP_DOCKER_CONTAINER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -43,7 +47,7 @@ const registerStopDockerContainerCommand = (context: vscode.ExtensionContext, pr
                     `Docker container ${item.name} stopped`
                   );
                 } else {
-                  vscode.window.showErrorMessage(`Failed to stop docker container ${item.name}`);
+                  ShowErrorMessage(TELEMETRY_DOCKER, `Failed to stop docker container ${item.name}`, true);
                   LogService.error(`Failed to stop docker container ${item.name}`, "StopDockerContainerCommand");
                   LogService.sendTelemetryEvent(
                     TelemetryEventIds.VirtualMachineAction,
@@ -52,7 +56,7 @@ const registerStopDockerContainerCommand = (context: vscode.ExtensionContext, pr
                 }
               })
               .catch(reject => {
-                vscode.window.showErrorMessage(`Failed to stop docker container ${item.name}`);
+                ShowErrorMessage(TELEMETRY_DOCKER, `Failed to stop docker container ${item.name}`, true);
                 LogService.error(
                   `Failed to stop docker container ${item.name}: ${reject}`,
                   "StopDockerContainerCommand"
@@ -63,7 +67,7 @@ const registerStopDockerContainerCommand = (context: vscode.ExtensionContext, pr
                 );
               });
           } catch (error) {
-            vscode.window.showErrorMessage(`Failed to stop docker container ${item.name}`);
+            ShowErrorMessage(TELEMETRY_DOCKER, `Failed to stop docker container ${item.name}`, true);
             LogService.error(`Failed to stop docker container ${item.name}: ${error}`, "StopDockerContainerCommand");
             LogService.sendTelemetryEvent(
               TelemetryEventIds.VirtualMachineAction,
