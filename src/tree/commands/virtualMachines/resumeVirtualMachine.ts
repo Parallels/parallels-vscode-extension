@@ -6,8 +6,8 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -51,7 +51,9 @@ const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, p
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} resumed`
               );
-              telemetry.sendOperationEvent(TELEMETRY_VM, "RESUME_VM_COMMAND_SUCCESS", { operationValue: `${item.id}_${item.os}`});
+              telemetry.sendOperationEvent(TELEMETRY_VM, "RESUME_VM_COMMAND_SUCCESS", {
+                operationValue: `${item.id}_${item.os}`
+              });
               break;
             }
             if (retry === 0) {
@@ -60,7 +62,11 @@ const registerResumeVirtualMachineCommand = (context: vscode.ExtensionContext, p
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to resume`
               );
-              ShowErrorMessage(TELEMETRY_VM, `Failed to check if the machine ${item.name} resumed, please check the logs`, true);
+              ShowErrorMessage(
+                TELEMETRY_VM,
+                `Failed to check if the machine ${item.name} resumed, please check the logs`,
+                true
+              );
               break;
             }
             retry--;

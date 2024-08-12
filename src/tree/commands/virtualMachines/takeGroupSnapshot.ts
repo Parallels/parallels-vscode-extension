@@ -7,9 +7,9 @@ import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { Provider } from "../../../ioc/provider";
-import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {Provider} from "../../../ioc/provider";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerTakeGroupSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -49,7 +49,9 @@ const registerTakeGroupSnapshotCommand = (context: vscode.ExtensionContext, prov
                   TelemetryEventIds.VirtualMachineAction,
                   `Snapshot ${snapshotName} created for ${group.name}`
                 );
-                telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "TAKE_SNAPSHOT_COMMAND_SUCCESS", { operationValue: snapshotName });
+                telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "TAKE_SNAPSHOT_COMMAND_SUCCESS", {
+                  operationValue: snapshotName
+                });
               },
               () => {
                 LogService.error(
@@ -99,7 +101,11 @@ function takeSnapshot(
       }
       if (retry === 0) {
         LogService.error(`Virtual machine ${vm.Name} failed to take the snapshoot`);
-        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${vm.Name} snapshoot, please check the logs`, true);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${vm.Name} snapshoot, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

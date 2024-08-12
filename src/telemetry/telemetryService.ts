@@ -1,4 +1,4 @@
-import { DevOpsService } from "../services/devopsService";
+import {DevOpsService} from "../services/devopsService";
 import {Provider} from "./../ioc/provider";
 import * as amplitude from "@amplitude/analytics-node";
 

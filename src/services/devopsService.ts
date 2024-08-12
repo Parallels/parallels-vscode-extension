@@ -7,7 +7,12 @@ import {AuthorizationRequest, AuthorizationToken} from "./../models/devops/autho
 import {spawn} from "child_process";
 import {Provider} from "../ioc/provider";
 import {LogService} from "./logService";
-import {CommandsFlags, FLAG_DEVOPS_PATH, FLAG_DEVOPS_VERSION, FLAG_IS_PARALLELS_CATALOG_OFFLINE} from "../constants/flags";
+import {
+  CommandsFlags,
+  FLAG_DEVOPS_PATH,
+  FLAG_DEVOPS_VERSION,
+  FLAG_IS_PARALLELS_CATALOG_OFFLINE
+} from "../constants/flags";
 import {DevOpsCatalogHostProvider} from "../models/devops/catalogHostProvider";
 import axios from "axios";
 import {AuthorizationResponse} from "../models/devops/authorization";

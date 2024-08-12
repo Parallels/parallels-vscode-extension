@@ -1,4 +1,4 @@
-import { telemetryService } from './../../../ioc/provider';
+import {telemetryService} from "./../../../ioc/provider";
 import * as vscode from "vscode";
 
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
@@ -10,8 +10,8 @@ import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerStopGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -92,7 +92,11 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to stop`
         );
-        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${item.Name} stopped, please check the logs`, true);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} stopped, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

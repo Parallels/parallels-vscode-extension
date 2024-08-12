@@ -8,8 +8,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM, TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM, TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerPauseGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,

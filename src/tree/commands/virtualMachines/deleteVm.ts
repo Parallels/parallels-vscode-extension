@@ -6,9 +6,9 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { Provider } from "../../../ioc/provider";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDeleteVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(

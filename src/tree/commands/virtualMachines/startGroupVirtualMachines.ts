@@ -8,8 +8,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerStartGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -82,7 +82,9 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
       if (result === "running") {
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} started`);
         LogService.info(`Virtual machine ${item.Name} started`);
-        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "START_VM_COMMAND_SUCCESS", { operationValue: `${item.ID}_${item.OS}`});
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "START_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.OS}`
+        });
         break;
       }
       if (retry === 0) {
@@ -91,7 +93,11 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to start`
         );
-        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${item.Name} started, please check the logs`, true);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} started, please check the logs`,
+          true
+        );
         break;
       }
       retry--;
@@ -128,12 +134,18 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
       const result = await ParallelsDesktopService.getVmStatus(item.ID);
       if (result === "running") {
         LogService.info(`Virtual machine ${item.Name} resumed`);
-        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "RESUME_VM_COMMAND_SUCCESS", { operationValue: `${item.ID}_${item.OS}`});
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "RESUME_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.OS}`
+        });
         break;
       }
       if (retry === 0) {
         LogService.error(`Virtual machine ${item.Name} failed to resume`);
-        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${item.Name} resumed, please check the logs`, true);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} resumed, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

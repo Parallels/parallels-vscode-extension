@@ -9,8 +9,8 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerResumeGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -80,7 +80,9 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
       if (result === "running") {
         LogService.info(`Virtual machine ${item.Name} resumed`);
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} resumed`);
-        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "RESUME_VM_COMMAND_SUCCESS", { operationValue: `${item.ID}_${item.OS}`});
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "RESUME_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.OS}`
+        });
         break;
       }
       if (retry === 0) {
@@ -89,7 +91,11 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to resume`
         );
-        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${item.Name} resumed, please check the logs`, true);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} resumed, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

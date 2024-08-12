@@ -8,8 +8,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDeleteVmSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -59,7 +59,7 @@ const registerDeleteVmSnapshotCommand = (context: vscode.ExtensionContext, provi
             TelemetryEventIds.VirtualMachineAction,
             `Snapshot ${item.name} for vm ${vm.Name} deleted`
           );
-          telemetry.sendOperationEvent(TELEMETRY_VM, "DELETE_VM_SNAPSHOT_COMMAND_SUCCESS", { operationValue: item.name });
+          telemetry.sendOperationEvent(TELEMETRY_VM, "DELETE_VM_SNAPSHOT_COMMAND_SUCCESS", {operationValue: item.name});
           LogService.info(`Snapshot ${item.name} for vm ${vm.Name} deleted`, "DeleteVmSnapshotCommand");
         }
       );

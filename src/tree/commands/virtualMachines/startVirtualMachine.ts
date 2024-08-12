@@ -8,8 +8,8 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { ShowErrorMessage } from "../../../helpers/error";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
 
 const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -77,7 +77,11 @@ const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, pr
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to start`
               );
-              ShowErrorMessage(TELEMETRY_VM, `Failed to check if the machine ${item.name} started, please check the logs`, true);
+              ShowErrorMessage(
+                TELEMETRY_VM,
+                `Failed to check if the machine ${item.name} started, please check the logs`,
+                true
+              );
               break;
             }
             retry--;

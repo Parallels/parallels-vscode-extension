@@ -11,8 +11,8 @@ import {getScreenCaptureFolder, isDarkTheme} from "../../../helpers/helpers";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { Provider } from "../../../ioc/provider";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
 
 let lastClickedTime: number | undefined;
 

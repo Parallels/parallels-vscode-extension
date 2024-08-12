@@ -5,9 +5,9 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { Provider } from "../../../ioc/provider";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerCloneVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(

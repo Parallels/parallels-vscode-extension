@@ -3,8 +3,8 @@ import {CommandsFlags} from "../../../constants/flags";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { Provider } from "../../../ioc/provider";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
 
 const registerCopyIpAddressCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(

@@ -7,8 +7,8 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerRenameVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(

@@ -13,8 +13,8 @@ import {LogService} from "../../../services/logService";
 import {Provider} from "../../../ioc/provider";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {PackerService} from "../../../services/packerService";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerAddVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -23,7 +23,10 @@ const registerAddVmCommand = (context: vscode.ExtensionContext, provider: Virtua
       telemetry.sendOperationEvent(TELEMETRY_VM, "ADD_VM_COMMAND_CLICK");
 
       if (!(await PackerService.canAddVms())) {
-        ShowErrorMessage(TELEMETRY_VM, "There are some required dependencies missing. Please install them and try again.");
+        ShowErrorMessage(
+          TELEMETRY_VM,
+          "There are some required dependencies missing. Please install them and try again."
+        );
         return;
       }
 

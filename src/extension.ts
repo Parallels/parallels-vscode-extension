@@ -99,12 +99,12 @@ export async function activate(context: vscode.ExtensionContext) {
       }
 
       try {
-        const isHostAvailable = await DevOpsService.testHost(config.parallelsCatalogProvider)
+        const isHostAvailable = await DevOpsService.testHost(config.parallelsCatalogProvider);
         if (!isHostAvailable) {
           vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-        }  
+        }
       } catch (error) {
-          vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
+        vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
       }
 
       if (parallelsCatalogUrl) {

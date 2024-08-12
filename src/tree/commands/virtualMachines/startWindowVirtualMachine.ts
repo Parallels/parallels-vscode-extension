@@ -6,8 +6,8 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerStartWindowVirtualMachineCommand = (
   context: vscode.ExtensionContext,
@@ -19,7 +19,7 @@ const registerStartWindowVirtualMachineCommand = (
         return;
       }
       const telemetry = Provider.telemetry();
-      telemetry.sendOperationEvent(TELEMETRY_VM, "START_WINDOW_VM_COMMAND_CLICK"); 
+      telemetry.sendOperationEvent(TELEMETRY_VM, "START_WINDOW_VM_COMMAND_CLICK");
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -64,7 +64,11 @@ const registerStartWindowVirtualMachineCommand = (
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to start`
               );
-              ShowErrorMessage(TELEMETRY_VM, `Failed to check if the machine ${item.name} started, please check the logs`, true);
+              ShowErrorMessage(
+                TELEMETRY_VM,
+                `Failed to check if the machine ${item.name} started, please check the logs`,
+                true
+              );
               break;
             }
             retry--;

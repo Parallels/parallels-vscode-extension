@@ -6,7 +6,7 @@ import {CommandsFlags, TelemetryEventIds} from "../../../constants/flags";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
 
 const registerRenameGroupCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(

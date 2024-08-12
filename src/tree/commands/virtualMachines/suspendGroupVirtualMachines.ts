@@ -8,8 +8,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerSuspendGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -79,7 +79,9 @@ function suspendVm(provider: VirtualMachineProvider, item: VirtualMachine): Prom
       if (result === "suspended") {
         LogService.info(`Virtual machine ${item.Name} suspended`);
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} suspended`);
-        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "SUSPEND_VM_COMMAND_SUCCESS", { operationValue: `${item.ID}_${item.Name}` });
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "SUSPEND_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.Name}`
+        });
         break;
       }
       if (retry === 0) {
@@ -88,7 +90,11 @@ function suspendVm(provider: VirtualMachineProvider, item: VirtualMachine): Prom
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to suspend`
         );
-        ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to check if the machine ${item.Name} suspend, please check the logs`, true);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} suspend, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

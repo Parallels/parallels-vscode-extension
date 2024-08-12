@@ -5,9 +5,9 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
-import { Provider } from "../../../ioc/provider";
-import { TELEMETRY_VM } from "../../../telemetry/operations";
-import { ShowErrorMessage } from "../../../helpers/error";
+import {Provider} from "../../../ioc/provider";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -48,7 +48,7 @@ const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider:
               TelemetryEventIds.VirtualMachineAction,
               `Virtual machine ${item.name} finished snapshooting`
             );
-            telemetry.sendOperationEvent(TELEMETRY_VM, "TAKE_SNAPSHOT_COMMAND_SUCCESS", { operationValue: snapshotName });
+            telemetry.sendOperationEvent(TELEMETRY_VM, "TAKE_SNAPSHOT_COMMAND_SUCCESS", {operationValue: snapshotName});
             break;
           }
           if (retry === 0) {
@@ -66,7 +66,7 @@ const registerTakeSnapshotCommand = (context: vscode.ExtensionContext, provider:
         vscode.window.showInformationMessage(`Snapshot ${snapshotName} created`);
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
         LogService.info(`Snapshot ${snapshotName} created`, "TakeSnapshotCommand");
-        telemetry.sendOperationEvent(TELEMETRY_VM, "TAKE_SNAPSHOT_COMMAND_SUCCESS", { operationValue: snapshotName });
+        telemetry.sendOperationEvent(TELEMETRY_VM, "TAKE_SNAPSHOT_COMMAND_SUCCESS", {operationValue: snapshotName});
       }
     })
   );

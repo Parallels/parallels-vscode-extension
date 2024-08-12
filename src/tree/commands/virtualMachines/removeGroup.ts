@@ -6,7 +6,7 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
-import { TELEMETRY_VM_GROUP } from "../../../telemetry/operations";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
 
 const registerRemoveGroupCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
