@@ -120,7 +120,7 @@ jobs:
           sed --regexp-extended '/"name"\s*:/ s#@[a-zA-Z\\-]+/##' package.json.real > package.json
       - name: Insert Variables
         run: |
-          ./.github/workflow-scripts/insert-secrets.sh
+          ./.github/workflow_scripts/insert-secrets.sh
         env:
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
           PARALLELS_CATALOG_BUSINESS_PASSWORD: ${{ secrets.PARALLELS_CATALOG_BUSINESS_PASSWORD }}
