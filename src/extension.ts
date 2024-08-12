@@ -106,13 +106,12 @@ export async function activate(context: vscode.ExtensionContext) {
       } catch (error) {
         vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
       }
-
-      if (parallelsCatalogUrl) {
         vscode.commands.executeCommand("setContext", FLAG_LICENSE, licenseInfo.edition);
-        vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, true);
         config.license_edition = licenseInfo.edition;
-        const parallelsCatalogProvider = new ParallelsCatalogProvider(context);
         const virtualMachineProvider = new VirtualMachineProvider(context);
+      if (parallelsCatalogUrl) {
+        vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, true);
+        const parallelsCatalogProvider = new ParallelsCatalogProvider(context);
         if (licenseInfo.edition === "business" && licenseInfo.is_volume === "yes") {
           config.parallelsCatalogProvider.rawHost = parallelsCatalogUrl;
           config.parallelsCatalogProvider.username = businessUsername;
