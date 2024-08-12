@@ -10,6 +10,8 @@ import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 import {HelperService} from "../../../services/helperService";
+import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsPullCatalogProviderManifestCommand = (
   context: vscode.ExtensionContext,
@@ -19,6 +21,8 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
     vscode.commands.registerCommand(
       CommandsFlags.devopsPullCatalogManifestMachineOnHost,
       async (item: DevOpsTreeItem) => {
+        const telemetry = Provider.telemetry();
+        telemetry.sendOperationEvent(TELEMETRY_DEVOPS_CATALOG, "PULL_CATALOG_COMMAND_CLICK");
         if (!item) {
           return;
         }
@@ -58,7 +62,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
         }
 
         if (!(await DevOpsService.isInstalled())) {
-          vscode.window.showErrorMessage("Could not find Parallels Desktop DevOps Service");
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "Could not find Parallels Desktop DevOps Service");
           return;
         }
 
@@ -67,7 +71,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
         const architecture = await HelperService.getArchitecture();
         const provider = config.findCatalogProviderByIOrName(providerId);
         if (!provider) {
-          vscode.window.showErrorMessage(`Provider ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Provider ${item.name} not found`);
           return;
         }
         const manifestId = item.id.split("%%")[2];
@@ -76,7 +80,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
         // if we selected the manifest item, we need to get the versions and display them on a quick pick
         if (item.contextValue === "devops.catalog.manifests.manifest") {
           if (!manifest) {
-            vscode.window.showErrorMessage(`Manifest ${item.name} not found`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Manifest ${item.name} not found`);
             return;
           }
 
@@ -102,7 +106,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
           version = item.label?.toString() ?? "latest";
         }
         if (!version) {
-          vscode.window.showErrorMessage(`Version is required`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Version is required`);
           return;
         }
 
@@ -115,7 +119,10 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
         }
 
         if (!architectureExists) {
-          vscode.window.showErrorMessage(`Your architecture ${architecture} not found in manifest ${manifestId}`);
+          ShowErrorMessage(
+            TELEMETRY_DEVOPS_CATALOG,
+            `Your architecture ${architecture} not found in manifest ${manifestId}`
+          );
           return;
         }
 
@@ -124,7 +131,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
           prompt: `Machine name`
         });
         if (!machineName) {
-          vscode.window.showErrorMessage(`Machine name is required`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Machine name is required`);
           return;
         }
 
@@ -136,7 +143,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
           value: defaultMachinePath
         });
         if (!machinePath) {
-          vscode.window.showErrorMessage(`Machine path is required`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Machine path is required`);
           return;
         }
 
@@ -163,7 +170,11 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
             let foundError = false;
             await DevOpsService.pullManifestFromCatalogProvider(provider, request).catch(error => {
               LogService.error(`Error pulling manifest from provider ${provider.name}`, error);
-              vscode.window.showErrorMessage(`Error pulling manifest from provider ${provider.name}`);
+              ShowErrorMessage(
+                TELEMETRY_DEVOPS_CATALOG,
+                `Error pulling manifest from provider ${provider.name}, error ${error}`,
+                true
+              );
               foundError = true;
               return;
             });

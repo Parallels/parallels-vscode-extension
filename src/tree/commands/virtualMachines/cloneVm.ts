@@ -5,10 +5,15 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerCloneVmCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeCloneVm, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "CLONE_VM_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -23,11 +28,11 @@ const registerCloneVmCommand = (context: vscode.ExtensionContext, provider: Virt
       });
       if (cloneVM) {
         const result = await ParallelsDesktopService.cloneVm(item.id, cloneVM, cloneLocation).catch(reject => {
-          vscode.window.showErrorMessage(`${reject}`);
+          ShowErrorMessage(TELEMETRY_VM, `${reject}`);
           return;
         });
         if (!result) {
-          vscode.window.showErrorMessage(`failed to clone ${cloneVM}`);
+          ShowErrorMessage(TELEMETRY_VM, `failed to clone ${cloneVM}`, true);
           return;
         }
 

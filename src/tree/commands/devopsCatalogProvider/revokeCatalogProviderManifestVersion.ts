@@ -7,6 +7,8 @@ import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
+import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsRevokeCatalogProviderManifestVersionCommand = (
   context: vscode.ExtensionContext,
@@ -16,6 +18,11 @@ const registerDevOpsRevokeCatalogProviderManifestVersionCommand = (
     vscode.commands.registerCommand(
       CommandsFlags.devopsRevokeCatalogProviderManifestVersion,
       async (item: DevOpsTreeItem) => {
+        const telemetry = Provider.telemetry();
+        telemetry.sendOperationEvent(
+          TELEMETRY_DEVOPS_CATALOG,
+          "REVOKE_CATALOG_PROVIDER_MANIFEST_VERSION_COMMAND_CLICK"
+        );
         if (!item) {
           return;
         }
@@ -23,19 +30,19 @@ const registerDevOpsRevokeCatalogProviderManifestVersionCommand = (
         const providerId = item.id.split("%%")[0];
         const provider = config.findCatalogProviderByIOrName(providerId);
         if (!provider) {
-          vscode.window.showErrorMessage(`Provider ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Provider ${item.name} not found`);
           return;
         }
         const manifestId = item.id.split("%%")[2];
         const manifest = config.findCatalogProviderManifest(providerId, manifestId);
         if (!manifest) {
-          vscode.window.showErrorMessage(`Manifest ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Manifest ${item.name} not found`);
           return;
         }
         const versionId = item.id.split("%%")[3];
         const manifestItem = manifest.items.find(m => m.id === versionId);
         if (!manifestItem) {
-          vscode.window.showErrorMessage(`Manifest ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Manifest ${item.name} not found`);
           return;
         }
 
@@ -68,8 +75,12 @@ const registerDevOpsRevokeCatalogProviderManifestVersionCommand = (
                 }`,
                 error
               );
-              vscode.window.showErrorMessage(
-                `Error tainting manifest${versionId !== "" ? " version" : ""} ${item.name} on provider ${provider.name}`
+              ShowErrorMessage(
+                TELEMETRY_DEVOPS_CATALOG,
+                `Error revokinh manifest${versionId !== "" ? " version" : ""} ${item.name} on provider ${
+                  provider.name
+                }`,
+                true
               );
               foundError = true;
               return;

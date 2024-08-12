@@ -8,6 +8,7 @@ import {LogService} from "./logService";
 import {VagrantCloudBoxes} from "../models/vagrant/VagrantCloudBoxes";
 import axios from "axios";
 import {VagrantCloudBox} from "../models/vagrant/VagrantCloudBox";
+import {TELEMETRY_INSTALL_VAGRANT} from "../telemetry/operations";
 
 export class VagrantService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -116,6 +117,7 @@ export class VagrantService {
   }
 
   static install(): Promise<boolean> {
+    const telemetry = Provider.telemetry();
     LogService.info("Installing Vagrant...", "VagrantService");
     return new Promise(async resolve => {
       await vscode.window.withProgress(
@@ -170,10 +172,14 @@ export class VagrantService {
             });
           });
           if (!result) {
+            telemetry.sendErrorEvent(TELEMETRY_INSTALL_VAGRANT, "Failed to install Vagrant");
             progress.report({message: "Failed to install Vagrant, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Vagrant, see logs for more details");
             return resolve(false);
           } else {
+            telemetry.sendOperationEvent(TELEMETRY_INSTALL_VAGRANT, "success", {
+              description: "Vagrant was installed successfully"
+            });
             progress.report({message: "Vagrant was installed successfully"});
             vscode.window.showInformationMessage("Vagrant was installed successfully");
             return resolve(true);

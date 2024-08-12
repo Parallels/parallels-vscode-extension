@@ -5,6 +5,8 @@ import {DevOpsRemoteHostsCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import {TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsEnableRemoteProviderOrchestratorHostCommand = (
   context: vscode.ExtensionContext,
@@ -12,6 +14,8 @@ const registerDevOpsEnableRemoteProviderOrchestratorHostCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsEnableRemoteProviderHost, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DEVOPS_REMOTE, "ENABLE_REMOTE_PROVIDER_HOST_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -21,7 +25,7 @@ const registerDevOpsEnableRemoteProviderOrchestratorHostCommand = (
       const provider = config.findRemoteHostProviderById(providerId);
       const host = config.findRemoteHostProviderHostById(providerId, hostId);
       if (!provider || !host) {
-        vscode.window.showErrorMessage(`Remote Host Provider ${item.name} not found`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Remote Host Provider ${item.name} not found`);
         return;
       }
 
@@ -38,7 +42,11 @@ const registerDevOpsEnableRemoteProviderOrchestratorHostCommand = (
           vscode.window.showInformationMessage(`Remote Host Provider ${item.name} enabled successfully`);
         })
         .catch(error => {
-          vscode.window.showErrorMessage(`Error enabling Remote Host Provider ${item.name}`);
+          ShowErrorMessage(
+            TELEMETRY_DEVOPS_REMOTE,
+            `Error enabling Remote Host provider ${item.name}, err: ${error}`,
+            true
+          );
         });
     })
   );

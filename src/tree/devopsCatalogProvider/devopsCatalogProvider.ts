@@ -23,7 +23,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
-    const view = vscode.window.createTreeView("parallels-desktop-catalog", {
+    const view = vscode.window.createTreeView("parallels-desktop-remote-catalog", {
       treeDataProvider: this,
       showCollapseAll: true,
       canSelectMany: true

@@ -9,6 +9,8 @@ import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
 import {DevOpsRemoteHostsProvider} from "../../devopsRemoteHostProvider/devOpsRemoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
 import {CreateCatalogMachine} from "../../../models/devops/createCatalogMachine";
+import {TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
   context: vscode.ExtensionContext,
@@ -18,6 +20,8 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
     vscode.commands.registerCommand(
       CommandsFlags.devopsPullCatalogManifestMachineOnRemoteHost,
       async (item: DevOpsTreeItem) => {
+        const telemetry = Provider.telemetry();
+        telemetry.sendOperationEvent(TELEMETRY_DEVOPS_REMOTE, "PULL_CATALOG_MANIFEST_MACHINE_ON_HOST_COMMAND_CLICK");
         if (!item) {
           return;
         }
@@ -31,7 +35,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
         let catalogHostProvider: DevOpsCatalogHostProvider;
 
         if (!provider) {
-          vscode.window.showErrorMessage(`Provider ${item.name} not found`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Provider ${item.name} not found`);
           return;
         }
         if (config.catalogProviders.length > 0) {
@@ -63,7 +67,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
             ignoreFocusOut: true
           });
           if (!host) {
-            vscode.window.showErrorMessage("Catalog Provider Host is required");
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Catalog Provider Host is required`);
             return;
           }
           if (!host.startsWith("http://") && !host.startsWith("https://")) {
@@ -85,7 +89,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
           try {
             hostname = new URL(host);
           } catch (error) {
-            vscode.window.showErrorMessage("Invalid Catalog Provider Host");
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, "Invalid Catalog Provider Host");
             return;
           }
 
@@ -102,7 +106,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
               ignoreFocusOut: true
             });
             if (!username) {
-              vscode.window.showErrorMessage("Catalog Provider Username is required");
+              ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Catalog Provider Username is required`);
               return;
             }
 
@@ -113,7 +117,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
               ignoreFocusOut: true
             });
             if (!password) {
-              vscode.window.showErrorMessage("Catalog Provider Password is required");
+              ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Catalog Provider Password is required`);
               return;
             }
 
@@ -133,12 +137,13 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
             if (retry === 0) {
               break;
             }
-            vscode.window.showErrorMessage(`Failed to connect to catalog provider ${host}`);
+
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to connect to catalog provider ${host}`);
 
             retry--;
           }
           if (foundError) {
-            vscode.window.showErrorMessage(`Failed to connect to Catalog Provider ${host}, exiting`);
+            ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to connect to Catalog Provider ${host}, exiting`, true);
             return;
           }
         } else {
@@ -147,7 +152,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
         }
 
         const manifests = await DevOpsService.getCatalogManifests(catalogHostProvider).catch(error => {
-          vscode.window.showErrorMessage(`Failed to get manifests from provider ${provider.name}`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Failed to get manifests from provider ${provider.name}`, true);
           return;
         });
 
@@ -214,7 +219,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
           prompt: `Machine name`
         });
         if (!machineName) {
-          vscode.window.showErrorMessage(`Machine name is required`);
+          ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Machine name is required`);
           return;
         }
 
@@ -244,8 +249,10 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
                 `Error creating VM ${machineName} from catalog manifest ${selectedManifest?.name} for remote host ${provider.name}`,
                 error
               );
-              vscode.window.showErrorMessage(
-                `Error creating VM ${machineName} from catalog manifest ${selectedManifest?.name} for remote host ${provider.name}`
+              ShowErrorMessage(
+                TELEMETRY_DEVOPS_REMOTE,
+                `Error creating VM ${machineName} from catalog manifest ${selectedManifest?.name} for remote host ${provider.name}`,
+                true
               );
               foundError = true;
               return;

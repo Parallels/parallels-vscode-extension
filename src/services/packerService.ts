@@ -9,6 +9,7 @@ import {PackerVirtualMachineConfig} from "../models/packer/PackerVirtualMachineC
 import {LogService} from "./logService";
 import {getPackerTemplateFolder} from "../helpers/helpers";
 import {GitService} from "./gitService";
+import {TELEMETRY_INSTALL_PACKER} from "../telemetry/operations";
 
 export class PackerService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -75,6 +76,7 @@ export class PackerService {
   }
 
   static install(): Promise<boolean> {
+    const telemetry = Provider.telemetry();
     LogService.info("Installing Packer...", "PackerService");
     return new Promise(async (resolve, reject) => {
       await vscode.window.withProgress(
@@ -121,10 +123,14 @@ export class PackerService {
             });
           });
           if (!result) {
+            telemetry.sendErrorEvent(TELEMETRY_INSTALL_PACKER, "Failed to install Packer");
             progress.report({message: "Failed to install Packer, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Packer, see logs for more details");
             return resolve(false);
           } else {
+            telemetry.sendOperationEvent(TELEMETRY_INSTALL_PACKER, "success", {
+              description: "Packer was installed successfully"
+            });
             progress.report({message: "Packer was installed successfully"});
             vscode.window.showInformationMessage("Packer was installed successfully");
             return resolve(true);

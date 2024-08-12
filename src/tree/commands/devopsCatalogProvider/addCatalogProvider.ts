@@ -7,10 +7,14 @@ import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
 import {cleanString} from "../../../helpers/strings";
+import {ShowErrorMessage} from "../../../helpers/error";
+import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
 
 const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsAddCatalogProvider, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DEVOPS_CATALOG, "ADD_CATALOG_PROVIDER_COMMAND_CLICK");
       LogService.info("pressed the add remote provider button");
       let host = await vscode.window.showInputBox({
         prompt: "Catalog Provider Host?",
@@ -18,7 +22,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
         ignoreFocusOut: true
       });
       if (!host) {
-        vscode.window.showErrorMessage("Catalog Provider Host is required");
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "Catalog Provider Host is required");
         return;
       }
       if (!host.startsWith("http://") && !host.startsWith("https://")) {
@@ -31,7 +35,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
         ignoreFocusOut: true
       });
       if (!name) {
-        vscode.window.showErrorMessage("Catalog Provider Name is required");
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "Catalog Provider Name is required");
         return;
       }
 
@@ -50,7 +54,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
       try {
         hostname = new URL(host);
       } catch (error) {
-        vscode.window.showErrorMessage("Invalid Catalog Provider Host");
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "Invalid Catalog Provider Host");
         return;
       }
 
@@ -67,7 +71,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
           ignoreFocusOut: true
         });
         if (!username) {
-          vscode.window.showErrorMessage("Catalog Provider Username is required");
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "Catalog Provider Username is required");
           return;
         }
 
@@ -78,7 +82,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
           ignoreFocusOut: true
         });
         if (!password) {
-          vscode.window.showErrorMessage("Catalog Provider Password is required");
+          ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, "Catalog Provider Password is required");
           return;
         }
 
@@ -98,19 +102,19 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
         if (retry === 0) {
           break;
         }
-        vscode.window.showErrorMessage(`Failed to connect to catalog provider ${host}`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Failed to connect to catalog provider ${host}`);
 
         retry--;
       }
       if (foundError) {
-        vscode.window.showErrorMessage(`Failed to add Catalog Provider ${host}`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Failed to connect to catalog provider ${host}`);
         return;
       }
 
       const config = Provider.getConfiguration();
       const ok = config.addCatalogProvider(catalogHostProvider);
       if (!ok) {
-        vscode.window.showErrorMessage(`Failed to add Catalog Provider ${host}`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Failed to add Catalog Provider ${host}`);
         return;
       }
 

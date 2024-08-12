@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
-import {Provider} from "../ioc/provider";
+import {Provider, telemetryService} from "../ioc/provider";
 import {getPackerTemplateFolder} from "../helpers/helpers";
 import {LogService} from "./logService";
 import path = require("path");
 import {FLAG_GIT_PATH, FLAG_GIT_VERSION} from "../constants/flags";
+import {TELEMETRY_INSTALL_GIT} from "../telemetry/operations";
 
 export class GitService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -69,6 +70,7 @@ export class GitService {
   }
 
   static install(): Promise<boolean> {
+    const telemetry = Provider.telemetry();
     LogService.info("Installing Git...", "GitService");
     return new Promise(async (resolve, reject) => {
       await vscode.window.withProgress(
@@ -96,10 +98,14 @@ export class GitService {
             });
           });
           if (!result) {
+            telemetry.sendErrorEvent(TELEMETRY_INSTALL_GIT, "Failed to install Git");
             progress.report({message: "Failed to install Git, see logs for more details"});
             vscode.window.showErrorMessage("Failed to install Git, see logs for more details");
             return resolve(false);
           } else {
+            telemetry.sendOperationEvent(TELEMETRY_INSTALL_GIT, "success", {
+              description: "Git was installed successfully"
+            });
             progress.report({message: "Git was installed successfully"});
             vscode.window.showInformationMessage("Git was installed successfully");
             return resolve(true);

@@ -6,10 +6,13 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_DOCKER} from "../../../telemetry/operations";
 
 const registerEnterContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerEnterContainer, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DOCKER, "ENTER_CONTAINER_COMMAND_CLICK");
       if (item) {
         const config = Provider.getConfiguration();
         const vm = config.getVirtualMachine((item.item as VirtualMachine).ID);

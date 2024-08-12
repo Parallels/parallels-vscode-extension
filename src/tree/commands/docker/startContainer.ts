@@ -7,10 +7,14 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_DOCKER} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerStartDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerStartContainer, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DOCKER, "START_DOCKER_CONTAINER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -43,7 +47,7 @@ const registerStartDockerContainerCommand = (context: vscode.ExtensionContext, p
                     `Docker container ${item.name} started`
                   );
                 } else {
-                  vscode.window.showErrorMessage(`Failed to start docker container ${item.name}`);
+                  ShowErrorMessage(TELEMETRY_DOCKER, `Failed to start docker container ${item.name}`, true);
                   LogService.error(`Failed to start docker container ${item.name}`, "StartDockerContainerCommand");
                   LogService.sendTelemetryEvent(
                     TelemetryEventIds.VirtualMachineAction,
@@ -52,7 +56,7 @@ const registerStartDockerContainerCommand = (context: vscode.ExtensionContext, p
                 }
               })
               .catch(reject => {
-                vscode.window.showErrorMessage(`Failed to start docker container ${item.name}`);
+                ShowErrorMessage(TELEMETRY_DOCKER, `Failed to start docker container ${item.name}`, true);
                 LogService.error(
                   `Failed to start docker container ${item.name}: ${reject}`,
                   "StartDockerContainerCommand"
@@ -63,7 +67,7 @@ const registerStartDockerContainerCommand = (context: vscode.ExtensionContext, p
                 );
               });
           } catch (error) {
-            vscode.window.showErrorMessage(`Failed to start docker container ${item.name}`);
+            ShowErrorMessage(TELEMETRY_DOCKER, `Failed to start docker container ${item.name}`, true);
             LogService.error(`Failed to start docker container ${item.name}: ${error}`, "StartDockerContainerCommand");
             LogService.sendTelemetryEvent(
               TelemetryEventIds.VirtualMachineAction,

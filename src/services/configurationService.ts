@@ -41,12 +41,21 @@ import {parseHost} from "../models/host";
 import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
 import {DevOpsRemoteHost} from "../models/devops/remoteHost";
 
+export const PARALLELS_CATALOG_URL = "";
+export const PARALLELS_CATALOG_PRO_USER = "";
+export const PARALLELS_CATALOG_PRO_PASSWORD = "";
+export const PARALLELS_CATALOG_BUSINESS_USER = "";
+export const PARALLELS_CATALOG_BUSINESS_PASSWORD = "";
+
 export class ConfigurationService {
   virtualMachinesGroups: VirtualMachineGroup[];
   catalogProviders: DevOpsCatalogHostProvider[];
   remoteHostProviders: DevOpsRemoteHostProvider[];
+  parallelsCatalogProvider: DevOpsCatalogHostProvider;
+  parallelsCatalogUrl: string;
   featureFlags: FeatureFlags;
   tools: Tools;
+  license_edition: string | undefined;
   hardwareInfo?: HardwareInfo;
   parallelsDesktopServerInfo?: ParallelsDesktopServerInfo;
   isInitialized = false;
@@ -63,6 +72,18 @@ export class ConfigurationService {
     this.dockerRunItems = [];
     this.catalogProviders = [];
     this.remoteHostProviders = [];
+    this.parallelsCatalogUrl = PARALLELS_CATALOG_URL;
+    this.parallelsCatalogProvider = {
+      class: "DevOpsCatalogHostProvider",
+      ID: "parallels-desktop-vms-catalog",
+      rawHost: PARALLELS_CATALOG_URL ?? "",
+      name: "Parallels Desktop Vms Catalog",
+      username: "",
+      password: "",
+      state: "unknown",
+      manifests: []
+    };
+
     this.featureFlags = {
       enableTelemetry: undefined,
       hardwareId: undefined,
@@ -163,6 +184,9 @@ export class ConfigurationService {
       if (json.remoteHostProviders !== undefined) {
         configuration.remoteHostProviders = json.remoteHostProviders;
       }
+      if (json.parallelsCatalogProvider !== undefined) {
+        configuration.parallelsCatalogProvider = json.parallelsCatalogProvider;
+      }
 
       return configuration;
     } catch (e) {
@@ -253,6 +277,7 @@ export class ConfigurationService {
       virtualMachinesGroup: this.virtualMachinesGroups,
       catalogProviders: this.catalogProviders,
       remoteHostProviders: this.remoteHostProviders,
+      parallelsCatalogProvider: this.parallelsCatalogProvider,
       featureFlags: this.featureFlags,
       hardwareInfo: this.hardwareInfo,
       parallelsDesktopServerInfo: this.parallelsDesktopServerInfo,
@@ -884,7 +909,7 @@ export class ConfigurationService {
       }
       this.tools.parallelsDesktop.isReady = true;
 
-      ParallelsDesktopService.getServerInfo()
+      await ParallelsDesktopService.getServerInfo()
         .then(async info => {
           LogService.info("Parallels Desktop is installed", "ConfigService");
           LogService.info("Getting Parallels Desktop Server Info", "ConfigService");

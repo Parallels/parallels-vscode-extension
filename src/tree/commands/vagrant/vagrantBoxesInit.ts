@@ -5,10 +5,15 @@ import {VagrantBoxTreeItem} from "../../treeItems/vagrantBoxItem";
 import {VagrantService} from "../../../services/vagrantService";
 import {VagrantCommand} from "../BaseCommand";
 import {ANSWER_NO, ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import {Provider} from "../../../ioc/provider";
+import {TELEMETRY_VAGRANT} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerVagrantBoxInitCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderInit, async (item: VagrantBoxTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VAGRANT, "VAGRANT_BOX_INIT_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -40,19 +45,19 @@ const registerVagrantBoxInitCommand = (context: vscode.ExtensionContext, provide
                 .then(
                   value => {
                     if (!value) {
-                      vscode.window.showErrorMessage(`Error initializing Vagrant box ${item.name}`);
+                      ShowErrorMessage(TELEMETRY_VAGRANT, `Error initializing Vagrant box ${item.name}`);
                     }
                     vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
                   },
                   reason => {
-                    vscode.window.showErrorMessage(
-                      `Error initializing Vagrant box ${item.name}: vagrant exited with code ${reason}`
-                    );
+                    ShowErrorMessage(TELEMETRY_VAGRANT, `Error initializing Vagrant box ${item.name}: ${reason}`);
                   }
                 )
                 .catch(reason => {
-                  vscode.window.showErrorMessage(
-                    `Error initializing Vagrant box ${item.name}: vagrant exited with code ${reason}`
+                  ShowErrorMessage(
+                    TELEMETRY_VAGRANT,
+                    `Error initializing Vagrant box ${item.name}: vagrant exited with code ${reason}`,
+                    true
                   );
                 });
             }

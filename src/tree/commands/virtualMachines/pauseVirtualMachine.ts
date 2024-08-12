@@ -6,10 +6,14 @@ import {ParallelsDesktopService} from "../../../services/parallelsDesktopService
 import {Provider} from "../../../ioc/provider";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerPauseVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treePauseVm, async item => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "PAUSE_VM_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -31,7 +35,7 @@ const registerPauseVirtualMachineCommand = (context: vscode.ExtensionContext, pr
             return;
           });
           if (!ok || foundError) {
-            vscode.window.showErrorMessage(`Failed to pause virtual machine ${item.name}`);
+            ShowErrorMessage(TELEMETRY_VM, `Failed to pause virtual machine ${item.name}`);
             return;
           }
 
@@ -54,8 +58,10 @@ const registerPauseVirtualMachineCommand = (context: vscode.ExtensionContext, pr
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to pause`
               );
-              vscode.window.showErrorMessage(
-                `Failed to check if the machine ${item.name} paused, please check the logs`
+              ShowErrorMessage(
+                TELEMETRY_VM,
+                `Failed to check if the machine ${item.name} paused, please check the logs`,
+                true
               );
               break;
             }

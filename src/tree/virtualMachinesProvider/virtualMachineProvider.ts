@@ -675,6 +675,11 @@ export class VirtualMachineProvider
 
   getChildren(element?: VirtualMachineTreeItem): Thenable<VirtualMachineTreeItem[]> {
     return new Promise(async (resolve, reject) => {
+      const config = Provider.getConfiguration();
+      if (config.license_edition !== "pro" && config.license_edition !== "business") {
+        return resolve([]);
+      }
+
       const allGroups = Provider.getConfiguration().virtualMachinesGroups;
       if (element === undefined) {
         const children = await this.drawRootGroupsItems();

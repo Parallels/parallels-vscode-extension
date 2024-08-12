@@ -7,10 +7,14 @@ import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {DockerContainerOperation, DockerService} from "../../../services/dockerService";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {ShowErrorMessage} from "../../../helpers/error";
+import {TELEMETRY_DOCKER} from "../../../telemetry/operations";
 
 const registerRestartDockerContainerCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.dockerRestartContainer, async (item: VirtualMachineTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DOCKER, "RESTART_DOCKER_CONTAINER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -43,7 +47,7 @@ const registerRestartDockerContainerCommand = (context: vscode.ExtensionContext,
                     `Docker container ${item.name} restart`
                   );
                 } else {
-                  vscode.window.showErrorMessage(`Failed to restart docker container ${item.name}`);
+                  ShowErrorMessage(TELEMETRY_DOCKER, `Failed to restart docker container ${item.name}`, true);
                   LogService.error(`Failed to restart docker container ${item.name}`, "RestartDockerContainerCommand");
                   LogService.sendTelemetryEvent(
                     TelemetryEventIds.VirtualMachineAction,
@@ -52,7 +56,7 @@ const registerRestartDockerContainerCommand = (context: vscode.ExtensionContext,
                 }
               })
               .catch(reject => {
-                vscode.window.showErrorMessage(`Failed to restart docker container ${item.name}`);
+                ShowErrorMessage(TELEMETRY_DOCKER, `Failed to restart docker container ${item.name}`, true);
                 LogService.error(
                   `Failed to restart docker container ${item.name}: ${reject}`,
                   "RestartDockerContainerCommand"
@@ -63,7 +67,7 @@ const registerRestartDockerContainerCommand = (context: vscode.ExtensionContext,
                 );
               });
           } catch (error) {
-            vscode.window.showErrorMessage(`Failed to restart docker container ${item.name}`);
+            ShowErrorMessage(TELEMETRY_DOCKER, `Failed to restart docker container ${item.name}`, true);
             LogService.error(
               `Failed to restart docker container ${item.name}: ${error}`,
               "RestartDockerContainerCommand"

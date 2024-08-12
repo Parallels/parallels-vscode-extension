@@ -8,13 +8,21 @@ import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsCatalogProvider} from "../../devopsCatalogProvider/devopsCatalogProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
+import {TELEMETRY_DEVOPS_CATALOG, TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsManagementProviderRemoveUserCommand = (
   context: vscode.ExtensionContext,
   provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider
 ) => {
+  const localProvider = provider;
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoteProviderManagementRemoveUser, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      const providerName =
+        localProvider instanceof DevOpsCatalogProvider ? TELEMETRY_DEVOPS_CATALOG : TELEMETRY_DEVOPS_REMOTE;
+      telemetry.sendOperationEvent(providerName, "REMOVE_PROVIDER_USER_COMMAND_CLICK");
+
       if (!item) {
         return;
       }
@@ -35,13 +43,13 @@ const registerDevOpsManagementProviderRemoveUserCommand = (
         provider = config.findCatalogProviderByIOrName(providerId);
       }
       if (!provider) {
-        vscode.window.showErrorMessage(`Remote Host Provider User ${item.name} not found`);
+        ShowErrorMessage(providerName, `Remote Host Provider User ${item.name} not found`);
         return;
       }
 
       const user = provider.users?.find(u => u.id === userId);
       if (!user) {
-        vscode.window.showErrorMessage(`Remote Host Provider user ${item.name} not found`);
+        ShowErrorMessage(providerName, `Remote Host Provider user ${item.name} not found`);
         return;
       }
 
@@ -49,8 +57,10 @@ const registerDevOpsManagementProviderRemoveUserCommand = (
         .then(async () => {
           let foundError = false;
           await DevOpsService.removeRemoteHostUsers(provider, userId).catch(() => {
-            vscode.window.showErrorMessage(
-              `Failed to delete user ${user.name} on the Remote Provider ${provider?.name ?? "Unknown"}`
+            ShowErrorMessage(
+              providerName,
+              `Failed to delete user ${user.name} on the Remote Provider ${provider?.name ?? "Unknown"}`,
+              true
             );
             foundError = true;
             return;
@@ -73,7 +83,7 @@ const registerDevOpsManagementProviderRemoveUserCommand = (
           }
         })
         .catch(error => {
-          vscode.window.showErrorMessage(`Failed to connect to Remote Host ${user.name}, err:\n ${error}`);
+          ShowErrorMessage(providerName, `Failed to connect to Remote Host ${user.name}, err:\n ${error}`, true);
         });
     })
   );

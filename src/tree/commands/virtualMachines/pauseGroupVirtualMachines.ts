@@ -8,6 +8,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_VM, TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerPauseGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -15,6 +17,8 @@ const registerPauseGroupVirtualMachinesCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treePauseGroupVms, async item => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "PAUSE_GROUP_VMS_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -38,7 +42,7 @@ const registerPauseGroupVirtualMachinesCommand = (
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             })
             .catch(reason => {
-              vscode.window.showErrorMessage(`Failed to suspend one or more VMs for ${group.name}`);
+              ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to suspend one or more VMs for ${group.name}`);
             });
         }
       );

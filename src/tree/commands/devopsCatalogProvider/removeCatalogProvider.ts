@@ -5,6 +5,8 @@ import {CommandsFlags, FLAG_DEVOPS_CATALOG_HAS_ITEMS} from "../../../constants/f
 import {DevOpsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import {ShowErrorMessage} from "../../../helpers/error";
+import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
 
 const registerDevOpsRemoveCatalogProviderCommand = (
   context: vscode.ExtensionContext,
@@ -12,6 +14,8 @@ const registerDevOpsRemoveCatalogProviderCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoveCatalogProvider, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_DEVOPS_CATALOG, "REMOVE_CATALOG_PROVIDER_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -25,7 +29,7 @@ const registerDevOpsRemoveCatalogProviderCommand = (
       const providerId = item.id.split("%%")[1];
       const provider = config.findCatalogProviderByIOrName(providerId);
       if (!provider) {
-        vscode.window.showErrorMessage(`Catalog Provider ${item.name} not found`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Catalog Provider ${item.name} not found`);
         return;
       }
 
@@ -37,7 +41,7 @@ const registerDevOpsRemoveCatalogProviderCommand = (
         await DevOpsService.refreshCatalogProviders(true);
         vscode.window.showInformationMessage(`Catalog Provider ${item.name} removed successfully`);
       } else {
-        vscode.window.showErrorMessage(`Error removing Catalog Provider ${item.name}`);
+        ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Error removing Catalog Provider ${item.name}`, true);
       }
     })
   );

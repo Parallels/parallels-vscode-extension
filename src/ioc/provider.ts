@@ -6,16 +6,19 @@ import {getUserProfileFolder} from "../helpers/helpers";
 import * as path from "path";
 import * as fs from "fs";
 import {LogService} from "../services/logService";
+import {TelemetryService} from "../telemetry/telemetryService";
 
 export let localStorage: LocalStorageService;
 export let cache: CacheService;
 export let config: ConfigurationService;
+export let telemetryService: TelemetryService;
 export let configurationInitialized = false;
 
 export class Provider {
   constructor(private context: vscode.ExtensionContext) {
     localStorage = new LocalStorageService(this.context.globalState);
     cache = new CacheService();
+    telemetryService = new TelemetryService();
     this.loadConfiguration();
   }
 
@@ -33,6 +36,14 @@ export class Provider {
 
   static getOs(): string {
     return process.platform;
+  }
+
+  static getArchitecture(): string {
+    return process.arch;
+  }
+
+  static telemetry(): TelemetryService {
+    return telemetryService;
   }
 
   static getSettings(): vscode.WorkspaceConfiguration {

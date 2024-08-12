@@ -1,3 +1,4 @@
+import {telemetryService} from "./../../../ioc/provider";
 import * as vscode from "vscode";
 
 import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachineProvider";
@@ -9,6 +10,8 @@ import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerStopGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -19,6 +22,8 @@ const registerStopGroupVirtualMachinesCommand = (
       if (!item) {
         return;
       }
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "STOP_VM_COMMAND_CLICK");
       vscode.window.withProgress(
         {
           title: `Stopping Vms on ${item.name}`,
@@ -39,7 +44,7 @@ const registerStopGroupVirtualMachinesCommand = (
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             })
             .catch(() => {
-              vscode.window.showErrorMessage(`Failed to stop one or more VMs for ${group.name}`);
+              ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to stop one or more VMs for ${group.name}`, true);
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
               return;
             });
@@ -53,6 +58,7 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
   return new Promise(async (resolve, reject) => {
     // refreshing the vm state in the config
     const config = Provider.getConfiguration();
+    const telemetry = Provider.telemetry();
     config.setVmStatus(item.ID, "stopping...");
     provider.refresh();
 
@@ -63,7 +69,7 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
       return reject(reject);
     });
     if (!ok || foundError) {
-      vscode.window.showErrorMessage(`Failed to stop virtual machine ${item.Name}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to stop virtual machine ${item.Name}`, true);
       return reject(`Failed to stop virtual machine ${item.Name}`);
     }
 
@@ -75,6 +81,9 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
       if (result === "stopped") {
         LogService.info(`Virtual machine ${item.Name} stopped`);
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} stopped`);
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "STOP_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.Name}`
+        });
         break;
       }
       if (retry === 0) {
@@ -83,7 +92,11 @@ function stopVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to stop`
         );
-        vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} stopped, please check the logs`);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} stopped, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

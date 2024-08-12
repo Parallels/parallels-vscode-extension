@@ -8,6 +8,8 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineTreeItem} from "../../treeItems/virtualMachineTreeItem";
 import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {ShowErrorMessage} from "../../../helpers/error";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
 
 const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -18,6 +20,12 @@ const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, pr
           title: `Starting virtual machine ${item.name}`
         },
         async () => {
+          if (!item) {
+            return;
+          }
+          const telemetry = Provider.telemetry();
+          telemetry.sendOperationEvent(TELEMETRY_VM, "START_VM_COMMAND_CLICK");
+
           const settings = Provider.getSettings();
           // refreshing the vm state in the config
           const config = Provider.getConfiguration();
@@ -37,13 +45,13 @@ const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, pr
             }
           }
           const ok = await ParallelsDesktopService.startVm(item.id).catch(reject => {
-            vscode.window.showErrorMessage(`${reject}`);
+            ShowErrorMessage(TELEMETRY_VM, `${reject}`);
             foundError = true;
             return;
           });
 
           if (!ok || foundError) {
-            vscode.window.showErrorMessage(`Failed to start virtual machine ${item.name}`);
+            ShowErrorMessage(TELEMETRY_VM, `Failed to start virtual machine ${item.name}`, true);
             return;
           }
 
@@ -58,6 +66,9 @@ const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, pr
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} started`
               );
+              telemetry.sendOperationEvent(TELEMETRY_VM, "START_VM_COMMAND_SUCCESS", {
+                operationValue: `${item.id}_${item.name}`
+              });
               break;
             }
             if (retry === 0) {
@@ -66,8 +77,10 @@ const registerStartVirtualMachineCommand = (context: vscode.ExtensionContext, pr
                 TelemetryEventIds.VirtualMachineAction,
                 `Virtual machine ${item.name} failed to start`
               );
-              vscode.window.showErrorMessage(
-                `Failed to check if the machine ${item.name} started, please check the logs`
+              ShowErrorMessage(
+                TELEMETRY_VM,
+                `Failed to check if the machine ${item.name} started, please check the logs`,
+                true
               );
               break;
             }

@@ -8,11 +8,15 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDeleteVmSnapshotCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.treeDeleteVmSnapshot, async (item: VirtualMachineTreeItem) => {
       const config = Provider.getConfiguration();
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM, "DELETE_VM_SNAPSHOT_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -37,7 +41,7 @@ const registerDeleteVmSnapshotCommand = (context: vscode.ExtensionContext, provi
             item.id,
             deleteChildren === ANSWER_YES ? true : false
           ).catch(reject => {
-            vscode.window.showErrorMessage(`${reject}`);
+            ShowErrorMessage(TELEMETRY_VM, `${reject}`);
             return;
           });
           if (!result) {
@@ -45,7 +49,7 @@ const registerDeleteVmSnapshotCommand = (context: vscode.ExtensionContext, provi
               TelemetryEventIds.VirtualMachineAction,
               `Snapshot ${item.name} for vm ${vm.Name} failed to delete`
             );
-            vscode.window.showErrorMessage(`Snapshot ${item.name} for vm ${vm.Name} failed to delete`);
+            ShowErrorMessage(TELEMETRY_VM, `Snapshot ${item.name} for vm ${vm.Name} failed to delete`, true);
             return;
           }
 
@@ -55,6 +59,7 @@ const registerDeleteVmSnapshotCommand = (context: vscode.ExtensionContext, provi
             TelemetryEventIds.VirtualMachineAction,
             `Snapshot ${item.name} for vm ${vm.Name} deleted`
           );
+          telemetry.sendOperationEvent(TELEMETRY_VM, "DELETE_VM_SNAPSHOT_COMMAND_SUCCESS", {operationValue: item.name});
           LogService.info(`Snapshot ${item.name} for vm ${vm.Name} deleted`, "DeleteVmSnapshotCommand");
         }
       );

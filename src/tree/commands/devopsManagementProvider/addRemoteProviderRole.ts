@@ -9,13 +9,20 @@ import {DevOpsRolesAndClaimsCreateRequest} from "../../../models/devops/rolesAnd
 import {cleanString} from "../../../helpers/strings";
 import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvider";
+import {TELEMETRY_DEVOPS_CATALOG, TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerDevOpsManagementProviderAddRoleCommand = (
   context: vscode.ExtensionContext,
   provider: DevOpsRemoteHostsProvider | DevOpsCatalogProvider
 ) => {
+  const localProvider = provider;
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.devopsRemoteProviderManagementAddRole, async (item: any) => {
+      const telemetry = Provider.telemetry();
+      const providerName =
+        localProvider instanceof DevOpsCatalogProvider ? TELEMETRY_DEVOPS_CATALOG : TELEMETRY_DEVOPS_REMOTE;
+      telemetry.sendOperationEvent(providerName, "ADD_PROVIDER_ROLE_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -31,7 +38,7 @@ const registerDevOpsManagementProviderAddRoleCommand = (
         provider = config.findCatalogProviderByIOrName(providerId);
       }
       if (!provider) {
-        vscode.window.showErrorMessage(`Remote Host Provider User ${item.name} not found`);
+        ShowErrorMessage(providerName, `Provider ${item.name} not found`);
         return;
       }
 
@@ -41,7 +48,7 @@ const registerDevOpsManagementProviderAddRoleCommand = (
         ignoreFocusOut: true
       });
       if (!name) {
-        vscode.window.showErrorMessage(`Role Name is required`);
+        ShowErrorMessage(providerName, `Role Name is required`);
         return;
       }
 
@@ -53,8 +60,10 @@ const registerDevOpsManagementProviderAddRoleCommand = (
         .then(async () => {
           let foundError = false;
           await DevOpsService.createRemoteHostRole(provider, request).catch(() => {
-            vscode.window.showErrorMessage(
-              `Failed to add role ${name} to the remote host ${provider?.name ?? "Unknown"}`
+            ShowErrorMessage(
+              providerName,
+              `Failed to add role ${name} to the remote host ${provider?.name ?? "Unknown"}`,
+              true
             );
             foundError = true;
             return;
@@ -77,8 +86,10 @@ const registerDevOpsManagementProviderAddRoleCommand = (
           }
         })
         .catch(error => {
-          vscode.window.showErrorMessage(
-            `Failed to connect to Remote Host ${provider?.name ?? "Unknown"}, err:\n ${error}`
+          ShowErrorMessage(
+            providerName,
+            `Failed to connect to Remote Host ${provider?.name ?? "Unknown"}, err:\n ${error}`,
+            true
           );
         });
     })

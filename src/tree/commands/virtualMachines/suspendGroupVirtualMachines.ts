@@ -8,6 +8,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerSuspendGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -18,6 +20,8 @@ const registerSuspendGroupVirtualMachinesCommand = (
       if (!item) {
         return;
       }
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "SUSPEND_VM_COMMAND_CLICK");
       vscode.window.withProgress(
         {
           title: `Suspending Vms on ${item.name}`,
@@ -38,7 +42,7 @@ const registerSuspendGroupVirtualMachinesCommand = (
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             })
             .catch(reason => {
-              vscode.window.showErrorMessage(`Failed to suspend one or more VMs for ${group.name}`);
+              ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to suspend one or more VMs for ${group.name}`, true);
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
               return;
             });
@@ -52,17 +56,18 @@ function suspendVm(provider: VirtualMachineProvider, item: VirtualMachine): Prom
   return new Promise(async (resolve, reject) => {
     // refreshing the vm state in the config
     const config = Provider.getConfiguration();
+    const telemetry = Provider.telemetry();
     config.setVmStatus(item.ID, "suspending...");
     provider.refresh();
 
     let foundError = false;
     const ok = await ParallelsDesktopService.suspendVm(item.ID).catch(reject => {
-      vscode.window.showErrorMessage(`${reject}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `${reject}`);
       foundError = true;
       return reject(reject);
     });
     if (!ok || foundError) {
-      vscode.window.showErrorMessage(`Failed to suspend virtual machine ${item.Name}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to suspend virtual machine ${item.Name}`, true);
       return reject(`Failed to suspend virtual machine ${item.Name}`);
     }
 
@@ -74,7 +79,9 @@ function suspendVm(provider: VirtualMachineProvider, item: VirtualMachine): Prom
       if (result === "suspended") {
         LogService.info(`Virtual machine ${item.Name} suspended`);
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} suspended`);
-
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "SUSPEND_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.Name}`
+        });
         break;
       }
       if (retry === 0) {
@@ -83,7 +90,11 @@ function suspendVm(provider: VirtualMachineProvider, item: VirtualMachine): Prom
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to suspend`
         );
-        vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} suspend, please check the logs`);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} suspend, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

@@ -8,6 +8,8 @@ import {VirtualMachine} from "../../../models/parallels/virtualMachine";
 import {VirtualMachineGroup} from "../../../models/parallels/virtualMachineGroup";
 import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
+import {TELEMETRY_VM_GROUP} from "../../../telemetry/operations";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerStartGroupVirtualMachinesCommand = (
   context: vscode.ExtensionContext,
@@ -18,6 +20,8 @@ const registerStartGroupVirtualMachinesCommand = (
       if (!item) {
         return;
       }
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "START_GROUP_VMS_COMMAND_CLICK");
       vscode.window.withProgress(
         {
           title: `Starting Vms on ${item.name}`,
@@ -41,7 +45,7 @@ const registerStartGroupVirtualMachinesCommand = (
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
             })
             .catch(() => {
-              vscode.window.showErrorMessage(`Failed to start one or more VMs for ${group.name}`);
+              ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to start one or more VMs for ${group.name}`, true);
               vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
               return;
             });
@@ -53,6 +57,7 @@ const registerStartGroupVirtualMachinesCommand = (
 
 function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise<void> {
   return new Promise(async (resolve, reject) => {
+    const telemetry = Provider.telemetry();
     // refreshing the vm state in the config
     const config = Provider.getConfiguration();
     config.setVmStatus(item.ID, "starting...");
@@ -60,12 +65,12 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
 
     let foundError = false;
     const ok = await ParallelsDesktopService.startVm(item.ID).catch(reject => {
-      vscode.window.showErrorMessage(`${reject}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `${reject}`);
       foundError = true;
       return reject(reject);
     });
     if (!ok || foundError) {
-      vscode.window.showErrorMessage(`Failed to start virtual machine ${item.Name}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to start virtual machine ${item.Name}`, true);
       return reject(`Failed to start virtual machine ${item.Name}`);
     }
 
@@ -77,6 +82,9 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
       if (result === "running") {
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Virtual machine ${item.Name} started`);
         LogService.info(`Virtual machine ${item.Name} started`);
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "START_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.OS}`
+        });
         break;
       }
       if (retry === 0) {
@@ -85,8 +93,11 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
           TelemetryEventIds.VirtualMachineAction,
           `Virtual machine ${item.Name} failed to start`
         );
-
-        vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} started, please check the logs`);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} started, please check the logs`,
+          true
+        );
         break;
       }
       retry--;
@@ -99,6 +110,7 @@ function startVm(provider: VirtualMachineProvider, item: VirtualMachine): Promis
 
 function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promise<void> {
   return new Promise(async (resolve, reject) => {
+    const telemetry = Provider.telemetry();
     // refreshing the vm state in the config
     const config = Provider.getConfiguration();
     config.setVmStatus(item.ID, "resuming...");
@@ -106,12 +118,12 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
 
     let foundError = false;
     const ok = await ParallelsDesktopService.resumeVm(item.ID).catch(reject => {
-      vscode.window.showErrorMessage(`${reject}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `${reject}`);
       foundError = true;
       return reject(reject);
     });
     if (!ok && !foundError) {
-      vscode.window.showErrorMessage(`Failed to resume virtual machine ${item.Name}`);
+      ShowErrorMessage(TELEMETRY_VM_GROUP, `Failed to resume virtual machine ${item.Name}`, true);
       return reject(`Failed to resume virtual machine ${item.Name}`);
     }
 
@@ -122,11 +134,18 @@ function resumeVm(provider: VirtualMachineProvider, item: VirtualMachine): Promi
       const result = await ParallelsDesktopService.getVmStatus(item.ID);
       if (result === "running") {
         LogService.info(`Virtual machine ${item.Name} resumed`);
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "RESUME_VM_COMMAND_SUCCESS", {
+          operationValue: `${item.ID}_${item.OS}`
+        });
         break;
       }
       if (retry === 0) {
         LogService.error(`Virtual machine ${item.Name} failed to resume`);
-        vscode.window.showErrorMessage(`Failed to check if the machine ${item.Name} resumed, please check the logs`);
+        ShowErrorMessage(
+          TELEMETRY_VM_GROUP,
+          `Failed to check if the machine ${item.Name} resumed, please check the logs`,
+          true
+        );
         break;
       }
       retry--;

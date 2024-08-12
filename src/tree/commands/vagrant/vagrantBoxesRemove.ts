@@ -5,10 +5,15 @@ import {VagrantBoxProvider} from "../../vagrantBoxProvider/vagrantBoxProvider";
 import {VagrantBoxTreeItem} from "../../treeItems/vagrantBoxItem";
 import {VagrantService} from "../../../services/vagrantService";
 import {VagrantCommand} from "../BaseCommand";
+import {TELEMETRY_VAGRANT} from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
+import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerVagrantBoxRemoveCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderDelete, async (item: VagrantBoxTreeItem) => {
+      const telemetry = Provider.telemetry();
+      telemetry.sendOperationEvent(TELEMETRY_VAGRANT, "VAGRANT_BOX_REMOVE_COMMAND_CLICK");
       if (!item) {
         return;
       }
@@ -23,18 +28,20 @@ const registerVagrantBoxRemoveCommand = (context: vscode.ExtensionContext, provi
               .then(
                 value => {
                   if (!value) {
-                    vscode.window.showErrorMessage(`Error removing Vagrant box ${item.name}`);
+                    ShowErrorMessage(TELEMETRY_VAGRANT, `Failed to remove Vagrant box ${item.name}`);
                   }
                   vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
                 },
                 reason => {
-                  vscode.window.showErrorMessage(
+                  ShowErrorMessage(
+                    TELEMETRY_VAGRANT,
                     `Error removing Vagrant box ${item.name}: vagrant exited with code ${reason}`
                   );
                 }
               )
               .catch(reason => {
-                vscode.window.showErrorMessage(
+                ShowErrorMessage(
+                  TELEMETRY_VAGRANT,
                   `Error removing Vagrant box ${item.name}: vagrant exited with code ${reason}`
                 );
               });
