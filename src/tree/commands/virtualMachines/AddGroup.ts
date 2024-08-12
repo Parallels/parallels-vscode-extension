@@ -26,7 +26,7 @@ const registerAddGroupCommand = (context: vscode.ExtensionContext, provider: Vir
           return;
         }
 
-        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "success", {description: `Group ${groupName} added`});
+        telemetry.sendOperationEvent(TELEMETRY_VM_GROUP, "ADD_GROUP_COMMAND_SUCCESS" , {description: `Group ${groupName} added`});
         LogService.sendTelemetryEvent(TelemetryEventIds.GroupAction, "Group Added");
         config.addVirtualMachineGroup(new VirtualMachineGroup(groupName));
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);

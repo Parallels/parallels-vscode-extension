@@ -12,12 +12,8 @@ const registerParallelsCatalogRefreshCommand = (
 ) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.parallelsCatalogRefreshProvider, async () => {
-      const telemetry = Provider.telemetry();
       LogService.debug("Refreshing Catalog Providers", "RefreshParallelsCatalogCommand");
       provider.refresh();
-      telemetry.sendOperationEvent(TELEMETRY_PARALLELS_CATALOG, "REFRESH_COMMAND_CLICK", {
-        description: `Parallels Catalog Refreshed`
-      });
     })
   );
 };
