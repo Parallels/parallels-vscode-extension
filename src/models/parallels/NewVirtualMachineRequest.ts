@@ -1,4 +1,3 @@
-import {NewVirtualMachineFlags} from "./NewVirtualMachineFlags";
 import {NewVirtualMachineRequiredVariables} from "./NewVirtualMachineRequiredVariables";
 import {NewVirtualMachineSpecs} from "./NewVirtualMachineSpecs";
 

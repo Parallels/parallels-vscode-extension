@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import {PackerService} from "./services/packerService";
-import {VagrantService} from "./services/vagrantService";
 import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {Provider} from "./ioc/provider";
 import {

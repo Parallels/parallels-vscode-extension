@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
-import * as cp from "child_process";
 import {Provider} from "../ioc/provider";
 import {
   FLAG_PARALLELS_EXTENSION_DOWNLOAD_PATH,

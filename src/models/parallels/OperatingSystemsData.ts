@@ -5,7 +5,7 @@ import {OperatingSystemImage} from "./OperatingSystemImage";
 import {OperatingSystem} from "./operatingSystem";
 import {LogService} from "../../services/logService";
 import {Provider} from "../../ioc/provider";
-import {FLAG_IS_HEADLESS_DEFAULT, FLAG_START_VMS_HEADLESS_DEFAULT} from "../../constants/flags";
+import { FLAG_START_VMS_HEADLESS_DEFAULT} from "../../constants/flags";
 
 export class OperatingSystemsData {
   operatingSystems: OperatingSystem[];

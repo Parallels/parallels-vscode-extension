@@ -4,9 +4,7 @@ import {CopilotOperation} from "../models";
 import {catalogStatusIntensionHandler} from "./catalogStatusIntensionHandler";
 import {catalogListIntensionHandler} from "./catalogListIntensionHandler";
 import {catalogCountIntensionHandler} from "./catalogCountIntensionHandler";
-import {processCatalogProviderIntensions} from "../training/processCatalogProviderIntensions";
 import {processVmInfoIntensions} from "../training/processVmInfoIntensions";
-import {config} from "../../ioc/provider";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {processPredictiveValueIntension} from "../training/processPredictiveValueIntension";
 

@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import {CopilotOperation} from "../models";
 import {Provider} from "../../ioc/provider";
-import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
 import {DevOpsRemoteHostProvider} from "../../models/devops/remoteHostProvider";
 
 export async function orchestratorCountIntensionHandler(

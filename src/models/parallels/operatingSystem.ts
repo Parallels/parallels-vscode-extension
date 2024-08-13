@@ -1,5 +1,3 @@
-import * as vscode from "vscode";
-import * as path from "path";
 import {OperatingSystemPlatform} from "./OperatingSystemPlatform";
 import {OperatingSystemImage} from "./OperatingSystemImage";
 
