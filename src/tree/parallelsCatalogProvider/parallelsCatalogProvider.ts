@@ -101,7 +101,7 @@ export class ParallelsCatalogProvider implements vscode.TreeDataProvider<DevOpsT
               elementId,
               versions,
               "provider.catalog.manifests.manifest",
-              manifest.name,
+              manifest.description ? manifest.description : manifest.name,
               versions,
               "DevOpsCatalogHostProvider",
               "devops.catalog.manifests.manifest",

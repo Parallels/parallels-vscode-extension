@@ -1,5 +1,6 @@
 export interface CatalogManifestItem {
   name: string;
+  description: string;
   items: CatalogManifest[];
 }
 

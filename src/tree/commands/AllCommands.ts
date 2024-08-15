@@ -101,6 +101,8 @@ import {ParallelsCatalogForceRefreshCommand} from "./parallelsCatalogProvider/fo
 import {BuyBusinessLicenseCommonCommand} from "./common/buyBusinessLicense";
 import {ParallelsCatalogPullCatalogManifestCommand} from "./parallelsCatalogProvider/pullCatalogProviderManifest";
 import {BuyProLicenseCommonCommand} from "./common/buyProLicense";
+import { ParallelsCatalogCloseOnboardingCommand } from "./parallelsCatalogProvider/closeOnboarding";
+import { ParallelsCatalogShowAiFaqCommand } from "./parallelsCatalogProvider/showAiFaq";
 
 export const AllCommonCommand: CommonCommand[] = [BuyProLicenseCommonCommand, BuyBusinessLicenseCommonCommand];
 
@@ -213,5 +215,7 @@ export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderMana
 export const AllParallelsCommands: ParallelsCatalogCommand[] = [
   ParallelsCatalogRefreshCommand,
   ParallelsCatalogForceRefreshCommand,
-  ParallelsCatalogPullCatalogManifestCommand
+  ParallelsCatalogPullCatalogManifestCommand,
+  ParallelsCatalogCloseOnboardingCommand,
+  ParallelsCatalogShowAiFaqCommand
 ];

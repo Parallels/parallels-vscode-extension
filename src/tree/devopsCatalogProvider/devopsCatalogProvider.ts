@@ -255,7 +255,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 element.id,
                 versions,
                 "provider.catalog.manifests.manifest",
-                manifest.name,
+                manifest.description ? manifest.description : manifest.name,
                 versions,
                 "DevOpsCatalogHostProvider",
                 "devops.catalog.manifests.manifest",

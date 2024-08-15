@@ -936,6 +936,14 @@
                     "light": "img/light/catalog_manifest_pull.svg",
                     "dark": "img/dark/catalog_manifest_pull.svg"
                 }
+            },
+            {
+                "command": "parallels-desktop.parallels-catalog.close-onboarding",
+                "title": "Close Onboarding"
+            },
+            {
+                "command": "parallels-desktop.parallels-catalog.show-ai-faq",
+                "title": "Show AI FAQ"
             }
         ],
         "viewsContainers": {
@@ -1262,6 +1270,14 @@
                 },
                 {
                     "command": "parallels-desktop.parallels-catalog.pull-catalog-manifest",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.parallels-catalog.close-onboarding",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.parallels-catalog.show-ai-faq",
                     "when": "false"
                 }
             ],
@@ -1790,8 +1806,13 @@
             },
             {
                 "view": "parallels-desktop-catalog",
-                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === true",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === true ",
                 "contents": "It looks like the Parallels Desktop VMs Catalog is currently unavailable.\nPlease verify your internet connection and ensure you're using the latest version of the extension, then try again.\n[Refresh](command:parallels-desktop.parallels-catalog.force-refresh)"
+            },
+            {
+                "view": "parallels-desktop-catalog",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === false && parallels-desktop:parallels-catalog:show-onboarding === true && parallels-desktop:is-offline !== true ",
+                "contents": "Welcome to Parallels Desktop VMs Catalog\nHere you can find pre built Vms to help you to quick start your journey.\nWhy not start by trying our new AI Developer Package and start on your journey with AI\n[Step 1: Learn More](command:parallels-desktop.parallels-catalog.show-ai-faq)\n[Step 2: Get Started](command:parallels-desktop.parallels-catalog.close-onboarding)"
             },
             {
                 "view": "parallels-desktop-remote-catalog",

@@ -47,6 +47,7 @@ export const FLAG_SHOW_PARALLELS_CATALOG = "parallels-desktop:show-catalog";
 export const FLAG_IS_LICENSED_SHOW_CATALOG = "parallels-desktop:is-licensed-show-catalog";
 export const FLAG_IS_PARALLELS_CATALOG_OFFLINE = "parallels-desktop:is-offline";
 export const FLAG_PARALLELS_CATALOG_HAS_ITEMS = "parallels-desktop:parallels-catalog-has-tree-items";
+export const FLAG_PARALLELS_CATALOG_SHOW_ONBOARD = "parallels-desktop:parallels-catalog:show-onboarding";
 export const FLAG_LICENSE = "parallels-desktop:license";
 
 const COMMAND_PREFIX = "parallels-desktop";
@@ -224,6 +225,8 @@ export class CommandsFlags {
   static parallelsCatalogRefreshProvider = `${COMMAND_PREFIX}.parallels-catalog.refresh`;
   static parallelsCatalogForceRefreshProvider = `${COMMAND_PREFIX}.parallels-catalog.force-refresh`;
   static parallelsCatalogPullCatalogManifest = `${COMMAND_PREFIX}.parallels-catalog.pull-catalog-manifest`;
+  static parallelsCatalogCloseOnboarding = `${COMMAND_PREFIX}.parallels-catalog.close-onboarding`;
+  static parallelsCatalogShowAiFaq = `${COMMAND_PREFIX}.parallels-catalog.show-ai-faq`;
   // Devops General Commands
 
   // Devops Catalog Commands

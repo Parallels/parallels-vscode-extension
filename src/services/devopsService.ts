@@ -907,9 +907,16 @@ export class DevOpsService {
         const a = manifest[0];
         const item: CatalogManifestItem = {
           name: Object.keys(manifest)[0],
+          description: "",
           items: manifest[Object.keys(manifest)[0]]
         };
 
+        if (item.items.length > 0) {
+          if(item.items[0].description) {
+            item.description = item.items[0].description;
+          }
+        }
+        
         items.push(item);
       }
 

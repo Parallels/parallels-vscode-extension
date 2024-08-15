@@ -52,6 +52,7 @@ export class ConfigurationService {
   catalogProviders: DevOpsCatalogHostProvider[];
   remoteHostProviders: DevOpsRemoteHostProvider[];
   parallelsCatalogProvider: DevOpsCatalogHostProvider;
+  showOnboardingForParallelsCatalog: boolean;
   parallelsCatalogUrl: string;
   featureFlags: FeatureFlags;
   tools: Tools;
@@ -73,6 +74,7 @@ export class ConfigurationService {
     this.catalogProviders = [];
     this.remoteHostProviders = [];
     this.parallelsCatalogUrl = PARALLELS_CATALOG_URL;
+    this.showOnboardingForParallelsCatalog = true;
     this.parallelsCatalogProvider = {
       class: "DevOpsCatalogHostProvider",
       ID: "parallels-desktop-vms-catalog",
@@ -187,6 +189,9 @@ export class ConfigurationService {
       if (json.parallelsCatalogProvider !== undefined) {
         configuration.parallelsCatalogProvider = json.parallelsCatalogProvider;
       }
+      if (json.showOnboardingForParallelsCatalog !== undefined) {
+        configuration.showOnboardingForParallelsCatalog = json.showOnboardingForParallelsCatalog;
+      }
 
       return configuration;
     } catch (e) {
@@ -253,6 +258,10 @@ export class ConfigurationService {
       });
     }
   }
+  setShowOnboarding(show: boolean) {
+    this.showOnboardingForParallelsCatalog = show;
+    this.save();
+  }
 
   async loadDockerRunItems(): Promise<void> {
     try {
@@ -278,6 +287,7 @@ export class ConfigurationService {
       catalogProviders: this.catalogProviders,
       remoteHostProviders: this.remoteHostProviders,
       parallelsCatalogProvider: this.parallelsCatalogProvider,
+      showOnboardingForParallelsCatalog: this.showOnboardingForParallelsCatalog,
       featureFlags: this.featureFlags,
       hardwareInfo: this.hardwareInfo,
       parallelsDesktopServerInfo: this.parallelsDesktopServerInfo,
