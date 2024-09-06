@@ -150,6 +150,18 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
 
         catalogId = cleanString(catalogId).toLowerCase();
 
+        const name = await vscode.window.showInputBox({
+          placeHolder: "Enter the catalog name",
+          ignoreFocusOut: true
+        });
+
+        if (name && !/^[a-zA-Z0-9_-\s]+$/.test(name)) {
+          vscode.window.showErrorMessage(
+            "Catalog name can only contain alphanumeric characters, underscores, spaces and hyphens."
+          );
+          return;
+        }
+
         //remote providers
         const remoteProviders: vscode.QuickPickItem[] = [];
         if ((await DevOpsService.getHostUrl(provider)).indexOf("localhost") !== -1) {
@@ -215,7 +227,7 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
         const tagsInput = await vscode.window.showInputBox({
           placeHolder: "Enter Tags separated by comma",
           ignoreFocusOut: true,
-          value: "latest"
+          value: `latest${version ? `,${version}` : ""}`
         });
 
         const tags = tagsInput?.split(",").map(t => t.trim()) ?? [];
@@ -224,6 +236,7 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
           catalog_id: catalogId,
           version: version ?? "latest",
           architecture: architecture,
+          description: name ?? "",
           connection: providerConnectionString,
           local_path: machinePath,
           required_roles: selectedRoles?.map(r => r.label) ?? [],
@@ -243,11 +256,14 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: `Pushing machine ${request.local_path}`
+            title: `${request.description ?? request.catalog_id} ${request.version}`
           },
-          async () => {
+          async progress => {
+            progress.report({
+              message: `Getting ready to push to ${provider.name}`
+            });
             let foundError = false;
-            await DevOpsService.pushManifestFromCatalogProvider(provider, request).catch(reject => {
+            await DevOpsService.pushManifestFromCatalogProvider(provider, request, progress).catch(reject => {
               LogService.error(`Error pushing manifest from provider ${provider.name}`, reject);
               ShowErrorMessage(TELEMETRY_DEVOPS_CATALOG, `Error pushing manifest from provider ${provider.name}`, true);
               foundError = true;

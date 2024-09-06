@@ -36,6 +36,8 @@ import {HostHardwareInfo} from "../models/devops/hardwareInfo";
 import {CreateCatalogMachine} from "../models/devops/createCatalogMachine";
 import {UpdateOrchestratorHostRequest} from "../models/devops/updateOrchestratorHostRequest";
 import {TELEMETRY_INSTALL_DEVOPS} from "../telemetry/operations";
+import {compareSemanticVersions, getFoldersBasePath} from "../helpers/helpers";
+import path from "path";
 
 const refreshThreshold = 5000;
 const parallelsCatalogThreshold = 3600000;
@@ -76,41 +78,46 @@ export class DevOpsService {
           `Parallels DevOps was found on path ${settings.get<string>(FLAG_DEVOPS_PATH)} from settings`,
           "DevOpsService"
         );
+
+        cache.set(FLAG_DEVOPS_PATH, settings.get<string>(FLAG_DEVOPS_PATH));
         return resolve(true);
       }
 
-      const cmd = spawn("which", ["prldevops"]);
-      cmd.stdout.on("data", data => {
-        const path = data.toString().replace("\n", "").trim();
-        LogService.info(`Parallels DevOps was found on path ${path}`, "DevOpsService");
+      const basePath = getFoldersBasePath();
+      if (!basePath) {
+        LogService.error("Could not get base path for Parallels DevOps", "DevOpsService", false, false);
+        return resolve(false);
+      }
+      const filePath = path.join(basePath, "tools", "prldevops");
+      if (fs.existsSync(filePath)) {
+        LogService.info(`Parallels DevOps was found on path ${filePath}`, "DevOpsService");
         const devOpsServicePath = settings.get<string>(FLAG_DEVOPS_PATH);
         if (!devOpsServicePath) {
-          settings.update(FLAG_DEVOPS_PATH, path, true);
+          settings.update(FLAG_DEVOPS_PATH, filePath, true);
         }
-        Provider.getCache().set(FLAG_DEVOPS_PATH, path);
-      });
-      cmd.stderr.on("data", data => {
-        LogService.error(`Parallels DevOps is not installed, err:\n${data.toString()}`, "DevOpsService");
-      });
-      cmd.on("close", code => {
-        if (code !== 0) {
-          LogService.error(`which prldevops exited with code ${code}`, "DevOpsService");
-          return resolve(false);
-        }
+        cache.set(FLAG_DEVOPS_PATH, filePath);
         return resolve(true);
-      });
+      } else {
+        return resolve(false);
+      }
     });
   }
 
-  static version(): Promise<string> {
+  static version(force = false): Promise<string> {
     return new Promise((resolve, reject) => {
       const version = Provider.getCache().get(FLAG_DEVOPS_VERSION);
-      if (version) {
+      if (version && !force) {
         LogService.info(`Parallels DevOps ${version} was found in the system`, "DevOpsService");
         return resolve(version);
       }
 
       const path = Provider.getCache().get(FLAG_DEVOPS_PATH);
+
+      if (!path) {
+        LogService.error("Could not get Parallels DevOps path", "DevOpsService", false, false);
+        return reject("Could not get Parallels DevOps path");
+      }
+
       LogService.info("Getting Parallels DevOps version...", "DevOpsService");
       const cmd = spawn(path, ["--version"]);
       let foundVersion = "";
@@ -151,20 +158,29 @@ export class DevOpsService {
     });
   }
 
+  static checkForLatestVersion(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      LogService.info("Checking for latest Parallels DevOps version...", "DevOpsService");
+      axios
+        .get("https://api.github.com/repos/Parallels/prl-devops-service/releases/latest")
+        .then(response => {
+          const latestVersion = response.data.tag_name.replace("release-v", "").replace("v", "").trim();
+          LogService.info(`Latest Parallels DevOps version is ${latestVersion}`, "DevOpsService");
+          return resolve(latestVersion);
+        })
+        .catch(err => {
+          LogService.error(`Error checking for latest Parallels DevOps version, err: ${err}`, "DevOpsService");
+          return reject(err);
+        });
+    });
+  }
+
   static install(): Promise<boolean> {
     const telemetry = Provider.telemetry();
     LogService.info("Installing Parallels DevOps...", "DevOpsService");
+    const basePath = getFoldersBasePath();
+    const filePath = path.join(basePath, "tools");
     return new Promise(async (resolve, reject) => {
-      const sudoPassword = await vscode.window.showInputBox({
-        ignoreFocusOut: true,
-        placeHolder: "Enter the Sudo password",
-        password: true,
-        prompt: "Enter the sudo password to install Parallels DevOps"
-      });
-      if (!sudoPassword) {
-        vscode.window.showErrorMessage("Password is required to install Parallels DevOps");
-        return resolve(false);
-      }
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -172,51 +188,93 @@ export class DevOpsService {
           cancellable: false
         },
         async (progress, token) => {
+          if (!fs.existsSync(filePath)) {
+            fs.mkdirSync(filePath, {recursive: true});
+          }
+
           progress.report({message: "Installing Parallels DevOps..."});
-          const result = await new Promise(async (resolve, reject) => {
-            const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing DevOps Service`);
-            terminal.sendText(
-              `echo ${sudoPassword} | sudo -S /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Parallels/prl-devops-service/main/scripts/install.sh)" - --no-service; exit $?`
-            );
-            vscode.window.onDidCloseTerminal(async closedTerminal => {
-              if (closedTerminal.name === terminal.name) {
-                if (terminal.exitStatus?.code !== 0) {
-                  LogService.error(
-                    `install exited with code ${terminal.exitStatus?.code}`,
-                    "DevOpsService",
-                    true,
-                    false
-                  );
-                  progress.report({message: "Failed to install Parallels DevOps service, see logs for more details"});
-                  return resolve(false);
-                }
-                const config = Provider.getConfiguration();
-                const ok = await config.initDevOpsService();
-                if (!ok) {
-                  progress.report({message: "Failed to install Parallels DevOps service, see logs for more details"});
-                  return resolve(false);
-                } else {
-                  progress.report({message: "Parallels DevOps installed successfully"});
-                  return resolve(true);
-                }
-              }
-            });
+          const installCmd = [
+            "-c",
+            `"$(curl -fsSL https://raw.githubusercontent.com/Parallels/prl-devops-service/main/scripts/install.sh)" - --no-service --path ${filePath} --std-user`
+          ];
+          console.log(installCmd.join(" "));
+          const cmd = spawn("/bin/bash", installCmd, {
+            shell: true,
+            cwd: getFoldersBasePath()
+          });
+          cmd.stdout.on("data", data => {
+            console.log(data.toString());
+            LogService.info(data.toString(), "DevOpsService");
           });
 
-          if (!result) {
-            telemetry.sendErrorEvent(TELEMETRY_INSTALL_DEVOPS, "Failed to install Parallels DevOps");
-            progress.report({message: "Failed to install Parallels DevOps, see logs for more details"});
-            vscode.window.showErrorMessage("Failed to install Parallels DevOps, see logs for more details");
-            return resolve(false);
-          } else {
+          cmd.stderr.on("data", data => {
+            const d = data.toString();
+            console.log(d);
+            LogService.error(data.toString(), "DevOpsService");
+          });
+
+          cmd.on("close", async code => {
+            if (code !== 0) {
+              LogService.error(`install exited with code ${code}`, "DevOpsService", true, false);
+              telemetry.sendErrorEvent(TELEMETRY_INSTALL_DEVOPS, "Failed to install Parallels DevOps");
+              progress.report({message: "Failed to install Parallels DevOps, see logs for more details"});
+              vscode.window.showErrorMessage("Failed to install Parallels DevOps, see logs for more details");
+              return resolve(false);
+            }
+
+            const version = await DevOpsService.version(true);
             telemetry.sendOperationEvent(TELEMETRY_INSTALL_DEVOPS, "success", {
-              description: "Parallels DevOps installed successfully"
+              description: `Parallels DevOps version ${version} installed successfully`
             });
-            progress.report({message: "Parallels DevOps installed successfully"});
-            vscode.window.showInformationMessage("Parallels DevOps installed successfully");
+            progress.report({message: `Parallels DevOps version ${version} installed successfully`});
+            vscode.window.showInformationMessage(`Parallels DevOps version ${version} installed successfully`);
             return resolve(true);
-          }
+          });
         }
+        //   const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing DevOps Service`);
+        //   terminal.sendText(
+        //     `echo ${sudoPassword} | sudo -S /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Parallels/prl-devops-service/main/scripts/install.sh)" - --no-service ; exit $?`
+        //   );
+        //   vscode.window.onDidCloseTerminal(async closedTerminal => {
+        //     if (closedTerminal.name === terminal.name) {
+        //       if (terminal.exitStatus?.code !== 0) {
+        //         LogService.error(
+        //           `install exited with code ${terminal.exitStatus?.code}`,
+        //           "DevOpsService",
+        //           true,
+        //           false
+        //         );
+        //         progress.report({message: "Failed to install Parallels DevOps service, see logs for more details"});
+        //         return resolve(false);
+        //       }
+        //       const config = Provider.getConfiguration();
+        //       const ok = await config.initDevOpsService(false);
+        //       if (!ok) {
+        //         progress.report({message: "Failed to install Parallels DevOps service, see logs for more details"});
+        //         return resolve(false);
+        //       } else {
+        //         const version = await DevOpsService.version();
+        //         progress.report({message: `Parallels DevOps version ${version} installed successfully`});
+        //         return resolve(true);
+        //       }
+        //     }
+        //   });
+        // });
+
+        // if (!result) {
+        //   telemetry.sendErrorEvent(TELEMETRY_INSTALL_DEVOPS, "Failed to install Parallels DevOps");
+        //   progress.report({message: "Failed to install Parallels DevOps, see logs for more details"});
+        //   vscode.window.showErrorMessage("Failed to install Parallels DevOps, see logs for more details");
+        //   return resolve(false);
+        // } else {
+        //   const version = await DevOpsService.version(true);
+        //   telemetry.sendOperationEvent(TELEMETRY_INSTALL_DEVOPS, "success", {
+        //     description: `Parallels DevOps version ${version} installed successfully`
+        //   });
+        //   progress.report({message: `Parallels DevOps version ${version} installed successfully`});
+        //   vscode.window.showInformationMessage(`Parallels DevOps version ${version} installed successfully`);
+        //   return resolve(true);
+        // }
       );
     });
   }
@@ -848,10 +906,14 @@ export class DevOpsService {
       }
 
       let error: any;
-      const response = await axios.get(`${url}/api/health/probe`, {}).catch(err => {
-        error = err;
-        return reject(err);
-      });
+      const response = await axios
+        .get(`${url}/api/health/probe`, {
+          timeout: 5000
+        })
+        .catch(err => {
+          error = err;
+          return reject(err);
+        });
 
       if (response?.status !== 200) {
         return reject(response?.statusText);
@@ -912,11 +974,11 @@ export class DevOpsService {
         };
 
         if (item.items.length > 0) {
-          if(item.items[0].description) {
+          if (item.items[0].description) {
             item.description = item.items[0].description;
           }
         }
-        
+
         items.push(item);
       }
 
@@ -1976,6 +2038,9 @@ export class DevOpsService {
         insecure = true;
       }
 
+      const version = await this.version();
+      const canUseClient = compareSemanticVersions("0.8.6", version) > 0;
+
       const pdFile = `FROM ${from}
 ${insecure ? "INSECURE true" : ""}
 AUTHENTICATE USERNAME ${provider.username}
@@ -1990,6 +2055,8 @@ MACHINE_NAME ${request.machine_name}
 DESTINATION ${request.path}
 
 START_AFTER_PULL ${request.start_after_pull}
+
+${request.client && canUseClient ? `CLIENT ${request.client}` : ""}
 `;
       const path = `/tmp/pull_${cleanString(request.machine_name)}.pdfile`;
       // deleting the file if it exists
@@ -2027,6 +2094,7 @@ ARCHITECTURE ${request.architecture}
 ${request.required_claims?.length > 0 ? `CLAIM ${request.required_claims.join(",")}` : ""}
 ${request.required_roles?.length > 0 ? `ROLE ${request.required_roles.join(",")}` : ""}
 ${request.tags?.length > 0 ? `TAG ${request.tags.join(",")}` : ""}
+${request.description ? `DESCRIPTION ${request.description}` : ""}
 
 LOCAL_PATH ${request.local_path}
 `;
@@ -2043,7 +2111,13 @@ LOCAL_PATH ${request.local_path}
 
   static async pullManifestFromCatalogProvider(
     provider: DevOpsCatalogHostProvider,
-    request: CatalogPullRequest
+    request: CatalogPullRequest,
+    progress:
+      | vscode.Progress<{
+          message?: string;
+          increment?: number;
+        }>
+      | undefined = undefined
   ): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!request) {
@@ -2085,13 +2159,50 @@ LOCAL_PATH ${request.local_path}
         return reject(err);
       });
 
+      let totalDownloaded = 0;
       if (!path) {
         return reject("Error generating pull file");
       }
-
-      const cmd = spawn("prldevops", ["pull", path]);
+      const execPath = Provider.getCache().get(FLAG_DEVOPS_PATH);
+      const cmd = spawn(execPath, ["pull", path]);
 
       cmd.stdout.on("data", data => {
+        const lines: string[] = (data.toString() as string).split("\n");
+        for (const line of lines) {
+          if (line.startsWith("\r\x1b[K\r")) {
+            const subLines = line.split("\r\x1b[K\r");
+            for (const subLine of subLines) {
+              if (subLine == undefined || subLine === "") {
+                continue;
+              }
+              console.log(subLine);
+              if (line.includes("Downloading")) {
+                const parts = subLine.split(": ");
+                if (parts.length === 2) {
+                  if (parts[0].startsWith("Downloading")) {
+                    if (progress !== undefined) {
+                      const percentage = Number(parts[1].split(" ")[0].replace("%", ""));
+                      if (percentage === 0 && totalDownloaded === 0) {
+                        progress.report({message: parts[0], increment: 0});
+                      }
+                      if (percentage > totalDownloaded) {
+                        const differenceToIncrement = percentage - totalDownloaded;
+                        totalDownloaded = percentage;
+                        progress.report({message: parts[0], increment: differenceToIncrement});
+                      }
+                    }
+                  }
+                }
+              } else {
+                console.log(subLine);
+                if (progress !== undefined) {
+                  progress.report({message: subLine});
+                }
+              }
+            }
+          }
+        }
+
         LogService.info(data.toString(), "DevOpsService");
       });
 
@@ -2100,12 +2211,15 @@ LOCAL_PATH ${request.local_path}
       });
 
       cmd.on("close", code => {
-        fs.unlinkSync(path);
+        // fs.unlinkSync(path);
         if (code !== 0) {
           LogService.error(`prldevops pull exited with code ${code}`, "DevOpsService");
           return reject(`prldevops pull exited with code ${code}`);
         }
         LogService.info(`Manifest ${request.catalog_id} pulled from provider ${provider.name}`, "DevOpsService");
+        if (progress !== undefined) {
+          progress.report({message: "Download complete", increment: 100});
+        }
         return resolve();
       });
     });
@@ -2113,7 +2227,13 @@ LOCAL_PATH ${request.local_path}
 
   static async pushManifestFromCatalogProvider(
     provider: DevOpsCatalogHostProvider,
-    request: CatalogPushRequest
+    request: CatalogPushRequest,
+    progress:
+      | vscode.Progress<{
+          message?: string;
+          increment?: number;
+        }>
+      | undefined = undefined
   ): Promise<void> {
     return new Promise(async (resolve, reject) => {
       if (!request) {
@@ -2151,6 +2271,7 @@ LOCAL_PATH ${request.local_path}
         }
       }
 
+      let totalDownloaded = 0;
       const path = await this.generatePushPDFile(provider, request).catch(err => {
         return reject(err);
       });
@@ -2159,9 +2280,45 @@ LOCAL_PATH ${request.local_path}
         return reject("Error generating push file");
       }
 
-      const cmd = spawn("prldevops", ["push", path]);
+      const execPath = Provider.getCache().get(FLAG_DEVOPS_PATH);
+      const cmd = spawn(execPath, ["push", path]);
 
       cmd.stdout.on("data", data => {
+        const lines: string[] = (data.toString() as string).split("\n");
+        for (const line of lines) {
+          if (line.startsWith("\r\x1b[K\r")) {
+            const subLines = line.split("\r\x1b[K\r");
+            for (const subLine of subLines) {
+              if (subLine == undefined || subLine === "") {
+                continue;
+              }
+              console.log(subLine);
+              if (line.includes("Uploading")) {
+                const parts = subLine.split(": ");
+                if (parts.length === 2) {
+                  if (parts[0].startsWith("Uploading")) {
+                    if (progress !== undefined) {
+                      const percentage = Number(parts[1].split(" ")[0].replace("%", ""));
+                      if (percentage === 0 && totalDownloaded === 0) {
+                        progress.report({message: parts[0], increment: 0});
+                      }
+                      if (percentage > totalDownloaded) {
+                        const differenceToIncrement = percentage - totalDownloaded;
+                        totalDownloaded = percentage;
+                        progress.report({message: parts[0], increment: differenceToIncrement});
+                      }
+                    }
+                  }
+                }
+              } else {
+                console.log(subLine);
+                if (progress !== undefined) {
+                  progress.report({message: subLine});
+                }
+              }
+            }
+          }
+        }
         LogService.info(data.toString(), "DevOpsService");
       });
 
@@ -2172,7 +2329,7 @@ LOCAL_PATH ${request.local_path}
       });
 
       cmd.on("close", code => {
-        // fs.unlinkSync(path);
+        fs.unlinkSync(path);
         if (code !== 0) {
           LogService.error(`prldevops push exited with code ${code}, err: ${error}`, "DevOpsService");
           return reject(`prldevops push exited with code ${code}`);

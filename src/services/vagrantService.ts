@@ -1,7 +1,13 @@
 import * as vscode from "vscode";
 import * as cp from "child_process";
 import * as fs from "fs";
-import {FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, FLAG_VAGRANT_PATH, FLAG_VAGRANT_VERSION} from "../constants/flags";
+import {
+  CommandsFlags,
+  FLAG_HAS_VAGRANT,
+  FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS,
+  FLAG_VAGRANT_PATH,
+  FLAG_VAGRANT_VERSION
+} from "../constants/flags";
 import {Provider} from "../ioc/provider";
 import {getVagrantBoxFolder} from "../helpers/helpers";
 import {LogService} from "./logService";
@@ -9,6 +15,7 @@ import {VagrantCloudBoxes} from "../models/vagrant/VagrantCloudBoxes";
 import axios from "axios";
 import {VagrantCloudBox} from "../models/vagrant/VagrantCloudBox";
 import {TELEMETRY_INSTALL_VAGRANT} from "../telemetry/operations";
+import {VagrantBoxProvider} from "../tree/vagrantBoxProvider/vagrantBoxProvider";
 
 export class VagrantService {
   constructor(private context: vscode.ExtensionContext) {}
@@ -27,7 +34,14 @@ export class VagrantService {
           `Vagrant was found on path ${settings.get<string>(FLAG_VAGRANT_PATH)} from settings`,
           "VagrantService"
         );
-        return resolve(true);
+        const path = settings.get<string>(FLAG_VAGRANT_PATH) ?? "";
+        if (fs.existsSync(path)) {
+          return resolve(true);
+        } else {
+          LogService.error("Vagrant is not installed", "VagrantService");
+          settings.update(FLAG_VAGRANT_PATH, "", true);
+          return resolve(false);
+        }
       }
 
       cp.exec("which vagrant", (err, stdout) => {
@@ -116,7 +130,7 @@ export class VagrantService {
     });
   }
 
-  static install(): Promise<boolean> {
+  static install(context: vscode.ExtensionContext): Promise<boolean> {
     const telemetry = Provider.telemetry();
     LogService.info("Installing Vagrant...", "VagrantService");
     return new Promise(async resolve => {
@@ -129,6 +143,7 @@ export class VagrantService {
         async (progress, token) => {
           progress.report({message: "Installing Vagrant..."});
           const result = await new Promise(async (resolve, reject) => {
+            progress.report({message: "Installing Brew Vagrant Tap..."});
             const brew = cp.spawn("brew", ["tap", "hashicorp/tap"]);
             brew.stdout.on("data", data => {
               LogService.info(data.toString(), "VagrantService");
@@ -142,14 +157,12 @@ export class VagrantService {
                 progress.report({message: "Failed to install Vagrant, see logs for more details"});
                 return resolve(false);
               }
-              progress.report({
-                message: "Vagrant needs sudo to install correctly,\n please introduce the password in the input box"
-              });
+              progress.report({message: "Installing "});
+
               const terminal = vscode.window.createTerminal(`Parallels Desktop: Installing Vagrant`);
+              terminal.state;
               terminal.show();
-              terminal.sendText(`brew install hashicorp/tap/hashicorp-vagrant`);
-              terminal.sendText(`vagrant plugin repair`);
-              terminal.sendText(`exit $?`);
+              terminal.sendText(`brew install hashicorp/tap/hashicorp-vagrant && exit $?`);
               vscode.window.onDidCloseTerminal(async closedTerminal => {
                 if (closedTerminal.name === terminal.name) {
                   if (terminal.exitStatus?.code !== 0) {
@@ -162,11 +175,20 @@ export class VagrantService {
                     progress.report({message: "Failed to install Vagrant, see logs for more details"});
                     return resolve(false);
                   }
-                  const config = Provider.getConfiguration();
-                  config.tools.vagrant.isInstalled = true;
-                  config.tools.vagrant.version = await VagrantService.version();
-                  config.save();
-                  return resolve(true);
+                  try {
+                    const config = Provider.getConfiguration();
+                    await config.initVagrant().catch(error => {
+                      LogService.error(`Error saving Vagrant configuration: ${error}`, "VagrantService", true, false);
+                      return resolve(false);
+                    });
+                    if (config.tools.vagrant?.isInstalled) {
+                      const vagrantBoxProvider = new VagrantBoxProvider(context);
+                    }
+                    return resolve(true);
+                  } catch (error) {
+                    LogService.error(`Error saving Vagrant configuration: ${error}`, "VagrantService", true, false);
+                    return resolve(false);
+                  }
                 }
               });
             });
@@ -174,7 +196,6 @@ export class VagrantService {
           if (!result) {
             telemetry.sendErrorEvent(TELEMETRY_INSTALL_VAGRANT, "Failed to install Vagrant");
             progress.report({message: "Failed to install Vagrant, see logs for more details"});
-            vscode.window.showErrorMessage("Failed to install Vagrant, see logs for more details");
             return resolve(false);
           } else {
             telemetry.sendOperationEvent(TELEMETRY_INSTALL_VAGRANT, "success", {

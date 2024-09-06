@@ -3,8 +3,8 @@ import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {ParallelsCatalogCommand} from "../BaseCommand";
 import {ParallelsCatalogProvider} from "../../parallelsCatalogProvider/parallelsCatalogProvider";
-import { Provider } from "../../../ioc/provider";
-import { TELEMETRY_PARALLELS_CATALOG } from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
+import {TELEMETRY_PARALLELS_CATALOG} from "../../../telemetry/operations";
 
 const registerParallelsCatalogShowAiFaqCommand = (
   context: vscode.ExtensionContext,

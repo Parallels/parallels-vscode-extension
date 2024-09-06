@@ -93,12 +93,22 @@ export class LogService {
     );
   }
 
+  static isSameHour(date: Date): boolean {
+    const now = new Date();
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate() &&
+      date.getHours() === now.getHours()
+    );
+  }
+
   static sendHeartbeat() {
     const config = Provider.getConfiguration();
     let sendHeartbeat = false;
     const lastHeartbeat = config.lastHeartbeat ?? "";
     if (config.lastHeartbeat) {
-      if (!this.isSameDay(new Date(lastHeartbeat))) {
+      if (!this.isSameHour(new Date(lastHeartbeat))) {
         sendHeartbeat = true;
       }
     } else {
@@ -106,51 +116,45 @@ export class LogService {
     }
 
     if (sendHeartbeat) {
-      if (config.isTelemetryEnabled) {
-        this.sendTelemetryEvent(TelemetryEventIds.ExtensionStarted);
-        config.lastHeartbeat = Date.now();
-        config.save();
-      } else {
-        const now = new Date();
-        const formattedDate = now.toISOString().replace("T", " ").replace("Z", "").substr(0, 23);
+      const now = new Date();
+      const formattedDate = now.toISOString().replace("T", " ").replace("Z", "").substr(0, 23);
 
-        const request: TelemetryRequest = {
-          api: 2,
-          hwid: "00000000000000000000000000000000",
-          version: config.parallelsDesktopVersion,
-          arch: "",
-          hw_model: "",
-          events: [
-            {
-              event_id: TelemetryEventIds.ExtensionStarted,
-              occured_at: formattedDate,
-              version: "",
-              os_locale: "",
-              os_version: ""
-            }
-          ]
-        };
+      const request: TelemetryRequest = {
+        api: 2,
+        hwid: "00000000000000000000000000000000",
+        version: config.parallelsDesktopVersion,
+        arch: "",
+        hw_model: "",
+        events: [
+          {
+            event_id: TelemetryEventIds.ExtensionStarted,
+            occured_at: formattedDate,
+            version: "",
+            os_locale: "",
+            os_version: ""
+          }
+        ]
+      };
 
-        LogService.debug(JSON.stringify(request, null, 2), "TelemetryService");
+      LogService.debug(JSON.stringify(request, null, 2), "TelemetryService");
 
-        const requestUrl = `https://reportus.parallels.com/pdfm/${
-          Provider.getConfiguration().packerDesktopMajorVersion
-        }/events`;
-        axios
-          .post(requestUrl, request, {
-            headers: {
-              "Content-Type": "application/json"
-            }
-          })
-          .then(response => {
-            LogService.debug(`Telemetry heartbeat sent successfully to ${requestUrl}`, "TelemetryService");
-          })
-          .catch(error => {
-            LogService.error(`Error sending telemetry heartbeat to ${requestUrl}: ${error}`, "TelemetryService");
-          });
-        config.lastHeartbeat = Date.now();
-        config.save();
-      }
+      const requestUrl = `https://reportus.parallels.com/pdfm/${
+        Provider.getConfiguration().packerDesktopMajorVersion
+      }/events`;
+      axios
+        .post(requestUrl, request, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+        .then(response => {
+          LogService.debug(`Telemetry heartbeat sent successfully to ${requestUrl}`, "TelemetryService");
+        })
+        .catch(error => {
+          LogService.error(`Error sending telemetry heartbeat to ${requestUrl}: ${error}`, "TelemetryService");
+        });
+      config.lastHeartbeat = Date.now();
+      config.save();
     }
   }
 

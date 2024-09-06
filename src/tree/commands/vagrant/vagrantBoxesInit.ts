@@ -11,7 +11,7 @@ import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerVagrantBoxInitCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderInit, async (item: VagrantBoxTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.vagrantProviderInit, async (item: VagrantBoxTreeItem) => {
       const telemetry = Provider.telemetry();
       telemetry.sendOperationEvent(TELEMETRY_VAGRANT, "VAGRANT_BOX_INIT_COMMAND_CLICK");
       if (!item) {

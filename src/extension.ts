@@ -26,15 +26,16 @@ import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsR
 import {DevOpsService} from "./services/devopsService";
 import {AllCommonCommand, AllDevopsRemoteProviderManagementCommands} from "./tree/commands/AllCommands";
 import {initializeCopilot} from "./copilotInitialization";
-import {ParallelsDesktopService} from "./services/parallelsDesktopService";
-import {ParallelsDesktopLicense} from "./models/parallels/ParallelsDesktopLicense";
 import {
+  ConfigurationService,
   PARALLELS_CATALOG_BUSINESS_PASSWORD,
   PARALLELS_CATALOG_BUSINESS_USER,
   PARALLELS_CATALOG_PRO_PASSWORD,
   PARALLELS_CATALOG_PRO_USER,
   PARALLELS_CATALOG_URL
 } from "./services/configurationService";
+import {randomUUID} from "crypto";
+import {TELEMETRY_PARALLELS_CATALOG} from "./telemetry/operations";
 
 let autoRefreshInterval: NodeJS.Timeout | undefined;
 
@@ -43,6 +44,12 @@ export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
   const os = Provider.getOs();
   vscode.commands.executeCommand("setContext", FLAG_OS, os);
+  const config = Provider.getConfiguration();
+  if (config.id === undefined) {
+    config.id = randomUUID().replace(/-/g, "");
+  }
+  config.save();
+  const telemetry = Provider.telemetry();
 
   // Registering our URI
   const myScheme = "parallels";
@@ -60,21 +67,21 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Initializing the DevOps Catalog Provider
   const devopsCatalogProvider = new DevOpsCatalogProvider(context);
+  console.log(`OS: ${os}`);
 
   // Registering the  Virtual Machine Provider
   if (os.toLowerCase() === "darwin") {
-    const config = Provider.getConfiguration();
-    let licenseInfo: ParallelsDesktopLicense | null = null;
-    if (config.parallelsDesktopServerInfo && config.parallelsDesktopServerInfo.License) {
-      licenseInfo = config.parallelsDesktopServerInfo.License;
-    } else {
-      const serverInfo = await ParallelsDesktopService.getServerInfo();
-      if (serverInfo) {
-        licenseInfo = serverInfo.License;
-      }
-    }
-    if (!licenseInfo) {
+    console.log("Registering Virtual Machine Provider");
+    const foundLicensedEdition = await ConfigurationService.getLicenseType();
+    console.log(`Found licensed edition: ${foundLicensedEdition}`);
+
+    if (!foundLicensedEdition) {
       vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, false);
+      telemetry.sendOperationEvent(TELEMETRY_PARALLELS_CATALOG, "LICENSE_NOT_FOUND", {
+        description: `foundLicensedEdition: ${foundLicensedEdition}`,
+        operationValue: foundLicensedEdition
+      });
+      console.log(`License not found, ${foundLicensedEdition} `);
     } else {
       let businessUsername = PARALLELS_CATALOG_BUSINESS_USER;
       let businessPassword = PARALLELS_CATALOG_BUSINESS_PASSWORD;
@@ -82,8 +89,8 @@ export async function activate(context: vscode.ExtensionContext) {
       let proPassword = PARALLELS_CATALOG_PRO_PASSWORD;
       let parallelsCatalogUrl = PARALLELS_CATALOG_URL;
 
-      licenseInfo.edition = 'pro';
       // for local development
+      parallelsCatalogUrl = parallelsCatalogUrl.trim();
       if (!parallelsCatalogUrl) {
         parallelsCatalogUrl = process.env.PARALLELS_CATALOG_URL || "";
       }
@@ -100,13 +107,13 @@ export async function activate(context: vscode.ExtensionContext) {
         businessPassword = process.env.PARALLELS_CATALOG_BUSINESS_PASSWORD || "";
       }
 
-      vscode.commands.executeCommand("setContext", FLAG_LICENSE, licenseInfo.edition);
-      config.license_edition = licenseInfo.edition;
+      vscode.commands.executeCommand("setContext", FLAG_LICENSE, foundLicensedEdition);
+      config.license_edition = foundLicensedEdition;
       const virtualMachineProvider = new VirtualMachineProvider(context);
       if (parallelsCatalogUrl) {
         vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, true);
         const parallelsCatalogProvider = new ParallelsCatalogProvider(context);
-        if (licenseInfo.edition === "business" && licenseInfo.is_volume === "yes") {
+        if (foundLicensedEdition === "business") {
           config.parallelsCatalogProvider.rawHost = parallelsCatalogUrl;
           config.parallelsCatalogProvider.username = businessUsername;
           config.parallelsCatalogProvider.password = businessPassword;
@@ -131,7 +138,7 @@ export async function activate(context: vscode.ExtensionContext) {
               vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
             }
           }
-        } else if (licenseInfo.edition === "pro") {
+        } else if (foundLicensedEdition === "pro" || foundLicensedEdition === "professional") {
           config.parallelsCatalogProvider.rawHost = parallelsCatalogUrl;
           config.parallelsCatalogProvider.username = proUsername;
           config.parallelsCatalogProvider.password = proPassword;
@@ -186,7 +193,6 @@ export async function activate(context: vscode.ExtensionContext) {
     await initialize();
   }
 
-  const config = Provider.getConfiguration();
   if (os === "darwin") {
     if (config.tools.vagrant?.isInstalled) {
       const vagrantBoxProvider = new VagrantBoxProvider(context);
@@ -232,7 +238,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Send telemetry event
   LogService.sendHeartbeat();
-  const telemetry = Provider.telemetry();
   telemetry.sendHeartbeat();
 
   if (config.isTelemetryEnabled) {
@@ -241,11 +246,13 @@ export async function activate(context: vscode.ExtensionContext) {
     LogService.info("Telemetry is disabled", "CoreService");
   }
 
+  config.save();
   console.log("Parallels Desktop Extension is now active!");
 }
 
 function setAutoRefresh() {
   const settings = Provider.getSettings();
+  const cfg = Provider.getConfiguration();
   const autoRefresh = settings.get<boolean>(FLAG_AUTO_REFRESH);
   clearInterval(autoRefreshInterval);
   if (autoRefresh) {
@@ -268,7 +275,9 @@ function setAutoRefresh() {
       LogService.info("Refreshing the virtual machine tree view", "CoreService");
       vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
       LogService.info("Refreshing the vagrant box tree view", "CoreService");
-      vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
+      if (cfg.tools.vagrant?.isInstalled) {
+        vscode.commands.executeCommand(CommandsFlags.vagrantProviderRefresh);
+      }
     }, interval);
   } else {
     if (autoRefreshInterval) {

@@ -17,9 +17,6 @@ import {TELEMETRY_VM} from "../../../telemetry/operations";
 const registerToggleShowHiddenCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.coreEnableShowHiddenItems, async (item: VirtualMachineTreeItem) => {
-      if (!item) {
-        return;
-      }
       const telemetry = Provider.telemetry();
       telemetry.sendOperationEvent(TELEMETRY_VM, "TOGGLE_SHOW_HIDDEN_COMMAND_CLICK");
       LogService.debug(`Toggling show hidden to true`, "TreeViewCommand");
@@ -33,9 +30,6 @@ const registerToggleShowHiddenCommand = (context: vscode.ExtensionContext, provi
       });
     }),
     vscode.commands.registerCommand(CommandsFlags.coreDisableShowHiddenItems, async (item: VirtualMachineTreeItem) => {
-      if (!item) {
-        return;
-      }
       const telemetry = Provider.telemetry();
       telemetry.sendOperationEvent(TELEMETRY_VM, "TOGGLE_SHOW_HIDDEN_COMMAND_CLICK");
       LogService.debug(`Toggling show hidden to false`, "TreeViewCommand");

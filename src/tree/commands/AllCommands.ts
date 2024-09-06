@@ -101,10 +101,15 @@ import {ParallelsCatalogForceRefreshCommand} from "./parallelsCatalogProvider/fo
 import {BuyBusinessLicenseCommonCommand} from "./common/buyBusinessLicense";
 import {ParallelsCatalogPullCatalogManifestCommand} from "./parallelsCatalogProvider/pullCatalogProviderManifest";
 import {BuyProLicenseCommonCommand} from "./common/buyProLicense";
-import { ParallelsCatalogCloseOnboardingCommand } from "./parallelsCatalogProvider/closeOnboarding";
-import { ParallelsCatalogShowAiFaqCommand } from "./parallelsCatalogProvider/showAiFaq";
+import {ParallelsCatalogCloseOnboardingCommand} from "./parallelsCatalogProvider/closeOnboarding";
+import {ParallelsCatalogShowAiFaqCommand} from "./parallelsCatalogProvider/showAiFaq";
+import {VagrantInstallCommand} from "./common/installVagrant";
 
-export const AllCommonCommand: CommonCommand[] = [BuyProLicenseCommonCommand, BuyBusinessLicenseCommonCommand];
+export const AllCommonCommand: CommonCommand[] = [
+  BuyProLicenseCommonCommand,
+  BuyBusinessLicenseCommonCommand,
+  VagrantInstallCommand
+];
 
 export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   AddVmCommand,

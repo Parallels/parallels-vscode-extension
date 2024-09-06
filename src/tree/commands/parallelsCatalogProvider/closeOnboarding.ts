@@ -3,9 +3,9 @@ import {CommandsFlags, FLAG_PARALLELS_CATALOG_SHOW_ONBOARD} from "../../../const
 import {LogService} from "../../../services/logService";
 import {ParallelsCatalogCommand} from "../BaseCommand";
 import {ParallelsCatalogProvider} from "../../parallelsCatalogProvider/parallelsCatalogProvider";
-import { Provider } from "../../../ioc/provider";
-import { DevOpsService } from "../../../services/devopsService";
-import { TELEMETRY_PARALLELS_CATALOG } from "../../../telemetry/operations";
+import {Provider} from "../../../ioc/provider";
+import {DevOpsService} from "../../../services/devopsService";
+import {TELEMETRY_PARALLELS_CATALOG} from "../../../telemetry/operations";
 
 const registerParallelsCatalogCloseOnboardingCommand = (
   context: vscode.ExtensionContext,
@@ -19,7 +19,7 @@ const registerParallelsCatalogCloseOnboardingCommand = (
       config.setShowOnboarding(false);
       telemetry.sendOperationEvent(TELEMETRY_PARALLELS_CATALOG, "CLOSE_ONBOARDING_COMMAND_CLICK");
       vscode.commands.executeCommand("setContext", FLAG_PARALLELS_CATALOG_SHOW_ONBOARD, false);
-      
+
       await DevOpsService.refreshParallelsCatalogProvider(true);
       provider.refresh();
     })

@@ -1,3 +1,4 @@
+export const VERSION = "0.0.0";
 export const FLAG_NO_GROUP = "no_group";
 export const FLAG_OS = "parallels-desktop:os";
 export const FLAG_CONFIGURATION = "parallels.configuration";
@@ -206,10 +207,6 @@ export class CommandsFlags {
   static coreDisableShowHiddenItems = `${COMMAND_PREFIX}.core.disable-show-hidden-items`;
   static coreToggleShowHiddenItems = `${COMMAND_PREFIX}.core.toggle-show-hidden-items`;
 
-  static vagrantBoxProviderRefresh = `${COMMAND_PREFIX}.vagrant.box.provider.refresh`;
-  static vagrantBoxProviderInit = `${COMMAND_PREFIX}.vagrant.box.provider.init`;
-  static vagrantBoxProviderDelete = `${COMMAND_PREFIX}.vagrant.box.provider.delete`;
-
   static dockerStartContainer = `${COMMAND_PREFIX}.docker.start-container`;
   static dockerStopContainer = `${COMMAND_PREFIX}.docker.stop-container`;
   static dockerRestartContainer = `${COMMAND_PREFIX}.docker.restart-container`;
@@ -284,5 +281,9 @@ export class CommandsFlags {
   static devopsRemoteProviderManagementRemoveClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-claim`;
 
   // Vagrant Commands
-  static vagrantSearchAndDownload = `${COMMAND_PREFIX}.vagrant.search-and-download`;
+  static vagrantProviderSearchAndDownload = `${COMMAND_PREFIX}.vagrant.search-and-download`;
+  static vagrantProviderInstall = `${COMMAND_PREFIX}.vagrant.install`;
+  static vagrantProviderRefresh = `${COMMAND_PREFIX}.vagrant.box.provider.refresh`;
+  static vagrantProviderInit = `${COMMAND_PREFIX}.vagrant.box.provider.init`;
+  static vagrantProviderDelete = `${COMMAND_PREFIX}.vagrant.box.provider.delete`;
 }

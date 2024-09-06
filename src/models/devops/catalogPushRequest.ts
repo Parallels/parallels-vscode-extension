@@ -3,6 +3,7 @@ export interface CatalogPushRequest {
   version: string;
   architecture: string;
   connection: string;
+  description?: string;
   local_path: string;
   required_roles: string[];
   required_claims: string[];

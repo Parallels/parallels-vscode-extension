@@ -1,13 +1,16 @@
+import {VERSION} from "../constants/flags";
 import {DevOpsService} from "../services/devopsService";
+import {LogService} from "../services/logService";
+import {ParallelsDesktopService} from "../services/parallelsDesktopService";
 import {Provider} from "./../ioc/provider";
 import * as amplitude from "@amplitude/analytics-node";
 
 export const AMPLITUDE_API_KEY = "";
 const AMPLITUDE_EVENT_PREFIX = "PD-VSCODE";
-export const EVENT_START = `${AMPLITUDE_EVENT_PREFIX}-START`;
-export const EVENT_COPILOT = `${AMPLITUDE_EVENT_PREFIX}-COPILOT`;
-export const EVENT_OPERATION = `${AMPLITUDE_EVENT_PREFIX}-OPERATION`;
-export const EVENT_ERROR = `${AMPLITUDE_EVENT_PREFIX}-ERROR`;
+export const EVENT_START = `${AMPLITUDE_EVENT_PREFIX}::START`;
+export const EVENT_COPILOT = `${AMPLITUDE_EVENT_PREFIX}::COPILOT`;
+export const EVENT_OPERATION = `${AMPLITUDE_EVENT_PREFIX}::OPERATION`;
+export const EVENT_ERROR = `${AMPLITUDE_EVENT_PREFIX}::ERROR`;
 
 export interface AmplitudeEventProperty {
   name: string;
@@ -26,12 +29,14 @@ export interface TelemetryOperationOptions {
 
 export class TelemetryService {
   private userId = "vscode";
+  private deviceId = "vscode";
   private license = "";
   private licenseEdition = "";
   private os = "";
   private arch = "";
   private enabled = true;
   private amplitude_api_key = "";
+  private pd_version = "";
 
   constructor(test = false) {
     this.init();
@@ -41,6 +46,7 @@ export class TelemetryService {
   }
 
   async init() {
+    const config = Provider.getConfiguration();
     if (!AMPLITUDE_API_KEY) {
       this.amplitude_api_key = process.env.AMPLITUDE_API_KEY || "";
     } else {
@@ -69,14 +75,28 @@ export class TelemetryService {
     this.licenseEdition = licenseEdition;
   }
 
-  async track(event: AmplitudeEvent) {
+  async generateDefaultEventValues(event: AmplitudeEvent): Promise<AmplitudeEvent> {
+    const config = Provider.getConfiguration();
     const waitForLicense = 2000;
     let countWaitForLicense = 10;
-    const config = Provider.getConfiguration();
-    this.license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
-    this.licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
-    this.os = config.parallelsDesktopServerInfo?.OS ?? "Unknown";
-    this.arch = Provider.getArchitecture();
+
+    let license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
+    let licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
+    let isTrial = "Unknown";
+    let licenseModel = "Unknown";
+    let jsonLicense = config.ParallelsDesktopLicense;
+    if (!jsonLicense) {
+      jsonLicense = await ParallelsDesktopService.getJsonLicense();
+    }
+    licenseEdition = `${jsonLicense.edition.toLowerCase()}`;
+    isTrial = `${jsonLicense.is_trial}`;
+    licenseModel = `${jsonLicense.product.toLowerCase()}`;
+
+    const os = config.parallelsDesktopServerInfo?.OS ?? "Unknown";
+    const arch = Provider.getArchitecture();
+    const pd_version = config.parallelsDesktopServerInfo?.Version ?? "Unknown";
+    let user_id = `vscode_${config.id}`;
+    this.deviceId = config.id ?? "vscode";
 
     // Wait for license to be available
     while (!this.license || this.license === "Unknown") {
@@ -87,119 +107,171 @@ export class TelemetryService {
 
       await new Promise(resolve => setTimeout(resolve, waitForLicense));
 
-      this.license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
-      this.licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
-    }
-
-    if (!this.enabled || !config.featureFlags.enableTelemetry) {
-      return;
+      license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
+      licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
     }
 
     event.properties = event.properties || [];
+    if (VERSION !== "0.0.0") {
+      event.properties.push({
+        name: "extension_version",
+        value: VERSION
+      });
+    }
 
-    if (this.license) {
+    if (license) {
       event.properties.push({
         name: "license",
-        value: this.license
+        value: license.replaceAll("-", "").replaceAll(" ", "").replaceAll("*", "").trim()
       });
+      if (this.license != license) {
+        this.license = license;
+      }
     }
 
-    if (this.licenseEdition) {
+    if (licenseEdition) {
+      let licenseEditionValue = licenseEdition;
+      if (isTrial === "true") {
+        licenseEditionValue = `${licenseEditionValue} (Trial)`;
+      }
       event.properties.push({
         name: "license_edition",
-        value: this.licenseEdition
+        value: licenseEdition
+      });
+      if (this.licenseEdition != licenseEdition) {
+        this.licenseEdition = licenseEdition;
+      }
+    }
+
+    if (licenseModel !== "Unknown") {
+      event.properties.push({
+        name: "license_model",
+        value: licenseModel
       });
     }
 
-    if (this.os) {
+    if (os) {
       event.properties.push({
         name: "os",
-        value: this.os
+        value: os
       });
+      if (this.os != os) {
+        this.os = os;
+      }
     }
 
-    if (this.arch) {
+    if (arch) {
       event.properties.push({
         name: "arch",
-        value: this.arch
+        value: arch
       });
+      if (this.arch != arch) {
+        this.arch = arch;
+      }
     }
 
-    if (this.userId == "vscode" && this.license != "Unknown") {
-      const userLicense = this.license.replaceAll("-", "").replaceAll(" ", "").replaceAll("*", "");
-      this.userId = `vscode_${userLicense}`;
+    if (pd_version) {
+      event.properties.push({
+        name: "pd_version",
+        value: pd_version.replaceAll("Desktop ", "").trim()
+      });
+      if (this.pd_version != pd_version) {
+        this.pd_version = pd_version;
+      }
     }
+
+    if (this.license != "Unknown") {
+      const userLicense = this.license.replaceAll("-", "").replaceAll(" ", "").replaceAll("*", "");
+      user_id = `${user_id}_${userLicense}`;
+    }
+
+    event.properties.push({
+      name: "user_id",
+      value: user_id ?? "vscode"
+    });
+
+    event.properties.push({
+      name: "device_id",
+      value: this.deviceId
+    });
+
+    return event;
+  }
+
+  async track(event: AmplitudeEvent) {
+    if (!this.enabled) {
+      return;
+    }
+
+    event = await this.generateDefaultEventValues(event);
 
     const properties: Record<string, string> = {};
     for (const property of event.properties ?? []) {
       properties[property.name] = property.value;
     }
-    event.properties.push({
-      name: "user_id",
-      value: this.userId
-    });
 
-    amplitude.track(event.event, properties, {
-      user_id: this.userId
-    });
+    const r = amplitude
+      .track(event.event, properties, {
+        user_id: event.properties?.find(p => p.name === "user_id")?.value ?? this.userId
+      })
+      .promise.then(res => {
+        if (res.code !== 200) {
+          LogService.error(`Error tracking event: ${event.event}`);
+        }
+      });
   }
 
   async sendHeartbeat() {
     const config = Provider.getConfiguration();
     const event: AmplitudeEvent = {
-      event: EVENT_START
+      event: EVENT_START,
+      properties: []
     };
     const os = Provider.getOs();
     if (os.toLowerCase() === "darwin") {
       if (config.tools.brew.isInstalled) {
-        event.properties = [
-          {
-            name: "brew",
-            value: "installed"
-          }
-        ];
+        event.properties?.push({
+          name: "brew",
+          value: "installed"
+        });
       }
       if (config.tools.packer.isInstalled) {
-        event.properties = [
-          {
-            name: "packer",
-            value: "installed"
-          }
-        ];
+        event.properties?.push({
+          name: "packer",
+          value: "installed"
+        });
       }
       if (config.tools.git.isInstalled) {
-        event.properties = [
-          {
-            name: "git",
-            value: "installed"
-          }
-        ];
+        event.properties?.push({
+          name: "git",
+          value: "installed"
+        });
       }
       if (config.tools.vagrant.isInstalled) {
-        event.properties = [
-          {
-            name: "vagrant",
-            value: "installed"
-          }
-        ];
+        event.properties?.push({
+          name: "vagrant",
+          value: "installed"
+        });
       }
       if (config.tools.parallelsDesktop.isInstalled) {
-        event.properties = [
-          {
-            name: "parallels-desktop",
-            value: "installed"
-          }
-        ];
+        event.properties?.push({
+          name: "parallels-desktop",
+          value: "installed"
+        });
       }
       if (await DevOpsService.isInstalled()) {
-        event.properties = [
-          {
-            name: "parallels-devops",
-            value: "installed"
-          }
-        ];
+        event.properties?.push({
+          name: "parallels-devops",
+          value: "installed"
+        });
       }
     }
+
+    event.properties?.push({
+      name: "telemetry",
+      value: !config.featureFlags.enableTelemetry ? "disabled" : "enabled"
+    });
+
     this.track(event);
   }
 

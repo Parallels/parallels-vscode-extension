@@ -1,4 +1,4 @@
-import {configurationInitialized} from "./../ioc/provider";
+import {configurationInitialized, telemetryService} from "./../ioc/provider";
 import {FeatureFlags} from "./../models/FeatureFlags";
 import * as vscode from "vscode";
 import * as path from "path";
@@ -40,14 +40,19 @@ import {CatalogManifest, CatalogManifestItem} from "../models/devops/catalogMani
 import {parseHost} from "../models/host";
 import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
 import {DevOpsRemoteHost} from "../models/devops/remoteHost";
+import {randomUUID} from "crypto";
+import {ANSWER_YES, YesNoInfoMessage} from "../helpers/ConfirmDialog";
+import {ParallelsShortLicense} from "../models/parallels/ParallelsJsonLicense";
+import {ParallelsDesktopLicense} from "../models/parallels/ParallelsDesktopLicense";
 
-export const PARALLELS_CATALOG_URL = "";
-export const PARALLELS_CATALOG_PRO_USER = "";
-export const PARALLELS_CATALOG_PRO_PASSWORD = "";
-export const PARALLELS_CATALOG_BUSINESS_USER = "";
-export const PARALLELS_CATALOG_BUSINESS_PASSWORD = "";
+export const PARALLELS_CATALOG_URL = "https://parallels-vscode-catalog.parallels.com";
+export const PARALLELS_CATALOG_PRO_USER = "parallels-qa";
+export const PARALLELS_CATALOG_PRO_PASSWORD = "aZEB371eFpkrghN!";
+export const PARALLELS_CATALOG_BUSINESS_USER = "parallels-qa";
+export const PARALLELS_CATALOG_BUSINESS_PASSWORD = "aZEB371eFpkrghN!";
 
 export class ConfigurationService {
+  id: string | undefined;
   virtualMachinesGroups: VirtualMachineGroup[];
   catalogProviders: DevOpsCatalogHostProvider[];
   remoteHostProviders: DevOpsRemoteHostProvider[];
@@ -57,6 +62,7 @@ export class ConfigurationService {
   featureFlags: FeatureFlags;
   tools: Tools;
   license_edition: string | undefined;
+  ParallelsDesktopLicense: ParallelsShortLicense | undefined;
   hardwareInfo?: HardwareInfo;
   parallelsDesktopServerInfo?: ParallelsDesktopServerInfo;
   isInitialized = false;
@@ -67,8 +73,11 @@ export class ConfigurationService {
   dockerRunItems: DockerRunItem[] = [];
   lastSynced: number | undefined;
   lastHeartbeat: number | undefined;
+  downloadingCatalogs: string[] = [];
 
   constructor(private context: vscode.ExtensionContext) {
+    this.id = randomUUID().replace(/-/g, "");
+    this.downloadingCatalogs = [];
     this.virtualMachinesGroups = [];
     this.dockerRunItems = [];
     this.catalogProviders = [];
@@ -136,7 +145,7 @@ export class ConfigurationService {
     this.lastSynced = undefined;
     this.lastHeartbeat = undefined;
     this.isInitialized = false;
-    this.backup();
+    this.backup_startup();
   }
 
   get isDebugEnabled(): boolean {
@@ -155,6 +164,9 @@ export class ConfigurationService {
           const newGroup = VirtualMachineGroup.fromJson(jsonGroup);
           configuration.virtualMachinesGroups.push(newGroup);
         });
+      }
+      if (json.id !== undefined) {
+        configuration.id = json.id;
       }
       if (json.featureFlags !== undefined) {
         configuration.featureFlags = json.featureFlags;
@@ -250,12 +262,11 @@ export class ConfigurationService {
       this.save();
     } else {
       LogService.info("Configuration Service initialized", "CoreService");
-      Promise.all(promises).then(() => {
-        LogService.info("Configuration Service initialized", "CoreService");
-        this.lastSynced = Date.now();
-        this.isInitialized = true;
-        this.save();
-      });
+      await Promise.all(promises);
+      LogService.info("Configuration Service initialized", "CoreService");
+      this.lastSynced = Date.now();
+      this.isInitialized = true;
+      this.save();
     }
   }
   setShowOnboarding(show: boolean) {
@@ -283,6 +294,7 @@ export class ConfigurationService {
 
   toJson(): any {
     const config = {
+      id: this.id,
       virtualMachinesGroup: this.virtualMachinesGroups,
       catalogProviders: this.catalogProviders,
       remoteHostProviders: this.remoteHostProviders,
@@ -331,23 +343,60 @@ export class ConfigurationService {
   }
 
   save() {
-    if (!configurationInitialized) {
-      console.error("Configuration not initialized");
-      return;
-    }
-    const configFolder = getUserProfileFolder();
-    const userProfile = path.join(configFolder, "profile.json");
+    try {
+      if (!configurationInitialized) {
+        console.error("Configuration not initialized");
+        return;
+      }
+      const configFolder = getUserProfileFolder();
+      const userProfile = path.join(configFolder, "profile.json");
 
-    // Backing up before writing
-    if (fs.existsSync(userProfile)) {
-      const backupPath = path.join(configFolder, `profile.json.bck`);
-      fs.renameSync(userProfile, backupPath);
-    }
+      // Backing up before writing
+      if (fs.existsSync(userProfile)) {
+        this.backup();
+      }
 
-    fs.writeFileSync(userProfile, this.toJson());
+      fs.writeFileSync(userProfile, this.toJson());
+    } catch (e) {
+      telemetryService.sendErrorEvent("error-saving-configuration", `Error saving the configuration, ${e}`);
+      LogService.error(`Error saving configuration ${e}`, "ConfigService");
+      console.error(e);
+    }
   }
 
   backup() {
+    const configFolder = getUserProfileFolder();
+    const userProfile = path.join(configFolder, "profile.json");
+    const backupFolder = path.join(configFolder, "backups");
+
+    if (!fs.existsSync(backupFolder)) {
+      fs.mkdirSync(backupFolder);
+    }
+
+    const backupFiles = fs
+      .readdirSync(backupFolder)
+      .filter(file => file.startsWith("profile.json.bck"))
+      .sort((a, b) => {
+        const aIndex = parseInt(a.split(".")[2]);
+        const bIndex = parseInt(b.split(".")[2]);
+        return aIndex - bIndex;
+      });
+
+    if (backupFiles.length >= 10) {
+      const oldestBackup = backupFiles[0];
+      fs.unlinkSync(path.join(backupFolder, oldestBackup));
+      backupFiles.shift();
+    }
+
+    const newBackupIndex = backupFiles.length > 0 ? parseInt(backupFiles[backupFiles.length - 1].split(".")[2]) + 1 : 1;
+
+    const newBackupPath = path.join(backupFolder, `profile.json.bck.${newBackupIndex}`);
+    if (fs.existsSync(userProfile)) {
+      fs.copyFileSync(userProfile, newBackupPath);
+    }
+  }
+
+  backup_startup() {
     LogService.info("Backing up configuration", "CoreService");
     const configFolder = getUserProfileFolder();
     const userProfile = path.join(configFolder, "profile.json");
@@ -897,6 +946,18 @@ export class ConfigurationService {
     return home;
   }
 
+  addToDownloadCatalogs(catalogId: string) {
+    this.downloadingCatalogs.push(catalogId);
+  }
+
+  removeFromDownloadCatalogs(catalogId: string) {
+    this.downloadingCatalogs = this.downloadingCatalogs.filter(id => id !== catalogId);
+  }
+
+  isDownloadingCatalog(catalogId: string): boolean {
+    return this.downloadingCatalogs.includes(catalogId);
+  }
+
   initParallelsDesktop(): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       LogService.info("Initializing Parallels Desktop", "ConfigService");
@@ -934,15 +995,23 @@ export class ConfigurationService {
             vscode.commands.executeCommand("setContext", FLAG_HAS_VIRTUAL_MACHINES, false);
           }
           vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
-          resolve(true);
         })
         .catch(reason => {
           vscode.commands.executeCommand("setContext", FLAG_PARALLELS_DESKTOP_EXISTS, false);
           this.tools.parallelsDesktop.isInstalled = false;
           this.tools.parallelsDesktop.version = "";
           LogService.error(`Parallels Desktop is not installed, err: ${reason}`, "ConfigService");
-          return resolve(true);
         });
+      const license = await ParallelsDesktopService.getJsonLicense().catch(reason => {
+        LogService.error(`Error getting Parallels Desktop license ${reason}`, "ConfigService");
+      });
+      if (license) {
+        this.ParallelsDesktopLicense = license;
+      } else {
+        LogService.error(`Parallels Desktop license not found`, "ConfigService");
+      }
+
+      return resolve(true);
     });
   }
 
@@ -1020,7 +1089,7 @@ export class ConfigurationService {
     });
   }
 
-  initDevOpsService(): Promise<boolean> {
+  initDevOpsService(checkForNewVersions = true): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       LogService.info("Initializing Parallels DevOps Service", "ConfigService");
       if (this.tools.devopsService === undefined) {
@@ -1039,21 +1108,42 @@ export class ConfigurationService {
         LogService.info("Parallels DevOps Service is not installed", "ConfigService");
         vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
         return resolve(false);
-      }
-
-      DevOpsService.version()
-        .then(version => {
-          this.tools.devopsService.version = version;
-          vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, true);
-          return resolve(true);
-        })
-        .catch(reason => {
+      } else {
+        // Check if the DevOps Service is up to date
+        const version = await DevOpsService.version().catch(reason => {
           this.tools.devopsService.isInstalled = false;
           this.tools.devopsService.version = "";
           vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
           LogService.error(`Parallels DevOps Service is not installed, err: ${reason}`, "ConfigService");
           return resolve(false);
         });
+
+        this.tools.devopsService.version = version ?? "";
+        vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, true);
+        const latestVersion = await DevOpsService.checkForLatestVersion().catch(reason => {
+          LogService.error(`Error getting latest version of DevOps Service ${reason}`, "ConfigService");
+        });
+        if (checkForNewVersions && latestVersion && version && version !== latestVersion) {
+          YesNoInfoMessage("There is a new version of DevOps Service available, would you like to install it?").then(
+            selection => {
+              if (selection === ANSWER_YES) {
+                DevOpsService.install()
+                  .then(() => {
+                    LogService.info(`DevOps Service installed successfully`, "ConfigService");
+                  })
+                  .catch(reason => {
+                    LogService.error(`Error installing DevOps Service ${reason}`, "ConfigService");
+                    vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
+                  });
+              }
+            }
+          );
+        } else {
+          LogService.info("DevOps Service is up to date", "ConfigService");
+        }
+      }
+
+      return resolve(true);
     });
   }
 
@@ -1169,5 +1259,41 @@ export class ConfigurationService {
           return resolve(true);
         });
     });
+  }
+
+  static async getLicenseType(useExtendedAttributes = false): Promise<string> {
+    const config = Provider.getConfiguration();
+    let licenseInfo: ParallelsDesktopLicense | null = null;
+    if (config.parallelsDesktopServerInfo && config.parallelsDesktopServerInfo.License) {
+      licenseInfo = config.parallelsDesktopServerInfo.License;
+    } else {
+      const serverInfo = await ParallelsDesktopService.getServerInfo();
+      if (serverInfo) {
+        licenseInfo = serverInfo.License;
+      }
+    }
+
+    let jsonLicense = config.ParallelsDesktopLicense;
+    if (!jsonLicense) {
+      jsonLicense = await ParallelsDesktopService.getJsonLicense();
+      if (jsonLicense) {
+        config.ParallelsDesktopLicense = jsonLicense;
+      }
+    }
+
+    let foundLicensedEdition = jsonLicense?.edition.toLowerCase() ?? licenseInfo?.edition?.toLowerCase() ?? undefined;
+    if (licenseInfo?.status?.toLowerCase() === "invalid") {
+      foundLicensedEdition = "invalid";
+    }
+    if (jsonLicense && useExtendedAttributes) {
+      if (jsonLicense.is_trial) {
+        foundLicensedEdition = `trial-${jsonLicense.edition.toLowerCase()}`;
+      }
+      if (jsonLicense.is_beta) {
+        foundLicensedEdition = `beta-${jsonLicense.edition.toLowerCase()}`;
+      }
+    }
+
+    return foundLicensedEdition.toLowerCase();
   }
 }
