@@ -12,9 +12,7 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}"
       ],
-      "env": {
-        "PARALLELS_DESKTOP_DEBUG": "true"
-      },
+      "envFile": "${workspaceFolder}/.env",
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
@@ -25,9 +23,7 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "env": {
-        "PARALLELS_DESKTOP_DEBUG": "false"
-      },
+      "envFile": "${workspaceFolder}/.env",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--disable-extension=GitHub.vscode-pull-request-github-insiders"

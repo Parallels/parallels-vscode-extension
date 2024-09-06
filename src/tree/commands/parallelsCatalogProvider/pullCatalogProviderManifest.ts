@@ -5,13 +5,14 @@ import {CommandsFlags} from "../../../constants/flags";
 import {LogService} from "../../../services/logService";
 import {ParallelsCatalogCommand} from "../BaseCommand";
 import {DevOpsService} from "../../../services/devopsService";
-import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
 import {DevOpsTreeItem} from "../../treeItems/devOpsTreeItem";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 import {HelperService} from "../../../services/helperService";
 import {ParallelsCatalogProvider} from "../../parallelsCatalogProvider/parallelsCatalogProvider";
 import {ShowErrorMessage} from "../../../helpers/error";
 import {TELEMETRY_PARALLELS_CATALOG} from "../../../telemetry/operations";
+import {generateDevOpsClient} from "../../../helpers/DevOpsClient";
+import {injectAppId} from "./injectAppId";
 
 const registerParallelsCatalogPullCatalogManifestCommand = (
   context: vscode.ExtensionContext,
@@ -20,8 +21,15 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
   context.subscriptions.push(
     vscode.commands.registerCommand(CommandsFlags.parallelsCatalogPullCatalogManifest, async (item: DevOpsTreeItem) => {
       const telemetry = Provider.telemetry();
+      const config = Provider.getConfiguration();
       telemetry.sendOperationEvent(TELEMETRY_PARALLELS_CATALOG, "PULL_CATALOG_MANIFEST_COMMAND_CLICK");
       if (!item) {
+        return;
+      }
+      if (config.isDownloadingCatalog(item.id)) {
+        vscode.window.showInformationMessage(
+          `${item.label ? `Manifest ${item.label}` : "VM"} is already being downloaded`
+        );
         return;
       }
       if (!(await DevOpsService.isInstalled())) {
@@ -30,7 +38,7 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
           options.push("Install Parallels Desktop DevOps Service");
         }
         options.push("Download Parallels Desktop DevOps Service");
-        const selection = await vscode.window.showErrorMessage(
+        const selection = await vscode.window.showInformationMessage(
           "Parallels Desktop DevOps is not installed, please install Parallels Desktop DevOps and try again.",
           "Open Parallels Desktop Service Documentation",
           ...options
@@ -64,7 +72,6 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
         return;
       }
 
-      const config = Provider.getConfiguration();
       const providerId = item.id.split("%%")[0];
       const architecture = await HelperService.getArchitecture();
       const provider = config.parallelsCatalogProvider;
@@ -126,7 +133,8 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
 
       const machineName = await vscode.window.showInputBox({
         placeHolder: `Enter the machine name you want to create`,
-        prompt: `Machine name`
+        prompt: `Machine name`,
+        value: `${manifest?.description ? manifest.description : manifest?.name} ${version}`
       });
       if (!machineName) {
         ShowErrorMessage(TELEMETRY_PARALLELS_CATALOG, `Machine name is required`);
@@ -145,28 +153,32 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
         return;
       }
 
-      const confirmation = await YesNoQuestion(`Do you want the machine ${machineName} to start after pull?`);
-
       const providerUrl = await DevOpsService.getHostUrl(provider);
+
+      const client = await generateDevOpsClient(manifestId, version);
       const request: CatalogPullRequest = {
         catalog_id: manifestId,
         version: version,
         architecture: architecture,
         machine_name: machineName,
         path: machinePath,
-
         connection: `host=${provider.username}:${provider.password}@${providerUrl}`,
-        start_after_pull: confirmation === ANSWER_YES ? true : false
+        start_after_pull: true,
+        client: client
       };
 
+      config.addToDownloadCatalogs(item.id);
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: `Pulling Manifest ${request.catalog_id} from provider ${provider.name}`
+          title: `${manifest?.description ?? request.catalog_id}`
         },
-        async () => {
+        async progress => {
+          progress.report({
+            message: `Getting ready to pull from ${provider.name}`
+          });
           let foundError = false;
-          await DevOpsService.pullManifestFromCatalogProvider(provider, request).catch(error => {
+          await DevOpsService.pullManifestFromCatalogProvider(provider, request, progress).catch(error => {
             LogService.error(`Error pulling manifest from provider ${provider.name}`, error);
             ShowErrorMessage(
               TELEMETRY_PARALLELS_CATALOG,
@@ -174,16 +186,31 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
               true
             );
             foundError = true;
+            config.removeFromDownloadCatalogs(item.id);
             return;
           });
 
           if (foundError) {
+            config.removeFromDownloadCatalogs(item.id);
             return;
           }
+          progress.report({
+            message: `Starting the virtual machine ${machineName}`
+          });
+          if (!(await injectAppId(`${manifestId}_${version}`, request.machine_name))) {
+            ShowErrorMessage(TELEMETRY_PARALLELS_CATALOG, `Error starting the virtual machine`, true);
+            config.removeFromDownloadCatalogs(item.id);
+            return;
+          }
+
+          config.removeFromDownloadCatalogs(item.id);
           await DevOpsService.refreshCatalogProviders(true);
           vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+          vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
 
-          vscode.window.showInformationMessage(`Manifest ${manifestId} pulled from provider ${provider.name}`);
+          vscode.window.showInformationMessage(
+            `Manifest ${manifest?.description ?? manifest?.name} created successfully`
+          );
         }
       );
     })

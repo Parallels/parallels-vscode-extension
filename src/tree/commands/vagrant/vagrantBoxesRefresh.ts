@@ -6,7 +6,7 @@ import {VagrantCommand} from "../BaseCommand";
 
 const registerVagrantBoxRefreshCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderRefresh, async () => {
+    vscode.commands.registerCommand(CommandsFlags.vagrantProviderRefresh, async () => {
       provider.refresh();
     })
   );

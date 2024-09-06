@@ -11,7 +11,7 @@ import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerVagrantBoxRemoveCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.vagrantBoxProviderDelete, async (item: VagrantBoxTreeItem) => {
+    vscode.commands.registerCommand(CommandsFlags.vagrantProviderDelete, async (item: VagrantBoxTreeItem) => {
       const telemetry = Provider.telemetry();
       telemetry.sendOperationEvent(TELEMETRY_VAGRANT, "VAGRANT_BOX_REMOVE_COMMAND_CLICK");
       if (!item) {
@@ -30,7 +30,7 @@ const registerVagrantBoxRemoveCommand = (context: vscode.ExtensionContext, provi
                   if (!value) {
                     ShowErrorMessage(TELEMETRY_VAGRANT, `Failed to remove Vagrant box ${item.name}`);
                   }
-                  vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
+                  vscode.commands.executeCommand(CommandsFlags.vagrantProviderRefresh);
                 },
                 reason => {
                   ShowErrorMessage(

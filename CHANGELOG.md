@@ -2,6 +2,15 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.2.20] - 2024-09-06
+
+* Fixed an issue with the copyIpToClipboard
+* Fixed an issue where the license would not show properly for some users #110
+* Fixed an issue where the devops service was not being recognized correctly
+* Fixed an issue where the hide/show on the tree was not triggering properly
+* Removed the ability to download the same catalog twice
+* further minor fixes and improvements
+
 ## [1.0.12] - 2023-10-15
 
 * Added MacOS Monterey to the list of VMs Distros you can create

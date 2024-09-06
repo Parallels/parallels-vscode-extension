@@ -38,6 +38,9 @@ export function getChatHistory(history: ReadonlyArray<vscode.ChatRequestTurn | v
   //   })
   // }
 
+  if (parts.length === 0) {
+    return "there is no history";
+  }
   return parts.map(p => p.value.value).join("\n");
 }
 

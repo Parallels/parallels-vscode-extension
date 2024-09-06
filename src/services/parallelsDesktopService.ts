@@ -14,6 +14,7 @@ import {NewVirtualMachineSpecs} from "../models/parallels/NewVirtualMachineSpecs
 import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopServerInfo";
 import {VirtualMachineRunningInfo} from "../models/parallels/virtualMachineRunningInfo";
 import {TELEMETRY_INSTALL_PARALLELS_DESKTOP} from "../telemetry/operations";
+import {JsonLicense, ParallelsJSONLicense, ParallelsShortLicense} from "../models/parallels/ParallelsJsonLicense";
 
 export class ParallelsDesktopService {
   static isInstalled(): Promise<boolean> {
@@ -22,16 +23,18 @@ export class ParallelsDesktopService {
       const cache = Provider.getCache();
       if (cache.get(FLAG_PARALLELS_DESKTOP_PATH)) {
         LogService.info(
-          `Packer was found on path ${cache.get(FLAG_PARALLELS_DESKTOP_PATH)} from cache`,
-          "PackerService"
+          `Parallels Desktop Client was found on path ${cache.get(FLAG_PARALLELS_DESKTOP_PATH)} from cache`,
+          "ParallelDesktopService"
         );
         return resolve(true);
       }
 
       if (settings.get<string>(FLAG_PARALLELS_DESKTOP_PATH)) {
         LogService.info(
-          `Packer was found on path ${settings.get<string>(FLAG_PARALLELS_DESKTOP_PATH)} from settings`,
-          "PackerService"
+          `Parallels Desktop Client was found on path ${settings.get<string>(
+            FLAG_PARALLELS_DESKTOP_PATH
+          )} from settings`,
+          "ParallelDesktopService"
         );
         return resolve(true);
       }
@@ -1222,6 +1225,103 @@ export class ParallelsDesktopService {
             return reject(reason);
           });
       }
+    });
+  }
+
+  static async getJsonLicense(): Promise<ParallelsShortLicense> {
+    return new Promise((resolve, reject) => {
+      let stdOut = "";
+      LogService.info("Getting license info", "ParallelsDesktopService");
+      if (!fs.existsSync("/Library/Preferences/Parallels/licenses.json")) {
+        LogService.error("Parallels Desktop license file not found", "ParallelsDesktopService");
+        return reject("Parallels Desktop license file not found");
+      }
+
+      const prlsrvctl = cp.spawn("cat", ["/Library/Preferences/Parallels/licenses.json"], {shell: true});
+      prlsrvctl.stdout.on("data", data => {
+        stdOut += data.toString();
+        LogService.debug(data.toString(), "ParallelsDesktopService");
+      });
+      prlsrvctl.stderr.on("data", data => {
+        LogService.error(data.toString(), "ParallelsDesktopService");
+      });
+      prlsrvctl.on("close", code => {
+        if (code !== 0) {
+          LogService.error(`prlsrvctl info --license exited with code ${code}`, "ParallelsDesktopService");
+          return reject(`cat license exited with code ${code}`);
+        }
+        try {
+          const jsonLicense = JSON.parse(stdOut);
+          const license = JSON.parse(jsonLicense.license) as JsonLicense;
+          const result: ParallelsShortLicense = {
+            name: license.name,
+            uuid: license.uuid,
+            lic_key: license.lic_key,
+            product_version: license.product_version,
+            is_upgrade: license.is_upgrade,
+            is_sublicense: license.is_sublicense,
+            parent_key: license.parent_key,
+            parent_uuid: license.parent_uuid,
+            main_period_ends_at: license.main_period_ends_at,
+            grace_period_ends_at: license.grace_period_ends_at,
+            is_auto_renewable: license.is_auto_renewable,
+            is_nfr: license.is_nfr,
+            is_beta: license.is_beta,
+            is_china: license.is_china,
+            is_suspended: license.is_suspended,
+            is_expired: license.is_expired,
+            is_grace_period: license.is_grace_period,
+            is_purchased_online: license.is_purchased_online,
+            limit: license.limit,
+            usage: license.usage,
+            edition: "",
+            platform: license.platform,
+            product: "",
+            offline: license.offline,
+            is_bytebot: license.is_bytebot,
+            cpu_limit: license.cpu_limit,
+            ram_limit: license.ram_limit,
+            is_trial: license.is_trial,
+            started_at: license.started_at,
+            cep_option: license.cep_option
+          };
+          switch (license.edition) {
+            case 0:
+              result.edition = "any";
+              break;
+            case 1:
+              result.edition = "standard";
+              break;
+            case 2:
+              result.edition = "business";
+              break;
+            case 3:
+              result.edition = "pro";
+              break;
+            default:
+              result.edition = "unknown";
+              break;
+          }
+          switch (license.product) {
+            case 0:
+              result.product = "any";
+              break;
+            case 1:
+              result.product = "perpetual";
+              break;
+            case 7:
+              result.product = "subscription";
+              break;
+            default:
+              result.product = "unknown";
+              break;
+          }
+          return resolve(result);
+        } catch (e) {
+          LogService.error(`json license parsing error: ${e}`, "ParallelsDesktopService");
+          return reject(`json license error error: ${e}`);
+        }
+      });
     });
   }
 

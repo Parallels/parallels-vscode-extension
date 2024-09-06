@@ -961,7 +961,7 @@ const getWebviewContent = (context: vscode.ExtensionContext, panel: vscode.Webvi
           </div>
           <div class="side-panel">
             <div>
-              <span class="title-text">Parallels Desktop 19 for Mac</span>
+              <span class="title-text">Parallels Desktop for Mac</span>
             </div>
             <div>
               <span class="caption-text" x-text="getVersion()"></span>

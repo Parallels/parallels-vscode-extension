@@ -616,7 +616,7 @@ export class CreateMachineService {
                         fs.rmSync(outputFolder, {recursive: true});
                       }
 
-                      vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
+                      vscode.commands.executeCommand(CommandsFlags.vagrantProviderRefresh);
                       return resolve(value);
                     },
                     reason => {

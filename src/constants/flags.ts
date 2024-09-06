@@ -1,3 +1,4 @@
+export const VERSION = "0.0.0";
 export const FLAG_NO_GROUP = "no_group";
 export const FLAG_OS = "parallels-desktop:os";
 export const FLAG_CONFIGURATION = "parallels.configuration";
@@ -47,6 +48,7 @@ export const FLAG_SHOW_PARALLELS_CATALOG = "parallels-desktop:show-catalog";
 export const FLAG_IS_LICENSED_SHOW_CATALOG = "parallels-desktop:is-licensed-show-catalog";
 export const FLAG_IS_PARALLELS_CATALOG_OFFLINE = "parallels-desktop:is-offline";
 export const FLAG_PARALLELS_CATALOG_HAS_ITEMS = "parallels-desktop:parallels-catalog-has-tree-items";
+export const FLAG_PARALLELS_CATALOG_SHOW_ONBOARD = "parallels-desktop:parallels-catalog:show-onboarding";
 export const FLAG_LICENSE = "parallels-desktop:license";
 
 const COMMAND_PREFIX = "parallels-desktop";
@@ -205,10 +207,6 @@ export class CommandsFlags {
   static coreDisableShowHiddenItems = `${COMMAND_PREFIX}.core.disable-show-hidden-items`;
   static coreToggleShowHiddenItems = `${COMMAND_PREFIX}.core.toggle-show-hidden-items`;
 
-  static vagrantBoxProviderRefresh = `${COMMAND_PREFIX}.vagrant.box.provider.refresh`;
-  static vagrantBoxProviderInit = `${COMMAND_PREFIX}.vagrant.box.provider.init`;
-  static vagrantBoxProviderDelete = `${COMMAND_PREFIX}.vagrant.box.provider.delete`;
-
   static dockerStartContainer = `${COMMAND_PREFIX}.docker.start-container`;
   static dockerStopContainer = `${COMMAND_PREFIX}.docker.stop-container`;
   static dockerRestartContainer = `${COMMAND_PREFIX}.docker.restart-container`;
@@ -224,6 +222,8 @@ export class CommandsFlags {
   static parallelsCatalogRefreshProvider = `${COMMAND_PREFIX}.parallels-catalog.refresh`;
   static parallelsCatalogForceRefreshProvider = `${COMMAND_PREFIX}.parallels-catalog.force-refresh`;
   static parallelsCatalogPullCatalogManifest = `${COMMAND_PREFIX}.parallels-catalog.pull-catalog-manifest`;
+  static parallelsCatalogCloseOnboarding = `${COMMAND_PREFIX}.parallels-catalog.close-onboarding`;
+  static parallelsCatalogShowAiFaq = `${COMMAND_PREFIX}.parallels-catalog.show-ai-faq`;
   // Devops General Commands
 
   // Devops Catalog Commands
@@ -281,5 +281,9 @@ export class CommandsFlags {
   static devopsRemoteProviderManagementRemoveClaim = `${COMMAND_PREFIX}.devops-service.remote-provider-management.remove-claim`;
 
   // Vagrant Commands
-  static vagrantSearchAndDownload = `${COMMAND_PREFIX}.vagrant.search-and-download`;
+  static vagrantProviderSearchAndDownload = `${COMMAND_PREFIX}.vagrant.search-and-download`;
+  static vagrantProviderInstall = `${COMMAND_PREFIX}.vagrant.install`;
+  static vagrantProviderRefresh = `${COMMAND_PREFIX}.vagrant.box.provider.refresh`;
+  static vagrantProviderInit = `${COMMAND_PREFIX}.vagrant.box.provider.init`;
+  static vagrantProviderDelete = `${COMMAND_PREFIX}.vagrant.box.provider.delete`;
 }

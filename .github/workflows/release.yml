@@ -39,9 +39,9 @@ jobs:
           NEW_VERSION=$(./script/workflows/increment-version.sh ${{ inputs.version }})
 
           git checkout -b release/$NEW_VERSION
-
+          sed -i "s/export const VERSION = \".*\"/export const VERSION = \""$NEW_VERSION"\"/g" ./src/constants/flags.ts
           npm version $NEW_VERSION --no-git-tag-version
-          git add package.json package-lock.json
+          git add package.json package-lock.json ./src/constants/flags.ts
           git commit -m "Release extension version $NEW_VERSION"
 
           git push --set-upstream origin release/$NEW_VERSION

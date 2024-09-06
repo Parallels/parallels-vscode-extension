@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.2.9",
+    "version": "1.2.19",
     "engines": {
         "vscode": "^1.90.0"
     },
@@ -81,6 +81,11 @@
                     "type": "string",
                     "default": "",
                     "description": "Vagrant box files folder for new VMs"
+                },
+                "parallels-desktop.devops-service.path": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Parallels Desktop DevOps Service path"
                 },
                 "parallels-desktop.hashicorp.vagrant.path": {
                     "type": "string",
@@ -417,6 +422,10 @@
                     "light": "img/light/trash.svg",
                     "dark": "img/dark/trash.svg"
                 }
+            },
+            {
+                "command": "parallels-desktop.vagrant.install",
+                "title": "Vagrant: Install Vagrant"
             },
             {
                 "command": "parallels-desktop.core.enable-show-hidden-items",
@@ -931,11 +940,19 @@
             },
             {
                 "command": "parallels-desktop.parallels-catalog.pull-catalog-manifest",
-                "title": "Pull Catalog Manifest",
+                "title": "Download VM",
                 "icon": {
                     "light": "img/light/catalog_manifest_pull.svg",
                     "dark": "img/dark/catalog_manifest_pull.svg"
                 }
+            },
+            {
+                "command": "parallels-desktop.parallels-catalog.close-onboarding",
+                "title": "Close Onboarding"
+            },
+            {
+                "command": "parallels-desktop.parallels-catalog.show-ai-faq",
+                "title": "Show AI FAQ"
             }
         ],
         "viewsContainers": {
@@ -1263,6 +1280,14 @@
                 {
                     "command": "parallels-desktop.parallels-catalog.pull-catalog-manifest",
                     "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.parallels-catalog.close-onboarding",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.parallels-catalog.show-ai-faq",
+                    "when": "false"
                 }
             ],
             "view/title": [
@@ -1292,12 +1317,12 @@
                 },
                 {
                     "command": "parallels-desktop.vagrant.box.provider.refresh",
-                    "when": "view == parallels-desktop-machines-vagrant && parallels-desktop:initialized",
+                    "when": "view == parallels-desktop-machines-vagrant && parallels-desktop:initialized && vagrant.initialized === true",
                     "group": "navigation@0"
                 },
                 {
                     "command": "parallels-desktop.vagrant.box.provider.refresh",
-                    "when": "view == parallels-desktop-vagrant && parallels-desktop:initialized",
+                    "when": "view == parallels-desktop-vagrant && parallels-desktop:initialized && vagrant.initialized === true",
                     "group": "navigation@1"
                 },
                 {
@@ -1775,12 +1800,12 @@
         "viewsWelcome": [
             {
                 "view": "parallels-desktop-machines",
-                "when": "parallels-desktop:initialized === true && parallels-desktop:hasVirtualMachines === false && (parallels-desktop:is-licensed-show-catalog === 'pro' || parallels-desktop:is-licensed-show-catalog === 'business')",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:hasVirtualMachines === false && (parallels-desktop:license === 'pro' || parallels-desktop:license === 'business')",
                 "contents": "Welcome to Parallels Desktop\n Please add a virtual machine to start using the extension.\n[Create Virtual Machine](command:parallels-desktop.tree-view.add-vm)"
             },
             {
                 "view": "parallels-desktop-machines",
-                "when": "parallels-desktop:initialized === true && (parallels-desktop:is-licensed-show-catalog !== 'pro' && parallels-desktop:is-licensed-show-catalog !== 'business')",
+                "when": "parallels-desktop:initialized === true && (parallels-desktop:license !== 'pro' && parallels-desktop:license !== 'business')",
                 "contents": "Welcome to Parallels Desktop\n To have access to this functionality you need a Pro or Business license.\n[Buy Pro License](command:parallels-desktop.common.buy-pro-license)\n[Buy Business License](command:parallels-desktop.common.buy-business-license)"
             },
             {
@@ -1790,8 +1815,13 @@
             },
             {
                 "view": "parallels-desktop-catalog",
-                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === true",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === true ",
                 "contents": "It looks like the Parallels Desktop VMs Catalog is currently unavailable.\nPlease verify your internet connection and ensure you're using the latest version of the extension, then try again.\n[Refresh](command:parallels-desktop.parallels-catalog.force-refresh)"
+            },
+            {
+                "view": "parallels-desktop-catalog",
+                "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === false && parallels-desktop:parallels-catalog:show-onboarding === true && parallels-desktop:is-offline !== true ",
+                "contents": "Welcome to Parallels Desktop VMs Catalog\nHere you can find pre built Vms to help you to quick start your journey.\nWhy not start by trying our new AI Developer Package and start on your journey with AI\n[Step 1: Learn More](command:parallels-desktop.parallels-catalog.show-ai-faq)\n[Step 2: Get Started](command:parallels-desktop.parallels-catalog.close-onboarding)"
             },
             {
                 "view": "parallels-desktop-remote-catalog",
@@ -1842,15 +1872,15 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
-        "@types/vscode": "1.90.0",
         "@types/axios": "^0.14.0",
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "^20.5.9",
         "@types/uuid": "^9.0.1",
+        "@types/vscode": "1.90.0",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
-        "@vscode/prompt-tsx": "^0.2.3-alpha",
+        "@vscode/prompt-tsx": "^0.2.8-alpha",
         "@vscode/test-electron": "^2.3.0",
         "@vscode/test-web": "*",
         "@vscode/vsce": "^2.29.0",
@@ -1866,18 +1896,19 @@
         "rimraf": "^3.0.1",
         "run-script-os": "^1.1.6",
         "ts-loader": "^9.5.1",
-        "typescript": "^4.9.5",
+        "typescript": "^5.5.4",
         "vscpp": "^2.1.1",
         "webpack": "^5.92.0",
         "webpack-cli": "^5.1.4",
         "webpack-dev-server": "^5.0.4"
     },
     "dependencies": {
+        "@amplitude/analytics-node": "^1.3.6",
         "axios": "^1.4.0",
-        "clipboardy": "^3.0.0",
+        "clipboardy": "^4.0.0",
+        "clipboardy-ts": "^1.0.0",
         "jwt-decode": "^4.0.0",
         "tailwindcss": "^3.3.2",
-        "uuid": "^9.0.0",
-        "@amplitude/analytics-node": "^1.3.6"
+        "uuid": "^9.0.0"
     }
 }
