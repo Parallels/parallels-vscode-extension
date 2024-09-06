@@ -84,7 +84,7 @@ export class TelemetryService {
     const user_id = `vscode_${config.id ?? "unknown_device"}`;
     this.deviceId = config.id ?? "vscode";
     event.properties = event.properties || [];
-    if (VERSION !== "0.0.0") {
+    if (VERSION.toString() !== "0.0.0") {
       event.properties.push({
         name: "extension_version",
         value: VERSION
