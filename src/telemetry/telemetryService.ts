@@ -79,38 +79,10 @@ export class TelemetryService {
     const config = Provider.getConfiguration();
     const waitForLicense = 2000;
     let countWaitForLicense = 10;
-
-    let license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
-    let licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
-    let isTrial = "Unknown";
-    let licenseModel = "Unknown";
-    let jsonLicense = config.ParallelsDesktopLicense;
-    if (!jsonLicense) {
-      jsonLicense = await ParallelsDesktopService.getJsonLicense();
-    }
-    licenseEdition = `${jsonLicense.edition.toLowerCase()}`;
-    isTrial = `${jsonLicense.is_trial}`;
-    licenseModel = `${jsonLicense.product.toLowerCase()}`;
-
-    const os = config.parallelsDesktopServerInfo?.OS ?? "Unknown";
+    const os = Provider.getOs();
     const arch = Provider.getArchitecture();
-    const pd_version = config.parallelsDesktopServerInfo?.Version ?? "Unknown";
-    let user_id = `vscode_${config.id}`;
+    const user_id = `vscode_${config.id ?? "unknown_device"}`;
     this.deviceId = config.id ?? "vscode";
-
-    // Wait for license to be available
-    while (!this.license || this.license === "Unknown") {
-      countWaitForLicense--;
-      if (countWaitForLicense === 0) {
-        break;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, waitForLicense));
-
-      license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
-      licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
-    }
-
     event.properties = event.properties || [];
     if (VERSION !== "0.0.0") {
       event.properties.push({
@@ -119,34 +91,90 @@ export class TelemetryService {
       });
     }
 
-    if (license) {
+    if (os.toLowerCase() === "darwin") {
+      let license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
+      let licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
+      let isTrial = "Unknown";
+      let licenseModel = "Unknown";
+      let jsonLicense = config.ParallelsDesktopLicense;
+      if (!jsonLicense) {
+        jsonLicense = await ParallelsDesktopService.getJsonLicense();
+      }
+      licenseEdition = `${jsonLicense.edition.toLowerCase()}`;
+      isTrial = `${jsonLicense.is_trial}`;
+      licenseModel = `${jsonLicense.product.toLowerCase()}`;
+
+      const pd_version = config.parallelsDesktopServerInfo?.Version ?? "Unknown";
+
+      // Wait for license to be available
+      while (!this.license || this.license === "Unknown") {
+        countWaitForLicense--;
+        if (countWaitForLicense === 0) {
+          break;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, waitForLicense));
+
+        license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
+        licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
+      }
+
+      if (license) {
+        event.properties.push({
+          name: "license",
+          value: license.replaceAll("-", "").replaceAll(" ", "").replaceAll("*", "").trim()
+        });
+        if (this.license != license) {
+          this.license = license;
+        }
+      }
+
+      if (licenseEdition) {
+        let licenseEditionValue = licenseEdition;
+        if (isTrial === "true") {
+          licenseEditionValue = `${licenseEditionValue} (Trial)`;
+        }
+        event.properties.push({
+          name: "license_edition",
+          value: licenseEdition
+        });
+        if (this.licenseEdition != licenseEdition) {
+          this.licenseEdition = licenseEdition;
+        }
+      }
+
+      if (licenseModel !== "Unknown") {
+        event.properties.push({
+          name: "license_model",
+          value: licenseModel
+        });
+      }
+
+      if (pd_version) {
+        event.properties.push({
+          name: "pd_version",
+          value: pd_version.replaceAll("Desktop ", "").trim()
+        });
+        if (this.pd_version != pd_version) {
+          this.pd_version = pd_version;
+        }
+      }
+    } else {
       event.properties.push({
         name: "license",
-        value: license.replaceAll("-", "").replaceAll(" ", "").replaceAll("*", "").trim()
+        value: "not_supported"
       });
-      if (this.license != license) {
-        this.license = license;
-      }
-    }
-
-    if (licenseEdition) {
-      let licenseEditionValue = licenseEdition;
-      if (isTrial === "true") {
-        licenseEditionValue = `${licenseEditionValue} (Trial)`;
-      }
       event.properties.push({
         name: "license_edition",
-        value: licenseEdition
+        value: "not_supported"
       });
-      if (this.licenseEdition != licenseEdition) {
-        this.licenseEdition = licenseEdition;
-      }
-    }
-
-    if (licenseModel !== "Unknown") {
       event.properties.push({
         name: "license_model",
-        value: licenseModel
+        value: "not_supported"
+      });
+      event.properties.push({
+        name: "pd_version",
+        value: "not_supported"
       });
     }
 
@@ -168,21 +196,6 @@ export class TelemetryService {
       if (this.arch != arch) {
         this.arch = arch;
       }
-    }
-
-    if (pd_version) {
-      event.properties.push({
-        name: "pd_version",
-        value: pd_version.replaceAll("Desktop ", "").trim()
-      });
-      if (this.pd_version != pd_version) {
-        this.pd_version = pd_version;
-      }
-    }
-
-    if (this.license != "Unknown") {
-      const userLicense = this.license.replaceAll("-", "").replaceAll(" ", "").replaceAll("*", "");
-      user_id = `${user_id}_${userLicense}`;
     }
 
     event.properties.push({
