@@ -65,7 +65,7 @@ jobs:
 
   release:
     name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ matrix.vsce_target }}
-    needs: 
+    needs:
       - check-version-change
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
 
@@ -123,6 +123,7 @@ jobs:
           ./.github/workflow_scripts/insert-secrets.sh
         env:
           AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+          PARALLELS_CATALOG_URL: ${{ secrets.PARALLELS_CATALOG_URL }}
           PARALLELS_CATALOG_BUSINESS_PASSWORD: ${{ secrets.PARALLELS_CATALOG_BUSINESS_PASSWORD }}
           PARALLELS_CATALOG_BUSINESS_USER: ${{ secrets.PARALLELS_CATALOG_BUSINESS_USER }}
           PARALLELS_CATALOG_PRO_PASSWORD: ${{ secrets.PARALLELS_CATALOG_PRO_PASSWORD }}
@@ -139,15 +140,15 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: ${{ matrix.vsce_target }}
-          path: '*.vsix'
+          path: "*.vsix"
 
       - name: Restore old package.json
         run: mv package.json.real package.json
 
   release-win:
     name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ matrix.vsce_target }}
-    
-    needs: 
+
+    needs:
       - check-version-change
 
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
@@ -197,16 +198,16 @@ jobs:
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: ${{ matrix.vsce_target }}
-          path: '*.vsix'
+          path: "*.vsix"
 
       - name: Restore old package.json
-        run:  |
+        run: |
           del package.json
           move package.json.real package.json
 
   create-release:
     name: Create release v${{ needs.check-version-change.outputs.version }}
-    needs: 
+    needs:
       - release
       - release-win
       - check-version-change
@@ -238,11 +239,11 @@ jobs:
 
   upload-artifacts-to-release:
     name: Upload artifacts to release v${{ needs.check-version-change.outputs.version }}
-    needs: 
+    needs:
       - create-release
       - check-version-change
 
-    if: false  
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -305,7 +306,7 @@ jobs:
   publish:
     name: Publish extension v${{ needs.check-version-change.outputs.version }}
     # environment: publish
-    needs: 
+    needs:
       - check-version-change
       - create-release
 

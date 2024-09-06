@@ -10,7 +10,7 @@ import {ShowErrorMessage} from "../../../helpers/error";
 
 const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContext, provider: VagrantBoxProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.vagrantSearchAndDownload, async () => {
+    vscode.commands.registerCommand(CommandsFlags.vagrantProviderSearchAndDownload, async () => {
       const telemetry = Provider.telemetry();
       telemetry.sendOperationEvent(TELEMETRY_VAGRANT, "VAGRANT_SEARCH_AND_DOWNLOAD_COMMAND_CLICK");
       return new Promise((resolve, reject) => {
@@ -87,7 +87,7 @@ const registerVagrantSearchAndDownloadCommand = (context: vscode.ExtensionContex
                             `Successfully created Vagrant Box ${boxName}`
                           );
                           vscode.window.showInformationMessage(`Successfully created Vagrant Box ${boxName}`);
-                          vscode.commands.executeCommand(CommandsFlags.vagrantBoxProviderRefresh);
+                          vscode.commands.executeCommand(CommandsFlags.vagrantProviderRefresh);
                           vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
                         }
                       );

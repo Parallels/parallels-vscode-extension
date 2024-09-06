@@ -5,6 +5,7 @@ import {VirtualMachineProvider} from "../../virtualMachinesProvider/virtualMachi
 import {VirtualMachineCommand} from "../BaseCommand";
 import {TELEMETRY_VM} from "../../../telemetry/operations";
 import {Provider} from "../../../ioc/provider";
+import * as clipboardy from "clipboardy-ts";
 
 const registerCopyIpAddressCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -16,7 +17,7 @@ const registerCopyIpAddressCommand = (context: vscode.ExtensionContext, provider
       }
 
       if (item.configuredIpAddress !== undefined && item.configuredIpAddress !== "-") {
-        // clipboardy.default.writeSync(item.configuredIpAddress);
+        clipboardy.default.writeSync(item.configuredIpAddress);
         vscode.window.showInformationMessage(`Copied ${item.configuredIpAddress} to clipboard`);
         return;
       }

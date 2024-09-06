@@ -6,4 +6,5 @@ export interface CatalogPullRequest {
   connection: string;
   path: string;
   start_after_pull: boolean;
+  client?: string;
 }

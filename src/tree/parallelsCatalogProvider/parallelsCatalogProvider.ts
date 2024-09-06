@@ -89,6 +89,12 @@ export class ParallelsCatalogProvider implements vscode.TreeDataProvider<DevOpsT
             hasVersions = true;
           }
           let icon = "catalog_manifest";
+          if (
+            manifest.name.toLowerCase().startsWith("ai_development") ||
+            manifest.name.toLowerCase().startsWith("ai-development")
+          ) {
+            icon = "parallels_catalog_ai_vm";
+          }
           const hasTainted = manifest.items.some(i => i.tainted);
           const hasRevoked = manifest.items.some(i => i.revoked);
           if (hasTainted || hasRevoked) {

@@ -14,3 +14,7 @@ export const YesNoQuestion = (prompt: string) => {
 export const YesNoErrorMessage = (prompt: string) => {
   return vscode.window.showErrorMessage(prompt, ...options);
 };
+
+export const YesNoInfoMessage = (prompt: string) => {
+  return vscode.window.showInformationMessage(prompt, ...options);
+};
