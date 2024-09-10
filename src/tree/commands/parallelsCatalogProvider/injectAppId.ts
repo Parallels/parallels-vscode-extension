@@ -1,5 +1,5 @@
 import {VirtualMachineMetadata} from "../../../models/parallels/VirtuaMachineMetadata";
-import {Provider} from "../../../ioc/provider";
+import {Provider, telemetryService} from "../../../ioc/provider";
 import {ConfigurationService} from "../../../services/configurationService";
 import {LogService} from "../../../services/logService";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
@@ -33,11 +33,7 @@ export async function injectAppId(providerHost: string, catalogId: string, machi
 
   try {
     const vm = await ParallelsDesktopService.getVmPath(machineId);
-    if (!vm) {
-      LogService.error(`Virtual machine ${machineId} not found`, "ParallelsCatalogProvider");
-      return false;
-    }
-    if (fs.existsSync(vm.Home)) {
+    if (vm != undefined && vm.Home === "" && fs.existsSync(vm.Home)) {
       const metadata: VirtualMachineMetadata = {
         Data: [
           {
@@ -102,6 +98,15 @@ export async function injectAppId(providerHost: string, catalogId: string, machi
     return true;
   } catch (error) {
     LogService.error(`Error injecting appId into virtual machine ${machineId}`);
-    return false;
+    telemetryService.track({
+      event: "parallels_catalog_inject_app_id",
+      properties: [
+        {
+          name: "error",
+          value: "injecting app id"
+        }
+      ]
+    });
+    return true;
   }
 }
