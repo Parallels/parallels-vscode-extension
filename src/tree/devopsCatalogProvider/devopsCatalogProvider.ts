@@ -137,6 +137,11 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
               return resolve(this.data);
             });
             break;
+          case "provider.catalog.manifests.manifest.version.requirements":
+            this.drawProviderManifestVersionRequirementsItems(element).then(() => {
+              return resolve(this.data);
+            });
+            break;
 
           case "management":
             this.data = await drawManagementItems(this.context, element, this.data, "DevOpsCatalogHostProvider");
@@ -362,6 +367,28 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         const context = "provider.catalog.manifests.manifest.architecture";
         const provider = config.findCatalogProviderByIOrName(elementId);
         const isSuperUser = provider?.user?.isSuperUser ?? false;
+        if (
+          manifestItem?.minimum_requirements !== undefined &&
+          (manifestItem.minimum_requirements.cpu > 0 ||
+            manifestItem.minimum_requirements.memory > 0 ||
+            manifestItem.minimum_requirements.disk > 0)
+        ) {
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${element.id}%%requirements`,
+              elementId,
+              "Default Configuration",
+              "provider.catalog.manifests.manifest.version.requirements",
+              "Default Configuration",
+              "",
+              "DevOpsCatalogHostProvider",
+              `${context}.requirements`,
+              rolesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+              "info"
+            )
+          );
+        }
         this.data.push(
           new DevOpsTreeItem(
             this.context,
@@ -539,6 +566,122 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 context,
                 vscode.TreeItemCollapsibleState.None,
                 "tags"
+              )
+            );
+          }
+        }
+      }
+
+      return resolve(this.data);
+    });
+  }
+
+  drawProviderManifestVersionRequirements(element: DevOpsTreeItem): Thenable<DevOpsTreeItem[]> {
+    return new Promise(async (resolve, reject) => {
+      this.data = [];
+      if (element && element.type === "provider.catalog.manifests.manifest.version") {
+        const config = Provider.getConfiguration();
+        const elementId = element.id.split("%%")[0];
+        const manifestId = element.id.split("%%")[2];
+        const versionId = element.id.split("%%")[3];
+        const manifest = config.findCatalogProviderManifest(elementId, manifestId);
+        if (manifest) {
+          for (const version of manifest.items.sort((a, b) => a.name.localeCompare(b.name))) {
+            const icon = "info";
+            const tooltip = "Default Configuration";
+            const context = "devops.catalog.manifests.manifest.version.requirements";
+
+            this.data.push(
+              new DevOpsTreeItem(
+                this.context,
+                `${elementId}%%manifests%%${manifestId}%%${version.id}%%requirements`,
+                "",
+                "",
+                "provider.catalog.manifests.manifest.version.requirements",
+                tooltip,
+                "",
+                "DevOpsCatalogHostProvider",
+                context,
+                vscode.TreeItemCollapsibleState.Collapsed,
+                icon,
+                version
+              )
+            );
+          }
+        }
+      }
+
+      return resolve(this.data);
+    });
+  }
+
+  drawProviderManifestVersionRequirementsItems(element: DevOpsTreeItem): Thenable<DevOpsTreeItem[]> {
+    return new Promise(async (resolve, reject) => {
+      this.data = [];
+      if (element && element.type === "provider.catalog.manifests.manifest.version.requirements") {
+        const config = Provider.getConfiguration();
+        const elementId = element.id.split("%%")[0];
+        const manifestId = element.id.split("%%")[2];
+        const versionId = element.id.split("%%")[3];
+        const manifest = config.findCatalogProviderManifest(elementId, manifestId);
+        if (manifest) {
+          for (const version of manifest.items.sort((a, b) => a.name.localeCompare(b.name))) {
+            const icon = "info";
+            const cpuText = version.minimum_requirements?.cpu ? `${version.minimum_requirements?.cpu} cpu cores` : "";
+            const memoryText = version.minimum_requirements?.cpu
+              ? `${Math.round(version.minimum_requirements?.memory / 1024)} Gb ram`
+              : "";
+            const diskSpaceText = version.minimum_requirements?.cpu
+              ? `${Math.round(version.minimum_requirements?.disk / 1024)} Gb disk`
+              : "";
+            const context = "devops.catalog.manifests.manifest.version.requirements.items";
+
+            this.data.push(
+              new DevOpsTreeItem(
+                this.context,
+                `${elementId}%%manifests%%${manifestId}%%${version.id}%%requirements%%cpu`,
+                "",
+                "",
+                "provider.catalog.manifests.manifest.version.requirements.items",
+                cpuText,
+                "",
+                "DevOpsCatalogHostProvider",
+                context,
+                vscode.TreeItemCollapsibleState.None,
+                "remote_hosts_provider_orchestrator_resources_cpu",
+                version
+              )
+            );
+            this.data.push(
+              new DevOpsTreeItem(
+                this.context,
+                `${elementId}%%manifests%%${manifestId}%%${version.id}%%requirements%%memory`,
+                "",
+                "",
+                "provider.catalog.manifests.manifest.version.requirements.items",
+                memoryText,
+                "",
+                "DevOpsCatalogHostProvider",
+                context,
+                vscode.TreeItemCollapsibleState.None,
+                "remote_hosts_provider_orchestrator_resources_memory",
+                version
+              )
+            );
+            this.data.push(
+              new DevOpsTreeItem(
+                this.context,
+                `${elementId}%%manifests%%${manifestId}%%${version.id}%%requirements%%disk`,
+                "",
+                "",
+                "provider.catalog.manifests.manifest.version.requirements.items",
+                diskSpaceText,
+                "",
+                "DevOpsCatalogHostProvider",
+                context,
+                vscode.TreeItemCollapsibleState.None,
+                "remote_hosts_provider_orchestrator_resources_disk",
+                version
               )
             );
           }

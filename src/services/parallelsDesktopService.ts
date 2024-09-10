@@ -15,6 +15,9 @@ import {ParallelsDesktopServerInfo} from "../models/parallels/ParallelsDesktopSe
 import {VirtualMachineRunningInfo} from "../models/parallels/virtualMachineRunningInfo";
 import {TELEMETRY_INSTALL_PARALLELS_DESKTOP} from "../telemetry/operations";
 import {JsonLicense, ParallelsJSONLicense, ParallelsShortLicense} from "../models/parallels/ParallelsJsonLicense";
+import {XMLParser} from "fast-xml-parser";
+import {VirtualMachineConfigPvs} from "../models/parallels/VirtualMachineConfigPvs";
+import {VirtualMachineMetadata} from "../models/parallels/VirtuaMachineMetadata";
 
 export class ParallelsDesktopService {
   static isInstalled(): Promise<boolean> {
@@ -94,6 +97,11 @@ export class ParallelsDesktopService {
                 vm.configuredIpAddress = vmDetails.ip_configured;
               }
 
+              if (await this.vmHasMetadata(vm)) {
+                const metadata = await this.getVmMetadata(vm.ID);
+                vm.Metadata = metadata;
+              }
+
               machineGroup.addVm(vm);
               LogService.debug(`Found vm ${vm.Name} in group ${vm.group}`, "ParallelsDesktopService");
             } else {
@@ -101,6 +109,11 @@ export class ParallelsDesktopService {
               const vmDetails = vmsDetails.find(vmDetail => vmDetail.uuid === vm.ID);
               if (vmDetails !== undefined) {
                 vm.configuredIpAddress = vmDetails.ip_configured;
+              }
+
+              if (await this.vmHasMetadata(vm)) {
+                const metadata = await this.getVmMetadata(vm.ID);
+                vm.Metadata = metadata;
               }
 
               noGroup?.addVm(vm);
@@ -131,6 +144,7 @@ export class ParallelsDesktopService {
   static async getVmPath(vmId: string): Promise<VirtualMachine> {
     return new Promise(async (resolve, reject) => {
       LogService.info(`Getting Vm path`, "ParallelsDesktopService");
+      vmId = `"${vmId}"`;
       const prlctl = cp.spawn("prlctl", ["list", vmId, "-a", "-i", "--json"], {shell: true});
       let stdOut = "";
       prlctl.stdout.on("data", data => {
@@ -1365,6 +1379,117 @@ export class ParallelsDesktopService {
           });
         } catch (e) {
           LogService.error(`prlsrvctl info: ${e}`, "ParallelsDesktopService");
+          return reject(e);
+        }
+      });
+    });
+  }
+
+  static async getVmConfig(vmId: string): Promise<VirtualMachineConfigPvs> {
+    return new Promise(async (resolve, reject) => {
+      LogService.info(`Getting config for Virtual Machine ${vmId}`, "ParallelsDesktopService");
+      const vm = await this.getVmPath(vmId);
+      if (!vm || vm["Home path"] == "") {
+        return reject("vm not found");
+      }
+
+      //Loading the config file content from config.pvs
+      const configPath = path.join(vm["Home path"]);
+      return await this.getVmConfigFromPath(configPath);
+    });
+  }
+
+  static async getVmConfigFromPath(filePath: string): Promise<VirtualMachineConfigPvs> {
+    return new Promise(async (resolve, reject) => {
+      LogService.info(`Getting config from path ${filePath}`, "ParallelsDesktopService");
+      if (!filePath) {
+        return reject("path is empty");
+      }
+      if (!filePath.endsWith("config.pvs")) {
+        filePath = path.join(filePath, "config.pvs");
+      }
+
+      if (!fs.existsSync(filePath)) {
+        return reject("path does not exist");
+      }
+
+      //Loading the config file content from config.pvs
+      fs.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+          LogService.error(`Error reading config file: ${err}`, "ParallelsDesktopService");
+          return reject(err);
+        }
+
+        try {
+          const options = {
+            ignoreAttributes: false,
+            allowBooleanAttributes: true,
+            attributeNamePrefix: "@_"
+          };
+          const parser = new XMLParser(options);
+          const machineConfig: VirtualMachineConfigPvs = parser.parse(data);
+          return resolve(machineConfig);
+        } catch (e) {
+          LogService.error(`Error parsing config file: ${e}`, "ParallelsDesktopService");
+          return reject(e);
+        }
+      });
+    });
+  }
+
+  static async vmHasMetadata(vm: VirtualMachine): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      if (!vm) {
+        LogService.error(`vm is empty`, "ParallelsDesktopService");
+        return reject("vm is empty");
+      }
+
+      LogService.info(`Checking if Virtual Machine ${vm.ID} has metadata`, "ParallelsDesktopService");
+      //Loading the config file content from .metadata.json
+      const configPath = path.join(vm["Home"], ".metadata.json");
+      return resolve(fs.existsSync(configPath));
+    });
+  }
+  static async getVmMetadata(vmId: string): Promise<VirtualMachineMetadata> {
+    return new Promise(async (resolve, reject) => {
+      LogService.info(`Getting metadata for Virtual Machine ${vmId}`, "ParallelsDesktopService");
+      const vm = await this.getVmPath(vmId);
+      if (!vm || vm["Home path"] == "") {
+        return reject("vm not found");
+      }
+
+      //Loading the config file content from .metadata.json
+      const configPath = path.join(vm["Home path"]);
+      return await this.getVmConfigFromPath(configPath);
+    });
+  }
+
+  static async getVmMetadataFromPath(filePath: string): Promise<VirtualMachineMetadata> {
+    return new Promise(async (resolve, reject) => {
+      LogService.info(`Getting metadata from path ${filePath}`, "ParallelsDesktopService");
+      if (!filePath) {
+        return reject("path is empty");
+      }
+      if (!filePath.endsWith(".metadata.json")) {
+        filePath = path.join(filePath, ".metadata.json");
+      }
+
+      if (!fs.existsSync(filePath)) {
+        return reject("path does not exist");
+      }
+
+      //Loading the config file content from .metadata.json
+      fs.readFile(filePath, "utf8", (err, data) => {
+        if (err) {
+          LogService.error(`Error reading metadata file: ${err}`, "ParallelsDesktopService");
+          return reject(err);
+        }
+
+        try {
+          const vmMetadata: VirtualMachineMetadata = JSON.parse(data);
+          return resolve(vmMetadata);
+        } catch (e) {
+          LogService.error(`Error parsing metadata file file: ${e}`, "ParallelsDesktopService");
           return reject(e);
         }
       });

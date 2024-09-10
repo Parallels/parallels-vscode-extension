@@ -41,6 +41,14 @@ let autoRefreshInterval: NodeJS.Timeout | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
   console.log("Activating Parallels Desktop Extension");
+
+  // Register the command that activates the extension
+  const disposable = vscode.commands.registerCommand("parallels-desktop.openView", () => {
+    // This will trigger when the icon is clicked
+    vscode.window.showInformationMessage("Parallels Desktop init!");
+  });
+  context.subscriptions.push(disposable);
+
   const provider = new Provider(context);
   const os = Provider.getOs();
   vscode.commands.executeCommand("setContext", FLAG_OS, os);

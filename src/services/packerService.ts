@@ -454,6 +454,14 @@ export class PackerService {
       const config = Provider.getConfiguration();
       let missingTools = false;
       if (!config.tools.packer.isInstalled) {
+        // Rechecking if anything changed
+        if (await PackerService.isInstalled()) {
+          // it did change, reinit packer
+          await config.initPacker();
+        }
+      }
+
+      if (!config.tools.packer.isInstalled) {
         missingTools = true;
         const options: string[] = [];
         if (config.tools.brew.isInstalled) {

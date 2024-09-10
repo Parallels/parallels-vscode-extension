@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.2.21",
+    "version": "1.2.25",
     "engines": {
         "vscode": "^1.90.0"
     },
@@ -35,7 +35,10 @@
     ],
     "homepage": "https://parallels.com",
     "main": "./dist/extension.js",
-    "activationEvents": [],
+    "activationEvents": [
+        "onViewContainer:parallels-desktop",
+        "onCommand:parallels-desktop.openView"
+    ],
     "contributes": {
         "chatParticipants": [
             {
@@ -146,6 +149,10 @@
             }
         },
         "commands": [
+            {
+                "command": "parallels-desktop.openView",
+                "title": "Activate Parallels Desktop"
+            },
             {
                 "command": "parallels-desktop.tree-view.add-vm",
                 "title": "Parallels Desktop: Add VM",
@@ -960,7 +967,8 @@
                 {
                     "id": "parallels-desktop",
                     "title": "Parallels Desktop",
-                    "icon": "img/logo/parallels_logo.svg"
+                    "icon": "img/logo/parallels_logo.svg",
+                    "command": "parallels-desktop.openView"
                 }
             ]
         },
@@ -1352,7 +1360,7 @@
                 },
                 {
                     "command": "parallels-desktop.parallels-catalog.force-refresh",
-                    "when": "view == parallels-desktop-catalog && parallels-desktop:parallels-catalog-has-tree-items == true",
+                    "when": "view == parallels-desktop-catalog && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true",
                     "group": "navigation@0"
                 }
             ],
@@ -1907,6 +1915,7 @@
         "axios": "^1.4.0",
         "clipboardy": "^4.0.0",
         "clipboardy-ts": "^1.0.0",
+        "fast-xml-parser": "^4.5.0",
         "jwt-decode": "^4.0.0",
         "tailwindcss": "^3.3.2",
         "uuid": "^9.0.0"
