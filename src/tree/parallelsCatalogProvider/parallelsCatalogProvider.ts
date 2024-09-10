@@ -264,11 +264,11 @@ export class ParallelsCatalogProvider implements vscode.TreeDataProvider<DevOpsT
                   version.minimum_requirements?.memory / 1024 > 1 ? "s" : ""
                 } RAM`
               : "";
-            const diskSpaceText = version.minimum_requirements?.disk
-              ? `${Math.round(version.minimum_requirements?.disk / 1024)} GB${
-                  version.minimum_requirements?.disk / 1024 > 1 ? "s" : ""
-                } disk`
-              : "";
+            // const diskSpaceText = version.minimum_requirements?.disk
+            //   ? `${Math.round(version.minimum_requirements?.disk / 1024)} GB${
+            //       version.minimum_requirements?.disk / 1024 > 1 ? "s" : ""
+            //     } disk`
+            //   : "";
             const context = "devops.catalog.manifests.manifest.version.requirements.items";
 
             this.data.push(
@@ -303,22 +303,22 @@ export class ParallelsCatalogProvider implements vscode.TreeDataProvider<DevOpsT
                 version
               )
             );
-            this.data.push(
-              new DevOpsTreeItem(
-                this.context,
-                `${elementId}%%manifests%%${manifestId}%%${version.id}%%requirements%%disk`,
-                "",
-                "",
-                "provider.catalog.manifests.manifest.version.requirements.items",
-                diskSpaceText,
-                "",
-                "DevOpsCatalogHostProvider",
-                context,
-                vscode.TreeItemCollapsibleState.None,
-                "remote_hosts_provider_orchestrator_resources_disk",
-                version
-              )
-            );
+            // this.data.push(
+            //   new DevOpsTreeItem(
+            //     this.context,
+            //     `${elementId}%%manifests%%${manifestId}%%${version.id}%%requirements%%disk`,
+            //     "",
+            //     "",
+            //     "provider.catalog.manifests.manifest.version.requirements.items",
+            //     diskSpaceText,
+            //     "",
+            //     "DevOpsCatalogHostProvider",
+            //     context,
+            //     vscode.TreeItemCollapsibleState.None,
+            //     "remote_hosts_provider_orchestrator_resources_disk",
+            //     version
+            //   )
+            // );
           }
         }
       }
