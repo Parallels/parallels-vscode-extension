@@ -415,7 +415,20 @@ export class DevOpsService {
 
     for (const provider of providers) {
       if (provider.state === "inactive") {
-        continue;
+        LogService.info(
+          `Parallels Catalog provider ${provider.name} is inactive, retrying connection`,
+          "DevOpsService"
+        );
+        const result = await DevOpsService.testHost(provider);
+        if (!result) {
+          LogService.info(
+            `Parallels Catalog provider ${provider.name} is still inactive after refresh`,
+            "DevOpsService"
+          );
+          continue;
+        } else {
+          provider.state = "active";
+        }
       }
 
       if (
@@ -563,7 +576,14 @@ export class DevOpsService {
     const provider = config.parallelsCatalogProvider;
     let hasUpdate = false;
     if (provider.state === "inactive") {
-      return;
+      LogService.info(`Parallels Catalog provider ${provider.name} is inactive, retrying connection`, "DevOpsService");
+      const result = await DevOpsService.testHost(provider);
+      if (!result) {
+        LogService.info(`Parallels Catalog provider ${provider.name} is still inactive after refresh`, "DevOpsService");
+        return;
+      } else {
+        provider.state = "active";
+      }
     }
 
     const manifests = await this.getCatalogManifests(provider).catch(err => {
@@ -595,7 +615,20 @@ export class DevOpsService {
     const providers = config.allRemoteHostProviders;
     for (const provider of providers) {
       if (provider.state === "inactive") {
-        continue;
+        LogService.info(
+          `Parallels Catalog provider ${provider.name} is inactive, retrying connection`,
+          "DevOpsService"
+        );
+        const result = await DevOpsService.testHost(provider);
+        if (!result) {
+          LogService.info(
+            `Parallels Catalog provider ${provider.name} is still inactive after refresh`,
+            "DevOpsService"
+          );
+          continue;
+        } else {
+          provider.state = "active";
+        }
       }
 
       let hasUpdate = false;
@@ -916,6 +949,7 @@ export class DevOpsService {
         });
 
       if (response?.status !== 200) {
+        LogService.error(`Error testing host ${url}, err: ${response?.statusText}`, "DevOpsService");
         return reject(response?.statusText);
       }
 
@@ -925,10 +959,12 @@ export class DevOpsService {
         })
         .catch(err => {
           error = err;
+          LogService.error(`Error authorizing host ${url}, err: ${err}`, "DevOpsService");
           return reject(err);
         });
 
       if (response?.status !== 200) {
+        LogService.error(`Error testing host ${url}, err: ${response?.statusText}`, "DevOpsService");
         return reject(response?.statusText);
       }
 
@@ -2095,6 +2131,10 @@ ${request.required_claims?.length > 0 ? `CLAIM ${request.required_claims.join(",
 ${request.required_roles?.length > 0 ? `ROLE ${request.required_roles.join(",")}` : ""}
 ${request.tags?.length > 0 ? `TAG ${request.tags.join(",")}` : ""}
 ${request.description ? `DESCRIPTION ${request.description}` : ""}
+${request.specs.cpu > 0 ? `MINIMUM_REQUIREMENT CPU ${request.specs?.cpu}` : ""}
+${request.specs.memory > 0 ? `MINIMUM_REQUIREMENT MEMORY ${request.specs?.memory}` : ""}
+${request.specs.disk > 0 ? `MINIMUM_REQUIREMENT DISK ${request.specs?.disk}` : ""}
+
 
 LOCAL_PATH ${request.local_path}
 `;
@@ -2159,6 +2199,7 @@ LOCAL_PATH ${request.local_path}
         return reject(err);
       });
 
+      const errorMessages: string[] = [];
       let totalDownloaded = 0;
       if (!path) {
         return reject("Error generating pull file");
@@ -2169,6 +2210,28 @@ LOCAL_PATH ${request.local_path}
       cmd.stdout.on("data", data => {
         const lines: string[] = (data.toString() as string).split("\n");
         for (const line of lines) {
+          // logging error messages
+          const linesToAdd: string[] = [];
+          if (line.toLowerCase().startsWith("error")) {
+            const subLines = line.split(":");
+            if (subLines.length > 1) {
+              const subLine = subLines[1];
+              if (subLine == undefined || subLine === "") {
+                continue;
+              }
+              linesToAdd.push(subLine.trim());
+            } else {
+              linesToAdd.push(line.trim());
+            }
+
+            for (const errorLine of linesToAdd) {
+              if (errorLine == undefined || errorLine === "") {
+                continue;
+              }
+              errorMessages.push(errorLine.trim());
+            }
+          }
+          // collecting special progress messages
           if (line.startsWith("\r\x1b[K\r")) {
             const subLines = line.split("\r\x1b[K\r");
             for (const subLine of subLines) {
@@ -2214,6 +2277,9 @@ LOCAL_PATH ${request.local_path}
         // fs.unlinkSync(path);
         if (code !== 0) {
           LogService.error(`prldevops pull exited with code ${code}`, "DevOpsService");
+          if (errorMessages.length > 0) {
+            return reject(errorMessages.join("\n"));
+          }
           return reject(`prldevops pull exited with code ${code}`);
         }
         LogService.info(`Manifest ${request.catalog_id} pulled from provider ${provider.name}`, "DevOpsService");

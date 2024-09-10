@@ -92,6 +92,7 @@ export class TelemetryService {
     }
 
     if (os.toLowerCase() === "darwin") {
+      const os_version = config.parallelsDesktopServerInfo?.OS ?? "Unknown";
       let license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
       let licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
       let isTrial = "Unknown";
@@ -158,6 +159,13 @@ export class TelemetryService {
         if (this.pd_version != pd_version) {
           this.pd_version = pd_version;
         }
+      }
+
+      if (os_version) {
+        event.properties.push({
+          name: "os_version",
+          value: os_version
+        });
       }
     } else {
       event.properties.push({

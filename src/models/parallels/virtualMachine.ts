@@ -18,6 +18,7 @@ import {VirtualMachineTravelMode} from "./VirtualMachineTravelMode";
 import {VirtualMachineUSBAndBluetooth} from "./VirtualMachineUSBAndBluetooth";
 import {DockerContainer} from "../docker/dockerContainer";
 import {DockerImage} from "../docker/dockerImage";
+import {VirtualMachineMetadata} from "./VirtuaMachineMetadata";
 
 export interface VirtualMachine {
   ID: string;
@@ -66,4 +67,5 @@ export interface VirtualMachine {
   SmartMount: VirtualMachineSmartMount;
   "Miscellaneous Sharing": VirtualMachineMiscellaneousSharing;
   Advanced: VirtualMachineAdvancedConfig;
+  Metadata?: VirtualMachineMetadata;
 }

@@ -15,6 +15,8 @@ import {cleanString} from "../../../helpers/strings";
 import {DevOpsRolesAndClaims} from "../../../models/devops/rolesAndClaims";
 import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
 import {ShowErrorMessage} from "../../../helpers/error";
+import {cp} from "fs";
+import path from "path";
 
 const registerDevOpsPushVmToCatalogProviderManifestCommand = (
   context: vscode.ExtensionContext,
@@ -111,6 +113,11 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
           return;
         }
         let machinePath = "";
+        const specs = {
+          cpu: 0,
+          memory: 0,
+          disk: 0
+        };
 
         if (selectedVm.label === "Local Virtual Machine") {
           const vmPath = await vscode.window.showOpenDialog({
@@ -128,11 +135,21 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
           }
 
           machinePath = vmPath[0].fsPath;
+          const machineConfig = await ParallelsDesktopService.getVmConfigFromPath(path.join(machinePath, "config.pvs"));
+          if (machineConfig) {
+            specs.cpu = machineConfig.ParallelsVirtualMachine.Hardware.Cpu.Number;
+            specs.memory = machineConfig.ParallelsVirtualMachine.Hardware.Memory.RAM;
+            specs.disk = machineConfig.ParallelsVirtualMachine.Hardware.Hdd.Size;
+          }
         } else {
           const vm = await ParallelsDesktopService.getVmPath(selectedVm.detail?.toString() ?? "");
           machinePath = vm.Home;
           machinePath = machinePath.slice(0, machinePath.lastIndexOf("/"));
+          specs.cpu = vm.Hardware.cpu.cpus;
+          specs.memory = Number.parseInt(vm.Hardware.memory.size);
+          specs.disk = Number.parseInt(vm.Hardware.hdd0.size);
         }
+
         let catalogId = await vscode.window.showInputBox({
           placeHolder: "Enter the catalog id",
           ignoreFocusOut: true
@@ -241,7 +258,12 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
           local_path: machinePath,
           required_roles: selectedRoles?.map(r => r.label) ?? [],
           required_claims: selectedClaims?.map(c => c.label) ?? [],
-          tags: tags
+          tags: tags,
+          specs: {
+            cpu: specs.cpu,
+            memory: specs.memory,
+            disk: specs.disk
+          }
         };
 
         if (request.required_roles.length === 0) {

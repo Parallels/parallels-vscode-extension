@@ -32,6 +32,7 @@ export interface CatalogManifest {
   last_downloaded_at?: string;
   last_downloaded_user?: string;
   download_count?: number;
+  minimum_requirements?: MinimumSpecsRequirements;
 }
 
 export interface PackContent {
@@ -52,4 +53,10 @@ export interface Meta {
   bucket: string;
   region: string;
   secret_key: string;
+}
+
+export interface MinimumSpecsRequirements {
+  cpu: number;
+  memory: number;
+  disk: number;
 }

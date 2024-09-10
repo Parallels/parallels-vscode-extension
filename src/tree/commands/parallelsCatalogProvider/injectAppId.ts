@@ -1,9 +1,11 @@
+import {VirtualMachineMetadata} from "../../../models/parallels/VirtuaMachineMetadata";
 import {Provider} from "../../../ioc/provider";
 import {ConfigurationService} from "../../../services/configurationService";
 import {LogService} from "../../../services/logService";
 import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
+import fs from "fs";
 
-export async function injectAppId(catalogId: string, machineId: string): Promise<boolean> {
+export async function injectAppId(providerHost: string, catalogId: string, machineId: string): Promise<boolean> {
   if (!machineId) {
     return false;
   }
@@ -29,41 +31,77 @@ export async function injectAppId(catalogId: string, machineId: string): Promise
   }
   appId = `${appId}::${catalogId}`;
 
-  // awaiting for the status to be reported
-  let retry = 40;
-  while (true) {
-    const result = await ParallelsDesktopService.getVmStatus(machineId);
-    let foundError = false;
-    if (result === "running") {
-      let ready = true;
-      ParallelsDesktopService.executeOnVm(machineId, `echo ehlo`).catch(() => {
-        ready = false;
-        foundError = true;
-      });
-      if (ready) {
-        await ParallelsDesktopService.executeOnVm(machineId, `echo "${appId}" > /home/.parallels_app_id`).catch(() => {
-          foundError = true;
-        });
+  try {
+    const vm = await ParallelsDesktopService.getVmPath(machineId);
+    if (!vm) {
+      LogService.error(`Virtual machine ${machineId} not found`, "ParallelsCatalogProvider");
+      return false;
+    }
+    if (fs.existsSync(vm.Home)) {
+      const metadata: VirtualMachineMetadata = {
+        Data: [
+          {
+            Key: "appId",
+            Value: appId
+          },
+          {
+            Key: "catalogId",
+            Value: catalogId
+          },
+          {
+            Key: "origin",
+            Value: "vscode"
+          },
+          {
+            Key: "providerHost",
+            Value: providerHost
+          }
+        ]
+      };
+      fs.writeFileSync(`${vm.Home}/.metadata.json`, JSON.stringify(metadata));
+    }
 
-        await ParallelsDesktopService.executeOnVm(machineId, `chmod 0777 /home/.parallels_app_id`).catch(reject => {
+    // awaiting for the status to be reported
+    let retry = 40;
+    while (true) {
+      const result = await ParallelsDesktopService.getVmStatus(machineId);
+      let foundError = false;
+      if (result === "running") {
+        let ready = true;
+        ParallelsDesktopService.executeOnVm(machineId, `echo ehlo`).catch(() => {
+          ready = false;
           foundError = true;
         });
+        if (ready) {
+          await ParallelsDesktopService.executeOnVm(machineId, `echo "${appId}" > /home/.parallels_app_id`).catch(
+            () => {
+              foundError = true;
+            }
+          );
+
+          await ParallelsDesktopService.executeOnVm(machineId, `chmod 0777 /home/.parallels_app_id`).catch(reject => {
+            foundError = true;
+          });
+        }
+
+        if (!foundError) {
+          break;
+        }
       }
 
-      if (!foundError) {
+      if (retry === 0) {
+        LogService.error(
+          `Virtual machine ${machineId} is not running, we were unable to inject the machineId`,
+          "ParallelsCatalogProvider"
+        );
         break;
       }
+      retry--;
     }
 
-    if (retry === 0) {
-      LogService.error(
-        `Virtual machine ${machineId} is not running, we were unable to inject the machineId`,
-        "ParallelsCatalogProvider"
-      );
-      break;
-    }
-    retry--;
+    return true;
+  } catch (error) {
+    LogService.error(`Error injecting appId into virtual machine ${machineId}`);
+    return false;
   }
-
-  return true;
 }

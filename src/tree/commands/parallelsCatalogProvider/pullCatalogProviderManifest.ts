@@ -182,7 +182,9 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
             LogService.error(`Error pulling manifest from provider ${provider.name}`, error);
             ShowErrorMessage(
               TELEMETRY_PARALLELS_CATALOG,
-              `Error pulling manifest from provider ${provider.name}`,
+              `Error pulling ${manifest?.description ?? manifest?.name} from ${provider.name}, ${
+                error != undefined && error != "" ? `error: ${error}` : ""
+              }`,
               true
             );
             foundError = true;
@@ -197,7 +199,7 @@ const registerParallelsCatalogPullCatalogManifestCommand = (
           progress.report({
             message: `Starting the virtual machine ${machineName}`
           });
-          if (!(await injectAppId(`${manifestId}_${version}`, request.machine_name))) {
+          if (!(await injectAppId(provider.host ?? "Unknown", `${manifestId}_${version}`, request.machine_name))) {
             ShowErrorMessage(TELEMETRY_PARALLELS_CATALOG, `Error starting the virtual machine`, true);
             config.removeFromDownloadCatalogs(item.id);
             return;

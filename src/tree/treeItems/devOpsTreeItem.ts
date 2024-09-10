@@ -15,6 +15,8 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "provider.catalog.manifests"
       | "provider.catalog.manifests.manifest"
       | "provider.catalog.manifests.manifest.version"
+      | "provider.catalog.manifests.manifest.version.requirements"
+      | "provider.catalog.manifests.manifest.version.requirements.items"
       | "provider.catalog.manifests.manifest.architecture"
       | "provider.catalog.manifests.manifest.architecture.roles"
       | "provider.catalog.manifests.manifest.architecture.role"
