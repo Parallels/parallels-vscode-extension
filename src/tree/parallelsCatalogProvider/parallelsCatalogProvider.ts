@@ -256,12 +256,18 @@ export class ParallelsCatalogProvider implements vscode.TreeDataProvider<DevOpsT
         if (manifest) {
           for (const version of manifest.items.sort((a, b) => a.name.localeCompare(b.name))) {
             const icon = "info";
-            const cpuText = version.minimum_requirements?.cpu ? `${version.minimum_requirements?.cpu} cpu cores` : "";
-            const memoryText = version.minimum_requirements?.cpu
-              ? `${Math.round(version.minimum_requirements?.memory / 1024)} Gb ram`
+            const cpuText = version.minimum_requirements?.cpu
+              ? `${version.minimum_requirements?.cpu} CPU core${version.minimum_requirements?.cpu > 1 ? "s" : ""}`
               : "";
-            const diskSpaceText = version.minimum_requirements?.cpu
-              ? `${Math.round(version.minimum_requirements?.disk / 1024)} Gb disk`
+            const memoryText = version.minimum_requirements?.memory
+              ? `${Math.round(version.minimum_requirements?.memory / 1024)} GB${
+                  version.minimum_requirements?.memory / 1024 > 1 ? "s" : ""
+                } RAM`
+              : "";
+            const diskSpaceText = version.minimum_requirements?.disk
+              ? `${Math.round(version.minimum_requirements?.disk / 1024)} GB${
+                  version.minimum_requirements?.disk / 1024 > 1 ? "s" : ""
+                } disk`
               : "";
             const context = "devops.catalog.manifests.manifest.version.requirements.items";
 

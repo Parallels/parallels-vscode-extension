@@ -415,20 +415,7 @@ export class DevOpsService {
 
     for (const provider of providers) {
       if (provider.state === "inactive") {
-        LogService.info(
-          `Parallels Catalog provider ${provider.name} is inactive, retrying connection`,
-          "DevOpsService"
-        );
-        const result = await DevOpsService.testHost(provider);
-        if (!result) {
-          LogService.info(
-            `Parallels Catalog provider ${provider.name} is still inactive after refresh`,
-            "DevOpsService"
-          );
-          continue;
-        } else {
-          provider.state = "active";
-        }
+        continue;
       }
 
       if (
