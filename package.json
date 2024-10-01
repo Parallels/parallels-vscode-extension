@@ -8,7 +8,7 @@
         "url": "https://github.com/Parallels/parallels-vscode-extension"
     },
     "icon": "img/logo/parallels_logo.png",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "engines": {
         "vscode": "^1.90.0"
     },

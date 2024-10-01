@@ -1,4 +1,4 @@
-export const VERSION = "1.3.3";
+export const VERSION = "1.3.4";
 export const FLAG_NO_GROUP = "no_group";
 export const FLAG_OS = "parallels-desktop:os";
 export const FLAG_CONFIGURATION = "parallels.configuration";
