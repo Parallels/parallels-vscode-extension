@@ -84,7 +84,7 @@ const registerDevOpsManagementProviderAddUserCommand = (
         ShowErrorMessage(providerName, `User Password needs to be at least 12 characters long`);
         return;
       }
-      if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/)) {
+      if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&\-_])[A-Za-z\d@$!%*\-_?&]{12,}$/)) {
         ShowErrorMessage(
           providerName,
           `User Password needs to have at least one uppercase, one lowercase, one number and one special character`
