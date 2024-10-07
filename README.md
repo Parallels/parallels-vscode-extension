@@ -9,8 +9,8 @@ This extension allows you to manage a wide range of operations for your Parallel
 
 ## Install
 
-You can install the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ParallelsDesktop.parallels-desktop), directly from Visual Studio Code or by pressing bellow.  
-<a href="vscode:extension/ParallelsDesktop.parallels-desktop" style='position: relative;font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;-webkit-font-smoothing: antialiased;font-size: 14px;font-weight: 400;box-sizing: border-box;display: inline-block;text-align: center;cursor: pointer;vertical-align: top;padding-top: 0px;padding-right: 16px;padding-bottom: 0px;padding-left: 16px;background-color: #107c10;color: #FFFFFF;min-width: 120px;border: 1px solid #666666;' data-is-focusable="true"><div class="ms-Button-flexContainer flexContainer-40"><div class="ms-Button-textContainer textContainer-41"><div class="ms-Button-label label-43" id="id__0">Install in Visual Studio Code</div></div></div></a>
+You can install the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ParallelsDesktop.parallels-desktop), directly from Visual Studio Code or by pressing here.  
+[![Install](https://img.shields.io/badge/install-Parallels%20Desktop%20Extension-blue?logo=vscode-square&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=ParallelsDesktop.parallels-desktop)
 
 ## Community
 
