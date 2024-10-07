@@ -1,11 +1,16 @@
 # Visual Studio Code extension for Parallels Desktop
 
-[![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml) [![](https://dcbadge.vercel.app/api/server/n5XVf3Wr6G?style=flat&theme=default)](https://discord.gg/n5XVf3Wr6G)
+[![vscode-installs](https://img.shields.io/vscode-marketplace/i/ParallelsDesktop.parallels-desktop?label=Visual%20Studio%20Code%20Installs)](https://marketplace.visualstudio.com/items?itemName=ParallelsDesktop.parallels-desktop) [![Build](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Parallels/parallels-vscode-extension/actions/workflows/build.yml) [![](https://dcbadge.vercel.app/api/server/n5XVf3Wr6G?style=flat&theme=default)](https://discord.gg/n5XVf3Wr6G)
 
 This extension allows you to manage a wide range of operations for your Parallels Desktop virtual machines, creating, grouping, operating their snapshots and containers. It is integrated with HashiCorp Vagrant and Packer to automate your workflows.
 
 > **Attention** For some of the functionalities to work, you need to have Parallels Desktop Pro or Business Edition installed on your Mac.
 >
+
+## Install
+
+You can install the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=ParallelsDesktop.parallels-desktop), directly from Visual Studio Code or by pressing here.  
+[![Install](https://img.shields.io/badge/install-Parallels%20Desktop%20Extension-blue?logo=vscode-square&logoColor=white)](vscode:extension/ParallelsDesktop.parallels-desktop)
 
 ## Community
 
@@ -17,13 +22,13 @@ your experience, and get help from the community.
 
 ### Grouping Virtual Machines
 
-Groups allow a better management of your virtual machines list, you can create groups, rename them, start/stop all machines in a group and create group snapshots. 
+Groups allow a better management of your virtual machines list, you can create groups, rename them, start/stop all machines in a group and create group snapshots.
 
 Main features:
 
 * Create groups of your virtual machines
 * Create group snapshots
-* Start, stop, pause, suspend all virtual machines in the group 
+* Start, stop, pause, suspend all virtual machines in the group
 * Visual Cue for machines state in groups
 
 ![grouping](docs/feature_groups.gif)
