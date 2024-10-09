@@ -9,6 +9,7 @@ import {DevOpsCatalogHostProvider} from "../../../models/devops/catalogHostProvi
 import {cleanString} from "../../../helpers/strings";
 import {ShowErrorMessage} from "../../../helpers/error";
 import {TELEMETRY_DEVOPS_CATALOG} from "../../../telemetry/operations";
+import {randomUUID} from "crypto";
 
 const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContext, provider: DevOpsCatalogProvider) => {
   context.subscriptions.push(
@@ -41,7 +42,7 @@ const registerDevOpsAddCatalogProviderCommand = (context: vscode.ExtensionContex
 
       const catalogHostProvider: DevOpsCatalogHostProvider = {
         class: "DevOpsCatalogHostProvider",
-        ID: cleanString(name),
+        ID: `${cleanString(name)}_${cleanString(randomUUID())}`,
         rawHost: host ?? "",
         name: name ?? "",
         username: "",

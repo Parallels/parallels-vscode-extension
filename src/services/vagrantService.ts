@@ -74,13 +74,13 @@ export class VagrantService {
         return resolve(isInstalled);
       }
 
-      if (settings.get<string>(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS)) {
-        const isInstalled = cache.get(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS) === "true";
+      if (settings.get<boolean>(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS)) {
+        const isInstalled = settings.get<boolean>(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS);
         LogService.info(
           `Vagrant Plugin ${isInstalled ? "is installed" : "is not installed"} from settings`,
           "VagrantService"
         );
-        return resolve(isInstalled);
+        return resolve(isInstalled ?? false);
       }
 
       cp.exec("vagrant plugin list", (err, stdout) => {
@@ -182,7 +182,7 @@ export class VagrantService {
                       return resolve(false);
                     });
                     if (config.tools.vagrant?.isInstalled) {
-                      const vagrantBoxProvider = new VagrantBoxProvider(context);
+                      new VagrantBoxProvider(context);
                     }
                     return resolve(true);
                   } catch (error) {
@@ -230,6 +230,8 @@ export class VagrantService {
         }
 
         LogService.info(`Successfully installed vagrant parallels plugin `, "VagrantService");
+        const settings = Provider.getSettings();
+        settings.update(FLAG_VAGRANT_PARALLELS_PLUGIN_EXISTS, true, true);
         return resolve(true);
       });
     });

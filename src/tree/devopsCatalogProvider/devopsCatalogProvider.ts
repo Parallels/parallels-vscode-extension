@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import {FLAG_DEVOPS_CATALOG_HAS_ITEMS} from "../../constants/flags";
+import {CommandsFlags, FLAG_DEVOPS_CATALOG_HAS_ITEMS} from "../../constants/flags";
 
 import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
 import {AllDevOpsCatalogCommands} from "../commands/AllCommands";
@@ -16,17 +16,29 @@ import {
   drawManagementInfoSubItems
 } from "../devopsRemoteHostManagement/devopsManagementProvider";
 import {cleanString} from "../../helpers/strings";
+import {LogService} from "../../services/logService";
 
 export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
   context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
+    AllDevOpsCatalogCommands.forEach(c => c.register(context, this));
     this.context = context;
     const view = vscode.window.createTreeView("parallels-desktop-remote-catalog", {
       treeDataProvider: this,
       showCollapseAll: true,
-      canSelectMany: true
+      canSelectMany: false
+    });
+    view.onDidChangeVisibility(e => {
+      if (e.visible) {
+        LogService.info("Starting Catalog View Auto Refresh", "DevOpsCatalogProvider");
+        vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+        DevOpsService.startCatalogViewAutoRefresh();
+      } else {
+        LogService.info("Stopping Catalog View Auto Refresh", "DevOpsCatalogProvider");
+        DevOpsService.stopCatalogViewAutoRefresh();
+      }
     });
 
     const config = Provider.getConfiguration();
@@ -40,8 +52,6 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
     }
 
     context.subscriptions.push(view);
-
-    AllDevOpsCatalogCommands.forEach(c => c.register(context, this));
   }
 
   getTreeItem(element: DevOpsTreeItem): vscode.TreeItem {

@@ -9,6 +9,7 @@ import {DevOpsRemoteHostProvider} from "../../../models/devops/remoteHostProvide
 import {cleanString} from "../../../helpers/strings";
 import {TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
 import {ShowErrorMessage} from "../../../helpers/error";
+import {randomUUID} from "crypto";
 
 const registerDevOpsAddRemoteProviderCommand = (
   context: vscode.ExtensionContext,
@@ -61,7 +62,7 @@ const registerDevOpsAddRemoteProviderCommand = (
 
       const remoteHostProvider: DevOpsRemoteHostProvider = {
         class: "DevOpsRemoteHostProvider",
-        ID: cleanString(name),
+        ID: `${cleanString(name)}_${cleanString(randomUUID())}`,
         type: type === currentItems[0].label ? "orchestrator" : "remote_host",
         rawHost: host ?? "",
         name: name ?? "",

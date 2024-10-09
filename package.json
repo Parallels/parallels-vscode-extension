@@ -36,8 +36,7 @@
     "homepage": "https://parallels.com",
     "main": "./dist/extension.js",
     "activationEvents": [
-        "onViewContainer:parallels-desktop",
-        "onCommand:parallels-desktop.openView"
+        "onStartupFinished"
     ],
     "contributes": {
         "chatParticipants": [
@@ -988,12 +987,12 @@
             "parallels-desktop.add": [
                 {
                     "command": "parallels-desktop.tree-view.add-vm",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:initialized",
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:initialized",
                     "group": "navigation@0"
                 },
                 {
                     "command": "parallels-desktop.tree-view.add-group",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:initialized"
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:initialized"
                 }
             ],
             "commandPalette": [
@@ -1301,31 +1300,31 @@
             "view/title": [
                 {
                     "command": "parallels-desktop.tree-view.refresh-vms",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:initialized",
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:initialized",
                     "group": "navigation@1"
                 },
                 {
                     "submenu": "parallels-desktop.add",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:initialized",
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:initialized",
                     "group": "navigation@10"
                 },
                 {
                     "command": "parallels-desktop.core.enable-show-hidden-items",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:disableShowHidden && parallels-desktop:initialized",
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:disableShowHidden && parallels-desktop:initialized",
                     "group": "navigation@2"
                 },
                 {
                     "command": "parallels-desktop.core.disable-show-hidden-items",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:enableShowHidden && parallels-desktop:initialized",
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:enableShowHidden && parallels-desktop:initialized",
                     "group": "navigation@2"
                 },
                 {
                     "command": "parallels-desktop.tree-view.add-group",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:initialized"
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:initialized"
                 },
                 {
                     "command": "parallels-desktop.vagrant.box.provider.refresh",
-                    "when": "view == parallels-desktop-machines-vagrant && parallels-desktop:initialized && vagrant.initialized === true",
+                    "when": "view == parallels-desktop-my-machines-vagrant && parallels-desktop:initialized && vagrant.initialized === true",
                     "group": "navigation@0"
                 },
                 {
@@ -1367,128 +1366,128 @@
             "view/item/context": [
                 {
                     "command": "parallels-desktop.tree-view.take-vm-snapshot",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!macosx)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\..*/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.(?!macosx)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\..*/",
                     "group": "inline@19"
                 },
                 {
                     "command": "parallels-desktop.tree-view.clone-vm",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
                     "group": "inline@20"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-vm",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-headless-vm",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:headless-by-default === false && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/"
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:headless-by-default === false && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-window-vm",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:headless-by-default ===true&& viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/"
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:headless-by-default ===true&& viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/"
                 },
                 {
                     "command": "parallels-desktop.tree-view.enable-rosetta-linux",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!win-11)(?!win-11)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(rosetta_off)\\.(stopped)/"
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.(?!win-11)(?!win-11)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(rosetta_off)\\.(stopped)/"
                 },
                 {
                     "command": "parallels-desktop.tree-view.disable-rosetta-linux",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.(?!win-11)(?!win-11)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(rosetta_on)\\.(stopped)/"
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.(?!win-11)(?!win-11)[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(rosetta_on)\\.(stopped)/"
                 },
                 {
                     "command": "parallels-desktop.tree-view.enter-vm",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline@21"
                 },
                 {
                     "command": "parallels-desktop.tree-view.remove-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/ || viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(invalid)/)",
+                    "when": "view == parallels-desktop-my-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/ || viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(invalid)/)",
                     "group": "inline@22"
                 },
                 {
                     "command": "parallels-desktop.tree-view.stop-vm",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.resume-vm",
-                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(paused)/ || viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(suspended)/)",
+                    "when": "view == parallels-desktop-my-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(paused)/ || viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(suspended)/)",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.pause-vm",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.suspend-vm",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(running)/",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.rename-vm",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
                     "group": "inline@23"
                 },
                 {
                     "command": "parallels-desktop.tree-view.delete-vm-snapshot",
-                    "when": "view == parallels-desktop-machines && (viewItem == snapshot.other || viewItem == snapshot.current)",
+                    "when": "view == parallels-desktop-my-machines && (viewItem == snapshot.other || viewItem == snapshot.current)",
                     "group": "inline"
                 },
                 {
                     "command": "parallels-desktop.tree-view.restore-vm-snapshot",
-                    "when": "view == parallels-desktop-machines && viewItem == snapshot.other",
+                    "when": "view == parallels-desktop-my-machines && viewItem == snapshot.other",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.tree-view.remove-group",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\..*/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /group\\..*/",
                     "group": "inline@24"
                 },
                 {
                     "command": "parallels-desktop.tree-view.show-item",
-                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.hidden\\.[a-z0-9_-]{0,100}\\..*/ || viewItem =~ /group\\.hidden\\..*/)",
+                    "when": "view == parallels-desktop-my-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.hidden\\.[a-z0-9_-]{0,100}\\..*/ || viewItem =~ /group\\.hidden\\..*/)",
                     "group": "inline@25"
                 },
                 {
                     "command": "parallels-desktop.tree-view.hide-item",
-                    "when": "view == parallels-desktop-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.visible\\.[a-z0-9_-]{0,100}\\..*/ || viewItem =~ /group\\.visible\\..*/)",
+                    "when": "view == parallels-desktop-my-machines && (viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.visible\\.[a-z0-9_-]{0,100}\\..*/ || viewItem =~ /group\\.visible\\..*/)",
                     "group": "inline@25"
                 },
                 {
                     "command": "parallels-desktop.tree-view.rename-group",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\..*/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /group\\..*/",
                     "group": "inline@26"
                 },
                 {
                     "command": "parallels-desktop.tree-view.start-group-vms",
-                    "when": "view == parallels-desktop-machines && (viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.stopped/ || viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.mixed/)",
+                    "when": "view == parallels-desktop-my-machines && (viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.stopped/ || viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.mixed/)",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.tree-view.stop-group-vms",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
                     "group": "inline@2"
                 },
                 {
                     "command": "parallels-desktop.tree-view.resume-group-vms",
-                    "when": "view == parallels-desktop-machines && (viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.paused/ || viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.suspended/)",
+                    "when": "view == parallels-desktop-my-machines && (viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.paused/ || viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.suspended/)",
                     "group": "inline@3"
                 },
                 {
                     "command": "parallels-desktop.tree-view.pause-group-vms",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
                     "group": "inline@4"
                 },
                 {
                     "command": "parallels-desktop.tree-view.suspend-group-vms",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /group\\.[a-z0-9_-]{0,100}\\.running/",
                     "group": "inline@5"
                 },
                 {
                     "command": "parallels-desktop.tree-view.take-group-snapshot",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /group\\..*/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /group\\..*/",
                     "group": "inline@6"
                 },
                 {
@@ -1503,52 +1502,52 @@
                 },
                 {
                     "command": "parallels-desktop.docker.remove-container",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.(exited|created)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.(exited|created)/",
                     "group": "inline@30"
                 },
                 {
                     "command": "parallels-desktop.docker.start-container",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.exited/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.exited/",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.docker.stop-container",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.(running|paused)/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.(running|paused)/",
                     "group": "inline@1"
                 },
                 {
                     "command": "parallels-desktop.docker.pause-container",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.running/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.running/",
                     "group": "inline@2"
                 },
                 {
                     "command": "parallels-desktop.docker.resume-container",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.paused/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.paused/",
                     "group": "inline@2"
                 },
                 {
                     "command": "parallels-desktop.docker.restart-container",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.running/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.running/",
                     "group": "inline@3"
                 },
                 {
                     "command": "parallels-desktop.docker.get-container-logs",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.(?!root).*/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.(?!root).*/",
                     "group": "inline@4"
                 },
                 {
                     "command": "parallels-desktop.docker.enter-container",
-                    "when": "view == parallels-desktop-machines && viewItem =~ /docker\\.container\\.running/",
+                    "when": "view == parallels-desktop-my-machines && viewItem =~ /docker\\.container\\.running/",
                     "group": "inline@5"
                 },
                 {
                     "command": "parallels-desktop.docker.run-container",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:docker-container-items && viewItem =~ /docker\\.container\\.root/",
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:docker-container-items && viewItem =~ /docker\\.container\\.root/",
                     "group": "inline@0"
                 },
                 {
                     "command": "parallels-desktop.docker.remove-image",
-                    "when": "view == parallels-desktop-machines && parallels-desktop:docker-container-items && viewItem =~ /docker\\.image\\.(?!root).*/",
+                    "when": "view == parallels-desktop-my-machines && parallels-desktop:docker-container-items && viewItem =~ /docker\\.image\\.(?!root).*/",
                     "group": "inline@0"
                 },
                 {
@@ -1756,7 +1755,7 @@
         "views": {
             "parallels-desktop": [
                 {
-                    "id": "parallels-desktop-machines",
+                    "id": "parallels-desktop-my-machines",
                     "name": "My Virtual Machines",
                     "icon": "media/parallels_logo.svg",
                     "type": "tree",
@@ -1795,7 +1794,8 @@
                     "icon": "media/parallels_logo.svg",
                     "contextualTitle": "My Vagrant Boxes",
                     "type": "tree",
-                    "visibility": "collapsed"
+                    "visibility": "collapsed",
+                    "when": "parallels-desktop:initialized == true && vagrant.initialized === true"
                 },
                 {
                     "id": "parallels-desktop-help",
@@ -1807,12 +1807,12 @@
         },
         "viewsWelcome": [
             {
-                "view": "parallels-desktop-machines",
+                "view": "parallels-desktop-my-machines",
                 "when": "parallels-desktop:initialized === true && parallels-desktop:hasVirtualMachines === false && (parallels-desktop:license === 'pro' || parallels-desktop:license === 'business')",
                 "contents": "Welcome to Parallels Desktop\n Please add a virtual machine to start using the extension.\n[Create Virtual Machine](command:parallels-desktop.tree-view.add-vm)"
             },
             {
-                "view": "parallels-desktop-machines",
+                "view": "parallels-desktop-my-machines",
                 "when": "parallels-desktop:initialized === true && (parallels-desktop:license !== 'pro' && parallels-desktop:license !== 'business')",
                 "contents": "Welcome to Parallels Desktop\n To have access to this functionality you need a Pro or Business license.\n[Buy Pro License](command:parallels-desktop.common.buy-pro-license)\n[Buy Business License](command:parallels-desktop.common.buy-business-license)"
             },
@@ -1843,17 +1843,17 @@
             },
             {
                 "view": "parallels-desktop-vagrant",
-                "when": "parallels-desktop:hasVagrantBoxes === undefined",
+                "when": "parallels-desktop:initialized !== true",
                 "contents": "Loading Vagrant Boxes..."
             },
             {
                 "view": "parallels-desktop-vagrant",
-                "when": "parallels-desktop:initialized == true && vagrant.initialized === true && parallels-desktop:hasVagrantBoxes === false",
+                "when": "parallels-desktop:initialized ===true && vagrant.initialized === true && parallels-desktop:hasVagrantBoxes === false",
                 "contents": "Welcome to Vagrant Boxes Management\n Please add a Vagrant box to start using the extension."
             },
             {
                 "view": "parallels-desktop-vagrant",
-                "when": "parallels-desktop:initialized == true && (vagrant.initialized === false || vagrant.initialized === undefined)",
+                "when": "parallels-desktop:initialized === true && (vagrant.initialized === false || vagrant.initialized === undefined)",
                 "contents": "Welcome to Vagrant Boxes Management\nYou don't seem to have Vagrant from Hashicorp installed in your system, to know more aboutHashicorp Vagrant please visit [Hashicorp Vagrant](https://www.vagrantup.com/)\nTo install Hashicorp Vagrant press this button\n[Install Vagrant](command:parallels-desktop.vagrant.install)"
             },
             {

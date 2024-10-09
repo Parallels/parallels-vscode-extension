@@ -84,9 +84,9 @@
             "images": [
               {
                 "id": "ubuntu-server-22.04",
-                "name": "Ubuntu Server 22.04.3 LTS",
+                "name": "Ubuntu Server 22.04.5 LTS",
                 "distro": "ubuntu",
-                "description": "This will create a Ubuntu Server 22.04.4 LTS VM using automated Packer scripts.",
+                "description": "This will create a Ubuntu Server 22.04.5 LTS VM using automated Packer scripts.",
                 "type": "packer",
                 "packerFolder": "ubuntu",
                 "requireIsoDownload": false,
@@ -94,8 +94,8 @@
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.ubuntu.com/releases/22.04.4/release/ubuntu-22.04.4-live-server-arm64.iso",
-                  "iso_checksum": "sha256:74b8a9f71288ae0ac79075c2793a0284ef9b9729a3dcf41b693d95d724622b65"
+                  "iso_url": "https://cdimage.ubuntu.com/releases/22.04.5/release/ubuntu-22.04.5-live-server-arm64.iso",
+                  "iso_checksum": "sha256:eafec62cfe760c30cac43f446463e628fada468c2de2f14e0e2bc27295187505"
                 },
                 "addons": [],
                 "defaults": {
@@ -122,7 +122,7 @@
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.ubuntu.com/releases/23.10/release/ubuntu-23.10-live-server-arm64.iso",
+                  "iso_url": "https://cdimage.ubuntu.com/releases/23.10.1/release/ubuntu-23.10-live-server-arm64.iso",
                   "iso_checksum": "sha256:5ea4c792a0cc5462a975d2f253182e9678cc70172ebd444d730f2c4fd7678e43"
                 },
                 "addons": [],

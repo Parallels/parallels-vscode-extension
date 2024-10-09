@@ -163,6 +163,7 @@ export class CommandsFlags {
   // Common Commands
   static buyProLicenseCommonCommand = `${COMMAND_PREFIX}.common.buy-pro-license`;
   static buyBusinessLicenseCommonCommand = `${COMMAND_PREFIX}.common.buy-business-license`;
+  static clearParallelsCacheFolder = `${COMMAND_PREFIX}.catalog.clear-cache`;
 
   // Virtual Machine Commands
   static clearDownloadCache = `${COMMAND_PREFIX}.clear-download-cache`;

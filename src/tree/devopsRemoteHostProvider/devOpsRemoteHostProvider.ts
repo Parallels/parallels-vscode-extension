@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import {FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS} from "../../constants/flags";
+import {CommandsFlags, FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS} from "../../constants/flags";
 import {AllDevOpsRemoteCommands} from "../commands/AllCommands";
 import {DevOpsService} from "../../services/devopsService";
 import {Provider} from "../../ioc/provider";
@@ -15,6 +15,7 @@ import {
   drawManagementInfoSubItems
 } from "../devopsRemoteHostManagement/devopsManagementProvider";
 import {cleanString} from "../../helpers/strings";
+import {LogService} from "../../services/logService";
 
 export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
@@ -25,8 +26,20 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
     const view = vscode.window.createTreeView("parallels-desktop-remote-hosts", {
       treeDataProvider: this,
       showCollapseAll: true,
-      canSelectMany: true
+      canSelectMany: false
     });
+
+    view.onDidChangeVisibility(e => {
+      if (e.visible) {
+        LogService.info("Starting Remote Hosts View Auto Refresh", "DevOpsRemoteHostsProvider");
+        vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+        DevOpsService.startRemoteHostsViewAutoRefresh();
+      } else {
+        LogService.info("Stopping Remote Hosts View Auto Refresh", "DevOpsRemoteHostsProvider");
+        DevOpsService.stopRemoteHostsViewAutoRefresh();
+      }
+    });
+
     const config = Provider.getConfiguration();
     if (!config.remoteHostProviders) {
       config.remoteHostProviders = [];
