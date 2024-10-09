@@ -321,6 +321,15 @@ export class DevOpsService {
     }
   }
 
+  static stopCatalogViewAutoRefresh(): void {
+    console.log("Stopping Catalog view auto refresh");
+    if (catalogViewAutoRefreshInterval) {
+      clearInterval(catalogViewAutoRefreshInterval);
+    }
+
+    catalogViewAutoRefreshStarted = false;
+  }
+
   static startParallelsCatalogViewAutoRefresh(): void {
     if (parallelsCatalogViewAutoRefreshStarted) {
       return;
@@ -333,6 +342,7 @@ export class DevOpsService {
     parallelsCatalogViewAutoRefreshStarted = true;
     if (!isRefreshingParallelsCatalog) {
       parallelsCatalogViewAutoRefreshInterval = setInterval(() => {
+        console.log("Refreshing Parallels Catalog view");
         isRefreshingParallelsCatalog = true;
 
         DevOpsService.testHost(config.parallelsCatalogProvider)
@@ -363,6 +373,15 @@ export class DevOpsService {
           });
       }, parallelsCatalogThreshold);
     }
+  }
+
+  static stopParallelsCatalogViewAutoRefresh(): void {
+    console.log("Stopping Parallels Catalog view auto refresh");
+    if (parallelsCatalogViewAutoRefreshInterval) {
+      clearInterval(parallelsCatalogViewAutoRefreshInterval);
+    }
+
+    parallelsCatalogViewAutoRefreshStarted = false;
   }
 
   static startRemoteHostsViewAutoRefresh(): void {
@@ -406,6 +425,15 @@ export class DevOpsService {
           });
       }, refreshThreshold);
     }
+  }
+
+  static stopRemoteHostsViewAutoRefresh(): void {
+    console.log("Stopping Remote Hosts view auto refresh");
+    if (remoteHostsViewAutoRefreshInterval) {
+      clearInterval(remoteHostsViewAutoRefreshInterval);
+    }
+
+    remoteHostViewAutoRefreshStarted = false;
   }
 
   static async refreshCatalogProviders(force: boolean): Promise<void> {
@@ -934,6 +962,10 @@ export class DevOpsService {
           error = err;
           return reject(err);
         });
+
+      if (response === undefined) {
+        return reject("No response from host");
+      }
 
       if (response?.status !== 200) {
         LogService.error(`Error testing host ${url}, err: ${response?.statusText}`, "DevOpsService");

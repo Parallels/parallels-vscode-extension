@@ -1,13 +1,13 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
-import {Provider} from "../ioc/provider";
-import {getDownloadFolder} from "../helpers/helpers";
-import {CommandsFlags} from "../constants/flags";
-import {ANSWER_YES, YesNoQuestion} from "../helpers/ConfirmDialog";
+import {CommandsFlags} from "../../../constants/flags";
+import {Provider} from "../../../ioc/provider";
+import {ANSWER_YES, YesNoQuestion} from "../../../helpers/ConfirmDialog";
+import {getDownloadFolder} from "../../../helpers/helpers";
 
-export function registerClearDownloadCacheCommand(context: vscode.ExtensionContext) {
+export function registerClearCatalogCacheCommand(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.clearDownloadCache, async () => {
+    vscode.commands.registerCommand(CommandsFlags.clearParallelsCacheFolder, async () => {
       const config = Provider.getConfiguration();
       const confirm = await YesNoQuestion("Delete all download cache?");
       if (confirm === ANSWER_YES) {

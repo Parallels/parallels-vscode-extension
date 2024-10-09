@@ -101,9 +101,9 @@ export class TelemetryService {
       if (!jsonLicense) {
         jsonLicense = await ParallelsDesktopService.getJsonLicense();
       }
-      licenseEdition = `${jsonLicense.edition.toLowerCase()}`;
+      licenseEdition = `${jsonLicense.edition?.toLowerCase()}`;
       isTrial = `${jsonLicense.is_trial}`;
-      licenseModel = `${jsonLicense.product.toLowerCase()}`;
+      licenseModel = `${jsonLicense.product?.toLowerCase()}`;
 
       const pd_version = config.parallelsDesktopServerInfo?.Version ?? "Unknown";
 

@@ -4,19 +4,33 @@ import {FLAG_PARALLELS_CATALOG_HAS_ITEMS} from "../../constants/flags";
 import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
 import {Provider} from "../../ioc/provider";
 import {AllParallelsCommands} from "../commands/AllCommands";
+import {DevOpsService} from "../../services/devopsService";
+import {LogService} from "../../services/logService";
 
 export class ParallelsCatalogProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
   context: vscode.ExtensionContext;
 
-  constructor(context: vscode.ExtensionContext) {
+  constructor(context: vscode.ExtensionContext, autoRefresh = false) {
     this.context = context;
     const view = vscode.window.createTreeView("parallels-desktop-catalog", {
       treeDataProvider: this,
       showCollapseAll: true,
-      canSelectMany: true
+      canSelectMany: false
     });
 
+    view.onDidChangeVisibility(async e => {
+      if (e.visible) {
+        if (autoRefresh) {
+          LogService.info("Starting Parallels Catalog View Auto Refresh", "ParallelsCatalogProvider");
+          DevOpsService.startParallelsCatalogViewAutoRefresh();
+          await DevOpsService.refreshParallelsCatalogProvider(true);
+        }
+      } else {
+        LogService.info("Stopping Parallels Catalog View Auto Refresh", "ParallelsCatalogProvider");
+        DevOpsService.stopParallelsCatalogViewAutoRefresh();
+      }
+    });
     const config = Provider.getConfiguration();
     if (config.parallelsCatalogProvider.manifests?.length === 0) {
       vscode.commands.executeCommand("setContext", FLAG_PARALLELS_CATALOG_HAS_ITEMS, false);

@@ -74,6 +74,7 @@ export class ConfigurationService {
   lastSynced: number | undefined;
   lastHeartbeat: number | undefined;
   downloadingCatalogs: string[] = [];
+  initialized = false;
 
   constructor(private context: vscode.ExtensionContext) {
     this.id = randomUUID().replace(/-/g, "");
@@ -213,6 +214,11 @@ export class ConfigurationService {
   }
 
   async init(): Promise<void> {
+    // If the configuration is already initialized we will not run this again
+    if (this.initialized) {
+      return;
+    }
+
     const promises: Promise<any>[] = [];
     // We will have two ways of configuring the extension, this first run if we do not have a configuration file
     // they we will wait to populate everything, otherwise we will just load the configuration file and start a background
@@ -268,7 +274,10 @@ export class ConfigurationService {
       this.isInitialized = true;
       this.save();
     }
+
+    this.initialized = true;
   }
+
   setShowOnboarding(show: boolean) {
     this.showOnboardingForParallelsCatalog = show;
     this.save();
@@ -1281,19 +1290,47 @@ export class ConfigurationService {
       }
     }
 
-    let foundLicensedEdition = jsonLicense?.edition.toLowerCase() ?? licenseInfo?.edition?.toLowerCase() ?? undefined;
+    let foundLicensedEdition = jsonLicense?.edition?.toLowerCase() ?? licenseInfo?.edition?.toLowerCase() ?? undefined;
     if (licenseInfo?.status?.toLowerCase() === "invalid") {
       foundLicensedEdition = "invalid";
     }
     if (jsonLicense && useExtendedAttributes) {
       if (jsonLicense.is_trial) {
-        foundLicensedEdition = `trial-${jsonLicense.edition.toLowerCase()}`;
+        foundLicensedEdition = `trial-${jsonLicense.edition?.toLowerCase()}`;
       }
       if (jsonLicense.is_beta) {
-        foundLicensedEdition = `beta-${jsonLicense.edition.toLowerCase()}`;
+        foundLicensedEdition = `beta-${jsonLicense.edition?.toLowerCase()}`;
       }
     }
 
-    return foundLicensedEdition.toLowerCase();
+    return foundLicensedEdition ? foundLicensedEdition.toLowerCase() : "invalid";
+  }
+
+  static async getJsonLicense(): Promise<ParallelsShortLicense> {
+    const config = Provider.getConfiguration();
+    let jsonLicense = config.ParallelsDesktopLicense;
+    if (!jsonLicense) {
+      jsonLicense = await ParallelsDesktopService.getJsonLicense();
+      if (!jsonLicense) {
+        jsonLicense = {
+          edition: "invalid",
+          is_trial: false,
+          is_beta: false
+        };
+      }
+    }
+
+    const edition = jsonLicense?.edition?.toLowerCase() ?? undefined;
+    if (edition !== "invalid" && edition !== undefined) {
+      jsonLicense.full_edition = edition;
+      if (jsonLicense.is_trial) {
+        jsonLicense.full_edition = `trial-${jsonLicense.edition?.toLowerCase()}`;
+      }
+      if (jsonLicense.is_beta) {
+        jsonLicense.full_edition = `beta-${jsonLicense.edition?.toLowerCase()}`;
+      }
+    }
+
+    return jsonLicense;
   }
 }

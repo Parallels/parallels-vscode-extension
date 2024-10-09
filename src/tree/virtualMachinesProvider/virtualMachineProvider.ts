@@ -3,7 +3,13 @@ import * as vscode from "vscode";
 import * as uuid from "uuid";
 import {Provider} from "../../ioc/provider";
 import {VirtualMachineTreeItem} from "../treeItems/virtualMachineTreeItem";
-import {CommandsFlags, FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE, FLAG_NO_GROUP} from "../../constants/flags";
+import {
+  CommandsFlags,
+  FLAG_AUTO_REFRESH,
+  FLAG_AUTO_REFRESH_INTERVAL,
+  FLAG_EXTENSION_SHOW_FLAT_SNAPSHOT_TREE,
+  FLAG_NO_GROUP
+} from "../../constants/flags";
 import {VirtualMachine} from "../../models/parallels/virtualMachine";
 import {ParallelsDesktopService} from "../../services/parallelsDesktopService";
 import {parallelsOutputChannel} from "../../helpers/channel";
@@ -13,23 +19,39 @@ import {DockerService} from "../../services/dockerService";
 import {DockerImage} from "../../models/docker/dockerImage";
 import {LogService} from "../../services/logService";
 import {AllVirtualMachineCommands} from "../commands/AllCommands";
+import {ParallelsShortLicense} from "../../models/parallels/ParallelsJsonLicense";
+
+let autoRefreshMyVirtualMachinesInterval: NodeJS.Timeout | undefined;
+let isAutoRefreshMyVirtualMachinesRunning = false;
 
 export class VirtualMachineProvider
   implements vscode.TreeDataProvider<VirtualMachineTreeItem>, vscode.TreeDragAndDropController<VirtualMachineTreeItem>
 {
   config = Provider.getConfiguration();
   settings = Provider.getSettings();
-  dropMimeTypes = ["application/vnd.code.tree.parallels-desktop-machines"];
+  dropMimeTypes = ["application/vnd.code.tree.parallels-desktop-my-machines"];
   dragMimeTypes = ["text/uri-list"];
   context: vscode.ExtensionContext;
 
-  constructor(context: vscode.ExtensionContext) {
+  constructor(context: vscode.ExtensionContext, license: ParallelsShortLicense) {
     this.context = context;
-    const view = vscode.window.createTreeView("parallels-desktop-machines", {
+    const view = vscode.window.createTreeView("parallels-desktop-my-machines", {
       treeDataProvider: this,
       showCollapseAll: true,
       canSelectMany: true,
       dragAndDropController: this
+    });
+
+    view.onDidChangeVisibility(e => {
+      if (e.visible) {
+        LogService.info("Starting auto refresh for Virtual Machine Tree View", "VirtualMachineProvider");
+        if (license.edition === "pro" || license.edition === "professional" || license.edition === "business") {
+          startMyVirtualMachinesAutoRefresh();
+        }
+      } else {
+        LogService.info("Stopping auto refresh for Virtual Machine Tree View", "VirtualMachineProvider");
+        stopMyVirtualMachinesAutoRefresh();
+      }
     });
     context.subscriptions.push(view);
     AllVirtualMachineCommands.forEach(oc => oc.register(context, this));
@@ -842,4 +864,48 @@ export class VirtualMachineProvider
   }
 }
 
-// extract to separate file
+export function startMyVirtualMachinesAutoRefresh() {
+  if (isAutoRefreshMyVirtualMachinesRunning) {
+    LogService.info("Auto refresh is already running, skipping...", "CoreService");
+    return;
+  }
+
+  isAutoRefreshMyVirtualMachinesRunning = true;
+  const settings = Provider.getSettings();
+  const cfg = Provider.getConfiguration();
+  const autoRefresh = settings.get<boolean>(FLAG_AUTO_REFRESH);
+  clearInterval(autoRefreshMyVirtualMachinesInterval);
+  if (autoRefresh) {
+    LogService.info("Auto refresh is enabled", "CoreService");
+    let interval = settings.get<number>(FLAG_AUTO_REFRESH_INTERVAL);
+    if (interval === undefined) {
+      LogService.info("Auto refresh interval is not defined, setting default to 60 seconds", "CoreService");
+      settings.update(FLAG_AUTO_REFRESH_INTERVAL, 60000);
+      interval = 60000;
+    }
+    if (interval < 10000) {
+      LogService.info("Auto refresh interval is too low, setting minimum to 10 seconds", "CoreService");
+      settings.update(FLAG_AUTO_REFRESH_INTERVAL, 10000);
+      interval = 10000;
+    }
+
+    LogService.info("Auto refresh interval is " + interval + "ms", "CoreService");
+    clearInterval(autoRefreshMyVirtualMachinesInterval);
+    autoRefreshMyVirtualMachinesInterval = setInterval(() => {
+      LogService.info("Refreshing the virtual machine tree view", "CoreService");
+      vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+    }, interval);
+  } else {
+    if (autoRefreshMyVirtualMachinesInterval) {
+      LogService.info("Clearing the auto refresh interval", "CoreService");
+      clearInterval(autoRefreshMyVirtualMachinesInterval);
+    }
+    LogService.info("Auto refresh is disabled", "CoreService");
+  }
+
+  isAutoRefreshMyVirtualMachinesRunning = false;
+}
+
+export function stopMyVirtualMachinesAutoRefresh() {
+  clearInterval(autoRefreshMyVirtualMachinesInterval);
+}
