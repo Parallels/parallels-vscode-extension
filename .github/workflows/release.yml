@@ -25,18 +25,26 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
-
+      - name: Check for Changes to the Changelog
+        id: diff
+        if: true
+        run: |
+          NEW_VERSION=$(./.github/workflow_scripts/increment-version.sh -t ${{ inputs.version }} -f VERSION)
+          LAST_CHANGELOG_VERSION=$(./.github/workflow_scripts/get-latest-changlog-version.sh)
+          if [ "$NEW_VERSION" != "$LAST_CHANGELOG_VERSION" ]; then
+            echo "Changelog not updated for version $NEW_VERSION lastest version is $LAST_CHANGELOG_VERSION"
+            exit 1
+          fi
       - name: Bump version and push
         run: |
           git config --global user.email "cjlapao@gmail.com"
           git config --global user.name "cjlapao"
 
-          NEW_VERSION=$(./script/workflows/increment-version.sh ${{ inputs.version }})
+          NEW_VERSION=$(./.github/workflow_scripts/increment-version.sh ${{ inputs.version }})
 
           git checkout -b release/$NEW_VERSION
           sed -i "s/export const VERSION = \".*\"/export const VERSION = \""$NEW_VERSION"\"/g" ./src/constants/flags.ts
@@ -47,10 +55,9 @@ jobs:
           git push --set-upstream origin release/$NEW_VERSION
 
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
-
       - name: Create PR
         run: |
-          LAST_PR=$(gh pr list --repo ${{ github.repository }} --limit 1 --state merged --search "Release version" --json number | jq -r '.[0].number')
+          LAST_RELEASE_PR=$(gh pr list --repo ${{ github.repository }} --limit 1 --state merged --search "Release version" --json number | jq -r '.[0].number')
           ./script/workflows/generate-release-notes.sh $LAST_PR ${{ env.new_version }}
           gh pr create \
             --title "Release version ${{ env.new_version }}" \

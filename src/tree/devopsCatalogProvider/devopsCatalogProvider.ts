@@ -35,6 +35,9 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         LogService.info("Starting Catalog View Auto Refresh", "DevOpsCatalogProvider");
         vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
         DevOpsService.startCatalogViewAutoRefresh();
+        // Send telemetry event
+        const telemetry = Provider.telemetry();
+        telemetry.sendHeartbeat();
       } else {
         LogService.info("Stopping Catalog View Auto Refresh", "DevOpsCatalogProvider");
         DevOpsService.stopCatalogViewAutoRefresh();

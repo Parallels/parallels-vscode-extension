@@ -34,6 +34,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
         LogService.info("Starting Remote Hosts View Auto Refresh", "DevOpsRemoteHostsProvider");
         vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
         DevOpsService.startRemoteHostsViewAutoRefresh();
+        // Send telemetry event
+        const telemetry = Provider.telemetry();
+        telemetry.sendHeartbeat();
       } else {
         LogService.info("Stopping Remote Hosts View Auto Refresh", "DevOpsRemoteHostsProvider");
         DevOpsService.stopRemoteHostsViewAutoRefresh();

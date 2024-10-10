@@ -28,6 +28,9 @@ export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTre
         LogService.info("Starting auto refresh for vagrant boxes", "VagrantBoxProvider");
         startVagrantBoxesAutoRefresh();
         vscode.commands.executeCommand(CommandsFlags.vagrantProviderRefresh);
+        // Send telemetry event
+        const telemetry = Provider.telemetry();
+        telemetry.sendHeartbeat();
       } else {
         LogService.info("Stopping auto refresh for vagrant boxes", "VagrantBoxProvider");
         stopVagrantBoxesAutoRefresh();

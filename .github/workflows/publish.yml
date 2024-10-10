@@ -1,4 +1,4 @@
-name: Release and publish extension
+name: Release and Publish extension
 
 on:
   push:
@@ -27,14 +27,12 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
-
       - name: Check if version has changed
         id: check-version
         uses: actions/github-script@v6
@@ -45,7 +43,7 @@ jobs:
             const release = await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag: `release-v${version}`,
+              tag: `${version}`,
             }).catch(() => null);
 
             // If the release exists, the version has not changed
@@ -68,16 +66,12 @@ jobs:
     needs:
       - check-version-change
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
-
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
       packages: read
-
     env:
       EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
-
     strategy:
       matrix:
         include:
@@ -100,20 +94,17 @@ jobs:
             ls_target: darwin_arm64
             npm_config_arch: arm64
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
-
       - run: npm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_arch: ${{ matrix.npm_config_arch }}
           ls_target: ${{ matrix.ls_target }}
-
       - name: Create a package.json that actions/upload will like
         run: |
           cp package.json package.json.real
@@ -132,36 +123,27 @@ jobs:
         env:
           npm_config_arch: ${{ matrix.npm_config_arch }}
           ls_target: ${{ matrix.ls_target }}
-
       - name: Package Stable VSIX
         run: npm run package -- --target=${{ matrix.vsce_target }}
-
       - name: Upload vsix as artifact
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: ${{ matrix.vsce_target }}
           path: "*.vsix"
-
       - name: Restore old package.json
         run: mv package.json.real package.json
 
   release-win:
     name: Release extension v${{ needs.check-version-change.outputs.version }} for ${{ matrix.vsce_target }}
-
     needs:
       - check-version-change
-
     if: ${{ needs.check-version-change.outputs.changed == 'true' }}
-
     runs-on: windows-latest
-
     permissions:
       contents: write
       packages: read
-
     env:
       EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
-
     strategy:
       matrix:
         include:
@@ -178,12 +160,10 @@ jobs:
           node-version: 20.x
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
-
       - name: create a package.json that actions/upload will like
         run: |
           cp package.json package.json.real
           sed --regexp-extended '/"name"\s*:/ s#@[a-zA-Z\\-]+/##' package.json.real > package.json
-
       - name: Install dependencies
         run: |
           npm ci
@@ -211,15 +191,12 @@ jobs:
       - release
       - release-win
       - check-version-change
-
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: read
-
     env:
       EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
-
     steps:
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
       - name: Create release and upload release asset
@@ -231,7 +208,7 @@ jobs:
             const release = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: "release-v${{ env.EXT_VERSION }}",
+              tag_name: "v${{ env.EXT_VERSION }}",
               name: "v${{ env.EXT_VERSION }}",
               draft: false,
               prerelease: false
