@@ -244,6 +244,20 @@ export class TelemetryService {
 
   async sendHeartbeat() {
     const config = Provider.getConfiguration();
+    let sendHeartbeat = false;
+    const lastHeartbeat = config.lastHeartbeat ?? "";
+    if (config.lastHeartbeat) {
+      if (!isSameHour(new Date(lastHeartbeat))) {
+        sendHeartbeat = true;
+      }
+    } else {
+      sendHeartbeat = true;
+    }
+
+    if (!sendHeartbeat) {
+      return;
+    }
+
     const event: AmplitudeEvent = {
       event: EVENT_START,
       properties: []
@@ -293,6 +307,8 @@ export class TelemetryService {
       value: !config.featureFlags.enableTelemetry ? "disabled" : "enabled"
     });
 
+    config.lastHeartbeat = Date.now();
+    config.save();
     this.track(event);
   }
 
@@ -389,4 +405,14 @@ export class TelemetryService {
   flush() {
     amplitude.flush();
   }
+}
+
+function isSameHour(date: Date): boolean {
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate() &&
+    date.getHours() === now.getHours()
+  );
 }

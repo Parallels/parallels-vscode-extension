@@ -26,6 +26,9 @@ export class ParallelsCatalogProvider implements vscode.TreeDataProvider<DevOpsT
           DevOpsService.startParallelsCatalogViewAutoRefresh();
           await DevOpsService.refreshParallelsCatalogProvider(true);
         }
+        // Send telemetry event
+        const telemetry = Provider.telemetry();
+        telemetry.sendHeartbeat();
       } else {
         LogService.info("Stopping Parallels Catalog View Auto Refresh", "ParallelsCatalogProvider");
         DevOpsService.stopParallelsCatalogViewAutoRefresh();

@@ -49,6 +49,10 @@ export class VirtualMachineProvider
         if (license.edition === "pro" || license.edition === "professional" || license.edition === "business") {
           startMyVirtualMachinesAutoRefresh();
         }
+
+        // Send telemetry event
+        const telemetry = Provider.telemetry();
+        telemetry.sendHeartbeat();
       } else {
         LogService.info("Stopping auto refresh for Virtual Machine Tree View", "VirtualMachineProvider");
         stopMyVirtualMachinesAutoRefresh();
