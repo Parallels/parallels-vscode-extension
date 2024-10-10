@@ -47,7 +47,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const provider = new Provider(context);
   const os = Provider.getOs();
 
-  vscode.commands.executeCommand("setContext", FLAG_OS, os);
+  vscode.commands.executeCommand("setContext", FLAG_OS, os.toLowerCase());
   const config = Provider.getConfiguration();
   if (config.id === undefined) {
     config.id = randomUUID().replace(/-/g, "");
@@ -95,7 +95,6 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   vscode.commands.executeCommand("setContext", FLAG_PARALLELS_EXTENSION_INITIALIZED, true);
-  vscode.commands.executeCommand("setContext", FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED, true);
   vscode.commands.executeCommand("setContext", FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED, true);
 
   // Send telemetry event
