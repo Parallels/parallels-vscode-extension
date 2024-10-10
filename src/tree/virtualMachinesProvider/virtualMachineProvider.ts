@@ -41,6 +41,7 @@ export class VirtualMachineProvider
       canSelectMany: true,
       dragAndDropController: this
     });
+    context.subscriptions.push(view);
 
     view.onDidChangeVisibility(e => {
       if (e.visible) {
@@ -53,7 +54,7 @@ export class VirtualMachineProvider
         stopMyVirtualMachinesAutoRefresh();
       }
     });
-    context.subscriptions.push(view);
+
     AllVirtualMachineCommands.forEach(oc => oc.register(context, this));
   }
 
@@ -788,7 +789,7 @@ export class VirtualMachineProvider
       }
     });
 
-    dataTransfer.set("application/vnd.code.tree.parallels-desktop-machines", new vscode.DataTransferItem(targets));
+    dataTransfer.set("application/vnd.code.tree.parallels-desktop-my-machines", new vscode.DataTransferItem(targets));
   }
 
   public async handleDrop(
@@ -798,7 +799,7 @@ export class VirtualMachineProvider
   ): Promise<void> {
     const itemsToTransfer: VirtualMachineTreeItem[] = [];
 
-    const transferItem = dataTransfer.get("application/vnd.code.tree.parallels-desktop-machines");
+    const transferItem = dataTransfer.get("application/vnd.code.tree.parallels-desktop-my-machines");
     if (!transferItem) {
       return;
     }
