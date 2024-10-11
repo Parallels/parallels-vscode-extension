@@ -50,7 +50,7 @@ jobs:
           npm version $NEW_VERSION --no-git-tag-version
 
           # Generate changelog for the new version
-          ./.github/workflow_scripts/generate-changelog.sh --repo ${{ github.repository }} --version ${{ env.new_version }}
+          ./.github/workflow_scripts/generate-changelog.sh --repo ${{ github.repository }} --version "$NEW_VERSION"
 
           git add package.json package-lock.json ./src/constants/flags.ts CHANGELOG.md
           git commit -m "Release extension version $NEW_VERSION"
