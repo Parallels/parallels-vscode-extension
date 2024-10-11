@@ -2,10 +2,6 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
-## [1.4.1] - 2024-10-11
-
-
-
 ## [1.4.0] - 2024-10-09
 
 - Fixed the issue where vscode would crash if created two remote hosts from the same name
