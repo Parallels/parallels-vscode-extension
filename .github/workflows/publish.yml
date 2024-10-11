@@ -199,6 +199,10 @@ jobs:
       EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
     steps:
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - name: Generate release notes
+        run: |
+          ./.github/workflow_scripts/get-latest-changelog.sh --output-to-file
+          cat release_notes.md
       - name: Create release and upload release asset
         uses: actions/github-script@v6
         with:
@@ -208,6 +212,7 @@ jobs:
             const release = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
+              body: fs.readFileSync("release_notes.md", "utf8"),
               tag_name: "v${{ env.EXT_VERSION }}",
               name: "v${{ env.EXT_VERSION }}",
               draft: false,
@@ -219,8 +224,6 @@ jobs:
     needs:
       - create-release
       - check-version-change
-
-    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -283,6 +286,7 @@ jobs:
   publish:
     name: Publish extension v${{ needs.check-version-change.outputs.version }}
     # environment: publish
+    if: false
     needs:
       - check-version-change
       - create-release
