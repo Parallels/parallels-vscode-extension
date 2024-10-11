@@ -294,7 +294,6 @@ jobs:
   publish:
     name: Publish extension v${{ needs.check-version-change.outputs.version }}
     # environment: publish
-    if: false
     needs:
       - check-version-change
       - upload-artifacts-to-release
