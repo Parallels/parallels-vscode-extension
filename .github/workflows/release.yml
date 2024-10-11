@@ -40,7 +40,7 @@ jobs:
           fi
       - name: Bump version and push
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GHUB_PAT }}
         run: |
           git config --global user.email "cjlapao@gmail.com"
           git config --global user.name "cjlapao"
@@ -71,4 +71,4 @@ jobs:
             --head release/${{ env.new_version }}
           gh pr edit --add-label release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GHUB_PAT }}
