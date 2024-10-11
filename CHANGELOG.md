@@ -2,6 +2,16 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.4.1] - 2024-10-11
+
+- Added makefile for ease of access to functionalities
+- Added automation for the changelog file
+- Improved the upload of the artifacts
+- Added a script to generate changelog
+- Added a script to generate release noted
+- Initial updated for the new automation pipeline
+- Fixed an issue with the drag and drop for the vms target
+
 ## [1.4.0] - 2024-10-09
 
 - Fixed the issue where vscode would crash if created two remote hosts from the same name
