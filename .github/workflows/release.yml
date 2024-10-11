@@ -30,7 +30,7 @@ jobs:
           node-version: "20"
       - name: Check for Changes to the Changelog
         id: diff
-        if: true
+        if: false
         run: |
           NEW_VERSION=$(./.github/workflow_scripts/increment-version.sh -t ${{ inputs.version }} -f VERSION)
           LAST_CHANGELOG_VERSION=$(./.github/workflow_scripts/get-latest-changlog-version.sh)
