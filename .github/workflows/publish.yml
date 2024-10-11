@@ -259,11 +259,14 @@ jobs:
     env:
       EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
     steps:
-      - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.vsce_target }}
       - name: Upload artifact to release
         env:
           GH_TOKEN: ${{ secrets.GHUB_PAT }}
         run: |
+          ls -la
           gh release upload v${{ env.EXT_VERSION }} *.vsix
       - name: Create release and upload release asset
         if: false
