@@ -2,6 +2,10 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.4.2] - 2024-10-18
+
+- Added the support for the latest macOS15 to the list of VMs
+
 ## [1.4.1] - 2024-10-11
 
 - Added makefile for ease of access to functionalities
