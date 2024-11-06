@@ -334,17 +334,14 @@ export class DevOpsService {
     if (parallelsCatalogViewAutoRefreshStarted) {
       return;
     }
-
     if (parallelsCatalogViewAutoRefreshInterval) {
       clearInterval(parallelsCatalogViewAutoRefreshInterval);
     }
-
     parallelsCatalogViewAutoRefreshStarted = true;
     if (!isRefreshingParallelsCatalog) {
       parallelsCatalogViewAutoRefreshInterval = setInterval(() => {
         console.log("Refreshing Parallels Catalog view");
         isRefreshingParallelsCatalog = true;
-
         DevOpsService.testHost(config.parallelsCatalogProvider)
           .then(() => {
             const oldState = config.parallelsCatalogProvider.state;
@@ -362,7 +359,6 @@ export class DevOpsService {
               vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
             }
           });
-
         this.refreshParallelsCatalogProvider(false)
           .then(() => {
             isRefreshingParallelsCatalog = false;
@@ -388,11 +384,9 @@ export class DevOpsService {
     if (remoteHostViewAutoRefreshStarted) {
       return;
     }
-
     if (remoteHostsViewAutoRefreshInterval) {
       clearInterval(remoteHostsViewAutoRefreshInterval);
     }
-
     remoteHostViewAutoRefreshStarted = true;
     if (!isRefreshingRemoteHostProviders) {
       remoteHostsViewAutoRefreshInterval = setInterval(() => {
@@ -414,7 +408,6 @@ export class DevOpsService {
               }
             });
         }
-
         this.refreshRemoteHostProviders(false)
           .then(() => {
             isRefreshingRemoteHostProviders = false;
@@ -592,7 +585,11 @@ export class DevOpsService {
     let hasUpdate = false;
     if (provider.state === "inactive") {
       LogService.info(`Parallels Catalog provider ${provider.name} is inactive, retrying connection`, "DevOpsService");
-      const result = await DevOpsService.testHost(provider);
+      let result: boolean | void = false;
+      result = await DevOpsService.testHost(provider).catch(() => {
+        LogService.error(`Error testing remote host provider ${provider.name}`, "DevOpsService");
+        result = false;
+      });
       if (!result) {
         LogService.info(`Parallels Catalog provider ${provider.name} is still inactive after refresh`, "DevOpsService");
         return;
@@ -634,7 +631,11 @@ export class DevOpsService {
           `Parallels Catalog provider ${provider.name} is inactive, retrying connection`,
           "DevOpsService"
         );
-        const result = await DevOpsService.testHost(provider);
+        let result: boolean | void = false;
+        result = await DevOpsService.testHost(provider).catch(() => {
+          LogService.error(`Error testing remote host provider ${provider.name}`, "DevOpsService");
+          result = false;
+        });
         if (!result) {
           LogService.info(
             `Parallels Catalog provider ${provider.name} is still inactive after refresh`,
@@ -960,16 +961,20 @@ export class DevOpsService {
         })
         .catch(err => {
           error = err;
-          return reject(err);
         });
 
+      if (error !== undefined) {
+        LogService.error(`Error testing host ${url}, err: ${error}`, "DevOpsService");
+        return resolve(false);
+      }
+
       if (response === undefined) {
-        return reject("No response from host");
+        return resolve(false);
       }
 
       if (response?.status !== 200) {
         LogService.error(`Error testing host ${url}, err: ${response?.statusText}`, "DevOpsService");
-        return reject(response?.statusText);
+        return resolve(false);
       }
 
       await this.authorize(host)
@@ -979,12 +984,12 @@ export class DevOpsService {
         .catch(err => {
           error = err;
           LogService.error(`Error authorizing host ${url}, err: ${err}`, "DevOpsService");
-          return reject(err);
+          return resolve(false);
         });
 
       if (response?.status !== 200) {
         LogService.error(`Error testing host ${url}, err: ${response?.statusText}`, "DevOpsService");
-        return reject(response?.statusText);
+        return resolve(false);
       }
 
       return resolve(true);

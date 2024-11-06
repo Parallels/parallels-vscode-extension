@@ -25,7 +25,7 @@ const registerDevOpsRemoveRemoteProviderHostCommand = (
       }
 
       const config = Provider.getConfiguration();
-      const providerId = item.id.split("%%")[0];
+      const providerId = item.id.split("%%")[1];
       const provider = config.findRemoteHostProviderById(providerId);
       if (!provider) {
         ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Remote Host Provider ${item.name} not found`);
