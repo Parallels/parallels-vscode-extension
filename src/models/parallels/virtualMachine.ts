@@ -25,6 +25,8 @@ export interface VirtualMachine {
   host_id: string;
   host: string;
   host_state: string;
+  host_external_ip_address: string;
+  internal_ip_address: string;
   group: string;
   hidden: boolean;
   dockerContainers: DockerContainer[];

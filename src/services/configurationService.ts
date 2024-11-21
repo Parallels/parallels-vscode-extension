@@ -686,6 +686,10 @@ export class ConfigurationService {
       const catalogProvider = foundProvider as DevOpsCatalogHostProvider;
       const index = this.catalogProviders.indexOf(catalogProvider);
       this.catalogProviders[index].name = provider.name;
+      this.catalogProviders[index].rawHost = provider.rawHost;
+      this.catalogProviders[index].host = provider.host;
+      this.catalogProviders[index].port = provider.port;
+      this.catalogProviders[index].scheme = provider.scheme;
       this.catalogProviders[index].username = provider.username;
       this.catalogProviders[index].password = provider.password;
       this.catalogProviders[index].authToken = "";
@@ -696,6 +700,10 @@ export class ConfigurationService {
       this.remoteHostProviders[index].name = provider.name;
       this.remoteHostProviders[index].username = provider.username;
       this.remoteHostProviders[index].password = provider.password;
+      this.remoteHostProviders[index].rawHost = provider.rawHost;
+      this.remoteHostProviders[index].host = provider.host;
+      this.remoteHostProviders[index].port = provider.port;
+      this.remoteHostProviders[index].scheme = provider.scheme;
       this.remoteHostProviders[index].authToken = "";
     }
 

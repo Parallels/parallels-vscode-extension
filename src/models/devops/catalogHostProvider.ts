@@ -1,3 +1,4 @@
+import {CatalogCacheResponse} from "../parallels/catalog_cache_response";
 import {CatalogManifestItem} from "./catalogManifest";
 import {HostHardwareInfo} from "./hardwareInfo";
 import {DevOpsRolesAndClaims} from "./rolesAndClaims";
@@ -24,5 +25,6 @@ export interface DevOpsCatalogHostProvider {
   roles?: DevOpsRolesAndClaims[];
   claims?: DevOpsRolesAndClaims[];
   hardwareInfo?: HostHardwareInfo;
+  catalogCache?: CatalogCacheResponse;
   lastUpdatedHardwareInfo?: string;
 }

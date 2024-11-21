@@ -27,6 +27,7 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "provider.remote_host.orchestrator"
       | "provider.remote_host.host"
       | "provider.remote_host"
+      | "provider.remote_host.host.info"
       | "provider.remote_host.host.hardware"
       | "provider.remote_host.host.resources"
       | "provider.remote_host.host.resources.architecture.system_reserved"
@@ -43,13 +44,31 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "provider.remote_host.orchestrator.resources.architecture.reserved"
       | "provider.remote_host.orchestrator.hosts"
       | "provider.remote_host.orchestrator.hosts.host"
+      | "provider.remote_host.orchestrator.hosts.host.details"
+      | "provider.remote_host.orchestrator.hosts.host.details.resources"
+      | "provider.remote_host.orchestrator.hosts.host.details.reverse_proxy"
+      | "provider.remote_host.orchestrator.hosts.host.details.info"
+      | "provider.remote_host.orchestrator.hosts.host.details.virtual_machines"
+      | "provider.remote_host.orchestrator.hosts.host.details.virtual_machines.virtual_machine"
+      | "provider.remote_host.hosts"
+      | "provider.remote_host.hosts.host"
       | "provider.remote_host.virtual_machines"
       | "provider.remote_host.virtual_machines.virtual_machine"
+      | "provider.remote_host.resources.architecture"
+      | "provider.remote_host.resources.system_reserved"
+      | "provider.remote_host.resources.total"
+      | "provider.remote_host.resources.used"
+      | "provider.remote_host.resources.available"
+      | "provider.remote_host.resources.reserved"
+      | "provider.remote_host.host.virtual_machines"
+      | "provider.remote_host.host.virtual_machines.virtual_machine"
       | "management"
       | "management.info"
       | "management.info.devops_version"
       | "management.info.architecture"
       | "management.info.cpu"
+      | "management.info.os"
+      | "management.info.os_version"
       | "management.info.parallels_desktop_version"
       | "management.info.parallels_desktop_licensed"
       | "management.users"
@@ -61,7 +80,23 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "management.claims"
       | "management.claim"
       | "management.roles"
-      | "management.role",
+      | "management.role"
+      | "management.catalog_provider.catalog.cache"
+      | "management.catalog_provider.catalog.cache.manifests"
+      | "management.catalog_provider.catalog.cache.manifests.manifest"
+      | "management.catalog_provider.catalog.cache.manifests.manifest.version"
+      | "management.remote_hosts.remote_host.catalog.cache"
+      | "management.remote_hosts.remote_host.catalog.cache.manifests"
+      | "management.remote_hosts.remote_host.catalog.cache.manifests.manifest"
+      | "management.remote_hosts.remote_host.catalog.cache.manifests.manifest.version"
+      | "management.remote_hosts.orchestrator.catalog.cache"
+      | "management.remote_hosts.orchestrator.catalog.cache.manifests"
+      | "management.remote_hosts.orchestrator.catalog.cache.manifests.manifest"
+      | "management.remote_hosts.orchestrator.catalog.cache.manifests.manifest.version"
+      | "management.remote_hosts.orchestrator.host.catalog.cache"
+      | "management.remote_hosts.orchestrator.host.catalog.cache.manifests"
+      | "management.remote_hosts.orchestrator.host.catalog.cache.manifests.manifest"
+      | "management.remote_hosts.orchestrator.host.catalog.cache.manifests.manifest.version",
     label: string,
     public description: string,
     public className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider",
@@ -71,15 +106,21 @@ export class DevOpsTreeItem extends vscode.TreeItem {
     public item?: DevOpsCatalogHostProvider | CatalogManifestItem | CatalogManifest,
     public command?: vscode.Command
   ) {
-    super(label, collapsibleState);
+    let icon = undefined;
+    if (iconName) {
+      icon = {
+        light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
+        dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
+      };
+    }
+    super(name, collapsibleState);
     this.parentId = parentId;
     this.name = name;
     this.type = type;
-    this.iconPath = {
-      light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
-      dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
-    };
-    this.label = label;
+    this.iconPath = icon;
+    if (label) {
+      this.tooltip = label;
+    }
     this.description = description;
     this.collapsibleState = collapsibleState;
     this.command = command;
