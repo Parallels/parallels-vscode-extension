@@ -1,3 +1,4 @@
+import {hostname} from "os";
 import {Provider} from "../ioc/provider";
 import {TELEMETRY_PARALLELS_CATALOG} from "../telemetry/operations";
 
@@ -38,4 +39,33 @@ export async function generateDevOpsClient(catalogId: string, version: string): 
   const json = JSON.stringify(result).replaceAll("user_id", "app_id");
 
   return Buffer.from(json).toString("base64");
+}
+
+export interface ProviderHost {
+  hostname: string;
+  port: string;
+  schema: string;
+}
+
+export function getProviderHostFromString(value: string): ProviderHost {
+  const result = {
+    schema: "http",
+    hostname: "",
+    port: ""
+  };
+
+  if (value.indexOf("://") > -1) {
+    const parts = value.split("://");
+    result.schema = parts[0];
+    value = parts[1];
+  }
+  if (value.indexOf(":") > -1) {
+    const parts = value.split(":");
+    result.hostname = parts[0];
+    result.port = parts[1];
+  } else {
+    result.hostname = value;
+  }
+
+  return result;
 }

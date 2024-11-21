@@ -959,6 +959,38 @@
             {
                 "command": "parallels-desktop.parallels-catalog.show-ai-faq",
                 "title": "Show AI FAQ"
+            },
+            {
+                "command": "parallels-desktop.catalog-cache.clear-all-local-cache-item",
+                "title": "Parallels Catalog: Clear all local cache",
+                "icon": {
+                    "light": "img/light/catalog_cache_clean.svg",
+                    "dark": "img/dark/catalog_cache_clean.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.catalog-cache.clear-all-cache-item",
+                "title": "Parallels Catalog: Clear all cache",
+                "icon": {
+                    "light": "img/light/catalog_cache_clean.svg",
+                    "dark": "img/dark/catalog_cache_clean.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.catalog-cache.clear-cache-item",
+                "title": "Parallels Catalog: Clear cache item",
+                "icon": {
+                    "light": "img/light/catalog_cache_clean_2.svg",
+                    "dark": "img/dark/catalog_cache_clean_2.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.catalog-cache.clear-cache-item-version",
+                "title": "Parallels Catalog: Clear cache item version",
+                "icon": {
+                    "light": "img/light/catalog_cache_clean_2.svg",
+                    "dark": "img/dark/catalog_cache_clean_2.svg"
+                }
             }
         ],
         "viewsContainers": {
@@ -1294,6 +1326,18 @@
                 },
                 {
                     "command": "parallels-desktop.parallels-catalog.show-ai-faq",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.catalog-cache.clear-all-cache-item",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.catalog-cache.clear-cache-item",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.catalog-cache.clear-cache-item-version",
                     "when": "false"
                 }
             ],
@@ -1748,6 +1792,21 @@
                 {
                     "command": "parallels-desktop.parallels-catalog.pull-catalog-manifest",
                     "when": "view == parallels-desktop-catalog && parallels-desktop:os === darwin && viewItem =~ /devops\\.catalog\\.manifests\\.(manifest|manifest\\.version|manifest\\.version\\.super_user)$/",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "parallels-desktop.catalog-cache.clear-all-cache-item",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.catalog\\.cache\\.manifests$/",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "parallels-desktop.catalog-cache.clear-cache-item",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.catalog\\.cache\\.manifests\\.manifest$/",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "parallels-desktop.catalog-cache.clear-cache-item-version",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.catalog\\.cache\\.manifests\\.manifest\\.version$/",
                     "group": "inline@0"
                 }
             ]

@@ -287,4 +287,10 @@ export class CommandsFlags {
   static vagrantProviderRefresh = `${COMMAND_PREFIX}.vagrant.box.provider.refresh`;
   static vagrantProviderInit = `${COMMAND_PREFIX}.vagrant.box.provider.init`;
   static vagrantProviderDelete = `${COMMAND_PREFIX}.vagrant.box.provider.delete`;
+
+  // Catalog Cache Commands
+  static catalogCacheClearAllLocalItems = `${COMMAND_PREFIX}.catalog-cache.clear-all-local-cache-item`;
+  static catalogCacheClearAllCacheItems = `${COMMAND_PREFIX}.catalog-cache.clear-all-cache-item`;
+  static catalogCacheClearCacheItem = `${COMMAND_PREFIX}.catalog-cache.clear-cache-item`;
+  static catalogCacheClearCacheItemVersion = `${COMMAND_PREFIX}.catalog-cache.clear-cache-item-version`;
 }

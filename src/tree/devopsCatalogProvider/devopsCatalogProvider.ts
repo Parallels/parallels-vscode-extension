@@ -17,6 +17,7 @@ import {
 } from "../devopsRemoteHostManagement/devopsManagementProvider";
 import {cleanString} from "../../helpers/strings";
 import {LogService} from "../../services/logService";
+import {drawHostInfo} from "../devopsRemoteHostManagement/information";
 
 export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
@@ -155,6 +156,9 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
               return resolve(this.data);
             });
             break;
+          case "provider.remote_host.host.info":
+            this.data = await drawHostInfo(this.context, this.data, element, "DevOpsCatalogHostProvider");
+            return resolve(this.data);
 
           case "management":
             this.data = await drawManagementItems(this.context, element, this.data, "DevOpsCatalogHostProvider");
@@ -208,6 +212,21 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
         const manifestsLength = provider?.manifests?.length ?? 0;
         const isSuperUser = provider?.user?.isSuperUser ?? false;
         if (isSuperUser) {
+          this.data.push(
+            new DevOpsTreeItem(
+              this.context,
+              `${elementId}%%info`,
+              elementId,
+              "Information",
+              "provider.remote_host.host.info",
+              "Information",
+              "",
+              "DevOpsRemoteHostProvider",
+              "devops.remote.host.info",
+              vscode.TreeItemCollapsibleState.Collapsed,
+              "info"
+            )
+          );
           this.data.push(
             new DevOpsTreeItem(
               this.context,

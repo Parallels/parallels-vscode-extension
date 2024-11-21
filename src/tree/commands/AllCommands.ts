@@ -104,6 +104,9 @@ import {BuyProLicenseCommonCommand} from "./common/buyProLicense";
 import {ParallelsCatalogCloseOnboardingCommand} from "./parallelsCatalogProvider/closeOnboarding";
 import {ParallelsCatalogShowAiFaqCommand} from "./parallelsCatalogProvider/showAiFaq";
 import {VagrantInstallCommand} from "./common/installVagrant";
+import {DevOpsManagementClearAllCatalogCacheItemsCommand} from "./devopsManagementProvider/clearAllCatalogCacheItems";
+import {DevOpsManagementClearCatalogCacheItemCommand} from "./devopsManagementProvider/clearCatalogCacheItem";
+import {DevOpsManagementClearCatalogCacheItemVersionCommand} from "./devopsManagementProvider/clearCatalogCacheItemVersion";
 
 export const AllCommonCommand: CommonCommand[] = [
   BuyProLicenseCommonCommand,
@@ -214,7 +217,10 @@ export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderMana
   DevOpsManagementProviderAddRoleCommand,
   DevOpsManagementProviderRemoveRoleCommand,
   DevOpsManagementProviderUpdateProviderCommand,
-  DevOpsManagementProviderUpdateUserCommand
+  DevOpsManagementProviderUpdateUserCommand,
+  DevOpsManagementClearAllCatalogCacheItemsCommand,
+  DevOpsManagementClearCatalogCacheItemCommand,
+  DevOpsManagementClearCatalogCacheItemVersionCommand
 ];
 
 export const AllParallelsCommands: ParallelsCatalogCommand[] = [

@@ -38,8 +38,14 @@ import {UpdateOrchestratorHostRequest} from "../models/devops/updateOrchestrator
 import {TELEMETRY_INSTALL_DEVOPS} from "../telemetry/operations";
 import {compareSemanticVersions, getFoldersBasePath} from "../helpers/helpers";
 import path from "path";
+import {
+  calcTotalCacheSize,
+  CatalogCacheResponse,
+  CatalogCacheResponseManifest,
+  updateCurrentCacheManifestsItems
+} from "../models/parallels/catalog_cache_response";
 
-const refreshThreshold = 5000;
+const refreshThreshold = 15000;
 const parallelsCatalogThreshold = 3600000;
 const hardwareRefreshThreshold = 10;
 
@@ -294,10 +300,11 @@ export class DevOpsService {
         isRefreshingCatalogProviders = true;
         for (const provider of config.catalogProviders) {
           DevOpsService.testHost(provider)
-            .then(() => {
+            .then(result => {
               const oldState = provider.state;
-              config.updateDevOpsHostsProviderState(provider.ID, "active");
-              if (oldState === "inactive") {
+              const currentState = result ? "active" : "inactive";
+              if (oldState !== currentState) {
+                config.updateDevOpsHostsProviderState(provider.ID, currentState);
                 vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
               }
             })
@@ -343,11 +350,11 @@ export class DevOpsService {
         console.log("Refreshing Parallels Catalog view");
         isRefreshingParallelsCatalog = true;
         DevOpsService.testHost(config.parallelsCatalogProvider)
-          .then(() => {
+          .then(result => {
             const oldState = config.parallelsCatalogProvider.state;
-            config.parallelsCatalogProvider.state = "active";
-            vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, false);
-            if (oldState === "inactive") {
+            const currentState = result ? "active" : "inactive";
+            if (oldState !== currentState) {
+              config.updateDevOpsHostsProviderState(config.parallelsCatalogProvider.ID, currentState);
               vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
             }
           })
@@ -393,10 +400,11 @@ export class DevOpsService {
         isRefreshingRemoteHostProviders = true;
         for (const provider of config.remoteHostProviders) {
           DevOpsService.testHost(provider)
-            .then(() => {
+            .then(result => {
               const oldState = provider.state;
-              config.updateDevOpsHostsProviderState(provider.ID, "active");
-              if (oldState === "inactive") {
+              const currentState = result ? "active" : "inactive";
+              if (oldState !== currentState) {
+                config.updateDevOpsHostsProviderState(provider.ID, currentState);
                 vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
               }
             })
@@ -489,7 +497,7 @@ export class DevOpsService {
       if (provider.user?.isSuperUser) {
         this.getRemoteHostUsers(provider)
           .then(users => {
-            if (users && (force || diffArray(provider.users, users, "name"))) {
+            if (users && (force || diffArray(provider.users ?? [], users, "name"))) {
               provider.users = users ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -515,7 +523,7 @@ export class DevOpsService {
 
         this.getRemoteHostClaims(provider)
           .then(claims => {
-            if (claims && (force || diffArray(provider.claims, claims, "name"))) {
+            if (claims && (force || diffArray(provider.claims ?? [], claims, "name"))) {
               provider.claims = claims ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -541,7 +549,7 @@ export class DevOpsService {
 
         this.getRemoteHostRoles(provider)
           .then(roles => {
-            if (roles && (force || diffArray(provider.roles, roles, "name"))) {
+            if (roles && (force || diffArray(provider.roles ?? [], roles, "name"))) {
               provider.roles = roles ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -626,6 +634,10 @@ export class DevOpsService {
     const config = Provider.getConfiguration();
     const providers = config.allRemoteHostProviders;
     for (const provider of providers) {
+      if (!provider) {
+        LogService.error("Remote host provider is undefined", "DevOpsService");
+        continue;
+      }
       if (provider.state === "inactive") {
         LogService.info(
           `Parallels Catalog provider ${provider.name} is inactive, retrying connection`,
@@ -699,7 +711,7 @@ export class DevOpsService {
       if (provider.user?.isSuperUser) {
         this.getRemoteHostUsers(provider)
           .then(users => {
-            if (users && (force || diffArray(provider.users, users, "name"))) {
+            if (users && (force || diffArray(provider.users ?? [], users, "name"))) {
               provider.users = users ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -725,7 +737,7 @@ export class DevOpsService {
 
         this.getRemoteHostClaims(provider)
           .then(claims => {
-            if (claims && (force || diffArray(provider.claims, claims, "name"))) {
+            if (claims && (force || diffArray(provider.claims ?? [], claims, "name"))) {
               provider.claims = claims ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -751,7 +763,7 @@ export class DevOpsService {
 
         this.getRemoteHostRoles(provider)
           .then(roles => {
-            if (roles && (force || diffArray(provider.roles, roles, "name"))) {
+            if (roles && (force || diffArray(provider.roles ?? [], roles, "name"))) {
               provider.roles = roles ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -780,7 +792,7 @@ export class DevOpsService {
         // Updating orchestrator resources
         this.getRemoteHostOrchestratorResources(provider)
           .then(resources => {
-            if (resources && (force || diffArray(provider.resources, resources, "cpu_type"))) {
+            if (resources && (force || diffArray(provider.resources ?? [], resources, "cpu_type"))) {
               provider.resources = resources ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -805,8 +817,20 @@ export class DevOpsService {
 
         // Updating orchestrator hosts
         this.getRemoteHostOrchestratorHosts(provider)
-          .then(hosts => {
-            if (hosts && (force || diffArray(provider.hosts, hosts, "id"))) {
+          .then(async hosts => {
+            const orderedHosts = hosts.sort((a, b) => {
+              return a.id.localeCompare(b.id);
+            });
+            const orderedProviderHosts =
+              provider.hosts?.sort((a, b) => {
+                return a.id.localeCompare(b.id);
+              }) ?? [];
+            orderedProviderHosts.forEach(host => {
+              host.catalogCache = undefined;
+            });
+            const v1 = JSON.stringify(orderedHosts);
+            const v2 = JSON.stringify(orderedProviderHosts);
+            if (hosts && (force || diffArray(orderedProviderHosts, orderedHosts, "id"))) {
               provider.hosts = hosts ?? [];
               provider.needsTreeRefresh = true;
               hasUpdate = true;
@@ -829,6 +853,82 @@ export class DevOpsService {
               "DevOpsService"
             );
           });
+        // Getting the catalog machines for each host
+        if (!provider.catalogCache) {
+          provider.catalogCache = {
+            total_size: 0,
+            host_id: provider.ID,
+            manifests: []
+          };
+        }
+        const allFoundManifests: CatalogCacheResponseManifest[] = [];
+        for (const host of provider.hosts ?? []) {
+          if (host.enabled && host.state === "healthy") {
+            try {
+              const cache = await this.getHostCatalogCache(provider, host.id);
+              cache.host_id = host.id;
+              host.catalogCache = {
+                total_size: 0,
+                host_id: host.id,
+                manifests: []
+              };
+              if (provider.catalogCache) {
+                for (const manifest of cache.manifests) {
+                  manifest.host_id = host.id;
+                  host.catalogCache.manifests.push(manifest);
+                  const existingManifest = allFoundManifests.find(
+                    m =>
+                      m.id === manifest.id &&
+                      m.host_id === manifest.host_id &&
+                      m.name === manifest.name &&
+                      m.version === manifest.version &&
+                      m.architecture === manifest.architecture &&
+                      m.catalog_id === manifest.catalog_id
+                  );
+                  if (existingManifest) {
+                    continue;
+                  }
+                  allFoundManifests.push(manifest);
+                }
+              }
+            } catch (e) {
+              continue;
+            }
+          }
+        }
+        const updatedManifests = updateCurrentCacheManifestsItems(provider.catalogCache.manifests, allFoundManifests);
+        provider.catalogCache.manifests = updatedManifests;
+        provider.catalogCache.total_size = calcTotalCacheSize(provider.catalogCache);
+      } else {
+        if (provider.state === "active") {
+          this.getHostCatalogCache(provider, "")
+            .then(cache => {
+              cache.host_id = "";
+              if (!provider.catalogCache) {
+                provider.catalogCache = {
+                  total_size: 0,
+                  host_id: provider.ID,
+                  manifests: []
+                };
+              }
+              for (const manifest of cache.manifests) {
+                manifest.host_id = provider.ID;
+              }
+              const updatedManifests = updateCurrentCacheManifestsItems(
+                provider.catalogCache.manifests,
+                cache.manifests
+              );
+              provider.catalogCache.manifests = updatedManifests;
+              provider.catalogCache.total_size = calcTotalCacheSize(provider.catalogCache);
+            })
+            .catch(err => {
+              LogService.error(
+                `Error getting catalog cache for remote host ${provider.name}, err: ${err}`,
+                "DevOpsService"
+              );
+              provider.catalogCache = undefined;
+            });
+        }
       }
 
       if (hasUpdate) {
@@ -2076,7 +2176,7 @@ export class DevOpsService {
           headers: {
             Authorization: `Bearer ${auth?.token}`
           },
-          timeout: 300000
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -2453,7 +2553,8 @@ LOCAL_PATH ${request.local_path}
         .delete(`${path}`, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
-          }
+          },
+          timeout: 600000
         })
         .catch(err => {
           error = err;
@@ -2873,6 +2974,56 @@ LOCAL_PATH ${request.local_path}
         .post<VirtualMachine>(`${path}`, request, {
           headers: {
             Authorization: `Bearer ${auth?.token}`
+          },
+          timeout: 18000000 // 5 hours
+        })
+        .catch(err => {
+          error = err;
+          return reject(err);
+        });
+
+      if (response?.status !== 200) {
+        return reject(response?.statusText);
+      }
+
+      return !response ? reject(error) : resolve(response?.data);
+    });
+  }
+
+  static async getHostCatalogCache(
+    provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined,
+    hostId = ""
+  ): Promise<CatalogCacheResponse> {
+    return new Promise(async (resolve, reject) => {
+      if (provider === undefined) {
+        return reject("Provider is required");
+      }
+
+      const url = await this.getHostUrl(provider).catch(err => {
+        return reject(err);
+      });
+      const auth = await this.authorize(provider).catch(err => {
+        return reject(err);
+      });
+
+      let path = `${url}/api/v1/catalog/cache`;
+
+      if ("type" in provider) {
+        if (provider.type === "orchestrator") {
+          if (!hostId) {
+            return reject("Host ID is required");
+          }
+
+          path = `${url}/api/v1/orchestrator/hosts/` + hostId + `/catalog/cache`;
+        }
+      }
+
+      let error: any;
+      const response = await axios
+        .get<CatalogCacheResponse>(`${path}`, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+            "X-LOGGING": "IGNORE"
           }
         })
         .catch(err => {
@@ -2881,6 +3032,63 @@ LOCAL_PATH ${request.local_path}
         });
 
       if (response?.status !== 200) {
+        return reject(response?.statusText);
+      }
+
+      return !response ? reject(error) : resolve(response?.data);
+    });
+  }
+
+  static async clearHostCatalogCache(
+    provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined,
+    hostId = "",
+    catalogId = "",
+    versionId = ""
+  ): Promise<CatalogCacheResponse> {
+    return new Promise(async (resolve, reject) => {
+      if (provider === undefined) {
+        return reject("Provider is required");
+      }
+
+      const url = await this.getHostUrl(provider).catch(err => {
+        return reject(err);
+      });
+      const auth = await this.authorize(provider).catch(err => {
+        return reject(err);
+      });
+
+      let path = `${url}/api/v1/catalog/cache`;
+
+      if ("type" in provider) {
+        if (provider.type === "orchestrator") {
+          if (!hostId) {
+            return reject("Host ID is required");
+          }
+
+          path = `${url}/api/v1/orchestrator/hosts/` + hostId + `/catalog/cache`;
+        }
+      }
+      if (catalogId) {
+        path += `/${catalogId}`;
+      }
+      if (versionId) {
+        path += `/${versionId}`;
+      }
+
+      let error: any;
+      const response = await axios
+        .delete(`${path}`, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+            "X-LOGGING": "IGNORE"
+          }
+        })
+        .catch(err => {
+          error = err;
+          return reject(err);
+        });
+
+      if (response?.status !== 202) {
         return reject(response?.statusText);
       }
 

@@ -1,3 +1,4 @@
+import {CatalogCacheResponse} from "../parallels/catalog_cache_response";
 import {VirtualMachine} from "../parallels/virtualMachine";
 import {HostHardwareInfo} from "./hardwareInfo";
 import {DevOpsRemoteHost} from "./remoteHost";
@@ -29,5 +30,6 @@ export interface DevOpsRemoteHostProvider {
   roles?: DevOpsRolesAndClaims[];
   claims?: DevOpsRolesAndClaims[];
   hardwareInfo?: HostHardwareInfo;
+  catalogCache?: CatalogCacheResponse;
   lastUpdatedHardwareInfo?: string;
 }

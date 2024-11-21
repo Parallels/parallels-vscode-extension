@@ -7,21 +7,35 @@ export function diff(obja: any, objb: any): boolean {
   return true;
 }
 
-export function diffArray(obja: any, objb: any, field: string): boolean {
-  if (Array.isArray(obja)) {
-    obja.sort((a, b) => {
+export function diffArray(arrayA: any[], arrayB: any[], field: string): boolean {
+  if (Array.isArray(arrayA)) {
+    arrayA.sort((a, b) => {
       return a[field].localeCompare(b[field]);
     });
   }
-  if (Array.isArray(objb)) {
-    objb.sort((a, b) => {
+  if (Array.isArray(arrayB)) {
+    arrayB.sort((a, b) => {
       return a[field].localeCompare(b[field]);
     });
   }
-  const jsonObjA = JSON.stringify(obja);
-  const jsonObjB = JSON.stringify(objb);
+
+  const jsonObjA = JSON.stringify(arrayA);
+  const jsonObjB = JSON.stringify(arrayB);
   if (jsonObjA === jsonObjB) {
     return false;
+  }
+
+  return true;
+}
+
+function deepEqual(a: any, b: any): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || a == null || b == null) return false;
+  const keysA = Object.keys(a),
+    keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (const key of keysA) {
+    if (!keysB.includes(key) || !deepEqual(a[key], b[key])) return false;
   }
   return true;
 }

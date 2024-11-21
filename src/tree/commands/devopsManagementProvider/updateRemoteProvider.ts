@@ -10,6 +10,8 @@ import {YesNoQuestion, ANSWER_YES} from "../../../helpers/ConfirmDialog";
 import {DevOpsService} from "../../../services/devopsService";
 import {TELEMETRY_DEVOPS_CATALOG, TELEMETRY_DEVOPS_REMOTE} from "../../../telemetry/operations";
 import {ShowErrorMessage} from "../../../helpers/error";
+import {UpdateOrchestratorHostRequest} from "../../../models/devops/updateOrchestratorHostRequest";
+import {getProviderHostFromString} from "../../../helpers/DevOpsClient";
 
 const registerDevOpsManagementProviderUpdateProviderCommand = (
   context: vscode.ExtensionContext,
@@ -56,6 +58,9 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
             label: "Name"
           },
           {
+            label: "Host"
+          },
+          {
             label: "Credentials"
           }
         ],
@@ -98,6 +103,52 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
           } else {
             ShowErrorMessage(providerName, `Error renaming provider ${item.name} to ${newName}`);
           }
+          if (item.className === "DevOpsRemoteHostProvider") {
+            vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+          }
+          if (item.className === "DevOpsCatalogHostProvider") {
+            vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
+          }
+          break;
+        }
+        case "HOST": {
+          let hostValue = `${provider.scheme}://${provider.host}`;
+          if (provider.port) {
+            hostValue += `:${provider.port}`;
+          }
+          const hostname = await vscode.window.showInputBox({
+            prompt: `Remote host?`,
+            placeHolder: `Enter the remote host url, example http://localhost:8080`,
+            value: hostValue,
+            ignoreFocusOut: true
+          });
+          const newProvider = {...provider};
+          const hostData = getProviderHostFromString(hostname ?? "");
+          newProvider.host = hostData.hostname;
+          newProvider.port = Number(hostData.port);
+          newProvider.scheme = hostData.schema;
+          newProvider.rawHost = hostname ?? "";
+          const confirmation = await YesNoQuestion(
+            `Are you sure you want to update provider ${item.name} host to ${hostname}?`
+          );
+
+          if (confirmation !== ANSWER_YES) {
+            return;
+          }
+
+          let result = false;
+          result =
+            (await DevOpsService.testHost(newProvider).catch(error => {
+              result = false;
+            })) ?? false;
+
+          if (result) {
+            config.updateRemoteProvider(newProvider);
+            vscode.window.showInformationMessage(`Provider ${item.name} host updated to ${hostname}`);
+          } else {
+            ShowErrorMessage(providerName, `Failed to connect to ${providerType} provider ${provider.host}`);
+          }
+
           if (item.className === "DevOpsRemoteHostProvider") {
             vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
           }

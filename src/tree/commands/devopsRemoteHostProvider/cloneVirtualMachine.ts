@@ -35,8 +35,9 @@ const registerDevOpCloneVirtualMachineCommand = (
             return;
           }
           const config = Provider.getConfiguration();
-          const providerId = item.id.split("%%")[0];
-          const machineId = item.id.split("%%")[3];
+          const idParts = item.id.split("%%");
+          const providerId = idParts[0];
+          const machineId = idParts[idParts.length - 1];
           const machine = config.findRemoteHostProviderVirtualMachine(providerId, machineId);
           if (!machine) {
             ShowErrorMessage(TELEMETRY_DEVOPS_REMOTE, `Machine ${item.name} not found`);

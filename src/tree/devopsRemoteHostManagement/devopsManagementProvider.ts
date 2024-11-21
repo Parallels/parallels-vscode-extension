@@ -24,71 +24,103 @@ export function drawManagementItems(
       if (className === "DevOpsCatalogHostProvider") {
         provider = config.findCatalogProviderByIOrName(elementId);
       }
+      if (!provider) {
+        return resolve(data);
+      }
+      let isOrchestratorHost = false;
+      let hostId = "";
+      if ("type" in provider && element.id.split("%%")[1] === "hosts") {
+        isOrchestratorHost = true;
+        hostId = element.id.split("%%")[2];
+      }
+
       const usersLength = provider?.users?.length ?? 0;
       const claimsLength = provider?.claims?.length ?? 0;
       const rolesLength = provider?.roles?.length ?? 0;
-      if (provider?.hardwareInfo && provider?.hardwareInfo?.devops_version) {
+
+      if (!isOrchestratorHost) {
         data.push(
           new DevOpsTreeItem(
             context,
-            `${elementId}%%management.info`,
+            `${elementId}%%management.users`,
             elementId,
-            "Information",
-            "management.info",
-            "Information",
+            "Users",
+            "management.users",
+            "Users",
             "",
             className,
-            "devops.remote.management.info",
+            "devops.remote.management.users",
             usersLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-            "management_information"
+            "remote_hosts_management_users"
+          )
+        );
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${elementId}%%roles`,
+            elementId,
+            "Roles",
+            "management.roles",
+            "Roles",
+            "",
+            className,
+            "devops.remote.management.roles",
+            rolesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            "remote_hosts_management_roles"
+          )
+        );
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${elementId}%%management.claims`,
+            elementId,
+            "Claims",
+            "management.claims",
+            "Claims",
+            "",
+            className,
+            "devops.remote.management.claims",
+            claimsLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            "remote_hosts_management_claims"
           )
         );
       }
-      data.push(
-        new DevOpsTreeItem(
-          context,
-          `${elementId}%%management.users`,
-          elementId,
-          "Users",
-          "management.users",
-          "Users",
-          "",
-          className,
-          "devops.remote.management.users",
-          usersLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-          "remote_hosts_management_users"
-        )
-      );
-      data.push(
-        new DevOpsTreeItem(
-          context,
-          `${elementId}%%roles`,
-          elementId,
-          "Roles",
-          "management.roles",
-          "Roles",
-          "",
-          className,
-          "devops.remote.management.roles",
-          rolesLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-          "remote_hosts_management_roles"
-        )
-      );
-      data.push(
-        new DevOpsTreeItem(
-          context,
-          `${elementId}%%management.claims`,
-          elementId,
-          "Claims",
-          "management.claims",
-          "Claims",
-          "",
-          className,
-          "devops.remote.management.claims",
-          claimsLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-          "remote_hosts_management_claims"
-        )
-      );
+
+      if (provider?.catalogCache?.manifests?.length ?? 0 > 0) {
+        let itemType = element.type;
+        if (className === "DevOpsCatalogHostProvider") {
+          itemType = "management.catalog_provider.catalog.cache";
+        }
+        if (className === "DevOpsRemoteHostProvider") {
+          if ("type" in provider && provider.type === "orchestrator") {
+            if (element.id.split("%%")[1] === "hosts") {
+              itemType = "management.remote_hosts.orchestrator.host.catalog.cache";
+            } else {
+              itemType = "management.remote_hosts.orchestrator.catalog.cache";
+            }
+          } else {
+            itemType = "management.remote_hosts.remote_host.catalog.cache";
+          }
+        }
+        const id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            id,
+            elementId,
+            "Catalog Cache",
+            itemType,
+            "Catalog Cache",
+            "",
+            className,
+            "devops.remote.management.catalog.cache",
+            usersLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            "catalog_cache"
+          )
+        );
+      } else {
+        console.log("No Catalog Cache Items Found");
+      }
     }
 
     return resolve(data);
@@ -241,6 +273,23 @@ export function drawManagementInfoSubItems(
             "",
             className,
             "devops.remote.management.info.devops_version",
+            vscode.TreeItemCollapsibleState.None,
+            "management_information_item"
+          )
+        );
+      }
+      if (provider?.hardwareInfo && provider?.hardwareInfo?.os_name) {
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${id}%%os`,
+            elementId,
+            `OS: ${provider?.hardwareInfo?.os_name} ${provider?.hardwareInfo?.os_version}`,
+            "management.info.os",
+            `OS: ${provider?.hardwareInfo?.os_name} ${provider?.hardwareInfo?.os_version}`,
+            "",
+            className,
+            "devops.remote.management.info.os",
             vscode.TreeItemCollapsibleState.None,
             "management_information_item"
           )
