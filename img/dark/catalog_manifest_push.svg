@@ -1,20 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo
-Mixer Tools -->
-
-<svg
-   width="800px"
-   height="800px"
-   viewBox="0 0 24 24"
-   fill="none"
-   version="1.1"
-   id="svg1"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs1" />
-  <path
-     id="path1-2"
-     style="fill:none;stroke:#d6d6d6;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
-     d="M 11.954044,4.0426188 V 15.042619 m 0,-11.0000002 3,2.9999999 m -3,-2.9999999 -2.9999998,2.9999999 M 17,17 h 0.01 M 17.4,14 H 18 c 0.9319,0 1.3978,0 1.7654,0.1522 0.49,0.203 0.8794,0.5924 1.0824,1.0824 C 21,15.6022 21,16.0681 21,17 c 0,0.9319 0,1.3978 -0.1522,1.7654 -0.203,0.49 -0.5924,0.8794 -1.0824,1.0824 C 19.3978,20 18.9319,20 18,20 H 6 C 5.06812,20 4.60218,20 4.23463,19.8478 3.74458,19.6448 3.35523,19.2554 3.15224,18.7654 3,18.3978 3,17.9319 3,17 3,16.0681 3,15.6022 3.15224,15.2346 3.35523,14.7446 3.74458,14.3552 4.23463,14.1522 4.60218,14 5.06812,14 6,14 h 0.6" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>catalog_manifest_push</title>
+    <g id="catalog_manifest_push" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M4,10 L4,10.999 L3,11 C2.44771525,11 2,11.4477153 2,12 L2,13 C2,13.5522847 2.44771525,14 3,14 L12,14 C12.5522847,14 13,13.5522847 13,13 L13,12 C13,11.4477153 12.5522847,11 12,11 L11,11 L11,10 L12,10 C13.1045695,10 14,10.8954305 14,12 L14,13 C14,14.1045695 13.1045695,15 12,15 L3,15 C1.8954305,15 1,14.1045695 1,13 L1,12 C1,10.8954305 1.8954305,10 3,10 L4,10 Z M7.52363166,1.93553715 L10.3520588,4.76396427 L9.64495201,5.47107105 L8,3.82653715 L8,11 L7,11 L7,3.87253715 L5.40231132,5.47107105 L4.69520454,4.76396427 L7.52363166,1.93553715 Z" id="Shape" fill="#D6D6D6" fill-rule="nonzero"></path>
+    </g>
 </svg>

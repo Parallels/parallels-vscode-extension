@@ -980,16 +980,32 @@
                 "command": "parallels-desktop.catalog-cache.clear-cache-item",
                 "title": "Parallels Catalog: Clear cache item",
                 "icon": {
-                    "light": "img/light/catalog_cache_clean_2.svg",
-                    "dark": "img/dark/catalog_cache_clean_2.svg"
+                    "light": "img/light/catalog_cache_clean.svg",
+                    "dark": "img/dark/catalog_cache_clean.svg"
                 }
             },
             {
                 "command": "parallels-desktop.catalog-cache.clear-cache-item-version",
                 "title": "Parallels Catalog: Clear cache item version",
                 "icon": {
-                    "light": "img/light/catalog_cache_clean_2.svg",
-                    "dark": "img/dark/catalog_cache_clean_2.svg"
+                    "light": "img/light/catalog_cache_clean.svg",
+                    "dark": "img/dark/catalog_cache_clean.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.logs.start",
+                "title": "DevOps Service: Start Logs streaming",
+                "icon": {
+                    "light": "img/light/start.svg",
+                    "dark": "img/dark/start.svg"
+                }
+            },
+            {
+                "command": "parallels-desktop.logs.stop",
+                "title": "DevOps Service: Stop Logs streaming",
+                "icon": {
+                    "light": "img/light/stop.svg",
+                    "dark": "img/dark/stop.svg"
                 }
             }
         ],
@@ -1338,6 +1354,14 @@
                 },
                 {
                     "command": "parallels-desktop.catalog-cache.clear-cache-item-version",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.logs.start",
+                    "when": "false"
+                },
+                {
+                    "command": "parallels-desktop.logs.stop",
                     "when": "false"
                 }
             ],
@@ -1807,6 +1831,16 @@
                 {
                     "command": "parallels-desktop.catalog-cache.clear-cache-item-version",
                     "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.management\\.catalog\\.cache\\.manifests\\.manifest\\.version$/",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "parallels-desktop.logs.start",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.(orchestrator)\\.devops_service\\.logs$/",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "parallels-desktop.logs.stop",
+                    "when": "(view == parallels-desktop-remote-hosts || view == parallels-desktop-remote-catalog) && viewItem =~ /devops\\.remote\\.(orchestrator)\\.devops_service\\.logs.running$/",
                     "group": "inline@0"
                 }
             ]

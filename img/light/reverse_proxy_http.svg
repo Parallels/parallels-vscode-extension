@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>reverseproxy_http</title>
+  <g id="reverseproxy_http" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <polygon id="Path" fill-opacity="0.5" fill="#000000"
+      points="13 5 13 3 3 3 3 5 2 5 2 2 14 2 14 6 3 6 3 13 7 13 7 14 2 14 2 5"></polygon>
+    <path
+      d="M6,9 L7,9 L7,10 L6,10 L6,9 Z M6,11 L7,11 L7,12 L6,12 L6,11 Z M10.0052414,6.97597605 L10.9947586,7.12039149 L9.9801732,14.0722077 L8.99065605,13.9277923 L10.0052414,6.97597605 Z M12.9822964,6.97965987 L13.9728609,7.11670767 L13.0110545,14.0685239 L12.0204901,13.9314761 L12.9822964,6.97965987 Z"
+      id="Combined-Shape" fill="#000000"></path>
+  </g>
+</svg>

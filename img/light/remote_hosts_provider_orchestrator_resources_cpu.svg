@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>icon/icon_CATALOG_CPU</title>
-  <g id="icon/icon_CATALOG_CPU" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+  <title>remote_hosts_provider_orchestrator_resources_cpu</title>
+  <g id="remote_hosts_provider_orchestrator_resources_cpu" stroke="none" stroke-width="1"
+    fill="none" fill-rule="evenodd">
     <path
       d="M6,1 L6,2 L8,2 L8,1 L9,1 L9,2 L11,2 L11,1 L12,1 L12,2 C13.1045695,2 14,2.8954305 14,4 L15,4 L15,5 L14,5 L14,7 L15,7 L15,8 L14,8 L14,10 L15,10 L15,11 L14,11 C14,12.1045695 13.1045695,13 12,13 L12,14 L11,14 L11,13 L9,13 L9,14 L8,14 L8,13 L6,13 L6,14 L5,14 L5,13 C3.8954305,13 3,12.1045695 3,11 L3,4 C3,2.8954305 3.8954305,2 5,2 L5,1 L6,1 Z M11.9821557,3.02715899 L5.01219039,3.02715899 C4.45990564,3.02715899 4.01219039,3.47487424 4.01219039,4.02715899 L4.01219039,10.9960578 C4.01219039,11.5483426 4.45990564,11.9960578 5.01219039,11.9960578 L11.9821557,11.9960578 C12.5344404,11.9960578 12.9821557,11.5483426 12.9821557,10.9960578 L12.9821557,4.02715899 C12.9821557,3.47487424 12.5344404,3.02715899 11.9821557,3.02715899 Z M3,10 L3,11 L2,11 L2,10 L3,10 Z M11,5 L11,10 L6,10 L6,5 L11,5 Z M3,7 L3,8 L2,8 L2,7 L3,7 Z M3,4 L3,5 L2,5 L2,4 L3,4 Z"
       id="Combined-Shape" fill="#000000"></path>

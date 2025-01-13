@@ -1,4 +1,5 @@
 import {CatalogCacheResponse} from "../parallels/catalog_cache_response";
+import {DevOpsReverseProxy} from "./reverse_proxy_hosts";
 
 export interface DevOpsRemoteHost {
   id: string;
@@ -21,6 +22,7 @@ export interface DevOpsRemoteHost {
   resources: DevOpsRemoteHostResources;
   detailed_resources: DevOpsRemoteHostDetailedResources;
   catalogCache?: CatalogCacheResponse;
+  reverseProxy?: DevOpsReverseProxy;
 }
 
 export interface DevOpsRemoteHostResources {
@@ -37,6 +39,7 @@ export interface DevOpsRemoteHostReverseProxy {
 
 export interface DevOpsRemoteHostReverseProxyHost {
   id: string;
+  host_id: string;
   host: string;
   port: string;
   tcp_route?: DevOpsRemoteHostReverseProxyHostTCPRoute;

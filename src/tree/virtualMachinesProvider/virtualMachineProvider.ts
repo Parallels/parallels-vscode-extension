@@ -405,7 +405,7 @@ export class VirtualMachineProvider
                     currentCollapsibleState ?? dockerContainers.length > 0
                       ? vscode.TreeItemCollapsibleState.Collapsed
                       : vscode.TreeItemCollapsibleState.None,
-                    "docker"
+                    "docker_container"
                   )
                 );
               }
@@ -448,7 +448,7 @@ export class VirtualMachineProvider
                     currentCollapsibleState ?? dockerImages.length > 0
                       ? vscode.TreeItemCollapsibleState.Collapsed
                       : vscode.TreeItemCollapsibleState.None,
-                    "docker_image"
+                    "docker_images"
                   )
                 );
               }

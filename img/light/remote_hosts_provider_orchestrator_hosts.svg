@@ -1,14 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo
-Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path
-    d="M13 21H6C4.11438 21 3.17157 21 2.58579 20.4142C2 19.8284 2 18.8856 2 17C2 15.1144 2 14.1716 2.58579 13.5858C3.17157 13 4.11438 13 6 13H18C19.8856 13 20.8284 13 21.4142 13.5858C22 14.1716 22 15.1144 22 17C22 18.8856 22 19.8284 21.4142 20.4142C20.8284 21 19.8856 21 18 21H17"
-    stroke="#000000" stroke-width="1.5" stroke-linecap="round" />
-  <path
-    d="M11 2H18C19.8856 2 20.8284 2 21.4142 2.58579C22 3.17157 22 4.11438 22 6C22 7.88562 22 8.82843 21.4142 9.41421C20.8284 10 19.8856 10 18 10H6C4.11438 10 3.17157 10 2.58579 9.41421C2 8.82843 2 7.88562 2 6C2 4.11438 2 3.17157 2.58579 2.58579C3.17157 2 4.11438 2 6 2H7"
-    stroke="#000000" stroke-width="1.5" stroke-linecap="round" />
-  <path d="M11 6H18" stroke="#000000" stroke-width="1.5" stroke-linecap="round" />
-  <path d="M6 6H8" stroke="#000000" stroke-width="1.5" stroke-linecap="round" />
-  <path d="M11 17H18" stroke="#000000" stroke-width="1.5" stroke-linecap="round" />
-  <path d="M6 17H8" stroke="#000000" stroke-width="1.5" stroke-linecap="round" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>remote_hosts_provider_orchestrator_hosts</title>
+  <g id="remote_hosts_provider_orchestrator_hosts" stroke="none" stroke-width="1" fill="none"
+    fill-rule="evenodd">
+    <path
+      d="M13,8 C14.1045695,8 15,8.8954305 15,10 L15,13 C15,14.1045695 14.1045695,15 13,15 L5,15 C3.8954305,15 3,14.1045695 3,13 L3,10 C3,8.8954305 3.8954305,8 5,8 L13,8 Z M12.9215502,9 L5,9 C4.44771525,9 4,9.44771525 4,10 L4,13 C4,13.5522847 4.44771525,14 5,14 L12.9215502,14 C13.4738349,14 13.9215502,13.5522847 13.9215502,13 L13.9215502,10 C13.9215502,9.44771525 13.4738349,9 12.9215502,9 Z M10,11 L10,12 L6,12 L6,11 L10,11 Z M12,11 L12,12 L11,12 L11,11 L12,11 Z M11,2 C12.1045695,2 13,2.8954305 13,4 L13,7 L11.9215502,7 L11.9215502,4 C11.9215502,3.44771525 11.4738349,3 10.9215502,3 L3,3 C2.44771525,3 2,3.44771525 2,4 L1.99992752,8.73239368 C1.40216612,8.38657394 1,7.74025244 1,7 L1,4 C1,2.8954305 1.8954305,2 3,2 L11,2 Z M8,5 L8,6 L4,6 L4,5 L8,5 Z M10,5 L10,6 L9,6 L9,5 L10,5 Z"
+      id="Shape" fill="#000000"></path>
+  </g>
 </svg>

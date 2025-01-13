@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>reverseproxy</title>
+    <g id="reverseproxy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M4,15 L4,14 L8,14 L8,13 L9,13 L9,14 L13,14 L13,15 L4,15 Z M12,2 C13.1045695,2 14,2.8954305 14,4 L14,9 C14,10.1045695 13.1045695,11 12,11 L5,11 C3.8954305,11 3,10.1045695 3,9 L3,4 C3,2.8954305 3.8954305,2 5,2 L12,2 Z M4,7 L4,9.1 C4,9.65228475 4.44771525,10.1 5,10.1 L12,10.1 C12.5522847,10.1 13,9.65228475 13,9.1 L13,7 L4,7 Z M7,4 L7,5 L6,5 L6,4 L7,4 Z M4,6 L13,6 L13,3.9 C13,3.34771525 12.5522847,2.9 12,2.9 L5,2.9 C4.44771525,2.9 4,3.34771525 4,3.9 L4,6 Z" id="Combined-Shape" fill="#D6D6D6"></path>
+    </g>
+</svg>

@@ -21,7 +21,7 @@ import {diffArray, hasPassed24Hours} from "../helpers/diff";
 import {DevOpsRemoteHostProvider} from "../models/devops/remoteHostProvider";
 import {VirtualMachine} from "../models/parallels/virtualMachine";
 import {DevOpsRemoteHostResource} from "../models/devops/remoteHostResource";
-import {DevOpsRemoteHost} from "../models/devops/remoteHost";
+import {DevOpsRemoteHost, DevOpsRemoteHostReverseProxyHost} from "../models/devops/remoteHost";
 import {cleanString} from "../helpers/strings";
 import {DevOpsVirtualMachineConfigureRequest} from "../models/devops/virtualMachineConfigureRequest";
 import {CatalogPushRequest} from "../models/devops/catalogPushRequest";
@@ -44,6 +44,11 @@ import {
   CatalogCacheResponseManifest,
   updateCurrentCacheManifestsItems
 } from "../models/parallels/catalog_cache_response";
+import {
+  DevOpsReverseProxy,
+  ReverseProxyConfig,
+  updateCurrentDevOpsReverseProxyItems
+} from "../models/devops/reverse_proxy_hosts";
 
 const refreshThreshold = 15000;
 const parallelsCatalogThreshold = 3600000;
@@ -662,6 +667,7 @@ export class DevOpsService {
       let hasUpdate = false;
 
       if (
+        force ||
         !provider.hardwareInfo ||
         hasPassed24Hours(provider.lastUpdatedHardwareInfo ?? "", hardwareRefreshThreshold)
       ) {
@@ -828,8 +834,6 @@ export class DevOpsService {
             orderedProviderHosts.forEach(host => {
               host.catalogCache = undefined;
             });
-            const v1 = JSON.stringify(orderedHosts);
-            const v2 = JSON.stringify(orderedProviderHosts);
             if (hosts && (force || diffArray(orderedProviderHosts, orderedHosts, "id"))) {
               provider.hosts = hosts ?? [];
               provider.needsTreeRefresh = true;
@@ -853,7 +857,7 @@ export class DevOpsService {
               "DevOpsService"
             );
           });
-        // Getting the catalog machines for each host
+        // Getting the catalog cache for each host
         if (!provider.catalogCache) {
           provider.catalogCache = {
             total_size: 0,
@@ -899,6 +903,48 @@ export class DevOpsService {
         const updatedManifests = updateCurrentCacheManifestsItems(provider.catalogCache.manifests, allFoundManifests);
         provider.catalogCache.manifests = updatedManifests;
         provider.catalogCache.total_size = calcTotalCacheSize(provider.catalogCache);
+
+        // getting the reverse proxy configuration for each host
+        if (!provider.reverseProxy) {
+          provider.reverseProxy = {
+            reverse_proxy_config: {
+              enabled: false,
+              id: "",
+              host: "",
+              port: ""
+            },
+            reverse_proxy_hosts: []
+          };
+        }
+
+        const allReverseProxyHosts: DevOpsRemoteHostReverseProxyHost[] = [];
+        for (const host of provider.hosts ?? []) {
+          if (host.enabled && host.state === "healthy") {
+            try {
+              const hostReverseProxy = await this.getRemoteHostReverseProxy(provider, host.id).catch(err => {
+                LogService.error(
+                  `Error getting reverse proxy configuration for remote host provider ${provider.name}, err: ${err}`,
+                  "DevOpsService"
+                );
+              });
+              if (hostReverseProxy) {
+                hostReverseProxy.reverse_proxy_hosts?.forEach(h => {
+                  h.host_id = host.id;
+                });
+                host.reverseProxy = hostReverseProxy;
+                const currentItems = host.reverseProxy.reverse_proxy_hosts ?? [];
+                allReverseProxyHosts.push(...currentItems);
+              }
+            } catch (e) {
+              continue;
+            }
+          }
+        }
+        const updatedReverseProxyHosts = updateCurrentDevOpsReverseProxyItems(
+          provider.reverseProxy.reverse_proxy_hosts ?? [],
+          allReverseProxyHosts
+        );
+        provider.reverseProxy.reverse_proxy_hosts = updatedReverseProxyHosts;
       } else {
         if (provider.state === "active") {
           this.getHostCatalogCache(provider, "")
@@ -928,6 +974,16 @@ export class DevOpsService {
               );
               provider.catalogCache = undefined;
             });
+
+          const reverseProxy = await this.getRemoteHostReverseProxy(provider).catch(err => {
+            LogService.error(
+              `Error getting reverse proxy configuration for remote host provider ${provider.name}, err: ${err}`,
+              "DevOpsService"
+            );
+          });
+          if (reverseProxy) {
+            provider.reverseProxy = reverseProxy;
+          }
         }
       }
 
@@ -3093,6 +3149,95 @@ LOCAL_PATH ${request.local_path}
       }
 
       return !response ? reject(error) : resolve(response?.data);
+    });
+  }
+
+  static async getRemoteHostReverseProxy(
+    provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider | undefined,
+    hostId = ""
+  ): Promise<DevOpsReverseProxy> {
+    return new Promise(async (resolve, reject) => {
+      const response: DevOpsReverseProxy = {};
+      if (provider === undefined) {
+        return reject("Provider is required");
+      }
+
+      const url = await this.getHostUrl(provider).catch(err => {
+        return reject(err);
+      });
+      const auth = await this.authorize(provider).catch(err => {
+        return reject(err);
+      });
+
+      let configPath = `${url}/api/v1/reverse-proxy`;
+
+      if ("type" in provider) {
+        if (provider.type === "orchestrator") {
+          if (!hostId) {
+            return reject("Host ID is required");
+          }
+
+          configPath = `${url}/api/v1/orchestrator/hosts/` + hostId + `/reverse-proxy`;
+        }
+      }
+
+      let error: any;
+      const rpConfigResponse = await axios
+        .get<ReverseProxyConfig>(`${configPath}`, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+            "X-LOGGING": "IGNORE"
+          }
+        })
+        .catch(err => {
+          error = err;
+          return reject(err);
+        });
+
+      if (rpConfigResponse?.status !== 200) {
+        return reject(rpConfigResponse?.statusText);
+      }
+
+      if (!rpConfigResponse) {
+        return reject(error);
+      }
+
+      response.reverse_proxy_config = rpConfigResponse.data;
+
+      let hostPath = `${url}/api/v1/reverse-proxy/hosts`;
+
+      if ("type" in provider) {
+        if (provider.type === "orchestrator") {
+          if (!hostId) {
+            return reject("Host ID is required");
+          }
+
+          hostPath = `${url}/api/v1/orchestrator/hosts/` + hostId + `/reverse-proxy/hosts`;
+        }
+      }
+
+      let hostError: any;
+      const rpHostsResponse = await axios
+        .get<DevOpsRemoteHostReverseProxyHost[]>(`${hostPath}`, {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+            "X-LOGGING": "IGNORE"
+          }
+        })
+        .catch(err => {
+          hostError = err;
+          return reject(err);
+        });
+
+      if (rpHostsResponse?.status !== 200) {
+        return reject(rpHostsResponse?.statusText);
+      }
+
+      if (!rpHostsResponse) {
+        return reject(hostError);
+      }
+      response.reverse_proxy_hosts = rpHostsResponse.data;
+      return resolve(response);
     });
   }
 }

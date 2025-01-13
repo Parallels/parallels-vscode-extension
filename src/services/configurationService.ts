@@ -1127,7 +1127,7 @@ export class ConfigurationService {
         return resolve(false);
       } else {
         // Check if the DevOps Service is up to date
-        const version = await DevOpsService.version().catch(reason => {
+        const version = await DevOpsService.version(true).catch(reason => {
           this.tools.devopsService.isInstalled = false;
           this.tools.devopsService.version = "";
           vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);

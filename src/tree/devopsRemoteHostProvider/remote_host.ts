@@ -1,6 +1,9 @@
 import * as vscode from "vscode";
 import {Provider} from "../../ioc/provider";
 import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
+import {compareVersions} from "../../helpers/strings";
+import {CommandsFlags} from "../../constants/flags";
+import {getLogChannelById} from "../../services/logChannelService";
 
 export function drawRemoteHostItems(
   context: vscode.ExtensionContext,
@@ -14,6 +17,7 @@ export function drawRemoteHostItems(
       element.type === "provider.remote_host.orchestrator"
     ) {
       const elementId = element.id.split("%%")[1];
+      const config = Provider.getConfiguration();
       const provider = Provider.getConfiguration().findRemoteHostProviderById(elementId);
       const virtualMachinesLength = provider?.virtualMachines?.length ?? 0;
       const isSuperUser = provider?.user?.isSuperUser ?? false;
@@ -141,6 +145,29 @@ export function drawRemoteHostItems(
           "group"
         )
       );
+      if (compareVersions(provider.hardwareInfo?.devops_version ?? "", "0.9.12") > 0) {
+        const socketId = `${provider.ID}%%logs`;
+        const logsSocket = getLogChannelById(socketId);
+        let contextType = "devops.remote.orchestrator.devops_service.logs";
+        if (logsSocket) {
+          contextType = "devops.remote.orchestrator.devops_service.logs.running";
+        }
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${id}%%logs`,
+            elementId,
+            "Logs",
+            "provider.remote_host.host.logs",
+            "Logs",
+            "",
+            "DevOpsRemoteHostProvider",
+            contextType,
+            vscode.TreeItemCollapsibleState.None,
+            "logs"
+          )
+        );
+      }
     }
 
     return resolve(data);

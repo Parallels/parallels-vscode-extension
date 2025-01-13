@@ -107,6 +107,8 @@ import {VagrantInstallCommand} from "./common/installVagrant";
 import {DevOpsManagementClearAllCatalogCacheItemsCommand} from "./devopsManagementProvider/clearAllCatalogCacheItems";
 import {DevOpsManagementClearCatalogCacheItemCommand} from "./devopsManagementProvider/clearCatalogCacheItem";
 import {DevOpsManagementClearCatalogCacheItemVersionCommand} from "./devopsManagementProvider/clearCatalogCacheItemVersion";
+import {DevOpsManagementOpenLogsCommand} from "./devopsManagementProvider/startHostLogs";
+import {DevOpsManagementCloseLogsCommand} from "./devopsManagementProvider/stopHostLogs";
 
 export const AllCommonCommand: CommonCommand[] = [
   BuyProLicenseCommonCommand,
@@ -220,7 +222,9 @@ export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderMana
   DevOpsManagementProviderUpdateUserCommand,
   DevOpsManagementClearAllCatalogCacheItemsCommand,
   DevOpsManagementClearCatalogCacheItemCommand,
-  DevOpsManagementClearCatalogCacheItemVersionCommand
+  DevOpsManagementClearCatalogCacheItemVersionCommand,
+  DevOpsManagementOpenLogsCommand,
+  DevOpsManagementCloseLogsCommand
 ];
 
 export const AllParallelsCommands: ParallelsCatalogCommand[] = [

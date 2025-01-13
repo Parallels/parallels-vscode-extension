@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg fill="#d6d6d6" xmlns="http://www.w3.org/2000/svg" 
-	 width="800px" height="800px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
-<path d="M61.8,29.4l8.9,8.9l0,0c2,1.9,2,5.1,0,7l0,0L47.5,68.4V36.6l7.2-7.2C56.6,27.4,59.9,27.4,61.8,29.4z
-	 M80,62.5V75c0,2.8-2.2,5-5,5H43.8l22.5-22.5H75C77.8,57.5,80,59.8,80,62.5z M20,68.8V25c0-2.8,2.2-5,5-5h12.5c2.8,0,5,2.2,5,5v43.8
-	c0,6.2-5,11.2-11.2,11.2S20,75,20,68.8z M31.2,73.8c2.8,0,5-2.2,5-5s-2.2-5-5-5s-5,2.2-5,5S28.5,73.8,31.2,73.8z"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>catalog_provider</title>
+    <g id="catalog_provider" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M5,2 C5.55228475,2 6,2.44771525 6,3 L6,14 C6,14.5522847 5.55228475,15 5,15 L3,15 C2.44771525,15 2,14.5522847 2,14 L2,3 C2,2.44771525 2.44771525,2 3,2 L5,2 Z M11,2 C11.5522847,2 12,2.44771525 12,3 L12,14 C12,14.5522847 11.5522847,15 11,15 L9,15 C8.44771525,15 8,14.5522847 8,14 L8,3 C8,2.44771525 8.44771525,2 9,2 L11,2 Z M4,11 C3.44771525,11 3,11.4477153 3,12 C3,12.5522847 3.44771525,13 4,13 C4.55228475,13 5,12.5522847 5,12 C5,11.4477153 4.55228475,11 4,11 Z M10,11 C9.44771525,11 9,11.4477153 9,12 C9,12.5522847 9.44771525,13 10,13 C10.5522847,13 11,12.5522847 11,12 C11,11.4477153 10.5522847,11 10,11 Z" id="Combined-Shape" fill="#D6D6D6"></path>
+    </g>
 </svg>
