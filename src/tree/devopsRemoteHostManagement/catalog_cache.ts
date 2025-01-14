@@ -3,9 +3,7 @@ import {Provider} from "../../ioc/provider";
 import {DevOpsTreeItem} from "../treeItems/devOpsTreeItem";
 import {DevOpsRemoteHostProvider} from "../../models/devops/remoteHostProvider";
 import {DevOpsCatalogHostProvider} from "../../models/devops/catalogHostProvider";
-import {DevOpsService} from "../../services/devopsService";
-import {getId} from "../common/devops_common";
-import {formatMemorySize, formatMemorySizeStr} from "../common/formatters";
+import {formatMemorySize} from "../common/formatters";
 import {
   calcTotalCacheSize,
   createEmptyCatalogCacheResponse,
@@ -210,7 +208,7 @@ export function drawHostCatalogCacheItems(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.catalog.cache.manifests.manifest",
             hasSubItems ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-            "catalog_cache_item"
+            "list_element"
           )
         );
       }
@@ -297,7 +295,7 @@ export function drawHostCatalogCacheItemDetails(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.catalog.cache.manifests.manifest.no_version",
             vscode.TreeItemCollapsibleState.None,
-            "catalog_cache_item"
+            "list_element"
           )
         );
         return resolve(data);
@@ -325,7 +323,7 @@ export function drawHostCatalogCacheItemDetails(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.catalog.cache.manifests.manifest.version",
             vscode.TreeItemCollapsibleState.None,
-            "info"
+            "list_element"
           )
         );
       }

@@ -1,3 +1,4 @@
+import {DevOpsReverseProxy} from "./reverse_proxy_hosts";
 import {CatalogCacheResponse} from "../parallels/catalog_cache_response";
 import {VirtualMachine} from "../parallels/virtualMachine";
 import {HostHardwareInfo} from "./hardwareInfo";
@@ -31,5 +32,6 @@ export interface DevOpsRemoteHostProvider {
   claims?: DevOpsRolesAndClaims[];
   hardwareInfo?: HostHardwareInfo;
   catalogCache?: CatalogCacheResponse;
+  reverseProxy?: DevOpsReverseProxy;
   lastUpdatedHardwareInfo?: string;
 }

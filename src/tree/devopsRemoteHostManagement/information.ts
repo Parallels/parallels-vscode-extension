@@ -56,7 +56,7 @@ export function drawHostInfo(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.info.cpu",
             vscode.TreeItemCollapsibleState.None,
-            "remote_hosts_provider_orchestrator_resources_architecture"
+            "list_element"
           )
         );
       }
@@ -73,7 +73,7 @@ export function drawHostInfo(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.info.devops_version",
             vscode.TreeItemCollapsibleState.None,
-            "management_information_item"
+            "list_element"
           )
         );
       }
@@ -96,7 +96,7 @@ export function drawHostInfo(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.info.devops_version",
             vscode.TreeItemCollapsibleState.None,
-            "management_information_item"
+            "list_element"
           )
         );
       }
@@ -113,7 +113,7 @@ export function drawHostInfo(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.info.os",
             vscode.TreeItemCollapsibleState.None,
-            "management_information_item"
+            "list_element"
           )
         );
       }
@@ -130,7 +130,7 @@ export function drawHostInfo(
             "DevOpsRemoteHostProvider",
             "devops.remote.management.info.os",
             vscode.TreeItemCollapsibleState.None,
-            "network_ip_address"
+            "list_element"
           )
         );
       }

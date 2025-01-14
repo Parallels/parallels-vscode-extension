@@ -5,6 +5,8 @@ import {
   getCacheManifestsItems,
   getCacheManifestsItemsFromResponse
 } from "../../models/parallels/catalog_cache_response";
+import {compareVersions} from "../../helpers/strings";
+import {getLogChannelById} from "../../services/logChannelService";
 
 export function drawOrchestratorHostsItems(
   ctx: vscode.ExtensionContext,
@@ -147,6 +149,29 @@ export function drawOrchestratorHostsHostItems(
             )
           );
         }
+        if (compareVersions(host.devops_version, "0.9.12") > 0) {
+          const socketId = `${host.id}%%logs`;
+          const logsSocket = getLogChannelById(socketId);
+          let contextType = "devops.remote.orchestrator.devops_service.logs";
+          if (logsSocket) {
+            contextType = "devops.remote.orchestrator.devops_service.logs.running";
+          }
+          data.push(
+            new DevOpsTreeItem(
+              ctx,
+              `${hostId}%%logs`,
+              elementId,
+              "Logs",
+              "provider.remote_host.host.logs",
+              "Logs",
+              "",
+              "DevOpsRemoteHostProvider",
+              contextType,
+              vscode.TreeItemCollapsibleState.None,
+              "logs"
+            )
+          );
+        }
       }
     }
 
@@ -221,7 +246,7 @@ export function drawOrchestratorResourcesArchitecture(
                 "DevOpsRemoteHostProvider",
                 "devops.remote.orchestrator.system_reserved",
                 vscode.TreeItemCollapsibleState.Collapsed,
-                "remote_hosts_provider_orchestrator_resources"
+                "remote_hosts_provider_orchestrator_resource"
               )
             );
           }
@@ -237,7 +262,7 @@ export function drawOrchestratorResourcesArchitecture(
               "DevOpsRemoteHostProvider",
               "devops.remote.orchestrator.resources.total",
               vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
+              "remote_hosts_provider_orchestrator_resource"
             )
           );
           data.push(
@@ -252,7 +277,7 @@ export function drawOrchestratorResourcesArchitecture(
               "DevOpsRemoteHostProvider",
               "devops.remote.orchestrator.resources.total_available",
               vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
+              "remote_hosts_provider_orchestrator_resource"
             )
           );
           data.push(
@@ -267,7 +292,7 @@ export function drawOrchestratorResourcesArchitecture(
               "DevOpsRemoteHostProvider",
               "devops.remote.orchestrator.resources.total_used",
               vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
+              "remote_hosts_provider_orchestrator_resource"
             )
           );
           data.push(
@@ -282,7 +307,7 @@ export function drawOrchestratorResourcesArchitecture(
               "DevOpsRemoteHostProvider",
               "devops.remote.orchestrator.resources.total_reserved",
               vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
+              "remote_hosts_provider_orchestrator_resource"
             )
           );
         }

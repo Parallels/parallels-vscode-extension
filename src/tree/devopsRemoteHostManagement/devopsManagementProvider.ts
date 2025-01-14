@@ -18,8 +18,6 @@ export function drawManagementItems(
       let provider: DevOpsRemoteHostProvider | DevOpsCatalogHostProvider | undefined = undefined;
       if (className === "DevOpsRemoteHostProvider") {
         provider = config.findRemoteHostProviderById(elementId);
-        const t = provider as DevOpsRemoteHostProvider;
-        console.log(t);
       }
       if (className === "DevOpsCatalogHostProvider") {
         provider = config.findCatalogProviderByIOrName(elementId);
@@ -27,16 +25,24 @@ export function drawManagementItems(
       if (!provider) {
         return resolve(data);
       }
-      let isOrchestratorHost = false;
-      let hostId = "";
-      if ("type" in provider && element.id.split("%%")[1] === "hosts") {
-        isOrchestratorHost = true;
-        hostId = element.id.split("%%")[2];
-      }
-
       const usersLength = provider?.users?.length ?? 0;
       const claimsLength = provider?.claims?.length ?? 0;
       const rolesLength = provider?.roles?.length ?? 0;
+      let reverseProxyHostsLength = 0;
+      let isOrchestratorHost = false;
+      let hostId = "";
+
+      if ("type" in provider) {
+        if (element.id.split("%%")[1] === "hosts") {
+          isOrchestratorHost = true;
+          hostId = element.id.split("%%")[2];
+          const reverseProxyHosts =
+            provider?.reverseProxy?.reverse_proxy_hosts?.filter(h => h.host_id === hostId) ?? [];
+          reverseProxyHostsLength = reverseProxyHosts.length;
+        } else {
+          reverseProxyHostsLength = provider?.reverseProxy?.reverse_proxy_hosts?.length ?? 0;
+        }
+      }
 
       if (!isOrchestratorHost) {
         data.push(
@@ -82,6 +88,39 @@ export function drawManagementItems(
             "devops.remote.management.claims",
             claimsLength > 0 ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
             "remote_hosts_management_claims"
+          )
+        );
+      }
+      if (reverseProxyHostsLength > 0) {
+        let itemType = element.type;
+        if (className === "DevOpsCatalogHostProvider") {
+          itemType = "management.catalog_provider.reverse_proxy";
+        }
+        if (className === "DevOpsRemoteHostProvider") {
+          if ("type" in provider && provider.type === "orchestrator") {
+            if (element.id.split("%%")[1] === "hosts") {
+              itemType = "management.remote_hosts.orchestrator.host.reverse_proxy";
+            } else {
+              itemType = "management.remote_hosts.orchestrator.reverse_proxy";
+            }
+          } else {
+            itemType = "management.remote_hosts.remote_host.reverse_proxy";
+          }
+        }
+        const id = `${elementId}%%hosts%%${hostId}%%management%%reverse_proxy`;
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${id}`,
+            elementId,
+            "Reverse Proxy",
+            itemType,
+            "Reverse Proxy",
+            "",
+            className,
+            "devops.remote.management.reverse_proxy",
+            vscode.TreeItemCollapsibleState.Collapsed,
+            "reverse_proxy"
           )
         );
       }
@@ -410,7 +449,7 @@ export function drawManagementUserItemClaims(
             className,
             `devops.remote.management.user.role`,
             vscode.TreeItemCollapsibleState.None,
-            "remote_hosts_management_claims"
+            "list_element"
           )
         );
       }
@@ -462,7 +501,7 @@ export function drawManagementUserItemRoles(
             className,
             `devops.remote.management.user.role`,
             vscode.TreeItemCollapsibleState.None,
-            "remote_hosts_management_roles"
+            "remote_hosts_management_role"
           )
         );
       }
@@ -508,7 +547,7 @@ export function drawManagementClaims(
             className,
             `devops.remote.management.claim`,
             vscode.TreeItemCollapsibleState.None,
-            "remote_hosts_management_claims"
+            "list_element"
           )
         );
       }
@@ -554,7 +593,7 @@ export function drawManagementRoles(
             className,
             `devops.remote.management.role`,
             vscode.TreeItemCollapsibleState.None,
-            "remote_hosts_management_roles"
+            "list_element"
           )
         );
       }

@@ -290,7 +290,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 this.context,
                 `${elementId}%%manifests%%${manifest.name}`,
                 element.id,
-                versions,
+                manifest.description ? manifest.description : manifest.name,
                 "provider.catalog.manifests.manifest",
                 manifest.description ? manifest.description : manifest.name,
                 versions,
@@ -507,7 +507,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 "DevOpsCatalogHostProvider",
                 context,
                 vscode.TreeItemCollapsibleState.None,
-                "remote_hosts_management_roles"
+                "list_element"
               )
             );
           }
@@ -552,7 +552,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 "DevOpsCatalogHostProvider",
                 context,
                 vscode.TreeItemCollapsibleState.None,
-                "remote_hosts_management_claims"
+                "list_element"
               )
             );
           }
@@ -597,7 +597,7 @@ export class DevOpsCatalogProvider implements vscode.TreeDataProvider<DevOpsTree
                 "DevOpsCatalogHostProvider",
                 context,
                 vscode.TreeItemCollapsibleState.None,
-                "tags"
+                "list_element"
               )
             );
           }

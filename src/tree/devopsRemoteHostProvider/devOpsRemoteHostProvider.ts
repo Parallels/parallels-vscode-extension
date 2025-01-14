@@ -36,6 +36,18 @@ import {
   drawHostCatalogCacheItemDetails,
   drawHostCatalogCacheItems
 } from "../devopsRemoteHostManagement/catalog_cache";
+import {
+  drawReverseProxy,
+  drawReverseProxyHosts,
+  drawReverseProxyHostsHost,
+  drawReverseProxyHostsHostHttpRoutesCors,
+  drawReverseProxyHostsHostHttpRoutesHttpRoute,
+  drawReverseProxyHostsHostHttpRoutesHttpRouteDetails,
+  drawReverseProxyHostsHostHttpRoutesHttpRouteDetailsRequestHeaders,
+  drawReverseProxyHostsHostHttpRoutesHttpRouteDetailsResponseHeaders,
+  drawReverseProxyHostsHostHttpRoutesTls,
+  drawReverseProxyHostsHostTcpRoute
+} from "../devopsRemoteHostManagement/reverse_proxy";
 
 export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOpsTreeItem> {
   data: DevOpsTreeItem[] = [];
@@ -246,7 +258,95 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               "DevOpsRemoteHostProvider"
             );
             return resolve(this.data);
-
+          case "management.catalog_provider.reverse_proxy":
+          case "management.remote_hosts.remote_host.reverse_proxy":
+          case "management.remote_hosts.orchestrator.reverse_proxy":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy":
+            this.data = await drawReverseProxyHosts(this.context, this.data, element, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host":
+            this.data = await drawReverseProxyHostsHost(this.context, this.data, element, "DevOpsRemoteHostProvider");
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host.tcp_route":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host.tcp_route":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host.tcp_route":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.tcp_route":
+            this.data = await drawReverseProxyHostsHostTcpRoute(
+              this.context,
+              this.data,
+              element,
+              "DevOpsRemoteHostProvider"
+            );
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host.cors":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host.cors":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host.cors":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.cors":
+            this.data = await drawReverseProxyHostsHostHttpRoutesCors(
+              this.context,
+              this.data,
+              element,
+              "DevOpsRemoteHostProvider"
+            );
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host.tls":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host.tls":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host.tls":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.tls":
+            this.data = await drawReverseProxyHostsHostHttpRoutesTls(
+              this.context,
+              this.data,
+              element,
+              "DevOpsRemoteHostProvider"
+            );
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host.http_routes.http_route":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host.http_routes.http_route":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host.http_routes.http_route":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route":
+            this.data = await drawReverseProxyHostsHostHttpRoutesHttpRoute(
+              this.context,
+              this.data,
+              element,
+              "DevOpsRemoteHostProvider"
+            );
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host.http_routes.http_route.details":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host.http_routes.http_route.details":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host.http_routes.http_route.details":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route.details":
+            this.data = await drawReverseProxyHostsHostHttpRoutesHttpRouteDetails(
+              this.context,
+              this.data,
+              element,
+              "DevOpsRemoteHostProvider"
+            );
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host.http_routes.http_route.details.request_headers":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host.http_routes.http_route.details.request_headers":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host.http_routes.http_route.details.request_headers":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route.details.request_headers":
+            this.data = await drawReverseProxyHostsHostHttpRoutesHttpRouteDetailsRequestHeaders(
+              this.context,
+              this.data,
+              element,
+              "DevOpsRemoteHostProvider"
+            );
+            return resolve(this.data);
+          case "management.catalog_provider.reverse_proxy.hosts.host.http_routes.http_route.details.response_headers":
+          case "management.remote_hosts.remote_host.reverse_proxy.hosts.host.http_routes.http_route.details.response_headers":
+          case "management.remote_hosts.orchestrator.reverse_proxy.hosts.host.http_routes.http_route.details.response_headers":
+          case "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route.details.response_headers":
+            this.data = await drawReverseProxyHostsHostHttpRoutesHttpRouteDetailsResponseHeaders(
+              this.context,
+              this.data,
+              element,
+              "DevOpsRemoteHostProvider"
+            );
+            return resolve(this.data);
           default:
             return resolve(this.data);
         }

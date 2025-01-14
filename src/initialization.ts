@@ -45,7 +45,7 @@ export async function initialize(context: vscode.ExtensionContext) {
         if (selection === "Open Parallels Desktop Website") {
           vscode.commands.executeCommand(
             "vscode.open",
-            vscode.Uri.parse("https://www.parallels.com/uk/products/desktop/pro/")
+            vscode.Uri.parse("https://www.parallels.com/products/desktop/pro/")
           );
           return;
         }
@@ -56,7 +56,7 @@ export async function initialize(context: vscode.ExtensionContext) {
         if (selection === "Download Parallels Desktop") {
           vscode.commands.executeCommand(
             "vscode.open",
-            vscode.Uri.parse("https://www.parallels.com/uk/products/desktop/download/")
+            vscode.Uri.parse("https://www.parallels.com/products/desktop/download/")
           );
           return;
         }

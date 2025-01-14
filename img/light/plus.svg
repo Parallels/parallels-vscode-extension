@@ -1,10 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#000000" class="bi bi-plus-lg"
-  viewBox="0 0 16 16">
-  <path
-    d="M8,3 C8.27614237,3 8.5,3.22385763 8.5,3.5 L8.5,12.5 C8.5,12.7761424 8.27614237,13 8,13 C7.72385763,13 7.5,12.7761424 7.5,12.5 L7.5,3.5 C7.5,3.22385763 7.72385763,3 8,3 Z"
-    id="Combined-Shape" fill="#000000"></path>
-  <path
-    d="M8,3 C8.27614237,3 8.5,3.22385763 8.5,3.5 L8.5,12.5 C8.5,12.7761424 8.27614237,13 8,13 C7.72385763,13 7.5,12.7761424 7.5,12.5 L7.5,3.5 C7.5,3.22385763 7.72385763,3 8,3 Z"
-    id="Combined-Shape-Copy" fill="#000000"
-    transform="translate(8, 8) rotate(-270) translate(-8, -8)"></path>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <title>plus</title>
+  <g id="plus" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <polygon id="Path" fill="#000000"
+      points="9.00309176 2.99188399 9.003 6.99988399 13 7 13 8 9.003 7.99988399 9.00309044 11.9905884 8 11.9905884 7.999 7.99988399 4 8 4 7 7.999 6.99988399 8 2.99195917"></polygon>
+  </g>
 </svg>

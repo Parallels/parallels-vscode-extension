@@ -293,4 +293,8 @@ export class CommandsFlags {
   static catalogCacheClearAllCacheItems = `${COMMAND_PREFIX}.catalog-cache.clear-all-cache-item`;
   static catalogCacheClearCacheItem = `${COMMAND_PREFIX}.catalog-cache.clear-cache-item`;
   static catalogCacheClearCacheItemVersion = `${COMMAND_PREFIX}.catalog-cache.clear-cache-item-version`;
+
+  // Logs Commands
+  static remoteProviderStartLogs = `${COMMAND_PREFIX}.logs.start`;
+  static remoteProviderCloseLogs = `${COMMAND_PREFIX}.logs.stop`;
 }

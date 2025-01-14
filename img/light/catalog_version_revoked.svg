@@ -1,14 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg width="800px" height="800px" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
-
-<g fill="none" fill-rule="evenodd" stroke="#E74C3C" stroke-linecap="round" stroke-linejoin="round" transform="translate(2 4)">
-
-<path d="m.5 8.5 8 4 8.017-4"/>
-
-<path d="m.5 4.657 8.008 3.843 8.009-3.843-8.009-4.157z"/>
-
-</g>
-
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>catalog_version_tainted 2</title>
+    <g id="catalog_version_tainted" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M13.9988247,5.96187171 L13.9988247,11.918465 L4.99882467,14.086909 L4.998,11.7778717 L5.998,11.6668717 L5.99882467,12.816626 L12.9988247,11.129626 L12.9988247,7.08862601 L12.7385366,7.12251872 C12.4857601,7.15518994 12.2393797,7.18838655 11.9994167,7.22209366 L11.9982788,6.21226472 C12.304139,6.17008654 12.6196593,6.12875664 12.944877,6.08824889 L13.9988247,5.96187171 Z M10.9988247,1.96187171 L10.9988247,8.91846498 L1.99882467,11.086909 L1.99882467,4.21148719 L2.19833363,4.06147226 C3.2602385,3.26300394 5.69995691,2.63635153 9.5852642,2.13388792 L10.9988247,1.96187171 Z M9.99882467,8.12962601 L9.99882467,3.08862601 L9.73853659,3.12251872 C6.41390091,3.552226 4.19571179,4.07282047 3.13221035,4.65040211 L2.99882467,4.72662601 L2.99882467,9.81662601 L9.99882467,8.12962601 Z" id="Shape" fill="#E74C3C" fill-rule="nonzero"></path>
+    </g>
 </svg>
