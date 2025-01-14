@@ -27,6 +27,7 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "provider.remote_host.orchestrator"
       | "provider.remote_host.host"
       | "provider.remote_host"
+      | "provider.remote_host.logs"
       | "provider.remote_host.host.info"
       | "provider.remote_host.host.logs"
       | "provider.remote_host.host.hardware"

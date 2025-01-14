@@ -150,7 +150,7 @@ export function drawOrchestratorHostsHostItems(
           );
         }
         if (compareVersions(host.devops_version, "0.9.12") > 0) {
-          const socketId = `${provider.ID}%%logs`;
+          const socketId = `${host.id}%%logs`;
           const logsSocket = getLogChannelById(socketId);
           let contextType = "devops.remote.orchestrator.devops_service.logs";
           if (logsSocket) {

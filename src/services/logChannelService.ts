@@ -30,17 +30,24 @@ export function closeLogChannelById(id: string): void {
 export function openChannelById(
   provider: DevOpsRemoteHostProvider | DevOpsCatalogHostProvider,
   outputChannel: vscode.OutputChannel,
-  url: string
+  url: string,
+  id = ""
 ): Promise<WebSocket | undefined> {
   return new Promise(async (resolve, reject) => {
-    const channelId = `${provider.ID}%%logs`;
+    let channelId = `${provider.ID}%%logs`;
+    if (id) {
+      channelId = `${id}%%logs`;
+      url = `${url}/api/v1/orchestrator/hosts/${id}/logs/stream`;
+    } else {
+      url = `${url}/api/v1/logs/stream`;
+    }
 
     if (!channelId) {
       vscode.window.showErrorMessage("Channel ID is required!");
       return resolve(undefined);
     }
 
-    const channelIdSocket = getLogChannelById(provider.ID);
+    const channelIdSocket = getLogChannelById(channelId);
     if (channelIdSocket) {
       vscode.window.showErrorMessage("Channel ID is already in use!");
       return resolve(undefined);
@@ -62,7 +69,10 @@ export function openChannelById(
       outputChannel.show(true); // Show the output channel
     };
     ws.onmessage = (event: WebSocket.MessageEvent) => {
-      const line = event.data.toString();
+      let line = event.data.toString();
+      if (!line.endsWith("\n")) {
+        line = line.concat("\n");
+      }
       outputChannel.append(line); // Stream log data
     };
 
@@ -72,6 +82,7 @@ export function openChannelById(
 
     ws.onclose = () => {
       outputChannel.appendLine("Connection to the service logs closed.");
+      closeLogChannelById(channelId);
     };
 
     logChannels.push({id: channelId, channel: outputChannel, socket: ws});

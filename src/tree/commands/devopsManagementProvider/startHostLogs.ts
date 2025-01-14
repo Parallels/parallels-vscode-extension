@@ -12,6 +12,9 @@ import {ShowErrorMessage} from "../../../helpers/error";
 import {LogService} from "../../../services/logService";
 import {DevOpsService} from "../../../services/devopsService";
 import {getLogChannelById, openChannelById} from "../../../services/logChannelService";
+import {rm} from "fs";
+import {getId} from "../../common/devops_common";
+import {url} from "inspector";
 
 const registerDevOpsManagementStartLogsCommand = (
   context: vscode.ExtensionContext,
@@ -26,6 +29,7 @@ const registerDevOpsManagementStartLogsCommand = (
       if (item) {
         const config = Provider.getConfiguration();
         const providerId = item.id.split("%%")[0];
+
         let localProvider: DevOpsRemoteHostProvider | DevOpsCatalogHostProvider | undefined = undefined;
         if (item.className === "DevOpsRemoteHostProvider") {
           localProvider = config.findRemoteHostProviderById(providerId);
@@ -38,15 +42,25 @@ const registerDevOpsManagementStartLogsCommand = (
           return;
         }
 
-        if (!localProvider.rawHost) {
-          ShowErrorMessage("Remote Provider", `Provider ${localProvider.name} not found`);
+        let orchestratorHostId = "";
+        let channelId = `${localProvider.ID}%%logs`;
+        if (item.type == "provider.remote_host.host.logs") {
+          const id = item.id.split("%%")[2];
+          const rmProvider = localProvider as DevOpsRemoteHostProvider;
+          rmProvider.hosts?.find(rmHost => {
+            if (rmHost.id === id) {
+              orchestratorHostId = rmHost.id;
+              channelId = `${rmHost.id}%%logs`;
+            }
+          });
         }
 
-        const channelId = `${providerId}%%logs`;
+        const host = localProvider.host ?? "";
+        const port = localProvider.port ?? -1;
+        const schema = localProvider.scheme ?? "";
 
-        if (!channelId) {
-          vscode.window.showErrorMessage("Channel ID is required!");
-          return;
+        if (!host) {
+          ShowErrorMessage("Remote Provider", `Provider ${localProvider.name} not found`);
         }
 
         const channelIdSocket = getLogChannelById(channelId);
@@ -58,15 +72,15 @@ const registerDevOpsManagementStartLogsCommand = (
         LogService.sendTelemetryEvent(TelemetryEventIds.VirtualMachineAction, `Get Remote Host ${item.name} logs`);
         const outputChannel = vscode.window.createOutputChannel(`Remote Host: ${localProvider.name} Logs`);
         let protocol = "ws";
-        if (localProvider.scheme === "https") {
+        if (schema === "https") {
           protocol = "wss";
         }
-        let websocketAddress = `${protocol}://${localProvider.host}`;
-        if (localProvider.port) {
-          websocketAddress += `:${localProvider.port}`;
+        let websocketAddress = `${protocol}://${host}`;
+        if (port > 0) {
+          websocketAddress += `:${port}`;
         }
-        websocketAddress += `/api/logs/stream`;
-        openChannelById(localProvider, outputChannel, websocketAddress).catch(error => {
+
+        openChannelById(localProvider, outputChannel, websocketAddress, orchestratorHostId).catch(error => {
           ShowErrorMessage("Remote Provider", error);
         });
 

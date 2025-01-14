@@ -158,7 +158,7 @@ export function drawRemoteHostItems(
             `${id}%%logs`,
             elementId,
             "Logs",
-            "provider.remote_host.host.logs",
+            "provider.remote_host.logs",
             "Logs",
             "",
             "DevOpsRemoteHostProvider",
