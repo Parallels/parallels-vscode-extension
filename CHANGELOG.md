@@ -2,6 +2,19 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.0] - 2025-01-14
+
+- Added new icon designs
+- Added the ability to control cached items from the extension
+- Added the ability to check the reverse proxy configuration
+- Added the ability to check more information about the remote hosts
+- Added the ability to get the logs for the remote hosts
+- Further stability and bug fixes
+- Added the ability to see and control the cache items in either the hosts or the orchestrator
+- Added the ability to remove cache items from the system
+- minor fixes to the tree when removing/adding items
+- Minor fixes to the diff and saving of profiles
+
 ## [1.4.3] - 2024-11-06
 
 - Fixed an issue where if a remote host was down the auto-refresh would not work as intended
