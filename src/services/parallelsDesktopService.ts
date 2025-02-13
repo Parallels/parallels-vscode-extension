@@ -601,7 +601,7 @@ export class ParallelsDesktopService {
       if (split) {
         commandArgs = command.split(" ");
       } else {
-        command = command.replace(/"/g, '\\"');
+        command = command.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
         commandArgs = [`"${command}"`];
       }
 
