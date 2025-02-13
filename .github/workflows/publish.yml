@@ -308,3 +308,20 @@ jobs:
         run: npx vsce publish --no-git-tag-version --packagePath $(find . -iname *.vsix)
         env:
           VSCE_PAT: ${{ secrets.PUBLISHER_KEY }}
+  discord-announce:
+    needs:
+      - publish
+      - check-version-change
+    name: Announce on Discord
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      VERSION: ${{ needs.check-version-change.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Announce on discord
+        id: announce_discord
+        run: |
+          ./.github/workflow_scripts/announce_discord.sh --repo ${{ github.repository }} --webhook-url $DISCORD_WEBHOOK --version ${{ env.VERSION }}
+        env:
+          SLACK_WEBHOOKS: ${{ env.DISCORD_WEBHOOK }}

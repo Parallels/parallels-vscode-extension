@@ -44,6 +44,7 @@ import {randomUUID} from "crypto";
 import {ANSWER_YES, YesNoInfoMessage} from "../helpers/ConfirmDialog";
 import {ParallelsShortLicense} from "../models/parallels/ParallelsJsonLicense";
 import {ParallelsDesktopLicense} from "../models/parallels/ParallelsDesktopLicense";
+import {compareVersions} from "../helpers/strings";
 
 export const PARALLELS_CATALOG_URL = "";
 export const PARALLELS_CATALOG_PRO_USER = "";
@@ -1140,7 +1141,7 @@ export class ConfigurationService {
         const latestVersion = await DevOpsService.checkForLatestVersion().catch(reason => {
           LogService.error(`Error getting latest version of DevOps Service ${reason}`, "ConfigService");
         });
-        if (checkForNewVersions && latestVersion && version && version !== latestVersion) {
+        if (checkForNewVersions && latestVersion && version && compareVersions(latestVersion, version) > 0) {
           YesNoInfoMessage("There is a new version of DevOps Service available, would you like to install it?").then(
             selection => {
               if (selection === ANSWER_YES) {
