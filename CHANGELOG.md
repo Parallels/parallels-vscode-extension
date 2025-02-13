@@ -2,6 +2,12 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.1] - 2025-02-13
+
+- Fixed an issue where the right click would show options not available for each machine, fixes #158 
+- Fixed an issue with detecting new devops service versions
+- Added the ability to notify discord users about new versions
+
 ## [1.5.0] - 2025-01-14
 
 - Added new icon designs
