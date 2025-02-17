@@ -2000,7 +2000,7 @@
     "typescript": "^5.5.4",
     "vscpp": "^2.1.1",
     "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4",
+    "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
