@@ -1989,7 +1989,7 @@
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "glob": "^8.1.0",
+    "glob": "^11.0.1",
     "gulp": "^5.0.0",
     "gulp-cli": "^3.0.0",
     "mocha": "^10.8.2",
