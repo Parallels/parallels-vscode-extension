@@ -1,12 +1,10 @@
-import {LanguageModelChatMessage} from "@vscode/prompt-tsx/dist/base/vscodeTypes";
-
 interface LogObject {
   chatMessages: string[];
   rawResponse: string;
   rawJsonBlock: string;
 }
 
-export function LogIntensionPrompt(chatMessage: LanguageModelChatMessage[], rawResponse: string, rawJsonBlock = "") {
+export function LogIntensionPrompt(chatMessage: any[], rawResponse: string, rawJsonBlock = "") {
   if (process.env.PARALLELS_DESKTOP_DEBUG === "true") {
     const logObject: LogObject = {
       chatMessages: [],
