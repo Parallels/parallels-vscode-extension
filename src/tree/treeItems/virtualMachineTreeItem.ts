@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import {VirtualMachine} from "../../models/parallels/virtualMachine";
 import {MachineSnapshot} from "../../models/parallels/virtualMachineSnapshot";
 import {VirtualMachineGroup} from "../../models/parallels/virtualMachineGroup";
-
+import {Uri} from "vscode";
 export enum VirtualMachineTreeItemType {
   Vagrant = "vagrant",
   Packer = "packer"
@@ -61,8 +61,8 @@ export class VirtualMachineTreeItem extends vscode.TreeItem {
     this.name = name;
     this.vmId = vmId;
     this.iconPath = {
-      light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
-      dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
+      light: Uri.file(path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`)),
+      dark: Uri.file(path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`))
     };
     this.label = label;
     this.status = version;

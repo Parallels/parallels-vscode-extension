@@ -1,6 +1,6 @@
 import path = require("path");
 import * as vscode from "vscode";
-
+import {Uri} from "vscode";
 export class VagrantBoxTreeItem extends vscode.TreeItem {
   name: string;
   status: string;
@@ -21,8 +21,8 @@ export class VagrantBoxTreeItem extends vscode.TreeItem {
     super(label, collapsibleState);
     this.name = name;
     this.iconPath = {
-      light: path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`),
-      dark: path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`)
+      light: Uri.file(path.join(extensionContext.extensionPath, "img", "light", `${iconName}.svg`)),
+      dark: Uri.file(path.join(extensionContext.extensionPath, "img", "dark", `${iconName}.svg`))
     };
     this.label = label;
     this.status = version;
