@@ -402,7 +402,7 @@ export class VirtualMachineProvider
                     "Docker Containers",
                     "",
                     `docker.container.root`,
-                    currentCollapsibleState ?? dockerContainers.length > 0
+                    (currentCollapsibleState ?? dockerContainers.length > 0)
                       ? vscode.TreeItemCollapsibleState.Collapsed
                       : vscode.TreeItemCollapsibleState.None,
                     "docker_container"
@@ -445,7 +445,7 @@ export class VirtualMachineProvider
                     "Docker Images",
                     "",
                     `docker.image.root`,
-                    currentCollapsibleState ?? dockerImages.length > 0
+                    (currentCollapsibleState ?? dockerImages.length > 0)
                       ? vscode.TreeItemCollapsibleState.Collapsed
                       : vscode.TreeItemCollapsibleState.None,
                     "docker_images"
@@ -660,8 +660,8 @@ export class VirtualMachineProvider
                 dockerContainer.State === "running"
                   ? "container_running"
                   : dockerContainer.State === "paused"
-                  ? "container_paused"
-                  : "container"
+                    ? "container_paused"
+                    : "container"
               }`,
               `${dockerContainer.Status} (${dockerContainer.Image})`
             )
