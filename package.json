@@ -2016,6 +2016,6 @@
     "jwt-decode": "^4.0.0",
     "tailwindcss": "^4.0.14",
     "utf-8-validate": "^6.0.5",
-    "uuid": "^9.0.0"
+    "uuid": "^11.1.0"
   }
 }
