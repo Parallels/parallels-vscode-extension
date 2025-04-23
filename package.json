@@ -2007,7 +2007,7 @@
     "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
-    "@amplitude/analytics-node": "^1.3.6",
+    "@amplitude/analytics-node": "^1.3.8",
     "axios": "^1.8.2",
     "bufferutil": "^4.0.9",
     "clipboardy": "^4.0.0",
