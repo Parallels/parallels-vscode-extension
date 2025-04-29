@@ -1987,7 +1987,7 @@
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "*",
     "@vscode/vsce": "^3.3.2",
-    "esbuild": "^0.25.2",
+    "esbuild": "^0.25.3",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.6",
