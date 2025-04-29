@@ -1978,7 +1978,7 @@
     "@types/axios": "^0.14.4",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.14.0",
+    "@types/node": "^22.15.3",
     "@types/uuid": "^10.0.0",
     "@types/vscode": "1.99.1",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
