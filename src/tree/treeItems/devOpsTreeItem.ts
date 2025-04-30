@@ -139,7 +139,9 @@ export class DevOpsTreeItem extends vscode.TreeItem {
       | "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route"
       | "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route.details"
       | "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route.details.request_headers"
-      | "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route.details.response_headers",
+      | "management.remote_hosts.orchestrator.host.reverse_proxy.hosts.host.http_routes.http_route.details.response_headers"
+      | "error.item"
+      | "error",
     label: string,
     public description: string,
     public className: "DevOpsCatalogHostProvider" | "DevOpsRemoteHostProvider",

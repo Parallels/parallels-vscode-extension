@@ -17,107 +17,126 @@ export function drawHostResourcesItems(
       (element.type === "provider.remote_host.host.resources" ||
         element.type === "provider.remote_host.orchestrator.hosts.host.details.resources")
     ) {
-      const config = Provider.getConfiguration();
-      const elementId = element.id.split("%%")[0];
-      const provider = config.findRemoteHostProviderById(elementId);
-      if (!provider) {
-        return resolve(data);
-      }
-      const id = `${getId(provider, element, 2)}`;
-      const hardware_info = getHostHardwareInfo(provider, element.id.split("%%")[2]);
+      try {
+        const config = Provider.getConfiguration();
+        const elementId = element.id.split("%%")[0];
+        const provider = config.findRemoteHostProviderById(elementId);
+        if (!provider) {
+          return resolve(data);
+        }
+        const id = `${getId(provider, element, 2)}`;
+        const hardware_info = getHostHardwareInfo(provider, id.split("%%")[3]);
 
-      if (!hardware_info) {
+        if (!hardware_info) {
+          return resolve(data);
+        }
+        if (provider) {
+          if (hardware_info && hardware_info.system_reserved) {
+            data.push(
+              new DevOpsTreeItem(
+                context,
+                `${id}%%resources_system_reserved`,
+                elementId,
+                "Reserved for System",
+                "provider.remote_host.resources.system_reserved",
+                "Reserved for System",
+                "",
+                "DevOpsRemoteHostProvider",
+                "devops.remote.host.resources.system_reserved",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                "remote_hosts_provider_orchestrator_resources"
+              )
+            );
+          }
+          if (hardware_info && hardware_info.total) {
+            data.push(
+              new DevOpsTreeItem(
+                context,
+                `${id}%%resources_total`,
+                elementId,
+                "Total",
+                "provider.remote_host.resources.total",
+                "Total Resources",
+                "",
+                "DevOpsRemoteHostProvider",
+                "devops.remote.host.resources.total",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                "remote_hosts_provider_orchestrator_resources"
+              )
+            );
+          }
+          if (hardware_info && hardware_info.total_available) {
+            data.push(
+              new DevOpsTreeItem(
+                context,
+                `${id}%%resources_available`,
+                elementId,
+                "Available",
+                "provider.remote_host.resources.available",
+                "Total Available Resources",
+                "",
+                "DevOpsRemoteHostProvider",
+                "devops.remote.host.resources.total_available",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                "remote_hosts_provider_orchestrator_resources"
+              )
+            );
+          }
+          if (hardware_info && hardware_info.total_in_use) {
+            data.push(
+              new DevOpsTreeItem(
+                context,
+                `${id}%%resources_used`,
+                elementId,
+                "Used",
+                "provider.remote_host.resources.used",
+                "Total Used Resources",
+                "",
+                "DevOpsRemoteHostProvider",
+                "devops.remote.host.resources.total_used",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                "remote_hosts_provider_orchestrator_resources"
+              )
+            );
+          }
+          if (hardware_info && hardware_info.total_reserved) {
+            data.push(
+              new DevOpsTreeItem(
+                context,
+                `${id}%%resources_reserved`,
+                elementId,
+                "Reserved",
+                "provider.remote_host.resources.reserved",
+                "Total Reserved Resources",
+                "",
+                "DevOpsRemoteHostProvider",
+                "devops.remote.host.resources.total_reserved",
+                vscode.TreeItemCollapsibleState.Collapsed,
+                "remote_hosts_provider_orchestrator_resources"
+              )
+            );
+          }
+        }
+      } catch (e) {
+        console.error("Error drawing host resources items", e);
+        data.push(
+          new DevOpsTreeItem(
+            context,
+            `${element.id}%%resources_error`,
+            element.id,
+            "Error retrieving host resources",
+            "error",
+            "Error",
+            "",
+            "DevOpsRemoteHostProvider",
+            "devops.remote.host.resources.error",
+            vscode.TreeItemCollapsibleState.None,
+            "error"
+          )
+        );
         return resolve(data);
-      }
-      if (provider) {
-        if (hardware_info && hardware_info.system_reserved) {
-          data.push(
-            new DevOpsTreeItem(
-              context,
-              `${id}%%resources_system_reserved`,
-              elementId,
-              "Reserved for System",
-              "provider.remote_host.resources.system_reserved",
-              "Reserved for System",
-              "",
-              "DevOpsRemoteHostProvider",
-              "devops.remote.host.resources.system_reserved",
-              vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
-            )
-          );
-        }
-        if (hardware_info && hardware_info.total) {
-          data.push(
-            new DevOpsTreeItem(
-              context,
-              `${id}%%resources_total`,
-              elementId,
-              "Total",
-              "provider.remote_host.resources.total",
-              "Total Resources",
-              "",
-              "DevOpsRemoteHostProvider",
-              "devops.remote.host.resources.total",
-              vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
-            )
-          );
-        }
-        if (hardware_info && hardware_info.total_available) {
-          data.push(
-            new DevOpsTreeItem(
-              context,
-              `${id}%%resources_available`,
-              elementId,
-              "Available",
-              "provider.remote_host.resources.available",
-              "Total Available Resources",
-              "",
-              "DevOpsRemoteHostProvider",
-              "devops.remote.host.resources.total_available",
-              vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
-            )
-          );
-        }
-        if (hardware_info && hardware_info.total_in_use) {
-          data.push(
-            new DevOpsTreeItem(
-              context,
-              `${id}%%resources_used`,
-              elementId,
-              "Used",
-              "provider.remote_host.resources.used",
-              "Total Used Resources",
-              "",
-              "DevOpsRemoteHostProvider",
-              "devops.remote.host.resources.total_used",
-              vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
-            )
-          );
-        }
-        if (hardware_info && hardware_info.total_reserved) {
-          data.push(
-            new DevOpsTreeItem(
-              context,
-              `${id}%%resources_reserved`,
-              elementId,
-              "Reserved",
-              "provider.remote_host.resources.reserved",
-              "Total Reserved Resources",
-              "",
-              "DevOpsRemoteHostProvider",
-              "devops.remote.host.resources.total_reserved",
-              vscode.TreeItemCollapsibleState.Collapsed,
-              "remote_hosts_provider_orchestrator_resources"
-            )
-          );
-        }
       }
     }
-
     return resolve(data);
   });
 }

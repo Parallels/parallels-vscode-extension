@@ -146,7 +146,7 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
             config.updateRemoteProvider(newProvider);
             vscode.window.showInformationMessage(`Provider ${item.name} host updated to ${hostname}`);
           } else {
-            ShowErrorMessage(providerName, `Failed to connect to ${providerType} provider ${provider.host}`);
+            ShowErrorMessage(providerName, `Failed to connect to ${providerType} provider ${newProvider.host}`);
           }
 
           if (item.className === "DevOpsRemoteHostProvider") {

@@ -91,7 +91,6 @@ export class DevOpsService {
         );
 
         cache.set(FLAG_DEVOPS_PATH, settings.get<string>(FLAG_DEVOPS_PATH));
-        return resolve(true);
       }
 
       const basePath = getFoldersBasePath();
