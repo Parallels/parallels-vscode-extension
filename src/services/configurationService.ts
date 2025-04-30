@@ -235,25 +235,29 @@ export class ConfigurationService {
         this.initGit(),
         this.initParallelsDesktop(),
         this.initPacker(),
-        this.initVagrant(),
         this.loadDockerRunItems(),
         HelperService.getHardwareInfo()
           .then(info => {
             this.hardwareInfo = info;
+            LogService.info("HardwareInfo initialized", "ConfigService");
           })
           .catch(() => {
-            LogService.warning(`Error loading HardwareInfo`, "ConfigurationService", true);
+            LogService.warning(`Error loading HardwareInfo`, "ConfigService", true);
           }),
         HelperService.getLocale()
           .then(locale => {
             this.locale = locale.replace(/"/g, "").trim();
+            LogService.info("Locale initialized", "ConfigService");
           })
           .catch(() => {
-            LogService.warning(`Error loading locale, defaulting to en_US`, "ConfigurationService", true);
+            LogService.warning(`Error loading locale, defaulting to en_US`, "ConfigService", true);
             this.locale = "en_US";
           })
       );
     }
+
+    //wait for all promises to finish
+    await Promise.all(promises);
 
     if (
       this.lastSynced === undefined ||
@@ -285,21 +289,26 @@ export class ConfigurationService {
   }
 
   async loadDockerRunItems(): Promise<void> {
-    try {
-      const dataPath = path.join(this.context.extensionPath, "data");
-      const dockerFileName = vscode.Uri.file(path.join(dataPath, "docker.json"));
-      LogService.info(`Loading docker items from ${dockerFileName.fsPath}`, "ConfigurationService");
-      const file = await vscode.workspace.fs.readFile(dockerFileName);
-      const jsonObj = JSON.parse(file.toString());
-      this.dockerRunItems = jsonObj;
-      if (this.loadDockerRunItems != undefined && this.dockerRunItems.length > 0) {
-        vscode.commands.executeCommand("setContext", FLAG_DOCKER_CONTAINER_ITEMS_EXISTS, true);
-      } else {
-        vscode.commands.executeCommand("setContext", FLAG_DOCKER_CONTAINER_ITEMS_EXISTS, false);
+    return new Promise(async resolve => {
+      try {
+        const dataPath = path.join(this.context.extensionPath, "data");
+        const dockerFileName = vscode.Uri.file(path.join(dataPath, "docker.json"));
+        LogService.info(`Loading docker items from ${dockerFileName.fsPath}`, "ConfigService");
+        const file = await vscode.workspace.fs.readFile(dockerFileName);
+        const jsonObj = JSON.parse(file.toString());
+        this.dockerRunItems = jsonObj;
+        if (this.loadDockerRunItems != undefined && this.dockerRunItems.length > 0) {
+          vscode.commands.executeCommand("setContext", FLAG_DOCKER_CONTAINER_ITEMS_EXISTS, true);
+        } else {
+          vscode.commands.executeCommand("setContext", FLAG_DOCKER_CONTAINER_ITEMS_EXISTS, false);
+        }
+        LogService.info(`Docker items initialized`, "ConfigService");
+        return resolve();
+      } catch (e) {
+        LogService.error(`Error loading docker items ${e}`, "ConfigService");
+        return resolve();
       }
-    } catch (e) {
-      LogService.error(`Error loading docker items ${e}`, "ConfigurationService");
-    }
+    });
   }
 
   toJson(): any {
@@ -1029,6 +1038,7 @@ export class ConfigurationService {
         LogService.error(`Parallels Desktop license not found`, "ConfigService");
       }
 
+      LogService.info("Parallels Desktop initialized", "ConfigService");
       return resolve(true);
     });
   }
@@ -1059,6 +1069,7 @@ export class ConfigurationService {
         .then(version => {
           this.tools.brew.version = version;
           vscode.commands.executeCommand("setContext", FLAG_HAS_BREW, true);
+          LogService.info("Brew initialized", "ConfigService");
           return resolve(true);
         })
         .catch(reason => {
@@ -1095,6 +1106,7 @@ export class ConfigurationService {
         .then(version => {
           this.tools.git.version = version;
           vscode.commands.executeCommand("setContext", FLAG_HAS_GIT, true);
+          LogService.info("Git initialized", "ConfigService");
           return resolve(true);
         })
         .catch(reason => {
@@ -1124,9 +1136,23 @@ export class ConfigurationService {
 
       if (!this.tools.devopsService.isInstalled) {
         LogService.info("Parallels DevOps Service is not installed", "ConfigService");
-        vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
-        return resolve(false);
-      } else {
+        await DevOpsService.install()
+          .then(() => {
+            LogService.info(`DevOps Service installed successfully`, "ConfigService");
+            this.tools.devopsService.isInstalled = true;
+            this.tools.devopsService.isReady = true;
+            return resolve(false);
+          })
+          .catch(reason => {
+            LogService.error(`Error installing DevOps Service ${reason}`, "ConfigService");
+            this.tools.devopsService.isInstalled = false;
+            this.tools.devopsService.version = "";
+            vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
+            return resolve(false);
+          });
+      }
+
+      if (this.tools.devopsService.isInstalled) {
         // Check if the DevOps Service is up to date
         const version = await DevOpsService.version(true).catch(reason => {
           this.tools.devopsService.isInstalled = false;
@@ -1148,10 +1174,15 @@ export class ConfigurationService {
                 DevOpsService.install()
                   .then(() => {
                     LogService.info(`DevOps Service installed successfully`, "ConfigService");
+                    this.tools.devopsService.isInstalled = true;
+                    return resolve(true);
                   })
                   .catch(reason => {
                     LogService.error(`Error installing DevOps Service ${reason}`, "ConfigService");
                     vscode.commands.executeCommand("setContext", FLAG_DEVOPS_SERVICE_EXISTS, false);
+                    this.tools.devopsService.isInstalled = false;
+                    this.tools.devopsService.version = "";
+                    return resolve(false);
                   });
               }
             }
@@ -1195,6 +1226,7 @@ export class ConfigurationService {
           this.tools.packer.version = version;
           vscode.commands.executeCommand("setContext", FLAG_PACKER_EXISTS, true);
           vscode.commands.executeCommand("setContext", FLAG_HAS_PACKER, true);
+          LogService.info("Packer initialized", "ConfigService");
           return resolve(true);
         })
         .catch(reason => {
@@ -1265,7 +1297,7 @@ export class ConfigurationService {
             vscode.commands.executeCommand("setContext", FLAG_HAS_VAGRANT_BOXES, false);
           }
           vscode.commands.executeCommand("setContext", FLAG_VAGRANT_EXISTS, true);
-
+          LogService.info("Vagrant initialized", "ConfigService");
           return resolve(true);
         })
         .catch(reason => {
