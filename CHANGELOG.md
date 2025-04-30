@@ -17,6 +17,9 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 - Fixed an issue where the tree was getting stuck on refresh
 - Fixed an issue where the extension would fail to start if devops was updated
 - Fixed an issue when displaying error messages
+- Fixed an issue where the tree was getting stuck on refresh
+- Fixed an issue where the extension would fail to start if devops was updated
+- Fixed an issue when displaying error messages
 
 ## [1.5.1] - 2025-02-13
 
