@@ -2014,7 +2014,7 @@
     "clipboardy-ts": "^1.0.0",
     "fast-xml-parser": "^5.2.1",
     "jwt-decode": "^4.0.0",
-    "tailwindcss": "^4.1.4",
+    "tailwindcss": "^4.1.6",
     "utf-8-validate": "^6.0.5",
     "uuid": "^11.1.0"
   }
