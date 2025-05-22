@@ -1983,7 +1983,7 @@
     "@types/vscode": "^1.99.1",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.28.0",
-    "@vscode/prompt-tsx": "^0.3.0-alpha.22",
+    "@vscode/prompt-tsx": "^0.4.0-alpha.4",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "*",
     "@vscode/vsce": "^3.3.2",
