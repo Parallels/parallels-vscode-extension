@@ -1986,7 +1986,7 @@
     "@vscode/prompt-tsx": "^0.4.0-alpha.4",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "*",
-    "@vscode/vsce": "^3.3.2",
+    "@vscode/vsce": "^3.4.2",
     "esbuild": "^0.25.3",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.0.1",
