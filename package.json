@@ -1989,7 +1989,7 @@
     "@vscode/vsce": "^3.4.2",
     "esbuild": "^0.25.5",
     "eslint": "^9.27.0",
-    "eslint-config-prettier": "^10.0.1",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",
     "glob": "^11.0.1",
     "globals": "^16.2.0",
