@@ -27,7 +27,7 @@ const registerRenameGroupCommand = (context: vscode.ExtensionContext, provider: 
         });
         groups.forEach(group => {
           if (group.path === groupName) {
-            (itemId = group.uuid), (itemName = group.name);
+            ((itemId = group.uuid), (itemName = group.name));
           }
         });
       } else {
