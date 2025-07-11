@@ -1992,7 +1992,7 @@
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.5.1",
     "glob": "^11.0.3",
-    "globals": "^16.2.0",
+    "globals": "^16.3.0",
     "gulp": "^5.0.0",
     "gulp-cli": "^3.1.0",
     "mocha": "^11.7.1",
