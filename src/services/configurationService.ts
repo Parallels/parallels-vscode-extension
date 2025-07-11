@@ -76,6 +76,7 @@ export class ConfigurationService {
   lastHeartbeat: number | undefined;
   downloadingCatalogs: string[] = [];
   initialized = false;
+  showSunsetAIPackage: boolean = true;
 
   constructor(private context: vscode.ExtensionContext) {
     this.id = randomUUID().replace(/-/g, "");
@@ -147,6 +148,7 @@ export class ConfigurationService {
     this.lastSynced = undefined;
     this.lastHeartbeat = undefined;
     this.isInitialized = false;
+    this.showSunsetAIPackage = true;
     this.backup_startup();
   }
 
@@ -205,6 +207,10 @@ export class ConfigurationService {
       }
       if (json.showOnboardingForParallelsCatalog !== undefined) {
         configuration.showOnboardingForParallelsCatalog = json.showOnboardingForParallelsCatalog;
+      }
+
+      if (json.showSunsetAIPackage !== undefined) {
+        configuration.showSunsetAIPackage = json.showSunsetAIPackage;
       }
 
       return configuration;
@@ -325,7 +331,8 @@ export class ConfigurationService {
       locale: this.locale,
       tools: this.tools,
       lastSynced: this.lastSynced,
-      lastHeartbeat: this.lastHeartbeat
+      lastHeartbeat: this.lastHeartbeat,
+      showSunsetAIPackage: this.showSunsetAIPackage
     };
 
     return JSON.stringify(config, null, 2);
@@ -1373,5 +1380,10 @@ export class ConfigurationService {
     }
 
     return jsonLicense;
+  }
+
+  setShowSunsetAIPackage(value: boolean): void {
+    this.showSunsetAIPackage = value;
+    this.save();
   }
 }
