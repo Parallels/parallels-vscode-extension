@@ -2,6 +2,10 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.3] - 2025-07-22
+
+- Added the new message for the sunset of the PD AI package
+
 ## [1.5.2] - 2025-04-30
 
 - Fixed an issue where the tree was getting stuck on refresh
