@@ -128,4 +128,26 @@ export async function initialize(context: vscode.ExtensionContext) {
   } else {
     vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, false);
   }
+
+  //Showing the sunset AI package if the flag is enabled
+  if (config.showSunsetAIPackage) {
+    const options = ["Ok", "Cancel"];
+    vscode.window
+      .showInformationMessage(
+        "On August 26, 2025, we are sunsetting the AI package. After that date, the package will no longer be available for download. All previously downloaded packages will remain fully functional, so feel free to download it and keep it for further use.",
+        ...options
+      )
+      .then(selection => {
+        if (selection === "Ok") {
+          config.setShowSunsetAIPackage(false);
+          LogService.info("User accepted the Sunset AI package prompt", "CoreService");
+          telemetry.sendOperationEvent("SunsetAI", "AI_PACKAGE_SUNSET_PROMPT_ACCEPTED");
+        } else if (selection === "Cancel") {
+          LogService.info("User cancelled the Sunset AI package prompt", "CoreService");
+          telemetry.sendOperationEvent("SunsetAI", "AI_PACKAGE_SUNSET_PROMPT_CANCELLED");
+        }
+      });
+  } else {
+    LogService.info("Sunset AI package is disabled", "CoreService");
+  }
 }
