@@ -10,7 +10,7 @@
   "icon": "img/logo/parallels_logo.png",
   "version": "1.5.3",
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": "^1.102.0"
   },
   "categories": [
     "Testing",
