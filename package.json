@@ -1988,7 +1988,7 @@
     "@vscode/test-web": "*",
     "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.25.6",
-    "eslint": "^9.31.0",
+    "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.1",
     "glob": "^11.0.3",
