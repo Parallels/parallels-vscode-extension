@@ -46,20 +46,12 @@ import {ParallelsShortLicense} from "../models/parallels/ParallelsJsonLicense";
 import {ParallelsDesktopLicense} from "../models/parallels/ParallelsDesktopLicense";
 import {compareVersions} from "../helpers/strings";
 
-export const PARALLELS_CATALOG_URL = "";
-export const PARALLELS_CATALOG_PRO_USER = "";
-export const PARALLELS_CATALOG_PRO_PASSWORD = "";
-export const PARALLELS_CATALOG_BUSINESS_USER = "";
-export const PARALLELS_CATALOG_BUSINESS_PASSWORD = "";
-
 export class ConfigurationService {
   id: string | undefined;
   virtualMachinesGroups: VirtualMachineGroup[];
   catalogProviders: DevOpsCatalogHostProvider[];
   remoteHostProviders: DevOpsRemoteHostProvider[];
-  parallelsCatalogProvider: DevOpsCatalogHostProvider;
   showOnboardingForParallelsCatalog: boolean;
-  parallelsCatalogUrl: string;
   featureFlags: FeatureFlags;
   tools: Tools;
   license_edition: string | undefined;
@@ -76,7 +68,6 @@ export class ConfigurationService {
   lastHeartbeat: number | undefined;
   downloadingCatalogs: string[] = [];
   initialized = false;
-  showSunsetAIPackage: boolean = true;
 
   constructor(private context: vscode.ExtensionContext) {
     this.id = randomUUID().replace(/-/g, "");
@@ -85,19 +76,7 @@ export class ConfigurationService {
     this.dockerRunItems = [];
     this.catalogProviders = [];
     this.remoteHostProviders = [];
-    this.parallelsCatalogUrl = PARALLELS_CATALOG_URL;
     this.showOnboardingForParallelsCatalog = true;
-    this.parallelsCatalogProvider = {
-      class: "DevOpsCatalogHostProvider",
-      ID: "parallels-desktop-vms-catalog",
-      rawHost: PARALLELS_CATALOG_URL ?? "",
-      name: "Parallels Desktop Vms Catalog",
-      username: "",
-      password: "",
-      state: "unknown",
-      manifests: []
-    };
-
     this.featureFlags = {
       enableTelemetry: undefined,
       hardwareId: undefined,
@@ -148,7 +127,6 @@ export class ConfigurationService {
     this.lastSynced = undefined;
     this.lastHeartbeat = undefined;
     this.isInitialized = false;
-    this.showSunsetAIPackage = true;
     this.backup_startup();
   }
 
@@ -202,17 +180,9 @@ export class ConfigurationService {
       if (json.remoteHostProviders !== undefined) {
         configuration.remoteHostProviders = json.remoteHostProviders;
       }
-      if (json.parallelsCatalogProvider !== undefined) {
-        configuration.parallelsCatalogProvider = json.parallelsCatalogProvider;
-      }
       if (json.showOnboardingForParallelsCatalog !== undefined) {
         configuration.showOnboardingForParallelsCatalog = json.showOnboardingForParallelsCatalog;
       }
-
-      if (json.showSunsetAIPackage !== undefined) {
-        configuration.showSunsetAIPackage = json.showSunsetAIPackage;
-      }
-
       return configuration;
     } catch (e) {
       LogService.error("Error loading configuration", "CoreService");
@@ -323,7 +293,6 @@ export class ConfigurationService {
       virtualMachinesGroup: this.virtualMachinesGroups,
       catalogProviders: this.catalogProviders,
       remoteHostProviders: this.remoteHostProviders,
-      parallelsCatalogProvider: this.parallelsCatalogProvider,
       showOnboardingForParallelsCatalog: this.showOnboardingForParallelsCatalog,
       featureFlags: this.featureFlags,
       hardwareInfo: this.hardwareInfo,
@@ -331,8 +300,7 @@ export class ConfigurationService {
       locale: this.locale,
       tools: this.tools,
       lastSynced: this.lastSynced,
-      lastHeartbeat: this.lastHeartbeat,
-      showSunsetAIPackage: this.showSunsetAIPackage
+      lastHeartbeat: this.lastHeartbeat
     };
 
     return JSON.stringify(config, null, 2);
@@ -1380,10 +1348,5 @@ export class ConfigurationService {
     }
 
     return jsonLicense;
-  }
-
-  setShowSunsetAIPackage(value: boolean): void {
-    this.showSunsetAIPackage = value;
-    this.save();
   }
 }

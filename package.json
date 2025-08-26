@@ -957,10 +957,6 @@
         "title": "Close Onboarding"
       },
       {
-        "command": "parallels-desktop.parallels-catalog.show-ai-faq",
-        "title": "Show AI FAQ"
-      },
-      {
         "command": "parallels-desktop.catalog-cache.clear-all-local-cache-item",
         "title": "Parallels Catalog: Clear all local cache",
         "icon": {
@@ -1341,10 +1337,6 @@
           "when": "false"
         },
         {
-          "command": "parallels-desktop.parallels-catalog.show-ai-faq",
-          "when": "false"
-        },
-        {
           "command": "parallels-desktop.catalog-cache.clear-all-cache-item",
           "when": "false"
         },
@@ -1424,11 +1416,6 @@
           "command": "parallels-desktop.devops-service.force-refresh-remote-host-provider",
           "when": "view == parallels-desktop-remote-hosts && parallels-desktop:devops-service-remote-host-provider-has-items == true",
           "group": "navigation@1"
-        },
-        {
-          "command": "parallels-desktop.parallels-catalog.force-refresh",
-          "when": "view == parallels-desktop-catalog && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true",
-          "group": "navigation@0"
         }
       ],
       "view/item/context": [
@@ -1856,14 +1843,6 @@
           "contextualTitle": "Parallels Desktop Virtual Machines"
         },
         {
-          "id": "parallels-desktop-catalog",
-          "name": "Parallels Catalog",
-          "icon": "media/parallels_logo.svg",
-          "type": "tree",
-          "when": "parallels-desktop:initialized == true && parallels-desktop:os === darwin && parallels-desktop:show-catalog === true && (parallels-desktop:is-licensed-show-catalog === true || parallels-desktop:is-licensed-show-catalog === false)",
-          "contextualTitle": "Parallels Desktop VM Catalog"
-        },
-        {
           "id": "parallels-desktop-remote-catalog",
           "name": "My Catalogs",
           "icon": "media/parallels_logo.svg",
@@ -1908,21 +1887,6 @@
         "view": "parallels-desktop-my-machines",
         "when": "parallels-desktop:initialized === true && (parallels-desktop:license !== 'pro' && parallels-desktop:license !== 'business')",
         "contents": "Welcome to Parallels Desktop\n To have access to this functionality you need a Pro or Business license.\n[Buy Pro License](command:parallels-desktop.common.buy-pro-license)\n[Buy Business License](command:parallels-desktop.common.buy-business-license)"
-      },
-      {
-        "view": "parallels-desktop-catalog",
-        "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === false",
-        "contents": "Welcome to Parallels Desktop VMs Catalog\n To have access to this functionality you need a Pro or Business license.\n[Buy Pro License](command:parallels-desktop.common.buy-pro-license)\n[Buy Business License](command:parallels-desktop.common.buy-business-license)"
-      },
-      {
-        "view": "parallels-desktop-catalog",
-        "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === true ",
-        "contents": "It looks like the Parallels Desktop VMs Catalog is currently unavailable.\nPlease verify your internet connection and ensure you're using the latest version of the extension, then try again.\n[Refresh](command:parallels-desktop.parallels-catalog.force-refresh)"
-      },
-      {
-        "view": "parallels-desktop-catalog",
-        "when": "parallels-desktop:initialized === true && parallels-desktop:show-catalog === true && parallels-desktop:is-licensed-show-catalog === true && parallels-desktop:is-offline === false && parallels-desktop:parallels-catalog:show-onboarding === true && parallels-desktop:is-offline !== true ",
-        "contents": "Welcome to Parallels Desktop VMs Catalog\nHere you can find pre built Vms to help you to quick start your journey.\nWhy not start by trying our new AI Developer Package and start on your journey with AI\n[Step 1: Learn More](command:parallels-desktop.parallels-catalog.show-ai-faq)\n[Step 2: Get Started](command:parallels-desktop.parallels-catalog.close-onboarding)"
       },
       {
         "view": "parallels-desktop-remote-catalog",

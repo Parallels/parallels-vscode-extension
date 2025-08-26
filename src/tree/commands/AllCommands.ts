@@ -3,7 +3,6 @@ import {
   DevOpsCatalogCommand,
   DevOpsRemoteHostsCommand,
   DevOpsRemoteProviderManagementCommand,
-  ParallelsCatalogCommand,
   VagrantCommand,
   VirtualMachineCommand
 } from "./BaseCommand";
@@ -96,13 +95,8 @@ import {DevOpsManagementProviderUpdateUserCommand} from "./devopsManagementProvi
 import {DevOpsPullCatalogManifestMachineOnHostCommand} from "./devopsRemoteHostProvider/pullCatalogManifestMachineOnHost";
 import {DevOpsUpdateRemoteProviderOrchestratorHostCommand} from "./devopsRemoteHostProvider/updateRemoteProviderOrchestratorHost";
 import {CloneVmCommand} from "./virtualMachines/cloneVm";
-import {ParallelsCatalogRefreshCommand} from "./parallelsCatalogProvider/refreshCatalogProvider";
-import {ParallelsCatalogForceRefreshCommand} from "./parallelsCatalogProvider/forceRefreshCatalogProvider";
 import {BuyBusinessLicenseCommonCommand} from "./common/buyBusinessLicense";
-import {ParallelsCatalogPullCatalogManifestCommand} from "./parallelsCatalogProvider/pullCatalogProviderManifest";
 import {BuyProLicenseCommonCommand} from "./common/buyProLicense";
-import {ParallelsCatalogCloseOnboardingCommand} from "./parallelsCatalogProvider/closeOnboarding";
-import {ParallelsCatalogShowAiFaqCommand} from "./parallelsCatalogProvider/showAiFaq";
 import {VagrantInstallCommand} from "./common/installVagrant";
 import {DevOpsManagementClearAllCatalogCacheItemsCommand} from "./devopsManagementProvider/clearAllCatalogCacheItems";
 import {DevOpsManagementClearCatalogCacheItemCommand} from "./devopsManagementProvider/clearCatalogCacheItem";
@@ -225,12 +219,4 @@ export const AllDevopsRemoteProviderManagementCommands: DevOpsRemoteProviderMana
   DevOpsManagementClearCatalogCacheItemVersionCommand,
   DevOpsManagementOpenLogsCommand,
   DevOpsManagementCloseLogsCommand
-];
-
-export const AllParallelsCommands: ParallelsCatalogCommand[] = [
-  ParallelsCatalogRefreshCommand,
-  ParallelsCatalogForceRefreshCommand,
-  ParallelsCatalogPullCatalogManifestCommand,
-  ParallelsCatalogCloseOnboardingCommand,
-  ParallelsCatalogShowAiFaqCommand
 ];

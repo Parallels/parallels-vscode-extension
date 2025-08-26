@@ -59,7 +59,6 @@ let isRefreshingCatalogProviders = false;
 let catalogViewAutoRefreshStarted = false;
 
 let parallelsCatalogViewAutoRefreshInterval: NodeJS.Timeout | undefined;
-let isRefreshingParallelsCatalog = false;
 let parallelsCatalogViewAutoRefreshStarted = false;
 
 let remoteHostsViewAutoRefreshInterval: NodeJS.Timeout | undefined;
@@ -341,47 +340,6 @@ export class DevOpsService {
     catalogViewAutoRefreshStarted = false;
   }
 
-  static startParallelsCatalogViewAutoRefresh(): void {
-    if (parallelsCatalogViewAutoRefreshStarted) {
-      return;
-    }
-    if (parallelsCatalogViewAutoRefreshInterval) {
-      clearInterval(parallelsCatalogViewAutoRefreshInterval);
-    }
-    parallelsCatalogViewAutoRefreshStarted = true;
-    if (!isRefreshingParallelsCatalog) {
-      parallelsCatalogViewAutoRefreshInterval = setInterval(() => {
-        console.log("Refreshing Parallels Catalog view");
-        isRefreshingParallelsCatalog = true;
-        DevOpsService.testHost(config.parallelsCatalogProvider)
-          .then(result => {
-            const oldState = config.parallelsCatalogProvider.state;
-            const currentState = result ? "active" : "inactive";
-            if (oldState !== currentState) {
-              config.updateDevOpsHostsProviderState(config.parallelsCatalogProvider.ID, currentState);
-              vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
-            }
-          })
-          .catch(() => {
-            const oldState = config.parallelsCatalogProvider.state;
-            config.parallelsCatalogProvider.state = "inactive";
-            vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-            if (oldState === "active") {
-              vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
-            }
-          });
-        this.refreshParallelsCatalogProvider(false)
-          .then(() => {
-            isRefreshingParallelsCatalog = false;
-          })
-          .catch(err => {
-            LogService.info(`Error refreshing catalog providers: ${err}`, "DevOpsService");
-            isRefreshingParallelsCatalog = false;
-          });
-      }, parallelsCatalogThreshold);
-    }
-  }
-
   static stopParallelsCatalogViewAutoRefresh(): void {
     console.log("Stopping Parallels Catalog view auto refresh");
     if (parallelsCatalogViewAutoRefreshInterval) {
@@ -589,49 +547,6 @@ export class DevOpsService {
     }
 
     vscode.commands.executeCommand(CommandsFlags.devopsRefreshCatalogProvider);
-  }
-
-  static async refreshParallelsCatalogProvider(force: boolean): Promise<void> {
-    const config = Provider.getConfiguration();
-    const provider = config.parallelsCatalogProvider;
-    let hasUpdate = false;
-    if (provider.state === "inactive") {
-      LogService.info(`Parallels Catalog provider ${provider.name} is inactive, retrying connection`, "DevOpsService");
-      let result: boolean | void = false;
-      result = await DevOpsService.testHost(provider).catch(() => {
-        LogService.error(`Error testing remote host provider ${provider.name}`, "DevOpsService");
-        result = false;
-      });
-      if (!result) {
-        LogService.info(`Parallels Catalog provider ${provider.name} is still inactive after refresh`, "DevOpsService");
-        return;
-      } else {
-        provider.state = "active";
-      }
-    }
-
-    const manifests = await this.getCatalogManifests(provider).catch(err => {
-      hasUpdate = true;
-      LogService.error(`Error getting catalog manifests for provider ${provider.name}, err: ${err}`, "DevOpsService");
-    });
-
-    if (manifests && (force || diffArray(provider.manifests, manifests, "name"))) {
-      provider.manifests = manifests;
-      provider.needsTreeRefresh = true;
-      hasUpdate = true;
-      LogService.info(
-        `Found different object catalog manifests for provider ${provider.name} updating tree`,
-        "DevOpsService"
-      );
-      vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
-    } else {
-      if (provider.needsTreeRefresh) {
-        provider.needsTreeRefresh = false;
-        hasUpdate = true;
-      }
-    }
-
-    vscode.commands.executeCommand(CommandsFlags.parallelsCatalogRefreshProvider);
   }
 
   static async refreshRemoteHostProviders(force: boolean): Promise<void> {

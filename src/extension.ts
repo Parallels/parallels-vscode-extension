@@ -1,4 +1,3 @@
-import {ParallelsCatalogProvider} from "./tree/parallelsCatalogProvider/parallelsCatalogProvider";
 import * as vscode from "vscode";
 import {
   startMyVirtualMachinesAutoRefresh,
@@ -11,11 +10,8 @@ import {
   CommandsFlags,
   FLAG_DEVOPS_CATALOG_PROVIDER_INITIALIZED,
   FLAG_IS_HEADLESS_DEFAULT,
-  FLAG_IS_LICENSED_SHOW_CATALOG,
-  FLAG_IS_PARALLELS_CATALOG_OFFLINE,
   FLAG_LICENSE,
   FLAG_OS,
-  FLAG_PARALLELS_CATALOG_SHOW_ONBOARD,
   FLAG_PARALLELS_EXTENSION_INITIALIZED,
   FLAG_SHOW_PARALLELS_CATALOG,
   FLAG_START_VMS_HEADLESS_DEFAULT
@@ -26,19 +22,11 @@ import {DevOpsRemoteHostsProvider} from "./tree/devopsRemoteHostProvider/devOpsR
 import {DevOpsService} from "./services/devopsService";
 import {AllCommonCommand, AllDevopsRemoteProviderManagementCommands} from "./tree/commands/AllCommands";
 import {initializeCopilot} from "./copilotInitialization";
-import {
-  ConfigurationService,
-  PARALLELS_CATALOG_BUSINESS_PASSWORD,
-  PARALLELS_CATALOG_BUSINESS_USER,
-  PARALLELS_CATALOG_PRO_PASSWORD,
-  PARALLELS_CATALOG_PRO_USER,
-  PARALLELS_CATALOG_URL
-} from "./services/configurationService";
+import {ConfigurationService} from "./services/configurationService";
 import {randomUUID} from "crypto";
 import {TELEMETRY_PARALLELS_CATALOG} from "./telemetry/operations";
 import {TelemetryService} from "./telemetry/telemetryService";
 import {registerClearDownloadCacheCommand} from "./commands/clearDownloads";
-import {ParallelsDesktopService} from "./services/parallelsDesktopService";
 import {stopVagrantBoxesAutoRefresh} from "./tree/vagrantBoxProvider/vagrantBoxProvider";
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -158,221 +146,12 @@ async function initLicensing(
 
   console.log(`Found licensed edition: ${license?.full_edition}`);
 
-  // setting the parallels catalog users from the environment variables
-  let businessUsername = PARALLELS_CATALOG_BUSINESS_USER;
-  let businessPassword = PARALLELS_CATALOG_BUSINESS_PASSWORD;
-  let proUsername = PARALLELS_CATALOG_PRO_USER;
-  let proPassword = PARALLELS_CATALOG_PRO_PASSWORD;
-  let parallelsCatalogUrl = PARALLELS_CATALOG_URL;
-
-  // for local development
-  parallelsCatalogUrl = parallelsCatalogUrl.trim();
-  if (!parallelsCatalogUrl) {
-    parallelsCatalogUrl = process.env.PARALLELS_CATALOG_URL || "";
-  }
-  if (!proUsername) {
-    proUsername = proUsername = process.env.PARALLELS_CATALOG_PRO_USER || "";
-  }
-  if (!proPassword) {
-    proPassword = process.env.PARALLELS_CATALOG_PRO_PASSWORD || "";
-  }
-  if (!businessUsername) {
-    businessUsername = process.env.PARALLELS_CATALOG_BUSINESS_USER || "";
-  }
-  if (!businessPassword) {
-    businessPassword = process.env.PARALLELS_CATALOG_BUSINESS_PASSWORD || "";
-  }
-
   vscode.commands.executeCommand("setContext", FLAG_LICENSE, license.edition);
   config.license_edition = license.edition;
-
   // creating the virtual machine provider
   new VirtualMachineProvider(context, license);
-
-  // Checking if we should show the new Parallels Catalog
-  if (parallelsCatalogUrl) {
-    vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, true);
-    if (license.edition === "business") {
-      config.parallelsCatalogProvider.rawHost = parallelsCatalogUrl;
-      config.parallelsCatalogProvider.username = businessUsername;
-      config.parallelsCatalogProvider.password = businessPassword;
-      config.parallelsCatalogProvider.authToken = "";
-
-      config.parallelsCatalogProvider.manifests = [];
-      try {
-        const isHostAvailable = await DevOpsService.testHost(config.parallelsCatalogProvider);
-        if (!isHostAvailable) {
-          vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-        }
-      } catch (error) {
-        vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-      }
-      if (config.showOnboardingForParallelsCatalog) {
-        vscode.commands.executeCommand("setContext", FLAG_PARALLELS_CATALOG_SHOW_ONBOARD, true);
-        vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-      } else {
-        if (parallelsCatalogUrl && businessUsername && businessPassword) {
-          vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-        }
-      }
-    } else if (license.edition === "pro" || license.edition === "professional") {
-      config.parallelsCatalogProvider.rawHost = parallelsCatalogUrl;
-      config.parallelsCatalogProvider.username = proUsername;
-      config.parallelsCatalogProvider.password = proPassword;
-      config.parallelsCatalogProvider.authToken = "";
-
-      config.parallelsCatalogProvider.manifests = [];
-      try {
-        const isHostAvailable = await DevOpsService.testHost(config.parallelsCatalogProvider);
-        if (!isHostAvailable) {
-          vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-        }
-      } catch (error) {
-        vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-      }
-      if (config.showOnboardingForParallelsCatalog) {
-        vscode.commands.executeCommand("setContext", FLAG_PARALLELS_CATALOG_SHOW_ONBOARD, true);
-        vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-      } else {
-        if (parallelsCatalogUrl && proUsername && proPassword) {
-          vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-        }
-      }
-    } else {
-      config.parallelsCatalogProvider.manifests = [];
-      config.parallelsCatalogProvider.rawHost = "";
-      config.parallelsCatalogProvider.username = "";
-      config.parallelsCatalogProvider.password = "";
-      config.parallelsCatalogProvider.authToken = "";
-      vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, false);
-    }
-
-    let autoRefresh = false;
-    if (
-      (parallelsCatalogUrl && proUsername && proPassword) ||
-      (parallelsCatalogUrl && businessUsername && businessPassword)
-    ) {
-      console.log("Setting Parallels Catalog Auto Refresh");
-      autoRefresh = true;
-    }
-    new ParallelsCatalogProvider(context, autoRefresh);
-  } else {
-    vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, false);
-  }
-
   // Registering global commands
   if (license.edition === "pro" || license.edition === "professional" || license.edition === "business") {
     registerClearDownloadCacheCommand(context);
-  }
-}
-
-async function initLicensingOld(
-  context: vscode.ExtensionContext,
-  telemetry: TelemetryService,
-  config: ConfigurationService
-) {
-  console.log("Checking for Parallels Desktop licensing and availability");
-  const foundLicensedEdition = await ConfigurationService.getLicenseType();
-  const license = await ConfigurationService.getJsonLicense();
-  console.log(`Found licensed edition: ${foundLicensedEdition}`);
-
-  if (!foundLicensedEdition) {
-    vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, false);
-    telemetry.sendOperationEvent(TELEMETRY_PARALLELS_CATALOG, "LICENSE_NOT_FOUND", {
-      description: `foundLicensedEdition: ${foundLicensedEdition}`,
-      operationValue: foundLicensedEdition
-    });
-    console.log(`License not found, ${foundLicensedEdition} `);
-  } else {
-    let businessUsername = PARALLELS_CATALOG_BUSINESS_USER;
-    let businessPassword = PARALLELS_CATALOG_BUSINESS_PASSWORD;
-    let proUsername = PARALLELS_CATALOG_PRO_USER;
-    let proPassword = PARALLELS_CATALOG_PRO_PASSWORD;
-    let parallelsCatalogUrl = PARALLELS_CATALOG_URL;
-
-    // for local development
-    parallelsCatalogUrl = parallelsCatalogUrl.trim();
-    if (!parallelsCatalogUrl) {
-      parallelsCatalogUrl = process.env.PARALLELS_CATALOG_URL || "";
-    }
-    if (!proUsername) {
-      proUsername = proUsername = process.env.PARALLELS_CATALOG_PRO_USER || "";
-    }
-    if (!proPassword) {
-      proPassword = process.env.PARALLELS_CATALOG_PRO_PASSWORD || "";
-    }
-    if (!businessUsername) {
-      businessUsername = process.env.PARALLELS_CATALOG_BUSINESS_USER || "";
-    }
-    if (!businessPassword) {
-      businessPassword = process.env.PARALLELS_CATALOG_BUSINESS_PASSWORD || "";
-    }
-
-    vscode.commands.executeCommand("setContext", FLAG_LICENSE, foundLicensedEdition);
-    config.license_edition = foundLicensedEdition;
-    new VirtualMachineProvider(context, license);
-    if (parallelsCatalogUrl) {
-      vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, true);
-      if (foundLicensedEdition === "business") {
-        config.parallelsCatalogProvider.rawHost = parallelsCatalogUrl;
-        config.parallelsCatalogProvider.username = businessUsername;
-        config.parallelsCatalogProvider.password = businessPassword;
-        config.parallelsCatalogProvider.authToken = "";
-
-        config.parallelsCatalogProvider.manifests = [];
-        try {
-          const isHostAvailable = await DevOpsService.testHost(config.parallelsCatalogProvider);
-          if (!isHostAvailable) {
-            vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-          }
-        } catch (error) {
-          vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-        }
-        if (config.showOnboardingForParallelsCatalog) {
-          vscode.commands.executeCommand("setContext", FLAG_PARALLELS_CATALOG_SHOW_ONBOARD, true);
-          vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-        } else {
-          if (parallelsCatalogUrl && businessUsername && businessPassword) {
-            DevOpsService.startParallelsCatalogViewAutoRefresh();
-            await DevOpsService.refreshParallelsCatalogProvider(true);
-            vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-          }
-        }
-      } else if (foundLicensedEdition === "pro" || foundLicensedEdition === "professional") {
-        config.parallelsCatalogProvider.rawHost = parallelsCatalogUrl;
-        config.parallelsCatalogProvider.username = proUsername;
-        config.parallelsCatalogProvider.password = proPassword;
-        config.parallelsCatalogProvider.authToken = "";
-
-        config.parallelsCatalogProvider.manifests = [];
-        try {
-          const isHostAvailable = await DevOpsService.testHost(config.parallelsCatalogProvider);
-          if (!isHostAvailable) {
-            vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-          }
-        } catch (error) {
-          vscode.commands.executeCommand("setContext", FLAG_IS_PARALLELS_CATALOG_OFFLINE, true);
-        }
-        if (config.showOnboardingForParallelsCatalog) {
-          vscode.commands.executeCommand("setContext", FLAG_PARALLELS_CATALOG_SHOW_ONBOARD, true);
-          vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-        } else {
-          if (parallelsCatalogUrl && proUsername && proPassword) {
-            DevOpsService.startParallelsCatalogViewAutoRefresh();
-            await DevOpsService.refreshParallelsCatalogProvider(true);
-            vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, true);
-          }
-        }
-      } else {
-        config.parallelsCatalogProvider.manifests = [];
-        config.parallelsCatalogProvider.rawHost = "";
-        config.parallelsCatalogProvider.username = "";
-        config.parallelsCatalogProvider.password = "";
-        config.parallelsCatalogProvider.authToken = "";
-        vscode.commands.executeCommand("setContext", FLAG_IS_LICENSED_SHOW_CATALOG, false);
-      }
-    } else {
-      vscode.commands.executeCommand("setContext", FLAG_SHOW_PARALLELS_CATALOG, false);
-    }
   }
 }
