@@ -38,7 +38,7 @@ export const conversationHandler: vscode.ChatRequestHandler = async (
               "catalog_manifest": {
                   "catalog_id": "name",
                   "version": "latest",
-                  "connection": "host=root:Nmo5c2U1YTZycWc0Ojc4YmZkOWNlZjJmMjU0Z000@https://devops.local-build.co"
+                  "connection": "host=root:xxxxxx@https://devops.local-build.co"
               }
           }
           and that the necessary information in order to achieve that will be:
