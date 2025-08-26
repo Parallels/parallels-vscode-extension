@@ -2,6 +2,14 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.4] - 2025-08-26
+
+- Eliminated the sunset AI package prompt from initialization.
+- Removed configuration options and related logic for the sunset AI package.
+- Deleted all commands and services associated with the Parallels Catalog, including refresh, pull manifest, and onboarding commands.
+- Cleaned up the ParallelsCatalogProvider and its associated methods.
+- Updated configuration service to remove references to the sunset AI package.
+
 ## [1.5.3] - 2025-07-22
 
 - Added the new message for the sunset of the PD AI package
