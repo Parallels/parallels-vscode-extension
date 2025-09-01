@@ -1952,7 +1952,7 @@
     "@vscode/test-web": "*",
     "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.25.9",
-    "eslint": "^9.32.0",
+    "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "glob": "^11.0.3",
