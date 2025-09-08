@@ -1963,7 +1963,7 @@
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "run-script-os": "^1.1.6",
-    "ts-loader": "^9.5.2",
+    "ts-loader": "^9.5.4",
     "typescript": "^5.9.2",
     "vscpp": "^2.1.1",
     "webpack": "^5.101.3",
