@@ -1944,7 +1944,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^24.6.0",
     "@types/uuid": "^10.0.0",
-    "@types/vscode": "^1.103.0",
+    "@types/vscode": "^1.104.0",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.0",
     "@vscode/prompt-tsx": "^0.4.0-alpha.5",
