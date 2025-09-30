@@ -1950,7 +1950,7 @@
     "@vscode/prompt-tsx": "^0.4.0-alpha.5",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "*",
-    "@vscode/vsce": "^3.6.0",
+    "@vscode/vsce": "^3.6.2",
     "esbuild": "^0.25.10",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
