@@ -1974,7 +1974,7 @@
     "@amplitude/analytics-node": "^1.5.9",
     "axios": "^1.12.2",
     "bufferutil": "^4.0.9",
-    "clipboardy": "^4.0.0",
+    "clipboardy": "^5.0.0",
     "clipboardy-ts": "^1.0.0",
     "fast-xml-parser": "^5.2.5",
     "jwt-decode": "^4.0.0",
