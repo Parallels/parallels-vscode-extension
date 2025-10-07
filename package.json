@@ -1976,7 +1976,7 @@
     "bufferutil": "^4.0.9",
     "clipboardy": "^5.0.0",
     "clipboardy-ts": "^1.0.0",
-    "fast-xml-parser": "^5.2.5",
+    "fast-xml-parser": "^5.3.0",
     "jwt-decode": "^4.0.0",
     "tailwindcss": "^4.1.14",
     "utf-8-validate": "^6.0.5",
