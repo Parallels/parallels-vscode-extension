@@ -1938,7 +1938,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.33.0",
+    "@eslint/js": "^9.37.0",
     "@types/axios": "^0.14.4",
     "@types/glob": "^9.0.0",
     "@types/mocha": "^10.0.10",
