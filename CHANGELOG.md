@@ -2,6 +2,10 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.5] - 2025-11-19
+
+- Updated Kali Linux to the latest version
+
 ## [1.5.4] - 2025-08-26
 
 - Eliminated the sunset AI package prompt from initialization.
