@@ -1971,12 +1971,12 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
-    "@amplitude/analytics-node": "^1.5.20",
+    "@amplitude/analytics-node": "^1.5.22",
     "axios": "^1.13.2",
     "bufferutil": "^4.0.9",
     "clipboardy": "^5.0.0",
     "clipboardy-ts": "^1.0.0",
-    "fast-xml-parser": "^5.3.1",
+    "fast-xml-parser": "^5.3.2",
     "jwt-decode": "^4.0.0",
     "tailwindcss": "^4.1.16",
     "utf-8-validate": "^6.0.5",
