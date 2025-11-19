@@ -173,19 +173,19 @@
             "name": "Kali Linux",
             "images": [
               {
-                "id": "kali-linux-2023.4-gnome",
-                "name": "Kali Linux 2023.4 (Gnome)",
+                "id": "kali-linux-2025.3-gnome",
+                "name": "Kali Linux 2025.3 (Gnome)",
                 "distro": "kali",
-                "description": "This will create a Kali Linux 2023.4 with the Gnome UI VM using automated Packer scripts.",
+                "description": "This will create a Kali Linux 2025.3 with the Gnome UI VM using automated Packer scripts.",
                 "type": "packer",
-                "packerFolder": "kali",
+                "packerFolder": "kali-linux",
                 "requireIsoDownload": false,
                 "allowMachineSpecs": true,
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.kali.org/kali-2023.4/kali-linux-2023.4-installer-arm64.iso",
-                  "iso_checksum": "sha256:5cfca5f2c5136d743da4e9235fbfaad515d112115da486db2033d8d1d4c5ee67",
+                  "iso_url": "https://cdimage.kali.org/kali-2025.3/kali-linux-2025.3-installer-arm64.iso",
+                  "iso_checksum": "sha256:a3f220224810d1111661040d64ddb62d0e68d2b7ed97bfd5fb3e5dd5768d02d9",
                   "desktop": "gnome"
                 },
                 "addons": [],
@@ -202,10 +202,10 @@
                 }
               },
               {
-                "id": "kali-linux-2023.3-xfce",
-                "name": "Kali Linux 2023.3 (xfce)",
+                "id": "kali-linux-2025.3-xfce",
+                "name": "Kali Linux 2025.3 (xfce)",
                 "distro": "kali",
-                "description": "This will create a Kali Linux 2023.3 with the XFCE UI VM using automated Packer scripts.",
+                "description": "This will create a Kali Linux 2025.3 with the XFCE UI VM using automated Packer scripts.",
                 "type": "packer",
                 "packerFolder": "kali-linux",
                 "requireIsoDownload": false,
@@ -213,8 +213,8 @@
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.kali.org/kali-2023.4/kali-linux-2023.4-installer-arm64.iso",
-                  "iso_checksum": "sha256:5cfca5f2c5136d743da4e9235fbfaad515d112115da486db2033d8d1d4c5ee67"
+                  "iso_url": "https://cdimage.kali.org/kali-2025.3/kali-linux-2025.3-installer-arm64.iso",
+                  "iso_checksum": "sha256:a3f220224810d1111661040d64ddb62d0e68d2b7ed97bfd5fb3e5dd5768d02d9"
                 },
                 "addons": [],
                 "defaults": {
