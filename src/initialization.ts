@@ -101,7 +101,7 @@ export async function initialize(context: vscode.ExtensionContext) {
 
   if (config.isTelemetryEnabled === undefined) {
     YesNoErrorMessage(
-      "Help us improve the Parallels Desktop extension by allowing anonymous usage data to be sent to Parallels.\nFind more on https://www.alludo.com/legal/privacy"
+      "Help us improve the Parallels Desktop extension by allowing anonymous usage data to be sent to Parallels.\nFind more on https://www.parallels.com/about/legal/privacy/"
     ).then(selection => {
       if (selection === ANSWER_YES) {
         config.featureFlags.enableTelemetry = true;
