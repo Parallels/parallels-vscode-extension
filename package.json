@@ -1953,7 +1953,7 @@
     "@vscode/test-web": "*",
     "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.27.1",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "glob": "^13.0.0",
