@@ -2,6 +2,10 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.10] - 2025-12-19
+
+
+
 ## [1.5.9] - 2025-12-19
 
 
