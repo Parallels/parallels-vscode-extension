@@ -335,7 +335,7 @@ jobs:
             npx --yes ovsx publish "$f" -p "$OPEN_VSX_TOKEN"
           done
         env:
-          OVSX_PAT: ${{ secrets.OPEN_VSX_TOKEN }}
+          OPEN_VSX_TOKEN: ${{ secrets.OPEN_VSX_TOKEN }}
   discord-announce:
     needs:
       - publish
