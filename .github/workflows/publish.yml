@@ -27,10 +27,10 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version-file: .nvmrc 
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
       - name: Check if version has changed
@@ -94,10 +94,10 @@ jobs:
             ls_target: darwin_arm64
             npm_config_arch: arm64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version-file: .nvmrc 
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
       - run: npm install
@@ -154,10 +154,10 @@ jobs:
             ls_target: windows_arm64
             npm_config_arch: arm64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version-file: .nvmrc 
           cache: "npm"
           registry-url: "https://npm.pkg.github.com"
       - name: create a package.json that actions/upload will like
@@ -198,7 +198,7 @@ jobs:
     env:
       EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
       - name: Generate release notes
         run: |
@@ -259,7 +259,7 @@ jobs:
     env:
       EXT_VERSION: ${{ needs.check-version-change.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.vsce_target }}
@@ -333,7 +333,7 @@ jobs:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
       VERSION: ${{ needs.check-version-change.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Announce on discord
         id: announce_discord
         run: |
