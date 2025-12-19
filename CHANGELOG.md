@@ -2,6 +2,10 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.8] - 2025-12-19
+
+
+
 ## [1.5.7] - 2025-12-19
 
 - fixed privacy url
