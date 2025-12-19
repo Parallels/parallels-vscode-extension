@@ -321,7 +321,21 @@ jobs:
     steps:
       - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
       - name: Publish to Open VSX
-        run: npx ovsx publish $(find . -iname *.vsix) -p ${{ secrets.OPEN_VSX_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "Searching for .vsix artifacts to publish..."
+          mapfile -t files < <(find . -type f -iname "*.vsix" -print)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No .vsix files found to publish."
+            exit 0
+          fi
+
+          for f in "${files[@]}"; do
+            echo "Publishing: $f"
+            npx --yes ovsx publish "$f" -p "$OPEN_VSX_TOKEN"
+          done
+        env:
+          OVSX_PAT: ${{ secrets.OPEN_VSX_TOKEN }}
   discord-announce:
     needs:
       - publish
