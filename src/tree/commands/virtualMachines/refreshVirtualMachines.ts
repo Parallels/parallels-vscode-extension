@@ -9,31 +9,39 @@ import {VirtualMachineCommand} from "../BaseCommand";
 
 const registerRefreshVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
-    vscode.commands.registerCommand(CommandsFlags.treeRefreshVms, async () => {
-      vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: "Refreshing virtual machines"
-        },
-        async () => {
-          LogService.debug("Refreshing virtual machines", "RefreshVirtualMachineCommand");
-          await ParallelsDesktopService.getVms();
-          const groups = Provider.getConfiguration().virtualMachinesGroups;
-          LogService.debug(`Found ${groups.length} groups`, "RefreshVirtualMachineCommand");
-          LogService.debug(
-            `Found ${groups.map(g => g.machines.length).reduce((a, b) => a + b, 0)} virtual machines`,
-            "RefreshVirtualMachineCommand"
-          );
-          for (const group of groups) {
-            for (const vm of group.machines) {
-              LogService.debug(`Name: ${vm.Name}, State: ${vm.State}`, "RefreshVirtualMachineCommand");
-            }
+    vscode.commands.registerCommand(CommandsFlags.treeRefreshVms, async (silent?: boolean) => {
+      const refreshLogic = async () => {
+        LogService.debug("Refreshing virtual machines", "RefreshVirtualMachineCommand");
+        await ParallelsDesktopService.getVms();
+        const groups = Provider.getConfiguration().virtualMachinesGroups;
+        LogService.debug(`Found ${groups.length} groups`, "RefreshVirtualMachineCommand");
+        LogService.debug(
+          `Found ${groups.map(g => g.machines.length).reduce((a, b) => a + b, 0)} virtual machines`,
+          "RefreshVirtualMachineCommand"
+        );
+        for (const group of groups) {
+          for (const vm of group.machines) {
+            LogService.debug(`Name: ${vm.Name}, State: ${vm.State}`, "RefreshVirtualMachineCommand");
           }
-          const config = Provider.getConfiguration();
-          config.save();
-          provider.refresh();
         }
-      );
+        const config = Provider.getConfiguration();
+        config.save();
+        provider.refresh();
+      };
+
+      if (silent) {
+        await refreshLogic();
+      } else {
+        vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: "Refreshing virtual machines"
+          },
+          async () => {
+            await refreshLogic();
+          }
+        );
+      }
     })
   );
 };
