@@ -60,6 +60,35 @@ export class ParallelsDesktopService {
     });
   }
 
+  static async getVersion(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      cp.exec("prlctl --version", (err, stdout) => {
+        if (err) {
+          LogService.error("Failed to get Parallels Desktop version", "ParallelsDesktopService");
+          return reject(err);
+        }
+        LogService.debug(`Raw prlctl version output: ${stdout}`, "ParallelsDesktopService");
+        const version = stdout.replace("prlctl version", "").trim();
+        LogService.debug(`Parsed version: ${version}`, "ParallelsDesktopService");
+        return resolve(version);
+      });
+    });
+  }
+
+  static async canUseEventMonitor(): Promise<boolean> {
+    try {
+      const version = await this.getVersion();
+      const majorVersion = parseInt(version.split(".")[0]);
+      if (isNaN(majorVersion)) {
+        return false;
+      }
+      return majorVersion >= 21;
+    } catch (e) {
+      LogService.error(`Failed to check if event monitor can be used: ${e}`, "ParallelsDesktopService");
+      return false;
+    }
+  }
+
   static async getVms(): Promise<VirtualMachine[]> {
     return new Promise((resolve, reject) => {
       const config = Provider.getConfiguration();
@@ -177,10 +206,15 @@ export class ParallelsDesktopService {
     });
   }
 
-  static async getVmsRunningDetails(): Promise<VirtualMachineRunningInfo[]> {
+  static async getVmsRunningDetails(vmId?: string): Promise<VirtualMachineRunningInfo[]> {
     return new Promise(async (resolve, reject) => {
-      LogService.info(`Getting Vms running Info`, "ParallelsDesktopService");
-      const prlctl = cp.spawn("prlctl", ["list", "-a", "-f", "--json"], {shell: true});
+      LogService.info(`Getting Vms running Info${vmId ? ` for ${vmId}` : ""}`, "ParallelsDesktopService");
+      const args = ["list"];
+      if (vmId) {
+        args.push(`"${vmId}"`);
+      }
+      args.push("-a", "-f", "--json");
+      const prlctl = cp.spawn("prlctl", args, {shell: true});
       let stdOut = "";
       prlctl.stdout.on("data", data => {
         stdOut += data.toString();

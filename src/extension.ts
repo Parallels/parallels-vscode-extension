@@ -33,6 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
   console.log("Activating Parallels Desktop Extension");
 
   const provider = new Provider(context);
+  let virtualMachineProvider: VirtualMachineProvider | undefined;
   const os = Provider.getOs();
 
   vscode.commands.executeCommand("setContext", FLAG_OS, os.toLowerCase());
@@ -69,7 +70,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Checking licensing and configuring providers based on the licensing
   if (os.toLowerCase() === "darwin") {
-    initLicensing(context, telemetry, config);
+    initLicensing(context, telemetry, config).then(p => {
+      virtualMachineProvider = p;
+    });
     // Initializing the extension
     await initialize(context);
   }
@@ -106,7 +109,9 @@ export async function activate(context: vscode.ExtensionContext) {
           vscode.commands.executeCommand("setContext", FLAG_IS_HEADLESS_DEFAULT, false);
         }
 
-        startMyVirtualMachinesAutoRefresh();
+        if (virtualMachineProvider) {
+          startMyVirtualMachinesAutoRefresh(virtualMachineProvider);
+        }
         vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
       }
     }
@@ -149,9 +154,10 @@ async function initLicensing(
   vscode.commands.executeCommand("setContext", FLAG_LICENSE, license.edition);
   config.license_edition = license.edition;
   // creating the virtual machine provider
-  new VirtualMachineProvider(context, license);
+  const provider = new VirtualMachineProvider(context, license);
   // Registering global commands
   if (license.edition === "pro" || license.edition === "professional" || license.edition === "business") {
     registerClearDownloadCacheCommand(context);
   }
+  return provider;
 }
