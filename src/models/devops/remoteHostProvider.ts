@@ -6,6 +6,7 @@ import {DevOpsRemoteHost} from "./remoteHost";
 import {DevOpsRemoteHostResource} from "./remoteHostResource";
 import {DevOpsRolesAndClaims} from "./rolesAndClaims";
 import {DevOpsUser} from "./users";
+import {WebSocketConnectionState} from "./websocketEvent";
 
 export interface DevOpsRemoteHostProvider {
   class: "DevOpsRemoteHostProvider";
@@ -34,4 +35,8 @@ export interface DevOpsRemoteHostProvider {
   catalogCache?: CatalogCacheResponse;
   reverseProxy?: DevOpsReverseProxy;
   lastUpdatedHardwareInfo?: string;
+  // WebSocket connection state
+  websocketState?: WebSocketConnectionState;
+  websocketRetryCount?: number;
+  pollingIntervalId?: NodeJS.Timeout;
 }

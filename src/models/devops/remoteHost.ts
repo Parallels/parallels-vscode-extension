@@ -23,6 +23,7 @@ export interface DevOpsRemoteHost {
   detailed_resources: DevOpsRemoteHostDetailedResources;
   catalogCache?: CatalogCacheResponse;
   reverseProxy?: DevOpsReverseProxy;
+  has_websocket_events?: boolean;
 }
 
 export interface DevOpsRemoteHostResources {

@@ -117,6 +117,11 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
           const id = `${cleanString(provider.name).toLowerCase()}%%${provider.ID}`;
           let icon =
             provider.type === "orchestrator" ? "remote_hosts_provider_orchestrator" : "remote_hosts_provider_host";
+
+          // Check if orchestrator has WebSocket capability
+          const hasWebSocketCapability =
+            provider.type === "orchestrator" && provider.hosts?.some(host => host.has_websocket_events === true);
+
           switch (provider.state) {
             case "active":
               icon = `${icon}_active`;
@@ -125,6 +130,12 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
               icon = `${icon}_inactive`;
               break;
           }
+
+          // Add websocket suffix if capable
+          if (hasWebSocketCapability) {
+            icon = `${icon}_websocket`;
+          }
+
           let collapsible =
             provider.virtualMachines.length === 0 && !isSuperUser
               ? vscode.TreeItemCollapsibleState.None
@@ -154,7 +165,9 @@ export class DevOpsRemoteHostsProvider implements vscode.TreeDataProvider<DevOps
 
         if (this.data.length > 0) {
           vscode.commands.executeCommand("setContext", FLAG_DEVOPS_REMOTE_HOST_HAS_ITEMS, true);
-          DevOpsService.startRemoteHostsViewAutoRefresh();
+          if (!DevOpsService.isRemoteHostsViewAutoRefreshStarted()) {
+            DevOpsService.startRemoteHostsViewAutoRefresh();
+          }
         }
         resolve(this.data);
       } else {

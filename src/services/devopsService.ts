@@ -53,6 +53,7 @@ import {
 const refreshThreshold = 15000;
 const parallelsCatalogThreshold = 3600000;
 const hardwareRefreshThreshold = 10;
+const MIN_WEBSOCKET_VERSION = "0.5.0";
 
 let catalogViewAutoRefreshInterval: NodeJS.Timeout | undefined;
 let isRefreshingCatalogProviders = false;
@@ -349,6 +350,10 @@ export class DevOpsService {
     parallelsCatalogViewAutoRefreshStarted = false;
   }
 
+  static isRemoteHostsViewAutoRefreshStarted(): boolean {
+    return remoteHostViewAutoRefreshStarted;
+  }
+
   static startRemoteHostsViewAutoRefresh(): void {
     if (remoteHostViewAutoRefreshStarted) {
       return;
@@ -357,37 +362,69 @@ export class DevOpsService {
       clearInterval(remoteHostsViewAutoRefreshInterval);
     }
     remoteHostViewAutoRefreshStarted = true;
-    if (!isRefreshingRemoteHostProviders) {
-      remoteHostsViewAutoRefreshInterval = setInterval(() => {
-        isRefreshingRemoteHostProviders = true;
-        for (const provider of config.remoteHostProviders) {
-          DevOpsService.testHost(provider)
-            .then(result => {
-              const oldState = provider.state;
-              const currentState = result ? "active" : "inactive";
-              if (oldState !== currentState) {
-                config.updateDevOpsHostsProviderState(provider.ID, currentState);
-                vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-              }
-            })
-            .catch(() => {
-              const oldState = provider.state;
-              config.updateDevOpsHostsProviderState(provider.ID, "inactive");
-              if (oldState === "active") {
-                vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
-              }
-            });
+
+    LogService.info(`Found ${config.remoteHostProviders.length} remote host providers to check`, "DevOpsService");
+
+    // Import EventMonitorService dynamically to avoid circular dependency
+    import("./eventMonitorService").then(EventMonitorServiceModule => {
+      LogService.info("EventMonitorService imported successfully", "DevOpsService");
+      const EventMonitorService = EventMonitorServiceModule.EventMonitorService;
+
+      // Check each provider and start WebSocket or polling
+      for (const provider of config.remoteHostProviders) {
+        LogService.info(
+          `Checking provider ${provider.name} (type: ${provider.type}, hosts: ${provider.hosts?.length ?? 0})`,
+          "DevOpsService"
+        );
+
+        if (this.shouldUseWebSocket(provider)) {
+          LogService.info(`Starting WebSocket monitoring for ${provider.name}`, "DevOpsService");
+          EventMonitorService.connectWebSocket(provider);
+        } else {
+          LogService.info(
+            `Provider ${provider.name} does not support WebSocket - using polling instead`,
+            "DevOpsService"
+          );
         }
-        this.refreshRemoteHostProviders(false)
-          .then(() => {
-            isRefreshingRemoteHostProviders = false;
-          })
-          .catch(err => {
-            LogService.error(`Error refreshing remote hosts view providers: ${err}`, "DevOpsService");
-            isRefreshingRemoteHostProviders = false;
-          });
-      }, refreshThreshold);
-    }
+      }
+
+      // Continue with polling for non-WebSocket providers and connectivity checks
+      if (!isRefreshingRemoteHostProviders) {
+        remoteHostsViewAutoRefreshInterval = setInterval(() => {
+          isRefreshingRemoteHostProviders = true;
+
+          for (const provider of config.remoteHostProviders) {
+            // Test connectivity for all providers
+            DevOpsService.testHost(provider)
+              .then(result => {
+                const oldState = provider.state;
+                const currentState = result ? "active" : "inactive";
+                if (oldState !== currentState) {
+                  config.updateDevOpsHostsProviderState(provider.ID, currentState);
+                  vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+                }
+              })
+              .catch(() => {
+                const oldState = provider.state;
+                config.updateDevOpsHostsProviderState(provider.ID, "inactive");
+                if (oldState === "active") {
+                  vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
+                }
+              });
+          }
+
+          // Refresh providers (WebSocket-enabled ones will be handled by EventMonitorService)
+          this.refreshRemoteHostProviders(false)
+            .then(() => {
+              isRefreshingRemoteHostProviders = false;
+            })
+            .catch(err => {
+              LogService.error(`Error refreshing remote hosts view providers: ${err}`, "DevOpsService");
+              isRefreshingRemoteHostProviders = false;
+            });
+        }, refreshThreshold);
+      }
+    });
   }
 
   static stopRemoteHostsViewAutoRefresh(): void {
@@ -395,6 +432,12 @@ export class DevOpsService {
     if (remoteHostsViewAutoRefreshInterval) {
       clearInterval(remoteHostsViewAutoRefreshInterval);
     }
+
+    // Import EventMonitorService dynamically to avoid circular dependency
+    import("./eventMonitorService").then(EventMonitorServiceModule => {
+      const EventMonitorService = EventMonitorServiceModule.EventMonitorService;
+      EventMonitorService.disconnectAllWebSockets();
+    });
 
     remoteHostViewAutoRefreshStarted = false;
   }
@@ -756,6 +799,24 @@ export class DevOpsService {
                 `Found different object hosts for remote host orchestrator hosts ${provider.name} updating tree`,
                 "DevOpsService"
               );
+
+              // Check if WebSocket should now be enabled after hosts are loaded/updated
+              LogService.info(`Hosts updated for ${provider.name}, checking WebSocket eligibility`, "DevOpsService");
+              import("./eventMonitorService").then(EventMonitorServiceModule => {
+                const EventMonitorService = EventMonitorServiceModule.EventMonitorService;
+                const shouldUseWs = this.shouldUseWebSocket(provider);
+                LogService.info(`shouldUseWebSocket returned ${shouldUseWs} for ${provider.name}`, "DevOpsService");
+                if (shouldUseWs) {
+                  LogService.info(
+                    `Hosts updated for ${provider.name} - starting WebSocket monitoring`,
+                    "DevOpsService"
+                  );
+                  EventMonitorService.connectWebSocket(provider);
+                } else {
+                  LogService.info(`Skipping WebSocket for ${provider.name} - not eligible`, "DevOpsService");
+                }
+              });
+
               vscode.commands.executeCommand(CommandsFlags.devopsRefreshRemoteHostProvider);
             } else {
               if (provider.needsTreeRefresh) {
@@ -1627,6 +1688,77 @@ export class DevOpsService {
     });
   }
 
+  static async getRemoteHostVersion(
+    provider: DevOpsCatalogHostProvider | DevOpsRemoteHostProvider
+  ): Promise<string | undefined> {
+    return new Promise(async (resolve, reject) => {
+      const url = await this.getHostUrl(provider).catch(err => {
+        return reject(err);
+      });
+      const auth = await this.authorize(provider).catch(err => {
+        return reject(err);
+      });
+
+      const path = `${url}/api/v1/version`;
+
+      let error: any;
+      const response = await axios
+        .get<{version: string}>(`${path}`, {
+          headers: {
+            "X-LOGGING": "IGNORE",
+            Authorization: `Bearer ${auth?.token}`
+          }
+        })
+        .catch(err => {
+          error = err;
+          LogService.debug(`Failed to get version from ${provider.name}: ${err}`, "DevOpsService");
+          return undefined;
+        });
+
+      return resolve(response?.data?.version);
+    });
+  }
+
+  static shouldUseWebSocket(provider: DevOpsRemoteHostProvider): boolean {
+    LogService.info(
+      `shouldUseWebSocket called for provider ${provider.name} (type: ${provider.type})`,
+      "DevOpsService"
+    );
+
+    // Only orchestrators support WebSocket events
+    if (provider.type !== "orchestrator") {
+      LogService.info(`Provider ${provider.name} is not orchestrator type (${provider.type})`, "DevOpsService");
+      return false;
+    }
+
+    // Check if any host has WebSocket capability
+    if (provider.hosts && provider.hosts.length > 0) {
+      // Log each host's WebSocket status for debugging
+      provider.hosts.forEach(host => {
+        LogService.info(
+          `Host "${host.host}" (id: ${host.id}): has_websocket_events=${host.has_websocket_events}, version=${host.devops_version}`,
+          "DevOpsService"
+        );
+      });
+
+      const wsHosts = provider.hosts.filter(host => host.has_websocket_events === true);
+      LogService.info(
+        `Provider ${provider.name} has ${wsHosts.length}/${provider.hosts.length} hosts with WebSocket support (returning ${wsHosts.length > 0})`,
+        "DevOpsService"
+      );
+      if (wsHosts.length > 0) {
+        LogService.info(
+          `WebSocket-enabled hosts: ${wsHosts.map(h => `${h.host} (v${h.devops_version})`).join(", ")}`,
+          "DevOpsService"
+        );
+      }
+      return wsHosts.length > 0;
+    }
+
+    LogService.info(`Provider ${provider.name} has no hosts (returning false)`, "DevOpsService");
+    return false;
+  }
+
   static async getRemoteHostOrchestratorHosts(provider: DevOpsRemoteHostProvider): Promise<DevOpsRemoteHost[]> {
     return new Promise(async (resolve, reject) => {
       const url = await this.getHostUrl(provider).catch(err => {
@@ -1654,7 +1786,15 @@ export class DevOpsService {
           return reject(err);
         });
 
-      return !response ? reject(error) : resolve(response?.data ?? []);
+      if (!response) {
+        return reject(error);
+      }
+
+      const hosts = response?.data ?? [];
+
+      LogService.info(`Fetched ${hosts.length} hosts from orchestrator API`, "DevOpsService");
+
+      return resolve(hosts);
     });
   }
 
