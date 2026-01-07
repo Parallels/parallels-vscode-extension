@@ -19,6 +19,7 @@ import {DockerService} from "../../services/dockerService";
 import {DockerImage} from "../../models/docker/dockerImage";
 import {LogService} from "../../services/logService";
 import {AllVirtualMachineCommands} from "../commands/AllCommands";
+import {EventMonitorService} from "../../services/eventMonitorService";
 import {ParallelsShortLicense} from "../../models/parallels/ParallelsJsonLicense";
 
 let autoRefreshMyVirtualMachinesInterval: NodeJS.Timeout | undefined;
@@ -47,7 +48,7 @@ export class VirtualMachineProvider
       if (e.visible) {
         LogService.info("Starting auto refresh for Virtual Machine Tree View", "VirtualMachineProvider");
         if (license.edition === "pro" || license.edition === "professional" || license.edition === "business") {
-          startMyVirtualMachinesAutoRefresh();
+          startMyVirtualMachinesAutoRefresh(this);
         }
 
         // Send telemetry event
@@ -58,6 +59,13 @@ export class VirtualMachineProvider
         stopMyVirtualMachinesAutoRefresh();
       }
     });
+
+    if (view.visible) {
+      LogService.info("View is initially visible, starting auto refresh", "VirtualMachineProvider");
+      if (license.edition === "pro" || license.edition === "professional" || license.edition === "business") {
+        startMyVirtualMachinesAutoRefresh(this);
+      }
+    }
 
     AllVirtualMachineCommands.forEach(oc => oc.register(context, this));
   }
@@ -869,13 +877,22 @@ export class VirtualMachineProvider
   }
 }
 
-export function startMyVirtualMachinesAutoRefresh() {
+export async function startMyVirtualMachinesAutoRefresh(provider: VirtualMachineProvider) {
+  LogService.debug("Attempting to start VM auto refresh", "CoreService");
   if (isAutoRefreshMyVirtualMachinesRunning) {
-    LogService.info("Auto refresh is already running, skipping...", "CoreService");
+    LogService.debug("Auto refresh is already running, skipping...", "CoreService");
     return;
   }
 
   isAutoRefreshMyVirtualMachinesRunning = true;
+
+  if (await ParallelsDesktopService.canUseEventMonitor()) {
+    LogService.debug("Using Event Monitor for VM updates", "CoreService");
+    EventMonitorService.start(() => provider.refresh());
+    isAutoRefreshMyVirtualMachinesRunning = false;
+    return;
+  }
+
   const settings = Provider.getSettings();
   const cfg = Provider.getConfiguration();
   const autoRefresh = settings.get<boolean>(FLAG_AUTO_REFRESH);
@@ -898,7 +915,7 @@ export function startMyVirtualMachinesAutoRefresh() {
     clearInterval(autoRefreshMyVirtualMachinesInterval);
     autoRefreshMyVirtualMachinesInterval = setInterval(() => {
       LogService.info("Refreshing the virtual machine tree view", "CoreService");
-      vscode.commands.executeCommand(CommandsFlags.treeRefreshVms);
+      vscode.commands.executeCommand(CommandsFlags.treeRefreshVms, true);
     }, interval);
   } else {
     if (autoRefreshMyVirtualMachinesInterval) {
@@ -912,5 +929,6 @@ export function startMyVirtualMachinesAutoRefresh() {
 }
 
 export function stopMyVirtualMachinesAutoRefresh() {
+  EventMonitorService.stop();
   clearInterval(autoRefreshMyVirtualMachinesInterval);
 }
