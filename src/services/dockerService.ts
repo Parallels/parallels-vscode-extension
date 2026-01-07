@@ -79,6 +79,12 @@ export class DockerService {
                 return;
               }
               const container = JSON.parse(line.replace(/\\\\/g, "\\"));
+              const existingImage = images.find(img => img.ID === container.ID);
+              if (existingImage) {
+                // just add the tag to the existing image
+                existingImage.Tag += `, ${container.Tag}`;
+                return;
+              }
               images.push({
                 Containers: container.Container,
                 CreatedAt: container.CreatedAt,
