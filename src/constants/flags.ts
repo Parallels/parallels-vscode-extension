@@ -173,6 +173,7 @@ export class CommandsFlags {
   static treePauseVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.pause-vm`;
   static treeSuspendVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.suspend-vm`;
   static treeRefreshVms = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.refresh-vms`;
+  static treeRefreshVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.refresh-vm`;
   static treeResumeVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.resume-vm`;
   static treeStartVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-vm`;
   static treeStartHeadlessVm = `${COMMAND_PREFIX}.${TREE_VIEW_PREFIX}.start-headless-vm`;
