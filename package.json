@@ -254,6 +254,14 @@
         }
       },
       {
+        "command": "parallels-desktop.tree-view.refresh-vm",
+        "title": "Refresh Virtual Machine",
+        "icon": {
+          "light": "img/light/refresh.svg",
+          "dark": "img/dark/refresh.svg"
+        }
+      },
+      {
         "command": "parallels-desktop.get-details",
         "title": "Parallels: Get Details",
         "category": "Parallels",
@@ -1082,6 +1090,10 @@
           "when": "false"
         },
         {
+          "command": "parallels-desktop.tree-view.refresh-vm",
+          "when": "false"
+        },
+        {
           "command": "parallels-desktop.get-details",
           "when": "false"
         },
@@ -1485,6 +1497,11 @@
           "command": "parallels-desktop.tree-view.rename-vm",
           "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.(stopped)/",
           "group": "inline@23"
+        },
+        {
+          "command": "parallels-desktop.tree-view.refresh-vm",
+          "when": "view == parallels-desktop-my-machines && viewItem =~ /vm\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\.[a-z0-9_-]{0,100}\\..*/",
+          "group": "inline@24"
         },
         {
           "command": "parallels-desktop.tree-view.delete-vm-snapshot",
