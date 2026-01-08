@@ -48,6 +48,7 @@ import {StartContainerCommand} from "./docker/startContainer";
 import {StopContainerCommand} from "./docker/stopContainer";
 import {ResumeVirtualMachineCommand} from "./virtualMachines/resumeVirtualMachine";
 import {RefreshVirtualMachineCommand} from "./virtualMachines/refreshVirtualMachines";
+import {RefreshVirtualMachineCommand as RefreshSingleVirtualMachineCommand} from "./virtualMachines/refreshVirtualMachine";
 import {DevOpsAddCatalogProviderCommand} from "./devopsCatalogProvider/addCatalogProvider";
 import {DevOpsRefreshCatalogProviderCommand} from "./devopsCatalogProvider/refreshCatalogProvider";
 import {DevOpsAddRemoteProviderCommand} from "./devopsRemoteHostProvider/addRemoteProvider";
@@ -120,6 +121,7 @@ export const AllVirtualMachineCommands: VirtualMachineCommand[] = [
   PauseGroupVirtualMachinesCommand,
   PauseVirtualMachineCommand,
   RefreshVirtualMachineCommand,
+  RefreshSingleVirtualMachineCommand,
   RemoveGroupCommand,
   RenameGroupCommand,
   RenameMachineCommand,

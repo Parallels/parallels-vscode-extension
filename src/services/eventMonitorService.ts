@@ -145,6 +145,12 @@ export class EventMonitorService {
 
   private static async fetchAndSetVmIp(vmId: string, config: any) {
     try {
+      const isReady = await this.waitForVmReady(vmId);
+      if (!isReady) {
+        LogService.warning(`Timeout waiting for VM ${vmId} to be ready`, "EventMonitorService");
+        return;
+      }
+
       const detailsArray = await ParallelsDesktopService.getVmsRunningDetails(vmId);
       const details = detailsArray[0];
       const vm = config.getVirtualMachine(vmId);
@@ -159,6 +165,19 @@ export class EventMonitorService {
     } catch (error) {
       LogService.error(`Failed to fetch IP for VM ${vmId}: ${error}`, "EventMonitorService");
     }
+  }
+
+  private static async waitForVmReady(vmId: string, maxRetries = 60, interval = 400): Promise<boolean> {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        await ParallelsDesktopService.executeOnVm(vmId, "date");
+        LogService.debug(`VM ${vmId} is ready after ${i + 1} attempts`, "EventMonitorService");
+        return true;
+      } catch (e) {
+        await new Promise(resolve => setTimeout(resolve, interval));
+      }
+    }
+    return false;
   }
 
   private static async processVmAdded(event: ParallelsServiceEvent, config: any): Promise<boolean> {
