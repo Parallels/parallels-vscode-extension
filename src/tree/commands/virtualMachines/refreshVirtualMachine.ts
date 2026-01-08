@@ -7,6 +7,7 @@ import {LogService} from "../../../services/logService";
 import {VirtualMachineCommand} from "../BaseCommand";
 import {Provider} from "../../../ioc/provider";
 import {TELEMETRY_VM} from "../../../telemetry/operations";
+import {ParallelsDesktopService} from "../../../services/parallelsDesktopService";
 
 const registerRefreshVirtualMachineCommand = (context: vscode.ExtensionContext, provider: VirtualMachineProvider) => {
   context.subscriptions.push(
@@ -20,6 +21,11 @@ const registerRefreshVirtualMachineCommand = (context: vscode.ExtensionContext, 
 
       try {
         LogService.debug(`Refreshing virtual machine ${item.name}`, "RefreshVirtualMachineCommand");
+
+        // Fetch updated VM details from Parallels Desktop using the VM ID
+        if (item.vmId) {
+          await ParallelsDesktopService.getVms(item.vmId);
+        }
 
         // Refresh just this VM item in the tree
         await provider.refresh(item);

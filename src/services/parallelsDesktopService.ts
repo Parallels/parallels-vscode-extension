@@ -89,7 +89,7 @@ export class ParallelsDesktopService {
     }
   }
 
-  static async getVms(): Promise<VirtualMachine[]> {
+  static async getVms(vmId?: string): Promise<VirtualMachine[]> {
     return new Promise((resolve, reject) => {
       const config = Provider.getConfiguration();
       // Adding the default group
@@ -97,14 +97,17 @@ export class ParallelsDesktopService {
         config.addVirtualMachineGroup(new VirtualMachineGroup(FLAG_NO_GROUP));
       }
 
-      cp.exec("prlctl list -a -i --json", async (err, stdout, stderr) => {
+      const args = vmId ? `prlctl list "${vmId}" -a -i --json` : "prlctl list -a -i --json";
+      LogService.info(`Getting VM${vmId ? ` ${vmId}` : "s"}`, "ParallelsDesktopService");
+
+      cp.exec(args, async (err, stdout, stderr) => {
         if (err) {
           return reject(err);
         }
         try {
           // Adding all of the VMs to the default group
           const vms: VirtualMachine[] = JSON.parse(stdout);
-          const vmsDetails = await ParallelsDesktopService.getVmsRunningDetails();
+          const vmsDetails = await ParallelsDesktopService.getVmsRunningDetails(vmId);
           const noGroup = config.getVirtualMachineGroup(FLAG_NO_GROUP);
           for (const vm of vms) {
             const dbMachine = config.getVirtualMachine(vm.ID);
@@ -152,14 +155,17 @@ export class ParallelsDesktopService {
           // Checking for duplicated VMs, this can happen if a machine has been renamed
 
           // sync the config file and clean any unwanted machines
-          const configMachines = config.allMachines;
-          configMachines.forEach(configMachine => {
-            const vm = vms.find(vm => vm.ID === configMachine.ID);
-            if (vm === undefined) {
-              config.removeMachine(configMachine.ID);
-              config.save();
-            }
-          });
+          // Only do this when fetching ALL VMs, not when fetching a specific VM
+          if (!vmId) {
+            const configMachines = config.allMachines;
+            configMachines.forEach(configMachine => {
+              const vm = vms.find(vm => vm.ID === configMachine.ID);
+              if (vm === undefined) {
+                config.removeMachine(configMachine.ID);
+                config.save();
+              }
+            });
+          }
           config.sort();
           resolve(vms);
         } catch (e) {

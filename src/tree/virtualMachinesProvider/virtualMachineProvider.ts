@@ -82,7 +82,7 @@ export class VirtualMachineProvider
     this._onDidChangeTreeData.event;
 
   async refresh(element?: VirtualMachineTreeItem): Promise<void> {
-    this._onDidChangeTreeData.fire(undefined);
+    this._onDidChangeTreeData.fire(element);
   }
 
   onDidChangeSelection(selection: VirtualMachineTreeItem[]): void {
