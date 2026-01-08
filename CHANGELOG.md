@@ -4,13 +4,10 @@ All notable changes to the "parallels-desktop" extension will be documented in t
 
 ## [1.5.11] - 2026-01-08
 
-- Improvement: Refreshing only the specific VM details when the user clicks on refresh VM
-- Added missed changes of UI element
 - Close #411 
 - Added individual VM refresh command - Each virtual machine now has its own refresh icon (similar to start/stop icons) that allows refreshing Docker containers and images for that specific VM without reloading the entire tree
 - Fixed VM IP address fetching race condition - Added readiness check in EventMonitorService before fetching VM IP address to prevent failures when VM is not fully ready
 - Fixed duplicate Docker images with different tags - Enhanced DockerService to properly merge tags for the same Docker image instead of creating duplicate entries
-- #425 
 - Event-Driven Updates: Replaced the polling mechanism with a real-time event monitor (prlctl monitor-events) for Parallels Desktop 21+. This ensures VM status changes (start, stop, suspend) are reflected instantly in the UI without manual refreshes.
 - Optimized IP Address Fetching: The extension now asynchronously fetches VM IP addresses only when a VM enters the "running" state, preventing UI blocking and unnecessary command execution.
 - Silent Auto-Refresh: Improved the fallback polling mechanism (for older Parallels Desktop versions) to run silently in the background, eliminating intrusive "Refreshing..." notifications.
