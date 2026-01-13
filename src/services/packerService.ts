@@ -334,7 +334,7 @@ export class PackerService {
         if (fs.existsSync(machine.outputFolder)) {
           if (machine.forceBuild) {
             LogService.info(`Removing existing output folder ${machine.outputFolder}`, "PackerService");
-            fs.rmdirSync(machine.outputFolder, {recursive: true});
+            fs.rmSync(machine.outputFolder, {recursive: true, force: true});
           } else {
             LogService.error(`Output folder ${machine.outputFolder} already exists`, "PackerService");
             return reject(`Output folder ${machine.outputFolder} already exists`);
