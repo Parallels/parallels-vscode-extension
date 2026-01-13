@@ -461,7 +461,7 @@ export class CreateMachineService {
               `Machine ${request.name} packer output folder ${outputFolder} already exists and contains files, please remove it and try again`
             );
           } else {
-            fs.rmdirSync(outputFolder, {recursive: true});
+            fs.rmSync(outputFolder, {recursive: true, force: true});
           }
         }
 
