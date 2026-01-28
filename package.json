@@ -1986,7 +1986,7 @@
     "vscpp": "^2.1.1",
     "webpack": "^5.104.1",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.2"
+    "webpack-dev-server": "^5.2.3"
   },
   "dependencies": {
     "@amplitude/analytics-node": "^1.5.34",
