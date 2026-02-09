@@ -1956,7 +1956,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@types/axios": "^0.14.4",
     "@types/glob": "^9.0.0",
     "@types/mocha": "^10.0.10",
