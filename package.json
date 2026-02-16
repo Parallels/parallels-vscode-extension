@@ -1962,7 +1962,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.0.6",
     "@types/uuid": "^10.0.0",
-    "@types/vscode": "^1.104.0",
+    "@types/vscode": "^1.109.0",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
     "@vscode/prompt-tsx": "^0.4.0-alpha.6",
