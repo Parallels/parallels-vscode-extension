@@ -1969,7 +1969,7 @@
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "*",
     "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.27.2",
+    "esbuild": "^0.27.3",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
