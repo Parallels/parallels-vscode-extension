@@ -1999,5 +1999,9 @@
     "tailwindcss": "^4.2.1",
     "utf-8-validate": "^6.0.6",
     "uuid": "^11.1.0"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.2",
+    "diff": "^8.0.2"
   }
 }
