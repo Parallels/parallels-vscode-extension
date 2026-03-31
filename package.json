@@ -1989,7 +1989,7 @@
     "webpack-dev-server": "^5.2.3"
   },
   "dependencies": {
-    "@amplitude/analytics-node": "^1.5.42",
+    "@amplitude/analytics-node": "^1.5.51",
     "axios": "^1.13.6",
     "bufferutil": "^4.1.0",
     "clipboardy": "^5.3.1",
