@@ -53,11 +53,9 @@ export function drawReverseProxy(
       }
 
       const currentReverseProxy =
-        (
         element.type === "management.remote_hosts.orchestrator.host.reverse_proxy" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      )
           ? (() => {
               const hostId = element.id.split("%%")[2];
               id = `${elementId}%%hosts%%${hostId}%%management%%reverse_proxy`;
@@ -189,11 +187,9 @@ export function drawReverseProxyHosts(
         return resolve(data);
       }
       const currentReverseProxy =
-        (
         element.type === "management.remote_hosts.orchestrator.host.reverse_proxy" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      )
           ? (() => {
               const hostId = element.id.split("%%")[2];
               id = `${elementId}%%hosts%%${hostId}%%management%%reverse_proxy%%hosts`;
@@ -208,11 +204,9 @@ export function drawReverseProxyHosts(
 
               return provider.reverseProxy?.reverse_proxy_hosts?.filter(h => h.host_id === hostId) ?? [];
             })()
-          : (
-        element.type === "management.remote_hosts.orchestrator.reverse_proxy" ||
-        element.type === "management.remote_hosts.remote_host.reverse_proxy"
-      )
-            ? provider.reverseProxy?.reverse_proxy_hosts ?? []
+          : element.type === "management.remote_hosts.orchestrator.reverse_proxy" ||
+              element.type === "management.remote_hosts.remote_host.reverse_proxy"
+            ? (provider.reverseProxy?.reverse_proxy_hosts ?? [])
             : [];
 
       for (const rpHost of [...currentReverseProxy].sort((a, b) => a.host.localeCompare(b.host))) {

@@ -41,11 +41,9 @@ export function drawHostCatalogCache(
       }
 
       const currentCatalogCache =
-        (
         element.type === "management.remote_hosts.orchestrator.host.catalog.cache" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      )
           ? (() => {
               const hostId = element.id.split("%%")[2];
               id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
@@ -152,11 +150,9 @@ export function drawHostCatalogCacheItems(
       }
 
       const currentCatalogCache =
-        (
         element.type === "management.remote_hosts.orchestrator.host.catalog.cache.manifests" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      )
           ? (() => {
               const hostId = element.id.split("%%")[2];
               id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
@@ -258,11 +254,9 @@ export function drawHostCatalogCacheItemDetails(
         return resolve(data);
       }
       const currentCatalogCache =
-        (
         element.type === "management.remote_hosts.orchestrator.host.catalog.cache.manifests.manifest" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      )
           ? (() => {
               const hostId = element.id.split("%%")[2];
               id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
@@ -282,7 +276,10 @@ export function drawHostCatalogCacheItemDetails(
             })()
           : provider.catalogCache;
 
-      const hostId = catalogDetails[catalogDetails.length - 6] !== "unknown_host_id" ? catalogDetails[catalogDetails.length - 6] : "";
+      const hostId =
+        catalogDetails[catalogDetails.length - 6] !== "unknown_host_id"
+          ? catalogDetails[catalogDetails.length - 6]
+          : "";
       const versions =
         currentCatalogCache?.manifests.filter(
           m => m.catalog_id === catalogDetails[catalogDetails.length - 4] && m.host_id === hostId
