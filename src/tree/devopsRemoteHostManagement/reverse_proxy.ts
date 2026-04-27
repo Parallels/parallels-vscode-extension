@@ -80,7 +80,15 @@ export function drawReverseProxy(
             })()
           : element.type === "management.remote_hosts.orchestrator.reverse_proxy"
             ? (() => {
-                const reverseProxy = {
+                const reverseProxy: {
+                  reverse_proxy_config: {
+                    id: string;
+                    enabled: boolean;
+                    host: string;
+                    port: string;
+                  };
+                  reverse_proxy_hosts: DevOpsRemoteHostReverseProxyHost[];
+                } = {
                   reverse_proxy_config: {
                     id: "",
                     enabled: false,
