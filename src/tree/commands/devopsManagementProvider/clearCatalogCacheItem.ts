@@ -69,10 +69,6 @@ const registerDevOpsManagementClearCatalogCacheItemCommand = (
       }
 
       const catalogId = catalogDetails[catalogDetails.length - 4];
-      let version = catalogDetails[catalogDetails.length - 3];
-      if (version === "unknown") {
-        version = "";
-      }
 
       const confirmation = await YesNoQuestion(
         `Are you sure you want to clear all catalog cached items from the host ${hostName}?`

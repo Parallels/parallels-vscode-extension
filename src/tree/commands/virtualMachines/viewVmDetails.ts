@@ -129,17 +129,6 @@ function getWebviewContent(
   screenshot?: string
 ) {
   const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "img/os_logos")));
-  let osImg = "/linux_logo_light.svg";
-  if (item.OS === "win-11") {
-    osImg = "/images/windows_logo_light.svg";
-  } else if (item.OS === "macosx") {
-    osImg = "/images/macos_logo_light.svg";
-  } else if (item.OS === "Other") {
-    osImg = "/images/other_logo_light.svg";
-  }
-  if (isDarkTheme()) {
-    osImg = osImg.replace("_light", "_dark");
-  }
   const data = JSON.stringify(item, null, 2).replace(/"/g, "'");
   const script = `<script></script>`;
   const html = `

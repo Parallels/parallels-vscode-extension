@@ -27,15 +27,7 @@ export function compareSemanticVersions(version1: string, version2: string): num
 }
 export function isDarkTheme(): boolean {
   const currentThemeKind = vscode.window.activeColorTheme.kind;
-  let isDarkModeEnabled = false;
-  if (currentThemeKind === vscode.ColorThemeKind.Dark) {
-    isDarkModeEnabled = true;
-  } else if (currentThemeKind === vscode.ColorThemeKind.Light) {
-    isDarkModeEnabled = false;
-  } else {
-    isDarkModeEnabled = false;
-  }
-  return isDarkModeEnabled;
+  return currentThemeKind === vscode.ColorThemeKind.Dark;
 }
 
 export function formatDate(date: Date) {

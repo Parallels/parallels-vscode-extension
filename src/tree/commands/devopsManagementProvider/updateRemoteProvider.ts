@@ -136,10 +136,9 @@ const registerDevOpsManagementProviderUpdateProviderCommand = (
             return;
           }
 
-          let result = false;
-          result =
-            (await DevOpsService.testHost(newProvider).catch(error => {
-              result = false;
+          const result =
+            (await DevOpsService.testHost(newProvider).catch(() => {
+              return false;
             })) ?? false;
 
           if (result) {

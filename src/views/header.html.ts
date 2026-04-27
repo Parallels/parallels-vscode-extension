@@ -8,14 +8,7 @@ export function generateHtml(
   scripts: string[] = []
 ): string {
   const currentThemeKind = vscode.window.activeColorTheme.kind;
-  let isDarkModeEnabled = false;
-  if (currentThemeKind === vscode.ColorThemeKind.Dark) {
-    isDarkModeEnabled = true;
-  } else if (currentThemeKind === vscode.ColorThemeKind.Light) {
-    isDarkModeEnabled = false;
-  } else {
-    isDarkModeEnabled = false;
-  }
+  const isDarkModeEnabled = currentThemeKind === vscode.ColorThemeKind.Dark;
   const cssUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media", "vscode.css")));
   const imageUri = panel.webview.asWebviewUri(vscode.Uri.file(path.join(context.extensionPath, "media")));
   let logoUri = "/parallels_logo_light.svg";

@@ -94,18 +94,15 @@ export class TelemetryService {
     if (os.toLowerCase() === "darwin") {
       const os_version = config.parallelsDesktopServerInfo?.OS ?? "Unknown";
       let license = config.parallelsDesktopServerInfo?.License?.serial ?? "Unknown";
-      let licenseEdition = config.parallelsDesktopServerInfo?.License?.edition ?? "Unknown";
-      let isTrial = "Unknown";
-      let licenseModel = "Unknown";
       let jsonLicense = config.ParallelsDesktopLicense;
       if (!jsonLicense) {
         jsonLicense = await ParallelsDesktopService.getJsonLicense();
       }
-      licenseEdition = `${jsonLicense.edition?.toLowerCase()}`;
-      isTrial = `${jsonLicense.is_trial}`;
-      licenseModel = `${jsonLicense.product?.toLowerCase()}`;
+      let licenseEdition = `${jsonLicense.edition?.toLowerCase()}`;
+      const isTrial = `${jsonLicense.is_trial}`;
+      const licenseModel = `${jsonLicense.product?.toLowerCase()}`;
 
-      const pd_version = config.parallelsDesktopServerInfo?.Version ?? "Unknown";
+      const pdVersion = config.parallelsDesktopServerInfo?.Version ?? "Unknown";
 
       // Wait for license to be available
       while (!this.license || this.license === "Unknown") {
@@ -131,16 +128,13 @@ export class TelemetryService {
       }
 
       if (licenseEdition) {
-        let licenseEditionValue = licenseEdition;
-        if (isTrial === "true") {
-          licenseEditionValue = `${licenseEditionValue} (Trial)`;
-        }
+        const licenseEditionValue = isTrial === "true" ? `${licenseEdition} (Trial)` : licenseEdition;
         event.properties.push({
           name: "license_edition",
-          value: licenseEdition
+          value: licenseEditionValue
         });
-        if (this.licenseEdition != licenseEdition) {
-          this.licenseEdition = licenseEdition;
+        if (this.licenseEdition != licenseEditionValue) {
+          this.licenseEdition = licenseEditionValue;
         }
       }
 
@@ -151,13 +145,13 @@ export class TelemetryService {
         });
       }
 
-      if (pd_version) {
+      if (pdVersion) {
         event.properties.push({
           name: "pd_version",
-          value: pd_version.replaceAll("Desktop ", "").trim()
+          value: pdVersion.replaceAll("Desktop ", "").trim()
         });
-        if (this.pd_version != pd_version) {
-          this.pd_version = pd_version;
+        if (this.pd_version != pdVersion) {
+          this.pd_version = pdVersion;
         }
       }
 

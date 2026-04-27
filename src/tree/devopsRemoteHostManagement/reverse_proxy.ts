@@ -52,57 +52,56 @@ export function drawReverseProxy(
         return resolve(data);
       }
 
-      let currentReverseProxy = provider.reverseProxy;
-      if (
+      const currentReverseProxy =
+        (
         element.type === "management.remote_hosts.orchestrator.host.reverse_proxy" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      ) {
-        const hostId = element.id.split("%%")[2];
-        id = `${elementId}%%hosts%%${hostId}%%management%%reverse_proxy`;
-        if (hostId === "") {
-          currentReverseProxy = createEmptyDevOpsReverseProxy();
-        } else {
-          const host = provider.hosts?.find(h => h.id === hostId);
-          if (!host) {
-            currentReverseProxy = createEmptyDevOpsReverseProxy();
-          }
+      )
+          ? (() => {
+              const hostId = element.id.split("%%")[2];
+              id = `${elementId}%%hosts%%${hostId}%%management%%reverse_proxy`;
+              if (hostId === "") {
+                return createEmptyDevOpsReverseProxy();
+              }
 
-          const reverse_proxy_config = {
-            id: "",
-            enabled: host?.is_reverse_proxy_enabled ?? false,
-            host: host?.reverse_proxy.host ?? "",
-            port: host?.reverse_proxy.port ?? ""
-          };
-          currentReverseProxy = {
-            reverse_proxy_config,
-            reverse_proxy_hosts: host?.reverse_proxy_hosts ?? []
-          };
-        }
-      } else if (element.type === "management.remote_hosts.orchestrator.reverse_proxy") {
-        const reverse_proxy_config = {
-          id: "",
-          enabled: false,
-          host: "",
-          port: ""
-        };
-        currentReverseProxy = {
-          reverse_proxy_config,
-          reverse_proxy_hosts: []
-        };
+              const host = provider.hosts?.find(h => h.id === hostId);
+              if (!host) {
+                return createEmptyDevOpsReverseProxy();
+              }
 
-        for (const host of provider.hosts ?? []) {
-          const hostRpHosts = host.reverse_proxy_hosts ?? [];
-          if (!currentReverseProxy.reverse_proxy_hosts) {
-            currentReverseProxy.reverse_proxy_hosts = [];
-          }
+              return {
+                reverse_proxy_config: {
+                  id: "",
+                  enabled: host.is_reverse_proxy_enabled ?? false,
+                  host: host.reverse_proxy.host ?? "",
+                  port: host.reverse_proxy.port ?? ""
+                },
+                reverse_proxy_hosts: host.reverse_proxy_hosts ?? []
+              };
+            })()
+          : element.type === "management.remote_hosts.orchestrator.reverse_proxy"
+            ? (() => {
+                const reverseProxy = {
+                  reverse_proxy_config: {
+                    id: "",
+                    enabled: false,
+                    host: "",
+                    port: ""
+                  },
+                  reverse_proxy_hosts: []
+                };
 
-          for (const rpHost of hostRpHosts) {
-            rpHost.host_id = host.id;
-            currentReverseProxy.reverse_proxy_hosts.push(rpHost);
-          }
-        }
-      }
+                for (const host of provider.hosts ?? []) {
+                  for (const rpHost of host.reverse_proxy_hosts ?? []) {
+                    rpHost.host_id = host.id;
+                    reverseProxy.reverse_proxy_hosts.push(rpHost);
+                  }
+                }
+
+                return reverseProxy;
+              })()
+            : provider.reverseProxy;
 
       if (
         element.type === "management.remote_hosts.remote_host.reverse_proxy" ||
@@ -189,42 +188,43 @@ export function drawReverseProxyHosts(
       if (!provider) {
         return resolve(data);
       }
-      let host: DevOpsRemoteHost | undefined = undefined;
-      let currentReverseProxy: DevOpsRemoteHostReverseProxyHost[] = [];
-      if (
+      const currentReverseProxy =
+        (
         element.type === "management.remote_hosts.orchestrator.host.reverse_proxy" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      ) {
-        const hostId = element.id.split("%%")[2];
-        id = `${elementId}%%hosts%%${hostId}%%management%%reverse_proxy%%hosts`;
-        if (hostId === "") {
-          currentReverseProxy = [];
-        } else {
-          host = provider.hosts?.find(h => h.id === hostId);
-          if (!host) {
-            currentReverseProxy = [];
-          }
-          currentReverseProxy = provider.reverseProxy?.reverse_proxy_hosts?.filter(h => h.host_id === hostId) ?? [];
-        }
-      } else if (
+      )
+          ? (() => {
+              const hostId = element.id.split("%%")[2];
+              id = `${elementId}%%hosts%%${hostId}%%management%%reverse_proxy%%hosts`;
+              if (hostId === "") {
+                return [];
+              }
+
+              const host = provider.hosts?.find(h => h.id === hostId);
+              if (!host) {
+                return [];
+              }
+
+              return provider.reverseProxy?.reverse_proxy_hosts?.filter(h => h.host_id === hostId) ?? [];
+            })()
+          : (
         element.type === "management.remote_hosts.orchestrator.reverse_proxy" ||
         element.type === "management.remote_hosts.remote_host.reverse_proxy"
-      ) {
-        currentReverseProxy = provider.reverseProxy?.reverse_proxy_hosts ?? [];
-      }
+      )
+            ? provider.reverseProxy?.reverse_proxy_hosts ?? []
+            : [];
 
-      currentReverseProxy = currentReverseProxy.sort((a, b) => a.host.localeCompare(b.host));
-      for (const rpHost of currentReverseProxy) {
+      for (const rpHost of [...currentReverseProxy].sort((a, b) => a.host.localeCompare(b.host))) {
         const rpHostId = rpHost.id;
         const rpHostElementId = `${elementId}%%${rpHostId}`;
         let description = "";
         if (element.type === "management.remote_hosts.orchestrator.host.reverse_proxy") {
           if (rpHost.host_id !== "") {
             id = `${elementId}%%hosts%%${rpHost.host_id}%%management%%reverse_proxy%%hosts`;
-            host = provider.hosts?.find(h => h.id === rpHost.host_id);
+            const host = provider.hosts?.find(h => h.id === rpHost.host_id);
             if (host) {
-              description = `on ${host?.host}`;
+              description = `on ${host.host}`;
             }
           }
         }
@@ -295,8 +295,7 @@ export function drawReverseProxyHostsHost(
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }
@@ -438,19 +437,12 @@ export function drawReverseProxyHostsHostTcpRoute(
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }
 
-      let targetHost: string | undefined = "";
-      if (currentHost.tcp_route?.target_host) {
-        targetHost = currentHost.tcp_route?.target_host;
-      }
-      if (currentHost.tcp_route?.target_vm_id) {
-        targetHost = currentHost.tcp_route?.target_vm_id;
-      }
+      const targetHost = currentHost.tcp_route?.target_vm_id || currentHost.tcp_route?.target_host;
 
       if (!targetHost) {
         return resolve(data);
@@ -523,8 +515,7 @@ export function drawReverseProxyHostsHostHttpRoutesCors(
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }
@@ -643,8 +634,7 @@ export function drawReverseProxyHostsHostHttpRoutesTls(
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }
@@ -717,8 +707,7 @@ export function drawReverseProxyHostsHostHttpRoutesHttpRoute(
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }
@@ -826,8 +815,7 @@ export function drawReverseProxyHostsHostHttpRoutesHttpRouteDetails(
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }
@@ -929,8 +917,7 @@ export function drawReverseProxyHostsHostHttpRoutesHttpRouteDetailsRequestHeader
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }
@@ -1019,8 +1006,7 @@ export function drawReverseProxyHostsHostHttpRoutesHttpRouteDetailsResponseHeade
         return resolve(data);
       }
 
-      let currentHost: DevOpsRemoteHostReverseProxyHost | undefined = undefined;
-      currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
+      const currentHost = provider.reverseProxy?.reverse_proxy_hosts?.find(h => h.id === rpHostId);
       if (!currentHost) {
         return resolve(data);
       }

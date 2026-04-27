@@ -416,37 +416,18 @@ export class PackerService {
   }
 
   static getToolsFlavor(os: string, platform: string): string {
-    let result = "";
     platform = platform.toLowerCase();
 
     switch (os.toLowerCase()) {
       case "linux":
-        if (platform === "arm64") {
-          result = "lin-arm";
-        } else {
-          result = "lin";
-        }
-        break;
+        return platform === "arm64" ? "lin-arm" : "lin";
       case "windows":
-        if (platform === "arm64") {
-          result = "win-arm";
-        } else {
-          result = "win";
-        }
-        break;
+        return platform === "arm64" ? "win-arm" : "win";
       case "macos":
-        if (platform === "arm64") {
-          result = "mac-arm";
-        } else {
-          result = "mac";
-        }
-        break;
+        return platform === "arm64" ? "mac-arm" : "mac";
       default:
-        result = "other";
-        break;
+        return "other";
     }
-
-    return result;
   }
 
   static async canAddVms(): Promise<boolean> {

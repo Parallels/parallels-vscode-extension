@@ -51,15 +51,11 @@ import {
 } from "../models/devops/reverse_proxy_hosts";
 
 const refreshThreshold = 15000;
-const parallelsCatalogThreshold = 3600000;
 const hardwareRefreshThreshold = 10;
 
 let catalogViewAutoRefreshInterval: NodeJS.Timeout | undefined;
 let isRefreshingCatalogProviders = false;
 let catalogViewAutoRefreshStarted = false;
-
-let parallelsCatalogViewAutoRefreshInterval: NodeJS.Timeout | undefined;
-let parallelsCatalogViewAutoRefreshStarted = false;
 
 let remoteHostsViewAutoRefreshInterval: NodeJS.Timeout | undefined;
 let isRefreshingRemoteHostProviders = false;
@@ -342,11 +338,6 @@ export class DevOpsService {
 
   static stopParallelsCatalogViewAutoRefresh(): void {
     console.log("Stopping Parallels Catalog view auto refresh");
-    if (parallelsCatalogViewAutoRefreshInterval) {
-      clearInterval(parallelsCatalogViewAutoRefreshInterval);
-    }
-
-    parallelsCatalogViewAutoRefreshStarted = false;
   }
 
   static startRemoteHostsViewAutoRefresh(): void {
@@ -562,10 +553,9 @@ export class DevOpsService {
           `Parallels Catalog provider ${provider.name} is inactive, retrying connection`,
           "DevOpsService"
         );
-        let result: boolean | void = false;
-        result = await DevOpsService.testHost(provider).catch(() => {
+        const result = await DevOpsService.testHost(provider).catch(() => {
           LogService.error(`Error testing remote host provider ${provider.name}`, "DevOpsService");
-          result = false;
+          return false;
         });
         if (!result) {
           LogService.info(
@@ -1493,7 +1483,6 @@ export class DevOpsService {
       });
       const path = `${url}/api/v1/auth/claims`;
 
-      let error: any;
       const response = await axios
         .post<DevOpsRolesAndClaims>(`${path}`, request, {
           headers: {
@@ -1504,7 +1493,7 @@ export class DevOpsService {
           return reject(err);
         });
 
-      return !response ? reject(error) : resolve(response?.data ?? undefined);
+      return !response ? resolve(undefined) : resolve(response.data ?? undefined);
     });
   }
 
@@ -1579,7 +1568,6 @@ export class DevOpsService {
       });
       const path = `${url}/api/v1/auth/roles`;
 
-      let error: any;
       const response = await axios
         .post<DevOpsRolesAndClaims>(`${path}`, request, {
           headers: {
@@ -1590,7 +1578,7 @@ export class DevOpsService {
           return reject(err);
         });
 
-      return !response ? reject(error) : resolve(response?.data ?? undefined);
+      return !response ? resolve(undefined) : resolve(response.data ?? undefined);
     });
   }
 
