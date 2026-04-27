@@ -1,6 +1,6 @@
 import {DragAndDropTreeItem} from "./../treeItems/virtualMachineTreeItem";
 import * as vscode from "vscode";
-import * as uuid from "uuid";
+import {randomUUID} from "crypto";
 import {Provider} from "../../ioc/provider";
 import {VirtualMachineTreeItem} from "../treeItems/virtualMachineTreeItem";
 import {
@@ -304,7 +304,7 @@ export class VirtualMachineProvider
       }
 
       if (vm.configuredIpAddress != undefined && vm.configuredIpAddress != "-") {
-        const ipAddressId = `${vm.ID ?? uuid.v4()}_ip_address_${vm.configuredIpAddress}}`;
+        const ipAddressId = `${vm.ID ?? randomUUID()}_ip_address_${vm.configuredIpAddress}}`;
         children.push(
           new VirtualMachineTreeItem(
             this.context,
@@ -339,7 +339,7 @@ export class VirtualMachineProvider
                   undefined,
                   "Empty",
                   undefined,
-                  uuid.v4(),
+                  randomUUID(),
                   undefined,
                   "No snapshots",
                   "No snapshots",
@@ -377,7 +377,7 @@ export class VirtualMachineProvider
             }
             if (dockerContainers) {
               const vm = this.config.allMachines.find(f => f.ID === item.id);
-              const itemId = `${(item.item as VirtualMachine).ID ?? uuid.v4()}_docker_root`;
+              const itemId = `${(item.item as VirtualMachine).ID ?? randomUUID()}_docker_root`;
               const currentItemInTree = this.data.find(f => f.id === itemId);
               let currentCollapsibleState = currentItemInTree?.collapsibleState;
               if (
@@ -420,7 +420,7 @@ export class VirtualMachineProvider
             }
             if (dockerImages) {
               const vm = this.config.allMachines.find(f => f.ID === item.id);
-              const itemId = `${(item.item as VirtualMachine).ID ?? uuid.v4()}_docker_image_root`;
+              const itemId = `${(item.item as VirtualMachine).ID ?? randomUUID()}_docker_image_root`;
               const currentItemInTree = this.data.find(f => f.id === itemId);
               let currentCollapsibleState = currentItemInTree?.collapsibleState;
               if (
@@ -472,7 +472,7 @@ export class VirtualMachineProvider
                 undefined,
                 "Empty",
                 undefined,
-                uuid.v4(),
+                randomUUID(),
                 undefined,
                 "Error",
                 "Error",
@@ -548,7 +548,7 @@ export class VirtualMachineProvider
                 undefined,
                 "Empty",
                 undefined,
-                uuid.v4(),
+                randomUUID(),
                 undefined,
                 "Error",
                 "Error",

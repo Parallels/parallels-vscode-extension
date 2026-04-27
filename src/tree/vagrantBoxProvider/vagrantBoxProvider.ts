@@ -1,6 +1,6 @@
 import {VagrantBoxRefreshCommand} from "./../commands/vagrant/vagrantBoxesRefresh";
 import * as vscode from "vscode";
-import * as uuid from "uuid";
+import {randomUUID} from "crypto";
 import {VagrantBoxTreeItem} from "../treeItems/vagrantBoxItem";
 import {VagrantService} from "../../services/vagrantService";
 import {CommandsFlags, FLAG_AUTO_REFRESH, FLAG_AUTO_REFRESH_INTERVAL, FLAG_NO_GROUP} from "../../constants/flags";
@@ -68,7 +68,7 @@ export class VagrantBoxProvider implements vscode.TreeDataProvider<VagrantBoxTre
                   this.context,
                   "Box",
                   FLAG_NO_GROUP,
-                  uuid.v4(),
+                  randomUUID(),
                   box,
                   box,
                   "",

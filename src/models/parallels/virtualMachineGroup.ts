@@ -1,4 +1,4 @@
-import * as uuid from "uuid";
+import {randomUUID} from "crypto";
 import {VirtualMachine as VirtualMachine} from "./virtualMachine";
 import {Provider} from "../../ioc/provider";
 import {FLAG_EXTENSION_ORDER_TREE_ALPHABETICALLY} from "../../constants/flags";
@@ -13,7 +13,7 @@ export class VirtualMachineGroup {
   groups: VirtualMachineGroup[] = [];
 
   constructor(name: string, id?: string, parent?: string, hidden?: boolean, path?: string) {
-    this.uuid = id ?? uuid.v4();
+    this.uuid = id ?? randomUUID();
     this.name = name;
     this.hidden = hidden ?? false;
     this.parent = parent ?? undefined;
