@@ -1,8 +1,8 @@
-import * as uuid from "uuid";
+import {randomUUID} from "crypto";
 import {formatDate} from "./helpers";
 
 export function generateMacConfigPvs(name: string) {
-  const vmUuid = uuid.v4();
+  const vmUuid = randomUUID();
   const vmStartTime = formatDate(new Date());
   return `<?xml version="1.0" encoding="UTF-8"?>
   <ParallelsVirtualMachine schemaVersion="1.0" dyn_lists="VirtualAppliance 0">
