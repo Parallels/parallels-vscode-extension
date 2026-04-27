@@ -159,11 +159,11 @@ export class LogService {
   }
 
   static log(level: LogLevel, messageValue: any, service?: string, focusOnOutput = false, showOnUi = false) {
-    let message = "";
     if (messageValue === undefined || messageValue === null || messageValue === "") {
       return;
     }
 
+    let message: string;
     if (typeof messageValue !== "string") {
       if (messageValue instanceof Error) {
         message = messageValue.message;

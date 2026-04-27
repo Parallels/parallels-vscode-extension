@@ -637,13 +637,7 @@ export class ParallelsDesktopService {
       let stdOut = "";
 
       LogService.info(`Executing ${command} on Virtual Machine ${vmId}`, "ParallelsDesktopService");
-      let commandArgs: string[] = [];
-      if (split) {
-        commandArgs = command.split(" ");
-      } else {
-        command = command.replace(/"/g, '\\"');
-        commandArgs = [`"${command}"`];
-      }
+      const commandArgs = split ? command.split(" ") : [`"${command.replace(/"/g, '\\"')}"`];
 
       const prlctl = cp.spawn("prlctl", ["exec", `"${vmId}"`, ...commandArgs], {shell: true});
       prlctl.stdout.on("data", data => {

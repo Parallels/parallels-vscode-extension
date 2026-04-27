@@ -40,27 +40,28 @@ export function drawHostCatalogCache(
         return resolve(data);
       }
 
-      let currentCatalogCache = provider.catalogCache;
-      if (
+      const currentCatalogCache =
         element.type === "management.remote_hosts.orchestrator.host.catalog.cache" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      ) {
-        const hostId = element.id.split("%%")[2];
-        id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
-        if (hostId === "") {
-          currentCatalogCache = createEmptyCatalogCacheResponse();
-        } else {
-          const host = provider.hosts?.find(h => h.id === hostId);
-          if (!host) {
-            currentCatalogCache = createEmptyCatalogCacheResponse();
-          }
+          ? (() => {
+              const hostId = element.id.split("%%")[2];
+              id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
+              if (hostId === "") {
+                return createEmptyCatalogCacheResponse();
+              }
 
-          currentCatalogCache = createEmptyCatalogCacheResponse();
-          currentCatalogCache.manifests = provider.catalogCache?.manifests.filter(m => m.host_id === hostId) ?? [];
-          currentCatalogCache.total_size = calcTotalCacheSize(currentCatalogCache);
-        }
-      }
+              const host = provider.hosts?.find(h => h.id === hostId);
+              if (!host) {
+                return createEmptyCatalogCacheResponse();
+              }
+
+              const hostCatalogCache = createEmptyCatalogCacheResponse();
+              hostCatalogCache.manifests = provider.catalogCache?.manifests.filter(m => m.host_id === hostId) ?? [];
+              hostCatalogCache.total_size = calcTotalCacheSize(hostCatalogCache);
+              return hostCatalogCache;
+            })()
+          : provider.catalogCache;
 
       if (!currentCatalogCache || currentCatalogCache.manifests.length === 0) {
         data.push(
@@ -148,27 +149,28 @@ export function drawHostCatalogCacheItems(
         return resolve(data);
       }
 
-      let currentCatalogCache = provider.catalogCache;
-      if (
+      const currentCatalogCache =
         element.type === "management.remote_hosts.orchestrator.host.catalog.cache.manifests" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      ) {
-        const hostId = element.id.split("%%")[2];
-        id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
-        if (hostId === "") {
-          currentCatalogCache = createEmptyCatalogCacheResponse();
-        } else {
-          const host = provider.hosts?.find(h => h.id === hostId);
-          if (!host) {
-            currentCatalogCache = createEmptyCatalogCacheResponse();
-          }
+          ? (() => {
+              const hostId = element.id.split("%%")[2];
+              id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
+              if (hostId === "") {
+                return createEmptyCatalogCacheResponse();
+              }
 
-          currentCatalogCache = createEmptyCatalogCacheResponse();
-          currentCatalogCache.manifests = provider.catalogCache?.manifests.filter(m => m.host_id === hostId) ?? [];
-          currentCatalogCache.total_size = calcTotalCacheSize(currentCatalogCache);
-        }
-      }
+              const host = provider.hosts?.find(h => h.id === hostId);
+              if (!host) {
+                return createEmptyCatalogCacheResponse();
+              }
+
+              const hostCatalogCache = createEmptyCatalogCacheResponse();
+              hostCatalogCache.manifests = provider.catalogCache?.manifests.filter(m => m.host_id === hostId) ?? [];
+              hostCatalogCache.total_size = calcTotalCacheSize(hostCatalogCache);
+              return hostCatalogCache;
+            })()
+          : provider.catalogCache;
 
       const versionedManifests = getCacheManifestsItems(currentCatalogCache?.manifests ?? []) ?? [];
       for (const manifest of versionedManifests) {
@@ -178,12 +180,11 @@ export function drawHostCatalogCacheItems(
           id = `${id}%%unknown_host_id`;
         }
         const manifestId = `${id}%%${manifest.id}%%${manifest.catalog_id}%%${manifest.version}%%${manifest.architecture}`;
-        let hasSubItems = false;
         const versions =
           currentCatalogCache?.manifests.filter(
             m => m.catalog_id === manifest.catalog_id && m.host_id === manifest.host_id
           ) ?? [];
-        hasSubItems = versions.length > 1;
+        const hasSubItems = versions.length > 1;
         const alreadyAdded = data.find(d => d.id === `${manifestId}%%manifest`);
         const name = manifest.catalog_id;
         let description = `(${manifest.version} for ${manifest.architecture})`;
@@ -252,32 +253,33 @@ export function drawHostCatalogCacheItemDetails(
       if (!provider) {
         return resolve(data);
       }
-      let currentCatalogCache = provider.catalogCache;
-      if (
+      const currentCatalogCache =
         element.type === "management.remote_hosts.orchestrator.host.catalog.cache.manifests.manifest" &&
         "type" in provider &&
         provider.type === "orchestrator"
-      ) {
-        const hostId = element.id.split("%%")[2];
-        id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
-        if (hostId === "") {
-          currentCatalogCache = createEmptyCatalogCacheResponse();
-        } else {
-          const host = provider.hosts?.find(h => h.id === hostId);
-          if (!host) {
-            currentCatalogCache = createEmptyCatalogCacheResponse();
-          }
+          ? (() => {
+              const hostId = element.id.split("%%")[2];
+              id = `${elementId}%%hosts%%${hostId}%%management%%catalog_cache`;
+              if (hostId === "") {
+                return createEmptyCatalogCacheResponse();
+              }
 
-          currentCatalogCache = createEmptyCatalogCacheResponse();
-          currentCatalogCache.manifests = provider.catalogCache?.manifests.filter(m => m.host_id === hostId) ?? [];
-          currentCatalogCache.total_size = calcTotalCacheSize(currentCatalogCache);
-        }
-      }
+              const host = provider.hosts?.find(h => h.id === hostId);
+              if (!host) {
+                return createEmptyCatalogCacheResponse();
+              }
 
-      let hostId = "";
-      if (catalogDetails[catalogDetails.length - 6] !== "unknown_host_id") {
-        hostId = catalogDetails[catalogDetails.length - 6];
-      }
+              const hostCatalogCache = createEmptyCatalogCacheResponse();
+              hostCatalogCache.manifests = provider.catalogCache?.manifests.filter(m => m.host_id === hostId) ?? [];
+              hostCatalogCache.total_size = calcTotalCacheSize(hostCatalogCache);
+              return hostCatalogCache;
+            })()
+          : provider.catalogCache;
+
+      const hostId =
+        catalogDetails[catalogDetails.length - 6] !== "unknown_host_id"
+          ? catalogDetails[catalogDetails.length - 6]
+          : "";
       const versions =
         currentCatalogCache?.manifests.filter(
           m => m.catalog_id === catalogDetails[catalogDetails.length - 4] && m.host_id === hostId

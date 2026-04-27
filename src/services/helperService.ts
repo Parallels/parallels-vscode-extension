@@ -52,7 +52,7 @@ export class HelperService {
       const response = await axios.get(url, {
         responseType: "stream"
       });
-      const totalLength = response.headers["content-length"];
+      const totalLength = Number(response.headers["content-length"] ?? 0);
       let downloaded = 0;
       const writer = fs.createWriteStream(filePath);
       vscode.window.withProgress(
@@ -64,7 +64,7 @@ export class HelperService {
           return new Promise<boolean>((resolve, reject) => {
             response.data.on("data", (chunk: any) => {
               downloaded += chunk.length;
-              const percent = Math.round((100 * downloaded) / totalLength);
+              const percent = totalLength > 0 ? Math.round((100 * downloaded) / totalLength) : 0;
               progress.report({message: `${percent}%`});
             });
             writer.on("finish", () => {

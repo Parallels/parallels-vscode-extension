@@ -83,7 +83,7 @@ const registerDevOpsPullCatalogProviderManifestCommand = (
         }
         const manifestId = item.id.split("%%")[2];
         const manifest = config.findCatalogProviderManifest(providerId, manifestId);
-        let version = "";
+        let version: string;
         // if we selected the manifest item, we need to get the versions and display them on a quick pick
         if (item.contextValue === "devops.catalog.manifests.manifest") {
           if (!manifest) {

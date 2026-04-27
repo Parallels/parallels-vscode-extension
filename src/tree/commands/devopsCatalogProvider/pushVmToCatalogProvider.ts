@@ -112,7 +112,7 @@ const registerDevOpsPushVmToCatalogProviderManifestCommand = (
         if (!selectedVm) {
           return;
         }
-        let machinePath = "";
+        let machinePath: string;
         const specs = {
           cpu: 0,
           memory: 0,

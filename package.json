@@ -1956,7 +1956,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^10.0.1",
     "@types/axios": "^0.14.4",
     "@types/glob": "^9.0.0",
     "@types/mocha": "^10.0.10",
@@ -1990,14 +1990,20 @@
   },
   "dependencies": {
     "@amplitude/analytics-node": "^1.5.51",
+    "audit": "^0.0.6",
     "axios": "^1.15.0",
     "bufferutil": "^4.1.0",
     "clipboardy": "^5.3.1",
     "clipboardy-ts": "^1.0.0",
     "fast-xml-parser": "^5.5.12",
+    "fix": "^0.0.6",
     "jwt-decode": "^4.0.0",
     "tailwindcss": "^4.2.2",
     "utf-8-validate": "^6.0.6",
     "uuid": "^11.1.0"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.2",
+    "diff": "^8.0.2"
   }
 }

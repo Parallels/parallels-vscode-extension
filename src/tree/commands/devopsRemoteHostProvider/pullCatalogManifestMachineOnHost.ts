@@ -186,7 +186,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
             return {label: item.version, description: item.description};
           }) ?? [];
 
-        let versionId = "";
+        let versionId: string;
         if (selectedManifest?.items.length === 1) {
           versionId = selectedManifest.items[0].version;
         } else {
@@ -198,7 +198,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
           }
           versionId = selectedVersion.label ?? "";
         }
-        let architecture = "";
+        let architecture: string;
         if (item.type === "provider.remote_host.orchestrator") {
           const selectedArchitecture = await vscode.window.showQuickPick([{label: "x86_64"}, {label: "arm64"}], {
             placeHolder: `Select the architecture`,
@@ -209,9 +209,7 @@ const registerDevOpsPullCatalogManifestMachineOnHostCommand = (
           }
           architecture = selectedArchitecture.label ?? "";
         } else {
-          if (provider.hardwareInfo?.cpu_type) {
-            architecture = provider.hardwareInfo.cpu_type;
-          }
+          architecture = provider.hardwareInfo?.cpu_type ?? "";
         }
 
         const machineName = await vscode.window.showInputBox({
