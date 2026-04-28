@@ -1968,7 +1968,7 @@
     "@vscode/prompt-tsx": "^0.4.0-alpha.8",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/test-web": "*",
-    "@vscode/vsce": "^3.7.1",
+    "@vscode/vsce": "^3.9.1",
     "esbuild": "^0.28.0",
     "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
