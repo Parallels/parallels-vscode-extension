@@ -1991,7 +1991,7 @@
   "dependencies": {
     "@amplitude/analytics-node": "^1.5.51",
     "audit": "^0.0.6",
-    "axios": "^1.15.0",
+    "axios": "^1.16.0",
     "bufferutil": "^4.1.0",
     "clipboardy": "^5.3.1",
     "clipboardy-ts": "^1.0.0",
