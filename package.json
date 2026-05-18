@@ -1998,7 +1998,7 @@
     "fast-xml-parser": "^5.5.12",
     "fix": "^0.0.6",
     "jwt-decode": "^4.0.0",
-    "tailwindcss": "^4.2.2",
+    "tailwindcss": "^4.3.0",
     "utf-8-validate": "^6.0.6",
     "uuid": "^14.0.0"
   },
