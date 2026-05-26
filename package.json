@@ -1963,7 +1963,7 @@
     "@types/node": "^25.5.0",
     "@types/uuid": "^11.0.0",
     "@types/vscode": "^1.120.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.0",
     "@vscode/prompt-tsx": "^0.4.0-alpha.8",
     "@vscode/test-electron": "^2.5.2",
