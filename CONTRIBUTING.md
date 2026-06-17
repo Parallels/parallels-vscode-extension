@@ -30,7 +30,7 @@ Please note that this project is released with a [Contributor Code of Conduct][c
 
 These are one time installations required to be able to test your changes locally as part of the pull request (PR) submission process.
 
-1. Install [Node.js](https://nodejs.org/en/download/) for Mac
+1. Install [Node.js](https://nodejs.org/en/download/) for Mac (version 24.x)
 2. Install [VS Code](https://code.visualstudio.com/download) for Mac
 3. Install [Parallels Desktop](https://www.parallels.com/uk/products/desktop/pro/) for Mac
 4. Install [Hashicorp Packer](https://www.packer.io/downloads) for Mac
