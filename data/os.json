@@ -427,7 +427,7 @@
                 "defaults": {
                   "specs": {
                     "cpus": 2,
-                    "memory": 2048,
+                    "memory": 4096,
                     "diskSize": 65536
                   },
                   "user": {
