@@ -111,10 +111,10 @@
                 }
               },
               {
-                "id": "ubuntu-server-23.10",
-                "name": "Ubuntu Server 23.10",
+                "id": "ubuntu-server-24.04",
+                "name": "Ubuntu Server 24.04",
                 "distro": "ubuntu",
-                "description": "This will create a Ubuntu Server 23.10 VM using automated Packer scripts.",
+                "description": "This will create a Ubuntu Server 24.04 VM using automated Packer scripts.",
                 "type": "packer",
                 "packerFolder": "ubuntu",
                 "requireIsoDownload": false,
@@ -122,8 +122,8 @@
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.ubuntu.com/releases/23.10.1/release/ubuntu-23.10-live-server-arm64.iso",
-                  "iso_checksum": "sha256:5ea4c792a0cc5462a975d2f253182e9678cc70172ebd444d730f2c4fd7678e43"
+                  "iso_url": "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04.4-live-server-arm64.iso",
+                  "iso_checksum": "sha256:8158d28e6d8226e16e6a303b3d21d38e5ee3a964da13f5b28f5cf4f10a309858"
                 },
                 "addons": [],
                 "defaults": {
@@ -139,10 +139,10 @@
                 }
               },
               {
-                "id": "ubuntu-server-24.04",
-                "name": "Ubuntu Server 24.04",
+                "id": "ubuntu-server-25.10",
+                "name": "Ubuntu Sever 25.10",
                 "distro": "ubuntu",
-                "description": "This will create a Ubuntu Server 24.04 VM using automated Packer scripts.",
+                "description": "This will create a Ubuntu Server 25.10 VM using automated Packer scripts.",
                 "type": "packer",
                 "packerFolder": "ubuntu",
                 "requireIsoDownload": false,
@@ -150,13 +150,41 @@
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04.1-live-server-arm64.iso",
-                  "iso_checksum": "sha256:5ceecb7ef5f976e8ab3fffee7871518c8e9927ec221a3bb548ee1193989e1773"
+                  "iso_url": "https://cdimage.ubuntu.com/releases/25.10/release/ubuntu-25.10-live-server-arm64.iso",
+                  "iso_checksum": "sha256:ecf579664c0be9e4a68ae7b617399ce943c2dee49eb1fcc6702a5671a4f88320"
                 },
                 "addons": [],
                 "defaults": {
                   "specs": {
                     "cpus": 4,
+                    "memory": 4096,
+                    "diskSize": 65536
+                  },
+                  "user": {
+                    "username": "parallels",
+                    "password": "parallels"
+                  }
+                }
+              },
+              {
+                "id": "ubuntu-server-26.04",
+                "name": "Ubuntu Sever 26.04",
+                "distro": "ubuntu",
+                "description": "This will create a Ubuntu Server 26.04 VM using automated Packer scripts.",
+                "type": "packer",
+                "packerFolder": "ubuntu",
+                "requireIsoDownload": false,
+                "allowMachineSpecs": true,
+                "allowUserOverride": false,
+                "allowAddons": true,
+                "variables": {
+                  "iso_url": "https://cdimage.ubuntu.com/releases/26.04/release/ubuntu-26.04-live-server-arm64.iso",
+                  "iso_checksum": "sha256:c9aa567e6560b2eddae3af03fc686002e35b6fee96f97fd5df3271e846439fdd"
+                },
+                "addons": [],
+                "defaults": {
+                  "specs": {
+                    "cpus": 2,
                     "memory": 4096,
                     "diskSize": 65536
                   },
@@ -173,10 +201,10 @@
             "name": "Kali Linux",
             "images": [
               {
-                "id": "kali-linux-2025.3-gnome",
-                "name": "Kali Linux 2025.3 (Gnome)",
+                "id": "kali-linux-2026.1-gnome",
+                "name": "Kali Linux 2026.1 (gnome)",
                 "distro": "kali",
-                "description": "This will create a Kali Linux 2025.3 with the Gnome UI VM using automated Packer scripts.",
+                "description": "This will create a Kali Linux 2026.1 VM using automated Packer scripts.",
                 "type": "packer",
                 "packerFolder": "kali-linux",
                 "requireIsoDownload": false,
@@ -184,14 +212,13 @@
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.kali.org/kali-2025.3/kali-linux-2025.3-installer-arm64.iso",
-                  "iso_checksum": "sha256:a3f220224810d1111661040d64ddb62d0e68d2b7ed97bfd5fb3e5dd5768d02d9",
-                  "desktop": "gnome"
+                  "iso_url": "https://kali.download/base-images/kali-2026.1/kali-linux-2026.1-installer-arm64.iso",
+                  "iso_checksum": "sha256:c92c79d7267c93245962cf696c9da8105bf40855744513fbaaec41db17d307e1"
                 },
                 "addons": [],
                 "defaults": {
                   "specs": {
-                    "cpus": 4,
+                    "cpus": 2,
                     "memory": 4096,
                     "diskSize": 65536
                   },
@@ -200,27 +227,33 @@
                     "password": "parallels"
                   }
                 }
-              },
+              }
+            ]
+          },
+          {
+            "id": "debian",
+            "name": "Debian",
+            "images": [
               {
-                "id": "kali-linux-2025.3-xfce",
-                "name": "Kali Linux 2025.3 (xfce)",
-                "distro": "kali",
-                "description": "This will create a Kali Linux 2025.3 with the XFCE UI VM using automated Packer scripts.",
+                "id": "debian-13.5.0",
+                "name": "Debian 13.5.0",
+                "distro": "debian",
+                "description": "This will create a Debian 13.5.0 VM using automated Packer scripts.",
                 "type": "packer",
-                "packerFolder": "kali-linux",
+                "packerFolder": "debian",
                 "requireIsoDownload": false,
                 "allowMachineSpecs": true,
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "iso_url": "https://cdimage.kali.org/kali-2025.3/kali-linux-2025.3-installer-arm64.iso",
-                  "iso_checksum": "sha256:a3f220224810d1111661040d64ddb62d0e68d2b7ed97bfd5fb3e5dd5768d02d9"
+                  "iso_url": "https://cdimage.debian.org/debian-cd/current/arm64/iso-cd/debian-13.5.0-arm64-netinst.iso",
+                  "iso_checksum": "sha256:3f8211e759d19370d50e1d853859b66ecba62700d712214a8a65ed26c6d08ecc"
                 },
                 "addons": [],
                 "defaults": {
                   "specs": {
-                    "cpus": 4,
-                    "memory": 4096,
+                    "cpus": 2,
+                    "memory": 2048,
                     "diskSize": 65536
                   },
                   "user": {
@@ -260,23 +293,23 @@
           },
           {
             "id": "redhat",
-            "name": "Redhat",
+            "name": "RedHat",
             "images": [
               {
                 "id": "redhat-9.2",
-                "name": "Redhat 9.2",
+                "name": "RedHat 9.2",
                 "distro": "rhel",
-                "description": "This will create a Redhat 9.2 VM, you will need to source the ISO and will need user input to complete the installation.",
+                "description": "This will create a RedHat 9.2 VM, you will need to source the ISO and will need user input to complete the installation.",
                 "type": "packer",
                 "packerFolder": "redhat",
                 "requireIsoDownload": true,
                 "allowMachineSpecs": true,
                 "allowUserOverride": false,
                 "allowAddons": true,
-                "isoChecksum": "sha256:c0d6dc21f157c2c8a4a0ebba0f5e2899f6cbb986d5f0bdd3cef1909b55fe25a8",
+                "iso_checksum": "sha256:c0d6dc21f157c2c8a4a0ebba0f5e2899f6cbb986d5f0bdd3cef1909b55fe25a8",
                 "isoHelp": {
                   "prefixText": "Please download the RedHat DVD iso from ",
-                  "urlText": "Redhat Downloads",
+                  "urlText": "RedHat Downloads",
                   "url": "https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux",
                   "suffixText": " for arm64, please make sure you download the correct version"
                 },
@@ -284,13 +317,13 @@
                 "requiredVariables": [
                   {
                     "id": "redhat_username",
-                    "text": "Redhat Username",
-                    "hint": "Please enter your Redhat username"
+                    "text": "RedHat Username",
+                    "hint": "Please enter your RedHat username"
                   },
                   {
                     "id": "redhat_password",
-                    "text": "Redhat Password",
-                    "hint": "Please enter your Redhat password"
+                    "text": "RedHat Password",
+                    "hint": "Please enter your RedHat password"
                   }
                 ],
                 "defaults": {
@@ -304,28 +337,96 @@
             ]
           },
           {
-            "id": "parrot-security",
-            "name": "ParrotOS",
+            "id": "centos",
+            "name": "CentOS",
             "images": [
               {
-                "id": "parrot-os-5.3",
-                "name": "Parrot OS 5.3 Architect",
-                "distro": "linux",
-                "description": "This will create a ParrotOS 5.3 Architect VM using automated Packer scripts.",
+                "id": "centos-stream-10",
+                "name": "CentOS Stream 10",
+                "distro": "centos",
+                "description": "This will create a CentOS Stream 10 VM using automated Packer scripts.",
                 "type": "packer",
-                "packerFolder": "parrot-linux",
+                "packerFolder": "centos",
                 "requireIsoDownload": false,
                 "allowMachineSpecs": true,
                 "allowUserOverride": false,
                 "allowAddons": true,
                 "variables": {
-                  "isoUrl": "https://deb.parrot.sh/parrot/iso/5.3/Parrot-architect-5.3_arm64.iso",
-                  "isoChecksum": "sha256:fdf76024b94e0b15294b8ee404b9d2e85a60207d3a484c86a5d8bb7161fcc1d8"
+                  "iso_url": "https://mirror.stream.centos.org/10-stream/BaseOS/aarch64/iso/CentOS-Stream-10-latest-aarch64-boot.iso",
+                  "iso_checksum": "sha256:fbed4a9f53477e1bf94296909d1f6567b1a10266898dd74d63dd9f8a018d125c"
+                },
+                "addons": [],
+                "defaults": {
+                  "specs": {
+                    "cpus": 2,
+                    "memory": 2048,
+                    "diskSize": 65536
+                  },
+                  "user": {
+                    "username": "parallels",
+                    "password": "parallels"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "fedora",
+            "name": "Fedora",
+            "images": [
+              {
+                "id": "fedora-44",
+                "name": "Fedora 44",
+                "distro": "fedora",
+                "description": "This will create a Fedora 44 VM using automated Packer scripts.",
+                "type": "packer",
+                "packerFolder": "fedora",
+                "requireIsoDownload": false,
+                "allowMachineSpecs": true,
+                "allowUserOverride": false,
+                "allowAddons": true,
+                "variables": {
+                  "iso_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/44/Server/aarch64/iso/Fedora-Server-dvd-aarch64-44-1.7.iso",
+                  "iso_checksum": "sha256:ba8372682294d0d76f79427cae1273d36891b192ac9bf0f0f9de4e97a7cbe218"
                 },
                 "addons": [],
                 "defaults": {
                   "specs": {
                     "cpus": 4,
+                    "memory": 4096,
+                    "diskSize": 65536
+                  },
+                  "user": {
+                    "username": "parallels",
+                    "password": "parallels"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "id": "oracle-linux",
+            "name": "Oracle Linux",
+            "images": [
+              {
+                "id": "oracle-linux-10.1",
+                "name": "Oracle Linux 10.1 ARM",
+                "distro": "linux",
+                "description": "This will create an Oracle Linux 10.1 ARM VM using automated Packer scripts.",
+                "type": "packer",
+                "packerFolder": "oracle-linux",
+                "requireIsoDownload": false,
+                "allowMachineSpecs": true,
+                "allowUserOverride": false,
+                "allowAddons": true,
+                "variables": {
+                  "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL10/u1/aarch64/OracleLinux-R10-U1-aarch64-dvd.iso",
+                  "iso_checksum": "sha256:021cabde0d7bc9ac8f30f12e7c7b4b5a250a6994d87bb93aa93894cce8b3bc16"
+                },
+                "addons": [],
+                "defaults": {
+                  "specs": {
+                    "cpus": 2,
                     "memory": 4096,
                     "diskSize": 65536
                   },
@@ -948,6 +1049,34 @@
               "specs": {
                 "cpus": 4,
                 "memory": 8196
+              },
+              "user": {
+                "username": "parallels",
+                "password": "parallels"
+              }
+            }
+          },
+          {
+            "id": "macos-26",
+            "name": "macOS 26 Tahoe",
+            "distro": "macos",
+            "description": "This will create a macOS 26 Tahoe VM using automated Packer scripts.",
+            "type": "packer",
+            "packerFolder": "macos",
+            "requireIsoDownload": false,
+            "allowMachineSpecs": true,
+            "allowUserOverride": false,
+            "allowAddons": true,
+            "variables": {
+              "ipswUrl": "https://updates.cdn-apple.com/2025FallFCS/fullrestores/093-37622/CE01FAB2-7F26-48EE-AEE4-5E57A7F6D8BB/UniversalMac_26.0_25A354_Restore.ipsw",
+              "ipswChecksum": "sha256:ec98309d97fdc399f7baa5f1e11d121e8ffda798d885219fee9c4c94b4f219d6"
+            },
+            "addons": [],
+            "defaults": {
+              "specs": {
+                "cpus": 4,
+                "memory": 8192,
+                "diskSize": 65536
               },
               "user": {
                 "username": "parallels",
