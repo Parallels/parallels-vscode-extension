@@ -2,6 +2,10 @@
 
 All notable changes to the "parallels-desktop" extension will be documented in this file.
 
+## [1.5.12] - 2026-10-12
+
+- Updated the max version of the nodejs for use in the extension
+
 ## [1.5.11] - 2026-01-08
 
 - Close #411 
