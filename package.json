@@ -10,7 +10,7 @@
   "icon": "img/logo/parallels_logo.png",
   "version": "1.5.12",
   "engines": {
-    "vscode": "^1.104.0",
+    "vscode": "^1.125.0",
     "node": ">=20"
   },
   "categories": [
