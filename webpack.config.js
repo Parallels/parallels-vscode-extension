@@ -3,6 +3,7 @@
 'use strict';
 
 const path = require('path');
+const webpack = require('webpack');
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -31,6 +32,11 @@ const extensionConfig = {
   performance: {
     hints: false
   },
+  plugins: [
+    // Use ws's JavaScript fallback and Node's built-in UTF-8 validation.
+    // Native addons cannot be bundled into the extension's JavaScript file.
+    new webpack.IgnorePlugin({ resourceRegExp: /^(bufferutil|utf-8-validate)$/ })
+  ],
   module: {
     rules: [
       {
