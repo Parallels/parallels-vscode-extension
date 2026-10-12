@@ -35,7 +35,7 @@
               },
               "user": {
                 "username": "vagrant",
-                "password": "vagrant"
+                "password": "vagrant", "_comment": "secret-detector:ignore — public default VM password"
               }
             },
             "variables": {},
@@ -106,7 +106,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               },
@@ -134,7 +134,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               },
@@ -162,7 +162,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               },
@@ -190,7 +190,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               }
@@ -224,7 +224,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               }
@@ -258,7 +258,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               }
@@ -364,7 +364,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               }
@@ -398,7 +398,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               }
@@ -432,7 +432,7 @@
                   },
                   "user": {
                     "username": "parallels",
-                    "password": "parallels"
+                    "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
                   }
                 }
               }
@@ -475,7 +475,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -502,7 +502,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -529,7 +529,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -556,7 +556,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -583,7 +583,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -633,7 +633,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -657,7 +657,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -704,7 +704,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -731,7 +731,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -758,7 +758,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -785,7 +785,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -812,7 +812,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -839,7 +839,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -866,7 +866,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -890,7 +890,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -917,7 +917,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -944,7 +944,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -971,7 +971,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -998,7 +998,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -1025,7 +1025,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -1052,7 +1052,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           },
@@ -1080,7 +1080,7 @@
               },
               "user": {
                 "username": "parallels",
-                "password": "parallels"
+                "password": "parallels", "_comment": "secret-detector:ignore — public default VM password"
               }
             }
           }
